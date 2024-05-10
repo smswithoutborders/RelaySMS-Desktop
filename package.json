@@ -2,15 +2,27 @@
   "name": "relaysms-desktop",
   "version": "0.1.0",
   "private": true,
+  "main": "./public/electron.js",
+  "author": {
+    "name": "Afkanerd",
+    "email": "developers@smswithoutborders.com"
+  },
+  "description": "Relay SMS Desktop App",
+  "homepage": "/",
+  "category": "Communication",
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@mui/material": "^5.15.15",
+    "@material-ui/core": "^4.12.4",
+    "@mui/icons-material": "^5.15.16",
+    "@mui/material": "^5.15.16",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.0.0",
     "@testing-library/user-event": "^13.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.2.1",
+    "react-router-dom": "^6.23.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.0"
   },
@@ -18,7 +30,12 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "preelectron-pack": "yarn build",
+    "electron:start": "concurrently -k \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electronmon .\"",
+    "electron:package:mac": "yarn build && electron-builder -m -c.extraMetadata.main=build/electron.js",
+    "electron:package:win": "yarn build && electron-builder -w -c.extraMetadata.main=build/electron.js",
+    "electron:package:linux": "yarn build && electron-builder -l -c.extraMetadata.main=build/electron.js"
   },
   "eslintConfig": {
     "extends": [
@@ -28,14 +45,41 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
+      "last 1 electron version"
     ],
     "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+      "last 1 electron version"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^30.0.2",
+    "electron-builder": "^24.13.3",
+    "electronmon": "^2.0.3",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.electron.relaysms",
+    "productName": "RelaySMS",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icon.icns"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "linux": {
+      "target": "deb",
+      "icon": "icon.png"
+    }
   }
 }

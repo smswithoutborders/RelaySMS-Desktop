@@ -1,1 +1,0 @@
-# relaysms-desktop
