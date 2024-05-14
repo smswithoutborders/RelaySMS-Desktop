@@ -3,13 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "main": "./public/electron.js",
-  "author": {
-    "name": "Afkanerd",
-    "email": "developers@smswithoutborders.com"
-  },
+  "author": "Minion <developers@smswithoutborders.com>",
   "description": "Relay SMS Desktop App",
-  "homepage": "/",
+  "homepage": "./",
   "category": "Communication",
+  "website": "https://smswithoutborders.com",
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -45,10 +43,16 @@
   },
   "browserslist": {
     "production": [
-      "last 1 electron version"
+      "last 1 electron version",
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
     ],
     "development": [
-      "last 1 electron version"
+      "last 1 electron version",
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
     ]
   },
   "devDependencies": {
@@ -60,26 +64,26 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.electron.relaysms",
+    "appId": "RelaySMS001",
     "productName": "RelaySMS",
     "files": [
       "build/**/*",
       "node_modules/**/*"
     ],
     "directories": {
-      "buildResources": "assets"
+      "buildResources": "public"
     },
     "mac": {
       "target": "dmg",
-      "icon": "icon.icns"
+      "icon": "./public/icon.icns"
     },
     "win": {
       "target": "nsis",
-      "icon": "icon.ico"
+      "icon": "./public/icon.ico"
     },
     "linux": {
       "target": "deb",
-      "icon": "icon.png"
+      "icon": "./public/icon.png"
     }
   }
 }
