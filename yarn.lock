@@ -3933,6 +3933,11 @@ cjs-module-lexer@^1.0.0:
   resolved "https://registry.yarnpkg.com/cjs-module-lexer/-/cjs-module-lexer-1.2.3.tgz#6c370ab19f8a3394e318fe682686ec0ac684d107"
   integrity sha512-0TNiGstbQmCFwt4akjjBg5pLRTSyj/PkWQ1ZoO2zntmg9yLqSRxwEa4iCfQLGjqhiqBfOJa7W/E8wfGrTDmlZQ==
 
+classnames@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.5.1.tgz#ba774c614be0f016da105c858e7159eae8e7687b"
+  integrity sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==
+
 clean-css@^5.2.2:
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/clean-css/-/clean-css-5.3.3.tgz#b330653cd3bd6b75009cc25c714cae7b93351ccd"
@@ -4226,6 +4231,11 @@ cosmiconfig@^7.0.0:
     parse-json "^5.0.0"
     path-type "^4.0.0"
     yaml "^1.10.0"
+
+country-flag-icons@^1.5.11:
+  version "1.5.11"
+  resolved "https://registry.yarnpkg.com/country-flag-icons/-/country-flag-icons-1.5.11.tgz#04c0556728e517a6207946656355698ac6237080"
+  integrity sha512-B+mvFywunkRJs270k7kCBjhogvIA0uNn6GAXv6m2cPn3rrwqZzZVr2gBWcz+Cz7OGVWlcbERlYRIX0S6OGr8Bw==
 
 crc@^3.8.0:
   version "3.8.0"
@@ -6419,6 +6429,13 @@ ini@^1.3.5:
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.8.tgz#a29da425b48806f34767a4efce397269af28432c"
   integrity sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==
 
+input-format@^0.3.10:
+  version "0.3.10"
+  resolved "https://registry.yarnpkg.com/input-format/-/input-format-0.3.10.tgz#e8a8855e2e89e3b1cd995333f6277c14865f0e35"
+  integrity sha512-5cFv/kOZD7Ch0viprVkuYPDkAU7HBZYBx8QrIpQ6yXUWbAQ0+RQ8IIojDJOf/RO6FDJLL099HDSK2KoVZ2zevg==
+  dependencies:
+    prop-types "^15.8.1"
+
 internal-slot@^1.0.4, internal-slot@^1.0.7:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/internal-slot/-/internal-slot-1.0.7.tgz#c06dcca3ed874249881007b0a5523b172a190802"
@@ -7636,6 +7653,11 @@ levn@~0.3.0:
   dependencies:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
+
+libphonenumber-js@^1.10.61:
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.11.1.tgz#2596683e1876bfee74082bb49339fe0a85ae34f9"
+  integrity sha512-Wze1LPwcnzvcKGcRHFGFECTaLzxOtujwpf924difr5zniyYv1C2PiW0419qDR7m8lKDxsImu5mwxFuXhXpjmvw==
 
 lilconfig@^2.0.3, lilconfig@^2.1.0:
   version "2.1.0"
@@ -9286,6 +9308,17 @@ react-is@^18.0.0, react-is@^18.2.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.2.0.tgz#199431eeaaa2e09f86427efbb4f1473edb47609b"
   integrity sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==
+
+react-phone-number-input@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/react-phone-number-input/-/react-phone-number-input-3.4.1.tgz#c9a73cace2ac4a7c5fd625e1020baae7607a4d49"
+  integrity sha512-guuenZqU/DYvDBFzFdTrppC4rs+q5ybTFHrxEo9VGvX0pPLWM4ZXlRa0llT7LRAvfxX8RjQNnQkkCiTHTzhLZA==
+  dependencies:
+    classnames "^2.5.1"
+    country-flag-icons "^1.5.11"
+    input-format "^0.3.10"
+    libphonenumber-js "^1.10.61"
+    prop-types "^15.8.1"
 
 react-refresh@^0.11.0:
   version "0.11.0"

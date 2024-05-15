@@ -1,6 +1,7 @@
 import { Typography, Box } from "@mui/material";
 import React from "react";
 import Footer from "../Components/Footer";
+import Nav from "../Components/Nav";
 
 export default function Landing() {
   return (
@@ -12,6 +13,7 @@ export default function Landing() {
         justifyContent: "center",
       }}
     >
+      <Nav />
       <Box sx={{ px: 10, mt: 5 }}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
           Recent

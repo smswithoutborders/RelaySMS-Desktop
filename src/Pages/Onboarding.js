@@ -72,7 +72,7 @@ export default function IntroducingVaults() {
           >
             <Button
               component={Link}
-              to="/vaults "
+              to="/vaultsonboarding"
               variant="contained"
               sx={{ borderRadius: 5, px: 2 }}
             >

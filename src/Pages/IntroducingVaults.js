@@ -36,7 +36,12 @@ export default function IntroducingVaults() {
           vaults
         </Typography>
         <Box sx={{ py: 5 }}>
-          <Button variant="contained" sx={{ borderRadius: 5, px: 2 }}>
+          <Button
+            component={Link}
+            to="/login"
+            variant="contained"
+            sx={{ borderRadius: 5, px: 2 }}
+          >
             {" "}
             Try Example
           </Button>

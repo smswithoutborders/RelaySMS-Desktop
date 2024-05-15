@@ -4,8 +4,8 @@ const url = require("url");
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       icon: path.join(__dirname, "icon.png"),

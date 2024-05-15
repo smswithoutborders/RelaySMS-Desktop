@@ -1,4 +1,5 @@
 import * as React from "react";
+import "./App.css";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -7,6 +8,8 @@ import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 import IntroducingVaults from "./Pages/IntroducingVaults";
 import Done from "./Pages/Done";
 import Landing from "./Pages/Home";
+import LoginSignupPage from "./Pages/Login";
+import Settings from "./Pages/Settings";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -31,6 +34,7 @@ function App() {
           mode: prefersDarkMode ? "dark" : "light",
           primary: {
             main: "#BD9BC9",
+            paper: "#4e3e53",
           },
         },
       }),
@@ -42,6 +46,7 @@ function App() {
       <CssBaseline />
       <HashRouter>
         <Routes>
+          <Route path="/messages" element={<Landing />} />
           <Route
             path="/"
             element={
@@ -53,9 +58,11 @@ function App() {
             }
           />
           <Route path="/" element={<Onboarding />} />
-          <Route path="/messages" element={<Landing />} />
-          <Route path="/vaults" element={<IntroducingVaults />} />
+          <Route path="/vaultsonboarding" element={<IntroducingVaults />} />
           <Route path="/done" element={<Done />} />
+          <Route path="/login" element={<LoginSignupPage />} />
+          <Route path="/settings" element={<Settings />} />
+          {/* <Route path="/messages/:id" element={<Message />} /> */}
         </Routes>
       </HashRouter>
     </ThemeProvider>

@@ -44,7 +44,7 @@ export default function Done() {
           <Grid item md={6} sx={{ position: "fixed", bottom: 50, mr: 10 }}>
             <Button
               component={Link}
-              to="/vaults"
+              to="/vaultsonboarding"
               variant="contained"
               sx={{ borderRadius: 5, px: 2 }}
             >
