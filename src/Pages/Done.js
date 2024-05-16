@@ -2,8 +2,10 @@ import { Typography, Box, Grid, Button } from "@mui/material";
 import React from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Done() {
+  const { t } = useTranslation();
   return (
     <Box
       sx={{
@@ -15,7 +17,7 @@ export default function Done() {
     >
       <Box sx={{ px: 10, mt: 5 }}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          Done
+          {t("done")}
         </Typography>
       </Box>
 
@@ -28,8 +30,7 @@ export default function Done() {
         }}
       >
         <Typography variant="h4" sx={{ pr: { md: 50, sm: 5 } }}>
-          Tour complete! You can add your vault accounts at anytime from within
-          the app
+          {t("tourComplete")}
         </Typography>
       </Box>
 
@@ -46,9 +47,9 @@ export default function Done() {
               component={Link}
               to="/vaultsonboarding"
               variant="contained"
-              sx={{ borderRadius: 5, px: 2 }}
+              sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
             >
-              <FaChevronLeft /> Previous{" "}
+              <FaChevronLeft /> {t("previous")}{" "}
             </Button>
           </Grid>
           <Grid
@@ -68,9 +69,9 @@ export default function Done() {
               component={Link}
               to="/messages"
               variant="contained"
-              sx={{ borderRadius: 5, px: 2 }}
+              sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
             >
-              Finish <FaChevronRight />{" "}
+              {t("finish")} <FaChevronRight />{" "}
             </Button>
           </Grid>
         </Grid>

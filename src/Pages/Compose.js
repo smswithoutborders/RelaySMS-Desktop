@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { Drawer, Grid, Box, Typography } from "@mui/material";
 import GmailCompose from "../Components/ComposeGmail";
 import TwitterCompose from "../Components/ComposeTwitter";
+import { useTranslation } from "react-i18next";
 
 export default function Compose({ open, onClose }) {
+  const { t } = useTranslation();
   const [composeOpen, setComposeOpen] = useState(false);
   const [twitterOpen, setTwitterOpen] = useState(false);
 
@@ -33,11 +35,8 @@ export default function Compose({ open, onClose }) {
       sx={{ my: 10, mx: 5 }}
     >
       <Box sx={{ py: 8, px: 5 }}>
-        <Typography variant="h6">Saved Platforms</Typography>
-        <Typography variant="body1">
-          These are platforms stored in your "Vault" and can be used when you
-          are offline.
-        </Typography>
+        <Typography variant="h6">{t("savedPlatforms")}</Typography>
+        <Typography variant="body1">{t("savedPlatforms1")}</Typography>
         <Grid container sx={{ pt: 5 }}>
           <Grid item md={2} sm={3}>
             <Box onClick={handleTwitterClick}>

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Drawer, TextField, List, ListItem, ListItemText } from "@mui/material";
 import { FaPaperPlane } from "react-icons/fa6";
+import { useTranslation } from "react-i18next";
 
 export default function GmailCompose({ open, onClose }) {
+  const { t } = useTranslation();
   const [to, setTo] = useState("");
   const [cc, setCC] = useState("");
   const [bcc, setBCC] = useState("");
@@ -17,12 +19,12 @@ export default function GmailCompose({ open, onClose }) {
     <Drawer anchor="bottom" open={open} onClose={onClose}>
       <List>
         <ListItem>
-          <ListItemText primary="Compose Email" />
+          <ListItemText primary={t("composeEmail")} />
           <FaPaperPlane onClick={handleSend} />
         </ListItem>
         <ListItem>
           <TextField
-            label="To"
+            label={t("to")}
             value={to}
             onChange={(e) => setTo(e.target.value)}
             fullWidth
@@ -46,7 +48,7 @@ export default function GmailCompose({ open, onClose }) {
         </ListItem>
         <ListItem>
           <TextField
-            label="Subject"
+            label={t("subject")}
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             fullWidth
@@ -54,7 +56,7 @@ export default function GmailCompose({ open, onClose }) {
         </ListItem>
         <ListItem>
           <TextField
-            label="Compose Mail"
+            label={t("composeEmail")}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             fullWidth

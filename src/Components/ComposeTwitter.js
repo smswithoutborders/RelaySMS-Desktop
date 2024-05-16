@@ -1,7 +1,9 @@
 import React from "react";
 import { Drawer, TextField, Button, Box } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 export default function TwitterCompose({ open, onClose }) {
+  const { t } = useTranslation();
   return (
     <Drawer anchor="bottom" open={open} onClose={onClose}>
       <Box sx={{ p: 10 }}>
@@ -10,13 +12,13 @@ export default function TwitterCompose({ open, onClose }) {
             variant="contained"
             sx={{ borderRadius: 5, px: 3, textTransform: "none" }}
           >
-            Post
+            {t("post")}
           </Button>
         </Box>
         <Box>
           <TextField
             variant="filled"
-            label="What's happening?"
+            label={t("twitterText")}
             fullWidth
             multiline
             rows={4}

@@ -2,8 +2,10 @@ import { Typography, Box, Grid, Button } from "@mui/material";
 import React from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function IntroducingVaults() {
+  const { t } = useTranslation();
   return (
     <Box
       sx={{
@@ -15,7 +17,7 @@ export default function IntroducingVaults() {
     >
       <Box sx={{ px: 10, mt: 5 }}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          Introducting Vaults
+          {t("introducingVaults")}
         </Typography>
       </Box>
 
@@ -27,23 +29,19 @@ export default function IntroducingVaults() {
           pr: { md: 50, sm: 5 },
         }}
       >
-        <Typography variant="h4">
-          Vaults keep access to your online accounts safe while you are offline
-        </Typography>
+        <Typography variant="h4">{t("vaultsOnboarding1")}</Typography>
         <Typography variant="h6" sx={{ py: 5, opacity: "70%" }}>
-          SMSWithoutBorders uses the standardized methods provided by the online
-          platforms both utilizing and securing your information stored in
-          vaults
+          {t("vaultsOnboarding2")}
         </Typography>
         <Box sx={{ py: 5 }}>
           <Button
             component={Link}
             to="/login"
             variant="contained"
-            sx={{ borderRadius: 5, px: 2 }}
+            sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
           >
             {" "}
-            Try Example
+            {t("tryExample")}
           </Button>
         </Box>
       </Box>
@@ -61,9 +59,9 @@ export default function IntroducingVaults() {
               component={Link}
               to="/"
               variant="contained"
-              sx={{ borderRadius: 5, px: 2 }}
+              sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
             >
-              <FaChevronLeft /> Previous{" "}
+              <FaChevronLeft /> {t("previous")}{" "}
             </Button>
           </Grid>
           <Grid
@@ -83,9 +81,10 @@ export default function IntroducingVaults() {
               component={Link}
               to="/done"
               variant="contained"
-              sx={{ borderRadius: 5, px: 2 }}
+              sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
             >
-              Next <FaChevronRight />{" "}
+              {t("next")}
+              <FaChevronRight />{" "}
             </Button>
           </Grid>
         </Grid>

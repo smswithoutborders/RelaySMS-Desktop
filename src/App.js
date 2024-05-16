@@ -10,6 +10,7 @@ import Done from "./Pages/Done";
 import Landing from "./Pages/Home";
 import LoginSignupPage from "./Pages/Login";
 import Settings from "./Pages/Settings";
+import "./i18n";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");

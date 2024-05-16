@@ -3,8 +3,10 @@ import React, { useState } from "react";
 import { FaPen, FaUsers } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Compose from "../Pages/Compose";
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
+  const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handlePenClick = () => {
@@ -42,9 +44,9 @@ export default function Footer() {
           component={Link}
           to="/login"
           variant="contained"
-          sx={{ borderRadius: 5, px: 2 }}
+          sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
         >
-          <FaUsers size="20px" style={{ marginRight: 5 }} /> Add Accounts
+          <FaUsers size="20px" style={{ marginRight: 5 }} /> {t("addAccounts")}
         </Button>
       </Box>
       <Compose open={drawerOpen} onClose={handleCloseDrawer} />{" "}

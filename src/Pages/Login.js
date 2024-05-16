@@ -15,8 +15,10 @@ import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
 import { Link } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa6";
+import { useTranslation } from "react-i18next";
 
 function LoginSignupPage() {
+  const { t } = useTranslation();
   const [tabIndex, setTabIndex] = useState(0);
   const [loginData, setLoginData] = useState({ phoneNumber: "", password: "" });
   const [signupData, setSignupData] = useState({
@@ -84,15 +86,15 @@ function LoginSignupPage() {
         </IconButton>
       </Box>
       <Tabs value={tabIndex} onChange={handleChange} centered>
-        <Tab label="Login" />
-        <Tab label="Sign Up" />
+        <Tab label={t("login")} />
+        <Tab label={t("signUp")} />
       </Tabs>
       {tabIndex === 0 && (
         <form onSubmit={handleLoginSubmit}>
           <Box sx={{ m: 4 }}>
             <PhoneInput
               flags={flags}
-              placeholder="Enter phone number"
+              placeholder={t("enterPhoneNumber")}
               defaultCountry="CM"
               value={loginData.phoneNumber}
               onChange={(value) =>
@@ -114,7 +116,7 @@ function LoginSignupPage() {
             />
             <TextField
               fullWidth
-              label="Password"
+              label={t("password")}
               name="password"
               type="password"
               variant="outlined"
@@ -123,7 +125,7 @@ function LoginSignupPage() {
               sx={{ mb: 4 }}
             />
             <Button type="submit" variant="contained" color="primary">
-              Login
+              {t("login")}
             </Button>
           </Box>
         </form>
@@ -133,7 +135,7 @@ function LoginSignupPage() {
           <Box sx={{ m: 4 }}>
             <PhoneInput
               flags={flags}
-              placeholder="Enter phone number"
+              placeholder={t("enterPhoneNumber")}
               defaultCountry="CM"
               value={signupData.phoneNumber}
               onChange={(value) => handleSignupChange("phoneNumber", value)}
@@ -150,7 +152,7 @@ function LoginSignupPage() {
             />
             <TextField
               fullWidth
-              label="Password"
+              label={t("password")}
               name="password"
               type="password"
               variant="outlined"
@@ -160,7 +162,7 @@ function LoginSignupPage() {
             />
             <TextField
               fullWidth
-              label="Repeat Password"
+              label={t("repeatPassword")}
               name="repeatPassword"
               type="password"
               variant="outlined"
@@ -176,7 +178,7 @@ function LoginSignupPage() {
                   onChange={handleSignupChange}
                 />
               }
-              label="Accept Privacy Policy"
+              label={t("acceptPrivacyPolicy")}
             />
             <br />
             <Button
@@ -185,7 +187,7 @@ function LoginSignupPage() {
               variant="contained"
               color="primary"
             >
-              Sign Up
+              {t("signUp")}
             </Button>
           </Box>
         </form>

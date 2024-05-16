@@ -1,9 +1,21 @@
 import { Typography, Box, Grid, Button } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { FaChevronRight, FaGlobe } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import SimpleDialog from "../Components/SelectLanguage";
+import { useTranslation } from "react-i18next";
 
-export default function IntroducingVaults() {
+export default function Onboarding() {
+  const { t } = useTranslation();
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const handleLanguageChange = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
   return (
     <Box
       sx={{
@@ -27,16 +39,21 @@ export default function IntroducingVaults() {
           pr: { md: 50, sm: 5 },
         }}
       >
-        <Typography variant="h4">Let’s get you started </Typography>
+        <Typography variant="h4"> {t("getStarted")} </Typography>
         <Typography variant="h6" sx={{ py: 5, opacity: "70%" }}>
-          Please select your prefered language
+          {t("selectPrefaredLanguage")}
         </Typography>
         <Box sx={{ py: 5 }}>
-          <Button variant="contained" sx={{ borderRadius: 5, px: 2 }}>
+          <Button
+            onClick={handleLanguageChange}
+            variant="contained"
+            sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
+          >
             {" "}
-            <FaGlobe /> English
+            <FaGlobe style={{ marginRight: 4 }} /> {t("selectLanguage")}
           </Button>
         </Box>
+        <SimpleDialog onClose={handleCloseDialog} open={openDialog} />
       </Box>
 
       <Box
@@ -54,7 +71,7 @@ export default function IntroducingVaults() {
               variant="body1"
               sx={{ borderRadius: 5, px: 2 }}
             >
-              Read our privacy policy
+              {t("privacyPolicy")}
             </Typography>
           </Grid>
           <Grid
@@ -74,9 +91,9 @@ export default function IntroducingVaults() {
               component={Link}
               to="/vaultsonboarding"
               variant="contained"
-              sx={{ borderRadius: 5, px: 2 }}
+              sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
             >
-              Next <FaChevronRight />{" "}
+              {t("next")} <FaChevronRight />{" "}
             </Button>
           </Grid>
         </Grid>
