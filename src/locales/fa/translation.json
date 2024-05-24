@@ -1,8 +1,10 @@
 {
+  "welcome": "Welcome to SMSWithoutBorders",
+  "languageName": "فارسی",
   "recent": "اخیر",
   "noRecentMessages": "هیچ پیام جدیدی وجود ندارد",
   "selectLanguage": "زبان را انتخاب کنید",
-  "getStarted": "بیایید شما را شروع کنیم",
+  "getStarted": "ارسال ایمیل، توییت و پیام تلگرام به صورت آفلاین با استفاده از پیامک رله",
   "selectPrefaredLanguage": "لطفا زبان مورد نظر خود را انتخاب کنید",
   "privacyPolicy": "سیاست حفظ حریم خصوصی ما را بخوانید",
   "next": "بعد",

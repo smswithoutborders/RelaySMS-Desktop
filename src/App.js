@@ -5,28 +5,67 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Onboarding from "./Pages/Onboarding";
 import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
-import IntroducingVaults from "./Pages/IntroducingVaults";
-import Done from "./Pages/Done";
 import Landing from "./Pages/Home";
-import LoginSignupPage from "./Pages/Login";
 import Settings from "./Pages/Settings";
 import "./i18n";
+import Onboarding2 from "./Pages/Onboarding2";
+import Onboarding3 from "./Pages/Onboarding3";
+import Onboarding4 from "./Pages/Onboarding4";
+import Login from "./Components/Login";
+import Signup from "./Components/Signup";
+
+const isElectron = () => {
+  return (
+    typeof window !== "undefined" &&
+    window.process &&
+    window.process.type === "renderer"
+  );
+};
+
+const storage = isElectron()
+  ? require("electron-json-storage")
+  : {
+      get: (key, callback) => {
+        console.warn(`Attempted to get ${key} in a non-Electron environment.`);
+        callback(null, {});
+      },
+      set: (key, _json, callback) => {
+        console.warn(`Attempted to set ${key} in a non-Electron environment.`);
+        callback(null);
+      },
+    };
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-  const [completedOnboarding, setCompletedOnboarding] = React.useState(false);
+  const [onboardingStep, setOnboardingStep] = React.useState(null);
+
+  const handleCompleteOnboarding = (step) => {
+    storage.set("onboardingStep", { step }, (error) => {
+      if (error) {
+        console.error("Error setting onboarding status:", error);
+
+        return;
+      }
+      console.log(`Onboarding step set to ${step}.`);
+      setOnboardingStep(step);
+    });
+  };
 
   React.useEffect(() => {
-    const onboardingCompleted = localStorage.getItem("onboardingCompleted");
-    if (onboardingCompleted) {
-      setCompletedOnboarding(true);
-    }
+    storage.get("onboardingStep", (error, data) => {
+      if (error) {
+        console.error("Error retrieving onboarding status:", error);
+        return;
+      }
+      console.log("Onboarding status retrieved:", data);
+      if (data.step !== undefined) {
+        setOnboardingStep(data.step);
+      } else {
+        setOnboardingStep(0);
+        // console.log("Vanessa Test", step);
+      }
+    });
   }, []);
-
-  const handleCompleteOnboarding = () => {
-    localStorage.setItem("onboardingCompleted", "true");
-    setCompletedOnboarding(true);
-  };
 
   const theme = React.useMemo(
     () =>
@@ -34,13 +73,20 @@ function App() {
         palette: {
           mode: prefersDarkMode ? "dark" : "light",
           primary: {
-            main: "#BD9BC9",
+            main: "#fff",
+          },
+          background: {
+            default: prefersDarkMode ? "#283643" : "#fafafa", // adjust as needed
             paper: "#4e3e53",
           },
         },
       }),
     [prefersDarkMode]
   );
+
+  if (onboardingStep === null) {
+    return null;
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -51,19 +97,55 @@ function App() {
           <Route
             path="/"
             element={
-              completedOnboarding ? (
+              onboardingStep >= 4 ? (
                 <Navigate to="/messages" replace />
               ) : (
-                <Onboarding onComplete={handleCompleteOnboarding} />
+                <Navigate
+                  to={
+                    onboardingStep === 0
+                      ? "/onboarding"
+                      : onboardingStep === 1
+                      ? "/onboarding2"
+                      : onboardingStep === 2
+                      ? "/onboarding3"
+                      : onboardingStep === 3
+                      ? "/onboarding4"
+                      : "/messages"
+                  }
+                  replace
+                />
               )
             }
           />
-          <Route path="/" element={<Onboarding />} />
-          <Route path="/vaultsonboarding" element={<IntroducingVaults />} />
-          <Route path="/done" element={<Done />} />
-          <Route path="/login" element={<LoginSignupPage />} />
+          <Route
+            path="/onboarding"
+            element={
+              <Onboarding onComplete={() => handleCompleteOnboarding(1)} />
+            }
+          />
+          <Route
+            path="/onboarding2"
+            element={
+              <Onboarding2 onComplete={() => handleCompleteOnboarding(2)} />
+            }
+          />
+          <Route
+            path="/onboarding3"
+            element={
+              <Onboarding3 onComplete={() => handleCompleteOnboarding(3)} />
+            }
+          />
+          <Route
+            path="/onboarding4"
+            element={
+              <Onboarding4 onComplete={() => handleCompleteOnboarding(3)} />
+            }
+          />
+          {/* <Route path="/login" element={<LoginSignupPage />} /> */}
           <Route path="/settings" element={<Settings />} />
-          {/* <Route path="/messages/:id" element={<Message />} /> */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
         </Routes>
       </HashRouter>
     </ThemeProvider>

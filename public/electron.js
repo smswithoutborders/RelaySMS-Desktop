@@ -1,6 +1,7 @@
 const { app, BrowserWindow, protocol } = require("electron");
 const path = require("path");
 const url = require("url");
+const storage = require("electron-json-storage");
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -40,6 +41,10 @@ function setupLocalFilesNormalizerProxy() {
 }
 
 app.whenReady().then(() => {
+  const dataPath = app.getPath("userData");
+  console.log(`Setting storage data path: ${dataPath}`);
+  storage.setDataPath(dataPath);
+
   createWindow();
   setupLocalFilesNormalizerProxy();
 

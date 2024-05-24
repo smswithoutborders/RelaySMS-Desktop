@@ -1,8 +1,10 @@
 {
+  "welcome": "به SMSWithoutBorders خوش آمدید",
+  "languageName": "Français",
   "recent": "Récent",
   "noRecentMessages": "Aucun message récent",
   "selectLanguage": "Choisir la langue",
-  "getStarted": "Commençons",
+  "getStarted": "Envoyez des e-mails, des tweets et des messages Telegram hors ligne à l'aide de Relay SMS",
   "selectPrefaredLanguage": "Veuillez sélectionner votre langue préférée",
   "privacyPolicy": "Lire notre politique de confidentialité",
   "next": "Suivante",

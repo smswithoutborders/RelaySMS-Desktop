@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Divider,
   IconButton,
   List,
@@ -8,7 +9,7 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import {
   FaArrowLeft,
   FaGlobe,
@@ -17,8 +18,18 @@ import {
 } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import SimpleDialog from "../Components/SelectLanguage";
 
 export default function Settings() {
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const handleLanguageChange = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
   const { t } = useTranslation();
   return (
     <Box sx={{ m: 4, mt: 6 }}>
@@ -42,7 +53,15 @@ export default function Settings() {
               <Typography variant="body1" sx={{ fontWeight: 500 }}>
                 {t("language")}
               </Typography>
-              <Typography variant="body2">English </Typography>
+
+              <Typography
+                onClick={handleLanguageChange}
+                className="button-text"
+                variant="body2"
+              >
+                {t("languageName")}
+              </Typography>
+              <SimpleDialog onClose={handleCloseDialog} open={openDialog} />
             </ListItemText>
             <Divider />
           </ListItem>

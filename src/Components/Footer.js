@@ -1,7 +1,6 @@
 import { Box, Button, Tooltip } from "@mui/material";
 import React, { useState } from "react";
 import { FaPen, FaUsers } from "react-icons/fa";
-import { Link } from "react-router-dom";
 import Compose from "../Pages/Compose";
 import { useTranslation } from "react-i18next";
 
@@ -41,8 +40,6 @@ export default function Footer() {
       <br />
       <Box>
         <Button
-          component={Link}
-          to="/login"
           variant="contained"
           sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
         >

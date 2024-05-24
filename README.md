@@ -55,9 +55,7 @@ but remember to add them to the package.json under build
 
 ```bash
  "linux": {
-      "target": "deb",
-      "icon": "./public/icon.png"
-    }
+      "target": "deb"    }
 ```
 
 #### Contribution
