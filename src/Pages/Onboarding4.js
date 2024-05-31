@@ -8,7 +8,14 @@ export default function Onboarding4() {
   const { t } = useTranslation();
   return (
     <Box sx={{ px: 5, py: 10 }}>
-      <Grid container columnSpacing={4}>
+      <Grid
+        container
+        columnSpacing={4}
+        justifyContent="center"
+        my="auto"
+        alignItems="center"
+        display="flex"
+      >
         <Grid item md={6} sm={6} sx={{ py: 10 }}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
             {t("done")}
@@ -19,7 +26,7 @@ export default function Onboarding4() {
           </Typography>
         </Grid>
         <Grid item md={6} sm={6}>
-          <Box component="img" src="/add.png" sx={{ width: "90%" }} />
+          <Box component="img" src="add.png" sx={{ width: "90%" }} />
         </Grid>
       </Grid>
       <Grid container>
@@ -36,7 +43,6 @@ export default function Onboarding4() {
         <Grid
           item
           md={6}
-          // position="relative"
           justifyContent="flex-end"
           sx={{
             right: 0,
@@ -56,69 +62,6 @@ export default function Onboarding4() {
           </Button>
         </Grid>
       </Grid>
-      {/*  */}
-      {/*  */}
-      {/* <Box sx={{ px: 10, mt: 5 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          {t("done")}
-        </Typography>
-      </Box>
-
-      <Box
-        my="auto"
-        display="flex"
-        justifyContent="center"
-        sx={{
-          px: 10,
-        }}
-      >
-        <Typography variant="h4" sx={{ pr: { md: 50, sm: 5 } }}>
-          {t("tourComplete")}
-        </Typography>
-      </Box>
-
-      <Box
-        component="footer"
-        justifyContent="center"
-        sx={{
-          px: 10,
-        }}
-      >
-        <Grid container>
-          <Grid item md={6} sx={{ position: "fixed", bottom: 50, mr: 10 }}>
-            <Button
-              component={Link}
-              to="/vaultsonboarding"
-              variant="contained"
-              sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
-            >
-              <FaChevronLeft /> {t("previous")}{" "}
-            </Button>
-          </Grid>
-          <Grid
-            item
-            md={6}
-            // position="relative"
-            justifyContent="flex-end"
-            sx={{
-              right: 0,
-              display: "flex",
-              position: "fixed",
-              bottom: 50,
-              mr: 10,
-            }}
-          >
-            <Button
-              component={Link}
-              to="/messages"
-              variant="contained"
-              sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
-            >
-              {t("finish")} <FaChevronRight />{" "}
-            </Button>
-          </Grid>
-        </Grid>
-      </Box> */}
     </Box>
   );
 }

@@ -26,11 +26,11 @@ const storage = isElectron()
   ? require("electron-json-storage")
   : {
       get: (key, callback) => {
-        console.warn(`Attempted to get ${key} in a non-Electron environment.`);
-        callback(null, {});
+        const data = localStorage.getItem(key);
+        callback(null, data ? JSON.parse(data) : {});
       },
-      set: (key, _json, callback) => {
-        console.warn(`Attempted to set ${key} in a non-Electron environment.`);
+      set: (key, json, callback) => {
+        localStorage.setItem(key, JSON.stringify(json));
         callback(null);
       },
     };
@@ -43,7 +43,6 @@ function App() {
     storage.set("onboardingStep", { step }, (error) => {
       if (error) {
         console.error("Error setting onboarding status:", error);
-
         return;
       }
       console.log(`Onboarding step set to ${step}.`);
@@ -62,7 +61,6 @@ function App() {
         setOnboardingStep(data.step);
       } else {
         setOnboardingStep(0);
-        // console.log("Vanessa Test", step);
       }
     });
   }, []);
@@ -73,11 +71,15 @@ function App() {
         palette: {
           mode: prefersDarkMode ? "dark" : "light",
           primary: {
-            main: "#fff",
+            main: prefersDarkMode ? "#fff" : "#000", // White in dark mode, black in light mode
           },
           background: {
-            default: prefersDarkMode ? "#283643" : "#fafafa", // adjust as needed
-            paper: "#4e3e53",
+            default: prefersDarkMode ? "#1E1E1E" : "#fafafa",
+            paper: prefersDarkMode ? "#171717" : "#F2F2F2",
+          },
+          text: {
+            primary: prefersDarkMode ? "#fff" : "#000",
+            secondary: prefersDarkMode ? "#b0b0b0" : "#333",
           },
         },
       }),
@@ -138,10 +140,9 @@ function App() {
           <Route
             path="/onboarding4"
             element={
-              <Onboarding4 onComplete={() => handleCompleteOnboarding(3)} />
+              <Onboarding4 onComplete={() => handleCompleteOnboarding(4)} />
             }
           />
-          {/* <Route path="/login" element={<LoginSignupPage />} /> */}
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
           <Route path="/login" element={<Login />} />

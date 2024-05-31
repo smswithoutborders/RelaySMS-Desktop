@@ -56,7 +56,7 @@ export default function Onboarding2() {
           </Box>
         </Grid>
         <Grid item md={6} sm={6}>
-          <Box component="img" src="/plogin.png" sx={{ width: "100%" }} />
+          <Box component="img" src="plogin.png" sx={{ width: "100%" }} />
         </Grid>
       </Grid>
       <Grid container>

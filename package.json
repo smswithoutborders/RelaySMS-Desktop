@@ -71,36 +71,44 @@
     ]
   },
   "devDependencies": {
+    "@electron-forge/maker-deb": "^7.4.0",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "electron": "^30.0.2",
     "electron-builder": "^24.13.3",
     "electronmon": "^2.0.3",
+    "file-loader": "^6.2.0",
     "wait-on": "^7.2.0"
   },
   "build": {
     "appId": "RelaySMS001",
     "productName": "RelaySMS",
+    "copyright": "Copyright © 2024 ${author}",
     "files": [
       "build/**/*",
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "./dist/**/*",
+      "./public/**/*"
     ],
     "directories": {
       "buildResources": "public"
     },
     "mac": {
       "target": "dmg",
-      "icon": "./public/icon.icns"
+      "icon": "/icon.icns"
     },
     "win": {
       "target": "nsis",
-      "icon": "./public/icon.ico",
+      "icon": "/icon.ico",
       "publisherName": "Afkanerd"
     },
     "linux": {
       "target": "deb",
       "category": "Communication",
-      "icon": "./public/icon.png"
+      "icon": "./build/icon.png"
     }
+  },
+  "config": {
+    "forge": "./forge.config.js"
   }
 }

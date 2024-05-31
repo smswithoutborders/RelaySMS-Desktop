@@ -1,6 +1,7 @@
 const webpack = require("webpack");
 
 module.exports = function override(config) {
+  // Add the fallback configurations
   config.resolve.fallback = {
     fs: require.resolve("browserify-fs"),
     path: require.resolve("path-browserify"),
@@ -14,6 +15,21 @@ module.exports = function override(config) {
     worker_threads: false,
   };
 
+  // Add the new rule for handling image files
+  config.module.rules.push({
+    test: /\.(png|ico|icns)$/,
+    use: [
+      {
+        loader: "file-loader",
+        options: {
+          name: "[path][name].[ext]",
+          context: "public",
+        },
+      },
+    ],
+  });
+
+  // Add the rule to handle .m?js files
   config.module.rules.push({
     test: /\.m?js/,
     resolve: {
@@ -21,6 +37,7 @@ module.exports = function override(config) {
     },
   });
 
+  // Add the ProvidePlugin
   config.plugins = (config.plugins || []).concat([
     new webpack.ProvidePlugin({
       Buffer: ["buffer", "Buffer"],

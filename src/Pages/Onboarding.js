@@ -45,7 +45,7 @@ export default function Onboarding() {
             <SimpleDialog onClose={handleCloseDialog} open={openDialog} />
           </Grid>
           <Grid item md={6} sm={6}>
-            <Box component="img" src="/pdone2.png" sx={{ width: "90%" }} />
+            <Box component="img" src="pdone2.png" sx={{ width: "90%" }} />
           </Grid>
         </Grid>
         <Grid container>
