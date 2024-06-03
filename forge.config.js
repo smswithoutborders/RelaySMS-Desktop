@@ -7,7 +7,7 @@ module.exports = {
       name: "@electron-forge/maker-deb",
       config: {
         options: {
-          icon: path.resolve(__dirname, "/icon.png"),
+          icon: path.resolve(__dirname, "public/icon.png"),
         },
       },
     },

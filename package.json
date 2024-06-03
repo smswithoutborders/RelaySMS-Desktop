@@ -105,7 +105,7 @@
     "linux": {
       "target": "deb",
       "category": "Communication",
-      "icon": "./build/icon.png"
+      "icon": "./public/icon.png"
     }
   },
   "config": {

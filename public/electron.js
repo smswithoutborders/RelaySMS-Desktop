@@ -10,7 +10,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
-    icon: path.join(__dirname, "../build/icon.pngg"),
+    icon: path.join(__dirname, "icon.png"),
   });
 
   const appURL = app.isPackaged
