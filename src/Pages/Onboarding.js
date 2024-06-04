@@ -93,7 +93,7 @@ export default function Onboarding() {
     >
         <Box sx={{ px: 10, mt: 5 }}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
-            SMSWithoutBorders
+            RelaySMS
           </Typography>
         </Box>
 

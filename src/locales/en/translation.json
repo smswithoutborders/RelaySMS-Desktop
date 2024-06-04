@@ -1,5 +1,5 @@
 {
-  "welcome": "Welcome to SMSWithoutBorders",
+  "welcome": "Welcome to RelaySMS",
   "languageName": "English",
   "recent": "Recent",
   "noRecentMessages": "No recent messages",
@@ -11,8 +11,8 @@
   "next": "Next",
   "previous": "Previous",
   "tryExample": "Try Example",
-  "vaultsOnboarding1": "Login or create a new SMSWithoutBorders account to begin Communicating",
-  "vaultsOnboarding2": "SMSWithoutBorders uses the standardized methods provided by the online platforms both utilizing and securing your information stored in vaults",
+  "vaultsOnboarding1": "Login or create a new RelaySMS account to begin Communicating",
+  "vaultsOnboarding2": "RelaySMS uses the standardized methods provided by the online platforms both utilizing and securing your information stored in vaults",
   "done": "You are ready!",
   "tourComplete": "Tour complete! You can add your vault accounts at anytime from within the app",
   "finish": "Finish",
@@ -41,5 +41,16 @@
   "subject": "Subject",
   "composeEmail": "Compose Email",
   "search": "Search",
-  "inbox": "Inbox"
+  "inbox": "Inbox",
+  "phonelockoptions": "Phone lockscreen options",
+  "enablelock": "Enable lockscreen",
+  "securitytext1": "Require lockscreen pin/fingerprint when starting the app",
+  "vault": "Vault",
+  "revoke": "Revoke Platforms",
+  "securitytext2": "Choose which platforms you want to remove from the vault",
+  "account": "Account",
+  "logout": "Logout",
+  "logouttext": "Logout of your account. You can always log back in, however your current messages would be deleted.",
+  "delete": "Delete",
+  "deletetext": "Deleting your account means deleting all your saved accounts online. You can always recreate your account once needed."
 }

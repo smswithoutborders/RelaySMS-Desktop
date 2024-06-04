@@ -1,4 +1,4 @@
-import { Box, Button, Tooltip } from "@mui/material";
+import { Box, Button, Fab, Tooltip } from "@mui/material";
 import React, { useState } from "react";
 import { FaPen, FaUsers } from "react-icons/fa";
 import Compose from "../Pages/Compose";
@@ -28,23 +28,16 @@ export default function Footer() {
     >
       <Box>
         <Tooltip title="Compose">
-          <Button
-            variant="contained"
-            sx={{ borderRadius: 5, py: 1.5 }}
-            onClick={handlePenClick}
-          >
-            <FaPen size="16px" />
-          </Button>
+          <Fab variant="contained" onClick={handlePenClick}>
+            <FaPen size="18px" />
+          </Fab>
         </Tooltip>
       </Box>
       <br />
       <Box>
-        <Button
-          variant="contained"
-          sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
-        >
-          <FaUsers size="20px" style={{ marginRight: 5 }} /> {t("addAccounts")}
-        </Button>
+        <Fab variant="extended" sx={{ textTransform: "none" }}>
+          <FaUsers size="20px" style={{ marginRight: 3 }} /> {t("addAccounts")}
+        </Fab>
       </Box>
       <Compose open={drawerOpen} onClose={handleCloseDrawer} />{" "}
     </Box>

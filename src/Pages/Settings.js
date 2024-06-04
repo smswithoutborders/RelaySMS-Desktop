@@ -67,7 +67,11 @@ export default function Settings() {
           <Typography sx={{ pt: 4, ml: 9 }} variant="body2">
             {t("securityAndPrivacy")}
           </Typography>
-          <ListItem>
+          <ListItem
+            component={Link}
+            to="/securitysettings"
+            sx={{ color: "text.primary" }}
+          >
             <ListItemIcon>
               <FaShieldHalved />
             </ListItemIcon>
@@ -82,7 +86,11 @@ export default function Settings() {
           <Typography sx={{ pt: 4, ml: 9 }} variant="body2">
             {t("advancedSettings")}
           </Typography>
-          <ListItem>
+          <ListItem
+            component={Link}
+            to="/advancedsettings"
+            sx={{ color: "text.primary" }}
+          >
             <ListItemIcon>
               <FaTowerCell />
             </ListItemIcon>

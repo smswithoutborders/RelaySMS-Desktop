@@ -1,5 +1,5 @@
 {
-  "welcome": "به SMSWithoutBorders خوش آمدید",
+  "welcome": "به RelaySMS خوش آمدید",
   "languageName": "Français",
   "recent": "Récent",
   "noRecentMessages": "Aucun message récent",
@@ -12,7 +12,7 @@
   "tryExample": "Essayez un exemple",
   "introducingVaults": "Présentation des coffres-forts",
   "vaultsOnboarding1": "Les coffres-forts protègent l'accès à vos comptes en ligne lorsque vous êtes hors ligne",
-  "vaultsOnboarding2": "SMSWithoutBorders utilise les méthodes standardisées fournies par les plateformes en ligne en utilisant et en sécurisant vos informations stockées dans des coffres-forts.",
+  "vaultsOnboarding2": "RelaySMS utilise les méthodes standardisées fournies par les plateformes en ligne en utilisant et en sécurisant vos informations stockées dans des coffres-forts.",
   "done": "Finie",
   "tourComplete": "Tutoriel terminé ! Vous pouvez ajouter vos comptes de coffre-fort à tout moment depuis l'application",
   "finish": "Finie",

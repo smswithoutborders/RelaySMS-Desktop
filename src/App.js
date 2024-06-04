@@ -13,6 +13,9 @@ import Onboarding3 from "./Pages/Onboarding3";
 import Onboarding4 from "./Pages/Onboarding4";
 import Login from "./Components/Login";
 import Signup from "./Components/Signup";
+import SecuritySettings from "./Pages/SecuritySetting";
+import AvailableGatewayClients from "./Pages/AdvancedSettings";
+import AdvancedSettings from "./Pages/AdvancedSettings";
 
 const isElectron = () => {
   return (
@@ -144,6 +147,8 @@ function App() {
             }
           />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/securitysettings" element={<SecuritySettings />} />
+          <Route path="/advancedsettings" element={<AdvancedSettings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
