@@ -16,6 +16,8 @@ import { Link } from "react-router-dom";
 import Footer from "../Components/Footer";
 
 export default function Landing() {
+  const [requestId, setRequestId] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
   const { t } = useTranslation();
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
 
@@ -23,6 +25,15 @@ export default function Landing() {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
+  const handleGetData = async () => {
+    try {
+      const response = await window.api.getExampleData(requestId);
+      setResponseMessage(response.responseMessage);
+    } catch (error) {
+      console.error("Error:", error);
+      setResponseMessage("Error occurred");
+    }
+  };
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       <Drawer
@@ -71,6 +82,19 @@ export default function Landing() {
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
             {t("recent")}
           </Typography>
+          <div>
+            <header>
+              <h1>gRPC Electron App</h1>
+              <input
+                type="text"
+                value={requestId}
+                onChange={(e) => setRequestId(e.target.value)}
+                placeholder="Enter Request ID"
+              />
+              <button onClick={handleGetData}>Get Data</button>
+              <p>{responseMessage}</p>
+            </header>
+          </div>
         </Box>
         <Box my="auto" justifyContent="center" sx={{ px: 10 }}>
           <Box component="img" src="nomessages.png" sx={{ width: "25%" }} />

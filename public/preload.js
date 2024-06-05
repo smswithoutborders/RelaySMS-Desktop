@@ -1,10 +1,24 @@
-// All of the Node.js APIs are available in the preload process.
-// It has the same sandbox as a Chrome extension.
+const grpc = require("@grpc/grpc-js");
+const protoLoader = require("@grpc/proto-loader");
 const { contextBridge } = require("electron");
+const packageDefinition = protoLoader.loadSync("service.proto", {});
+const exampleProto = grpc.loadPackageDefinition(packageDefinition).example;
 
-// As an example, here we use the exposeInMainWorld API to expose the browsers
-// and node versions to the main window.
-// They'll be accessible at "window.versions".
-process.once("loaded", () => {
-  contextBridge.exposeInMainWorld("versions", process.versions);
+const client = new exampleProto.ExampleService(
+  "localhost:50051",
+  grpc.credentials.createInsecure()
+);
+
+contextBridge.exposeInMainWorld("api", {
+  getExampleData: (requestId) => {
+    return new Promise((resolve, reject) => {
+      client.getExampleData({ requestId: requestId }, (error, response) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  },
 });

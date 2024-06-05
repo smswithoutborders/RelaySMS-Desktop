@@ -1,13 +1,13 @@
 {
-  "name": "relaysms-desktop",
+  "name": "relaysms",
   "version": "0.1.0",
   "private": true,
   "main": "./public/electron.js",
-  "author": "RelaySMS <developers@RelaySMS.com>",
+  "author": "RelaySMS <developers@smswithoutborders.com>",
   "description": "Relay SMS Desktop App",
   "homepage": "./",
   "category": "Communication",
-  "website": "https://RelaySMS.com",
+  "website": "https://relaysms.com",
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -23,10 +23,12 @@
     "buffer": "^6.0.3",
     "constants-browserify": "^1.0.0",
     "electron-json-storage": "^4.6.0",
+    "grpc-tools": "^1.12.4",
     "i18next": "^23.11.4",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
+    "protobufjs": "^7.3.0",
     "react": "^18.2.0",
     "react-app-rewired": "^2.2.1",
     "react-dom": "^18.2.0",
@@ -81,7 +83,7 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "RelaySMS001",
+    "appId": "RelaySMS",
     "productName": "RelaySMS",
     "copyright": "Copyright © 2024 ${author}",
     "files": [

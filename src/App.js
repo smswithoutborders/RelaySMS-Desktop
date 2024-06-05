@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState } from "react";
 import "./App.css";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -14,7 +15,6 @@ import Onboarding4 from "./Pages/Onboarding4";
 import Login from "./Components/Login";
 import Signup from "./Components/Signup";
 import SecuritySettings from "./Pages/SecuritySetting";
-import AvailableGatewayClients from "./Pages/AdvancedSettings";
 import AdvancedSettings from "./Pages/AdvancedSettings";
 
 const isElectron = () => {
@@ -60,7 +60,7 @@ function App() {
         return;
       }
       console.log("Onboarding status retrieved:", data);
-      if (data.step !== undefined) {
+      if (data && data.step !== undefined) {
         setOnboardingStep(data.step);
       } else {
         setOnboardingStep(0);
@@ -90,8 +90,11 @@ function App() {
   );
 
   if (onboardingStep === null) {
-    return null;
+    console.log("Onboarding step is null, showing loading state.");
+    return null; // Or a loading spinner
   }
+
+  console.log("Rendering app with onboardingStep:", onboardingStep);
 
   return (
     <ThemeProvider theme={theme}>
