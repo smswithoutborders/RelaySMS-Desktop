@@ -2,14 +2,18 @@ syntax = "proto3";
 
 package example;
 
-service ExampleService {
-  rpc GetExampleData (ExampleRequest) returns (ExampleResponse);
+// The greeting service definition.
+service Greeter {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
 }
 
-message ExampleRequest {
-  string requestId = 1;
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
 }
 
-message ExampleResponse {
-  string responseMessage = 1;
+// The response message containing the greeting.
+message HelloReply {
+  string message = 1;
 }
