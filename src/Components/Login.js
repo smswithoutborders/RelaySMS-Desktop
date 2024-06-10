@@ -4,6 +4,7 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
 import { useTranslation } from "react-i18next";
+import { authenticateEntity, completeAuthentication } from "../grpcClient";
 
 function Login({ onClose, open }) {
   const { t } = useTranslation();
@@ -21,7 +22,41 @@ function Login({ onClose, open }) {
 
   const handleLoginSubmit = (event) => {
     event.preventDefault();
-    console.log("Login data:", loginData);
+
+    authenticateEntity(
+      loginData.phoneNumber,
+      loginData.password,
+      (err, response) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+
+        if (response.getRequiresOwnershipProof()) {
+          const ownershipProofResponse = prompt(
+            "Enter the OTP sent to your phone:"
+          );
+
+          const completeRequest = {
+            phoneNumber: loginData.phoneNumber,
+            ownershipProofResponse: ownershipProofResponse,
+            clientPublishPubKey: "x25519 client publish public key",
+            clientDeviceIdPubKey: "x25519 client device_id public key",
+          };
+
+          completeAuthentication(completeRequest, (err, response) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+
+            console.log("Login successful:", response.toObject());
+          });
+        } else {
+          console.log("Login successful:", response.toObject());
+        }
+      }
+    );
   };
 
   return (

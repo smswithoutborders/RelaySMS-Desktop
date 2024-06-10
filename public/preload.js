@@ -1,24 +1,31 @@
+// preload.js
+
 const { contextBridge } = require("electron");
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
-const packageDefinition = protoLoader.loadSync("service.proto", {});
-const exampleProto = grpc.loadPackageDefinition(packageDefinition).example;
 
-const client = new exampleProto.ExampleService(
-  "localhost:50051",
+// Load the protobuf file
+const PROTO_PATH = "../vault.proto";
+
+const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
+  keepCase: true,
+  longs: String,
+  enums: String,
+  defaults: true,
+  oneofs: true,
+});
+
+const serviceProto =
+  grpc.loadPackageDefinition(packageDefinition).yourServicePackageName;
+
+// Create a gRPC client instance
+const client = new serviceProto.YourServiceName(
+  "staging.smswithoutborders.com:9050",
   grpc.credentials.createInsecure()
 );
 
-contextBridge.exposeInMainWorld("api", {
-  getExampleData: (requestId) => {
-    return new Promise((resolve, reject) => {
-      client.getExampleData({ requestId }, (error, response) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(response);
-        }
-      });
-    });
+contextBridge.exposeInMainWorld("grpcClient", {
+  yourServiceMethod: (request, callback) => {
+    client.yourServiceMethod(request, callback);
   },
 });

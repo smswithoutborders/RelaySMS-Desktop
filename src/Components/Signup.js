@@ -12,6 +12,7 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
 import { useTranslation } from "react-i18next";
+import { createEntity, completeEntity } from "../grpcClient";
 
 function Signup({ onClose, open }) {
   const { t } = useTranslation();
@@ -48,7 +49,45 @@ function Signup({ onClose, open }) {
       errors.acceptPolicy = "Please accept the privacy policy";
 
     if (Object.keys(errors).length === 0) {
-      console.log("Signup data:", signupData);
+      createEntity(signupData.phoneNumber, (err, response) => {
+        if (err) {
+          console.error("Error:", err);
+          setSignupErrors({
+            form: "Failed to create entity. Please try again.",
+          });
+          return;
+        }
+
+        if (response.getRequiresOwnershipProof()) {
+          const ownershipProofResponse = prompt(
+            "Enter the OTP sent to your phone:"
+          );
+          if (ownershipProofResponse) {
+            const completeRequest = {
+              phoneNumber: signupData.phoneNumber,
+              countryCode: "CM",
+              password: signupData.password,
+              ownershipProofResponse: ownershipProofResponse,
+              clientPublishPubKey: "x25519 client publish public key",
+              clientDeviceIdPubKey: "x25519 client device_id public key",
+            };
+
+            completeEntity(completeRequest, (err, response) => {
+              if (err) {
+                console.error("Error:", err);
+                setSignupErrors({
+                  form: "Failed to complete entity. Please try again.",
+                });
+                return;
+              }
+
+              console.log("Signup successful:", response);
+            });
+          }
+        } else {
+          console.log("Signup successful:", response);
+        }
+      });
     } else {
       setSignupErrors(errors);
     }
