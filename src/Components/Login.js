@@ -20,6 +20,13 @@ function Login({ onClose, open }) {
     }));
   };
 
+  const handlePhoneNumberChange = (value) => {
+    setLoginData((prevData) => ({
+      ...prevData,
+      phoneNumber: value || "",
+    }));
+  };
+
   const handleLoginSubmit = (event) => {
     event.preventDefault();
 
@@ -39,7 +46,7 @@ function Login({ onClose, open }) {
 
           const completeRequest = {
             phoneNumber: loginData.phoneNumber,
-            ownershipProofResponse: ownershipProofResponse,
+            ownershipProofResponse,
             clientPublishPubKey: "x25519 client publish public key",
             clientDeviceIdPubKey: "x25519 client device_id public key",
           };
@@ -52,8 +59,6 @@ function Login({ onClose, open }) {
 
             console.log("Login successful:", response.toObject());
           });
-        } else {
-          console.log("Login successful:", response.toObject());
         }
       }
     );
@@ -71,17 +76,7 @@ function Login({ onClose, open }) {
             placeholder={t("enterPhoneNumber")}
             defaultCountry="CM"
             value={loginData.phoneNumber}
-            onChange={(value) =>
-              setLoginData((prevData) => ({ ...prevData, phoneNumber: value }))
-            }
-            style={{ marginBottom: "35px" }}
-            inputComponent={TextField}
-            InputProps={{
-              label: "Phone Number",
-              name: "phoneNumber",
-              variant: "outlined",
-              fullWidth: true,
-            }}
+            onChange={handlePhoneNumberChange}
           />
           <TextField
             fullWidth
