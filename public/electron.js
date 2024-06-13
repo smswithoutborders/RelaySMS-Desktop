@@ -9,8 +9,6 @@ function createWindow() {
     height: 800,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
-      contextIsolation: true,
-      enableRemoteModule: false,
     },
     icon: path.join(__dirname, "icon.png"),
   });

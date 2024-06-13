@@ -26,6 +26,7 @@ export default function Landing() {
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       <Drawer
+        onClick={toggleDrawer}
         variant="persistent"
         anchor="left"
         open={isDrawerOpen}

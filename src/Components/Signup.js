@@ -108,15 +108,7 @@ function Signup({ onClose, open }) {
             onChange={(value) =>
               setSignupData((prevData) => ({ ...prevData, phoneNumber: value }))
             }
-            // style={{ marginBottom: "35px" }}
-            // inputComponent={TextField}
-            // InputProps={{
-            //   label: "Phone Number",
-            //   name: "phoneNumber",
-            //   variant: "outlined",
-            //   fullWidth: true,
-            //   error: !!signupErrors.phoneNumber,
-            // }}
+            error={!!signupErrors.phoneNumber}
           />
           <TextField
             fullWidth

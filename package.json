@@ -9,6 +9,7 @@
   "category": "Communication",
   "website": "https://relaysms.com",
   "dependencies": {
+    "@craco/craco": "^7.1.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@grpc/grpc-js": "^1.10.8",
@@ -16,9 +17,13 @@
     "@material-ui/core": "^4.12.4",
     "@mui/icons-material": "^5.15.16",
     "@mui/material": "^5.15.16",
-    "@testing-library/jest-dom": "^5.14.1",
-    "@testing-library/react": "^13.0.0",
-    "@testing-library/user-event": "^13.2.1",
+    "@tanstack/react-query": "^4.24.2",
+    "@testing-library/jest-dom": "^6.4.6",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@trpc/client": "^10.45.2",
+    "@trpc/react-query": "^10.45.2",
+    "@trpc/server": "^10.45.2",
     "@types/electron-json-storage": "^4.5.4",
     "assert": "^2.1.0",
     "browserify-fs": "^1.0.0",
@@ -45,7 +50,8 @@
     "react-scripts": "5.0.1",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.5",
-    "web-vitals": "^2.1.0"
+    "web-vitals": "^2.1.0",
+    "zod": "^3.23.8"
   },
   "scripts": {
     "start": "react-app-rewired start",
@@ -80,6 +86,7 @@
   },
   "devDependencies": {
     "@electron-forge/maker-deb": "^7.4.0",
+    "@testing-library/dom": "^10.1.0",
     "browserify-zlib": "^0.2.0",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
@@ -89,6 +96,7 @@
     "electronmon": "^2.0.3",
     "file-loader": "^6.2.0",
     "https-browserify": "^1.0.0",
+    "jest": "^29.7.0",
     "node-libs-browser": "^2.2.1",
     "stream-http": "^3.2.0",
     "url": "^0.11.3",
@@ -123,6 +131,6 @@
     }
   },
   "config": {
-    "forge": "./forge.config.js"
+    "forge": "/config-overrides.js"
   }
 }

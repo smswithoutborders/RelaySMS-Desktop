@@ -1,4 +1,4 @@
-import { Box, Button, Fab, Tooltip } from "@mui/material";
+import { Box, Fab, Tooltip } from "@mui/material";
 import React, { useState } from "react";
 import { FaPen, FaUsers } from "react-icons/fa";
 import Compose from "../Pages/Compose";

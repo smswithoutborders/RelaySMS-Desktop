@@ -7,11 +7,10 @@ import {
   ListItem,
   ListItemText,
   Switch,
-  ToggleButton,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
-import { FaArrowLeft, FaToggleOn } from "react-icons/fa6";
+import React from "react";
+import { FaArrowLeft } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 

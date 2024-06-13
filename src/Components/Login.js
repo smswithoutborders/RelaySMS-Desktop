@@ -9,8 +9,15 @@ import { authenticateEntity, completeAuthentication } from "../grpcClient";
 function Login({ onClose, open }) {
   const { t } = useTranslation();
   const [loginData, setLoginData] = useState({ phoneNumber: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleClose = () => onClose();
+  const handleClose = () => {
+    onClose();
+    setLoginData({ phoneNumber: "", password: "" });
+    setError(null);
+    console.log("Dialog closed, state reset.");
+  };
 
   const handleLoginChange = (event) => {
     const { name, value } = event.target;
@@ -18,6 +25,7 @@ function Login({ onClose, open }) {
       ...prevData,
       [name]: value,
     }));
+    console.log(`Login data changed: ${name} = ${value}`);
   };
 
   const handlePhoneNumberChange = (value) => {
@@ -25,21 +33,30 @@ function Login({ onClose, open }) {
       ...prevData,
       phoneNumber: value || "",
     }));
+    console.log(`Phone number changed: ${value}`);
   };
 
   const handleLoginSubmit = (event) => {
     event.preventDefault();
+    setLoading(true);
+    setError(null);
+    console.log("Login submission started:", loginData);
 
     authenticateEntity(
       loginData.phoneNumber,
       loginData.password,
       (err, response) => {
         if (err) {
-          console.error(err);
+          console.error("Authentication error:", err);
+          setError("Authentication failed. Please try again.");
+          setLoading(false);
           return;
         }
 
-        if (response.getRequiresOwnershipProof()) {
+        console.log("Authentication response:", response);
+
+        if (response.requiresOwnershipProof) {
+          console.log("Ownership proof required.");
           const ownershipProofResponse = prompt(
             "Enter the OTP sent to your phone:"
           );
@@ -51,14 +68,24 @@ function Login({ onClose, open }) {
             clientDeviceIdPubKey: "x25519 client device_id public key",
           };
 
+          console.log("Complete authentication request:", completeRequest);
+
           completeAuthentication(completeRequest, (err, response) => {
+            setLoading(false);
+
             if (err) {
-              console.error(err);
+              console.error("OTP verification error:", err);
+              setError("OTP verification failed. Please try again.");
               return;
             }
 
-            console.log("Login successful:", response.toObject());
+            console.log("OTP verification successful:", response);
+            handleClose(); // Close dialog on successful login
           });
+        } else {
+          console.log("No ownership proof required. Login failed.");
+          setLoading(false);
+          setError("Login failed. No ownership proof required.");
         }
       }
     );
@@ -66,9 +93,6 @@ function Login({ onClose, open }) {
 
   return (
     <Dialog sx={{ p: 10 }} onClose={handleClose} open={open}>
-      <Typography align="center" variant="h6" sx={{ pt: 3 }}>
-        {t("login")}
-      </Typography>
       <form onSubmit={handleLoginSubmit}>
         <Box sx={{ m: 4 }}>
           <PhoneInput
@@ -77,6 +101,8 @@ function Login({ onClose, open }) {
             defaultCountry="CM"
             value={loginData.phoneNumber}
             onChange={handlePhoneNumberChange}
+            label="Phone number"
+            title="International phone number"
           />
           <TextField
             fullWidth
@@ -88,8 +114,18 @@ function Login({ onClose, open }) {
             onChange={handleLoginChange}
             sx={{ mb: 4 }}
           />
-          <Button type="submit" variant="contained" color="primary">
-            {t("login")}
+          {error && (
+            <Typography color="error" variant="body2">
+              {error}
+            </Typography>
+          )}
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={loading}
+          >
+            {loading ? "loading" : t("login")}
           </Button>
         </Box>
       </form>

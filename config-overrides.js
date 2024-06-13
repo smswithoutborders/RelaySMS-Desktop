@@ -13,6 +13,10 @@ module.exports = function override(config) {
     buffer: require.resolve("buffer/"),
     process: require.resolve("process/browser"),
     worker_threads: false,
+    tls: false,
+    net: false,
+    dns: false,
+    fs: false,
   };
 
   // Add the new rule for handling image files

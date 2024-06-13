@@ -10,18 +10,15 @@
 // 	protoc              v3.14.0
 // source: vault.proto
 
-
 /* eslint-disable */
 // @ts-nocheck
 
-
-
 const grpc = {};
-grpc.web = require('grpc-web');
+grpc.web = require("grpc-web");
 
 const proto = {};
 proto.vault = {};
-proto.vault.v1 = require('./vault_pb.js');
+proto.vault.v1 = require("./vault_pb.js");
 
 /**
  * @param {string} hostname
@@ -31,10 +28,9 @@ proto.vault.v1 = require('./vault_pb.js');
  * @struct
  * @final
  */
-proto.vault.v1.EntityClient =
-    function(hostname, credentials, options) {
+proto.vault.v1.EntityClient = function (hostname, credentials, options) {
   if (!options) options = {};
-  options.format = 'text';
+  options.format = "text";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -44,10 +40,8 @@ proto.vault.v1.EntityClient =
   /**
    * @private @const {string} The hostname
    */
-  this.hostname_ = hostname.replace(/\/+$/, '');
-
+  this.hostname_ = hostname.replace(/\/+$/, "");
 };
-
 
 /**
  * @param {string} hostname
@@ -57,10 +51,9 @@ proto.vault.v1.EntityClient =
  * @struct
  * @final
  */
-proto.vault.v1.EntityPromiseClient =
-    function(hostname, credentials, options) {
+proto.vault.v1.EntityPromiseClient = function (hostname, credentials, options) {
   if (!options) options = {};
-  options.format = 'text';
+  options.format = "text";
 
   /**
    * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -70,10 +63,8 @@ proto.vault.v1.EntityPromiseClient =
   /**
    * @private @const {string} The hostname
    */
-  this.hostname_ = hostname.replace(/\/+$/, '');
-
+  this.hostname_ = hostname.replace(/\/+$/, "");
 };
-
 
 /**
  * @const
@@ -82,7 +73,7 @@ proto.vault.v1.EntityPromiseClient =
  *   !proto.vault.v1.CreateEntityResponse>}
  */
 const methodDescriptor_Entity_CreateEntity = new grpc.web.MethodDescriptor(
-  '/vault.v1.Entity/CreateEntity',
+  "/vault.v1.Entity/CreateEntity",
   grpc.web.MethodType.UNARY,
   proto.vault.v1.CreateEntityRequest,
   proto.vault.v1.CreateEntityResponse,
@@ -90,12 +81,11 @@ const methodDescriptor_Entity_CreateEntity = new grpc.web.MethodDescriptor(
    * @param {!proto.vault.v1.CreateEntityRequest} request
    * @return {!Uint8Array}
    */
-  function(request) {
+  function (request) {
     return request.serializeBinary();
   },
   proto.vault.v1.CreateEntityResponse.deserializeBinary
 );
-
 
 /**
  * @param {!proto.vault.v1.CreateEntityRequest} request The
@@ -107,16 +97,19 @@ const methodDescriptor_Entity_CreateEntity = new grpc.web.MethodDescriptor(
  * @return {!grpc.web.ClientReadableStream<!proto.vault.v1.CreateEntityResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.vault.v1.EntityClient.prototype.createEntity =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/vault.v1.Entity/CreateEntity',
-      request,
-      metadata || {},
-      methodDescriptor_Entity_CreateEntity,
-      callback);
+proto.vault.v1.EntityClient.prototype.createEntity = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/vault.v1.Entity/CreateEntity",
+    request,
+    metadata || {},
+    methodDescriptor_Entity_CreateEntity,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.vault.v1.CreateEntityRequest} request The
@@ -126,15 +119,17 @@ proto.vault.v1.EntityClient.prototype.createEntity =
  * @return {!Promise<!proto.vault.v1.CreateEntityResponse>}
  *     Promise that resolves to the response
  */
-proto.vault.v1.EntityPromiseClient.prototype.createEntity =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/vault.v1.Entity/CreateEntity',
-      request,
-      metadata || {},
-      methodDescriptor_Entity_CreateEntity);
+proto.vault.v1.EntityPromiseClient.prototype.createEntity = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/vault.v1.Entity/CreateEntity",
+    request,
+    metadata || {},
+    methodDescriptor_Entity_CreateEntity
+  );
 };
-
 
 /**
  * @const
@@ -142,21 +137,21 @@ proto.vault.v1.EntityPromiseClient.prototype.createEntity =
  *   !proto.vault.v1.AuthenticateEntityRequest,
  *   !proto.vault.v1.AuthenticateEntityResponse>}
  */
-const methodDescriptor_Entity_AuthenticateEntity = new grpc.web.MethodDescriptor(
-  '/vault.v1.Entity/AuthenticateEntity',
-  grpc.web.MethodType.UNARY,
-  proto.vault.v1.AuthenticateEntityRequest,
-  proto.vault.v1.AuthenticateEntityResponse,
-  /**
-   * @param {!proto.vault.v1.AuthenticateEntityRequest} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.vault.v1.AuthenticateEntityResponse.deserializeBinary
-);
-
+const methodDescriptor_Entity_AuthenticateEntity =
+  new grpc.web.MethodDescriptor(
+    "/vault.v1.Entity/AuthenticateEntity",
+    grpc.web.MethodType.UNARY,
+    proto.vault.v1.AuthenticateEntityRequest,
+    proto.vault.v1.AuthenticateEntityResponse,
+    /**
+     * @param {!proto.vault.v1.AuthenticateEntityRequest} request
+     * @return {!Uint8Array}
+     */
+    function (request) {
+      return request.serializeBinary();
+    },
+    proto.vault.v1.AuthenticateEntityResponse.deserializeBinary
+  );
 
 /**
  * @param {!proto.vault.v1.AuthenticateEntityRequest} request The
@@ -168,16 +163,19 @@ const methodDescriptor_Entity_AuthenticateEntity = new grpc.web.MethodDescriptor
  * @return {!grpc.web.ClientReadableStream<!proto.vault.v1.AuthenticateEntityResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.vault.v1.EntityClient.prototype.authenticateEntity =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/vault.v1.Entity/AuthenticateEntity',
-      request,
-      metadata || {},
-      methodDescriptor_Entity_AuthenticateEntity,
-      callback);
+proto.vault.v1.EntityClient.prototype.authenticateEntity = function (
+  request,
+  metadata,
+  callback
+) {
+  return this.client_.rpcCall(
+    this.hostname_ + "/vault.v1.Entity/AuthenticateEntity",
+    request,
+    metadata || {},
+    methodDescriptor_Entity_AuthenticateEntity,
+    callback
+  );
 };
-
 
 /**
  * @param {!proto.vault.v1.AuthenticateEntityRequest} request The
@@ -187,15 +185,16 @@ proto.vault.v1.EntityClient.prototype.authenticateEntity =
  * @return {!Promise<!proto.vault.v1.AuthenticateEntityResponse>}
  *     Promise that resolves to the response
  */
-proto.vault.v1.EntityPromiseClient.prototype.authenticateEntity =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/vault.v1.Entity/AuthenticateEntity',
-      request,
-      metadata || {},
-      methodDescriptor_Entity_AuthenticateEntity);
+proto.vault.v1.EntityPromiseClient.prototype.authenticateEntity = function (
+  request,
+  metadata
+) {
+  return this.client_.unaryCall(
+    this.hostname_ + "/vault.v1.Entity/AuthenticateEntity",
+    request,
+    metadata || {},
+    methodDescriptor_Entity_AuthenticateEntity
+  );
 };
 
-
 module.exports = proto.vault.v1;
-

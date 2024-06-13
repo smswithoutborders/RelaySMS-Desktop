@@ -16,11 +16,7 @@ function createEntity(phoneNumber, callback) {
   request.setPhoneNumber(phoneNumber);
 
   client.createEntity(request, {}, (err, response) => {
-    if (err) {
-      callback(err, null);
-    } else {
-      callback(null, response);
-    }
+    callback(err, response);
   });
 }
 
@@ -56,11 +52,7 @@ function completeEntity(completeRequest, callback) {
   request.setClientDeviceIdPubKey(completeRequest.clientDeviceIdPubKey);
 
   client.authenticateEntity(request, {}, (err, response) => {
-    if (err) {
-      callback(err, null);
-    } else {
-      callback(null, response);
-    }
+    callback(err, response);
   });
 }
 

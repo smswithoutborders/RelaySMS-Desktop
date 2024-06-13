@@ -67,3 +67,7 @@ Contributions to the SWOB Desktop App are welcome and encouraged! If you'd like 
 3. Make your changes and ensure they adhere to the project's coding standards.
 4. Test your changes thoroughly.
 5. Submit a pull request detailing your changes and any relevant information.
+
+#### Testing
+
+For detailed information on testing, please refer to the [Testing Documentation](docs/tests/test.md).
