@@ -75,3 +75,7 @@ For detailed information on testing, please refer to the [Testing Documentation]
 #### Security
 
 For detailed information on security, please refer to the [Security Documentation](docs/security.md).
+
+#### Research
+
+ [Interoperability between JavaScript and Python for Communication between Desktop and Linux Gateway Clients](docs/Research.md).
