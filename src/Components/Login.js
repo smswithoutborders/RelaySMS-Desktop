@@ -4,131 +4,70 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
 import { useTranslation } from "react-i18next";
-import { authenticateEntity, completeAuthentication } from "../grpcClient";
 
 function Login({ onClose, open }) {
   const { t } = useTranslation();
-  const [loginData, setLoginData] = useState({ phoneNumber: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
 
   const handleClose = () => {
     onClose();
-    setLoginData({ phoneNumber: "", password: "" });
-    setError(null);
+    setPhoneNumber("");
+    setPassword("");
+    setResponseMessage("");
     console.log("Dialog closed, state reset.");
   };
 
-  const handleLoginChange = (event) => {
-    const { name, value } = event.target;
-    setLoginData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    console.log(`Login data changed: ${name} = ${value}`);
-  };
-
-  const handlePhoneNumberChange = (value) => {
-    setLoginData((prevData) => ({
-      ...prevData,
-      phoneNumber: value || "",
-    }));
-    console.log(`Phone number changed: ${value}`);
-  };
-
-  const handleLoginSubmit = (event) => {
-    event.preventDefault();
+  const handleCreateEntity = async () => {
     setLoading(true);
-    setError(null);
-    console.log("Login submission started:", loginData);
-
-    authenticateEntity(
-      loginData.phoneNumber,
-      loginData.password,
-      (err, response) => {
-        if (err) {
-          console.error("Authentication error:", err);
-          setError("Authentication failed. Please try again.");
-          setLoading(false);
-          return;
-        }
-
-        console.log("Authentication response:", response);
-
-        if (response.requiresOwnershipProof) {
-          console.log("Ownership proof required.");
-          const ownershipProofResponse = prompt(
-            "Enter the OTP sent to your phone:"
-          );
-
-          const completeRequest = {
-            phoneNumber: loginData.phoneNumber,
-            ownershipProofResponse,
-            clientPublishPubKey: "x25519 client publish public key",
-            clientDeviceIdPubKey: "x25519 client device_id public key",
-          };
-
-          console.log("Complete authentication request:", completeRequest);
-
-          completeAuthentication(completeRequest, (err, response) => {
-            setLoading(false);
-
-            if (err) {
-              console.error("OTP verification error:", err);
-              setError("OTP verification failed. Please try again.");
-              return;
-            }
-
-            console.log("OTP verification successful:", response);
-            handleClose(); // Close dialog on successful login
-          });
-        } else {
-          console.log("No ownership proof required. Login failed.");
-          setLoading(false);
-          setError("Login failed. No ownership proof required.");
-        }
-      }
-    );
+    try {
+      const response = await window.api.createEntity(phoneNumber, password);
+      console.log("Response:", response);
+      setResponseMessage(`Greeting: ${response.message}`);
+    } catch (error) {
+      console.error("Error:", error);
+      setResponseMessage(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Dialog sx={{ p: 10 }} onClose={handleClose} open={open}>
-      <form onSubmit={handleLoginSubmit}>
-        <Box sx={{ m: 4 }}>
-          <PhoneInput
-            flags={flags}
-            placeholder={t("enterPhoneNumber")}
-            defaultCountry="CM"
-            value={loginData.phoneNumber}
-            onChange={handlePhoneNumberChange}
-            label="Phone number"
-            title="International phone number"
-          />
-          <TextField
-            fullWidth
-            label={t("password")}
-            name="password"
-            type="password"
-            variant="outlined"
-            value={loginData.password}
-            onChange={handleLoginChange}
-            sx={{ mb: 4 }}
-          />
-          {error && (
-            <Typography color="error" variant="body2">
-              {error}
-            </Typography>
-          )}
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            disabled={loading}
-          >
-            {loading ? "loading" : t("login")}
-          </Button>
-        </Box>
-      </form>
+      <Box sx={{ m: 4 }}>
+        <PhoneInput
+          flags={flags}
+          placeholder={t("enterPhoneNumber")}
+          defaultCountry="CM"
+          value={phoneNumber}
+          onChange={setPhoneNumber}
+          label="Phone number"
+          title="International phone number"
+        />
+        <TextField
+          fullWidth
+          label={t("password")}
+          name="password"
+          type="password"
+          variant="outlined"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          sx={{ mb: 4 }}
+        />
+        {responseMessage && (
+          <Typography variant="body2">{responseMessage}</Typography>
+        )}
+        <Button
+          onClick={handleCreateEntity}
+          variant="contained"
+          color="primary"
+          disabled={loading}
+        >
+          {loading ? "Loading..." : t("login")}
+        </Button>
+      </Box>
     </Dialog>
   );
 }

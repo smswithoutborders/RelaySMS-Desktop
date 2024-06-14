@@ -70,4 +70,8 @@ Contributions to the SWOB Desktop App are welcome and encouraged! If you'd like 
 
 #### Testing
 
-For detailed information on testing, please refer to the [Testing Documentation](docs/tests/test.md).
+For detailed information on testing, please refer to the [Testing Documentation](docs/test.md).
+
+#### Security
+
+For detailed information on security, please refer to the [Security Documentation](docs/security.md).

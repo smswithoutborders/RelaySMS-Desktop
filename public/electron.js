@@ -1,7 +1,8 @@
-const { app, BrowserWindow, protocol } = require("electron");
+const { app, BrowserWindow, protocol, ipcMain } = require("electron");
 const path = require("path");
 const url = require("url");
 const storage = require("electron-json-storage");
+const { createEntity } = require("../src/grpcNode");
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -69,5 +70,21 @@ app.on("web-contents-created", (event, contents) => {
     if (!allowedNavigationDestinations.includes(parsedUrl.origin)) {
       event.preventDefault();
     }
+  });
+});
+
+// IPC handler for gRPC call
+ipcMain.handle("create-entity", async (event, { phoneNumber, password }) => {
+  return new Promise((resolve, reject) => {
+    createEntity(
+      { phone_number: phoneNumber, password: password },
+      (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(response);
+        }
+      }
+    );
   });
 });
