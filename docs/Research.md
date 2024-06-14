@@ -1,20 +1,20 @@
-### Research Notes: Interoperability between JavaScript and Python for Communication between Desktop and Linux Gateway Clients
+## Research Notes: Interoperability between JavaScript and Python for Communication between Desktop and Linux Gateway Clients
 
-#### 1. Introduction
+### Introduction
 
 - **Objective:** Investigate methods for enabling communication between a desktop application (written in JavaScript) and Linux Gateway Client daemons (written in Python).
 
 - **Importance:** Seamless interoperability is crucial for efficient message exchange and system integration.
 
 
-**2. Overview of Technologies Involved**
+### Overview of Technologies Involved
 
 - **JavaScript:** Typically used for frontend development and increasingly for backend with Node.js.
 
 - **Python:** Preferred for backend development, system scripting, and daemon services on Linux.
 
 
-#### 3. Communication Channels and Protocols
+###  Communication Channels and Protocols
 
 - **WebSocket Protocol:** 
   - **JavaScript:** Can use WebSocket APIs (e.g., `WebSocket` in browsers, `ws` library in Node.js).
@@ -32,13 +32,13 @@
   - **Interoperability:** Both languages can publish and subscribe to message queues, facilitating asynchronous communication.
 
 - **RPC (Remote Procedure Call)**
-RPC allows JavaScript and Python applications to invoke procedures or methods on remote servers as if they were local, enabling seamless interaction between different components.
-- **JavaScript:** Libraries like grpc-web can be used to call Python services using gRPC.
-- **Python:** Implement RPC servers using grpc framework to expose methods and handle incoming requests from JavaScript clients.
-- **Advantages:**Language-agnostic (support for various languages beyond JavaScript and Python).
-Efficient and suitable for microservices architecture.
+    RPC allows JavaScript and Python applications to invoke procedures or methods on remote servers as if they were local, enabling seamless interaction between different components.
+  - **JavaScript:** Libraries like grpc-web can be used to call Python services using gRPC.
+  - **Python:** Implement RPC servers using grpc framework to expose methods and handle incoming requests from JavaScript clients.
+  - **Advantages:** Support for various languages beyond JavaScript and Python.
+    Efficient and suitable for microservices architecture.
 
-#### 4. Integration Strategies
+### Integration Strategies
 
 - **Cross-Language Communication:**
   - Use JSON for data serialization/deserialization to ensure compatibility.
@@ -51,7 +51,7 @@ Efficient and suitable for microservices architecture.
   - Implement secure communication channels (HTTPS, WSS) and authentication mechanisms (JWT, OAuth) to protect data transmission.
 
 
-#### 5. Practical Considerations
+### Practical Considerations
 
 - **Error Handling and Logging:**
   - Implement robust error handling mechanisms to manage communication failures gracefully.
@@ -62,7 +62,7 @@ Efficient and suitable for microservices architecture.
   - Consider load balancing and scaling strategies for high-volume communication.
 
 
-#### 6. Case Studies and Examples
+### Case Studies and Examples
 
 - **Example Scenario:**
   - A JavaScript desktop application sends messages to Python daemons running as Gateway Clients on Linux.
@@ -71,7 +71,7 @@ Efficient and suitable for microservices architecture.
   - Message queues employed for asynchronous tasks and event-driven updates.
 
 
-#### 7. Conclusion
+### Conclusion
 
 - **Summary:** JavaScript and Python offer multiple avenues for interoperability, enabling seamless communication between desktop applications and Linux Gateway Client daemons.
 
