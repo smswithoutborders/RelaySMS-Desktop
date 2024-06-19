@@ -58,7 +58,6 @@ function App() {
         console.error("Error retrieving onboarding status:", error);
         return;
       }
-      console.log("Onboarding status retrieved:", data);
       if (data && data.step !== undefined) {
         setOnboardingStep(data.step);
       } else {
@@ -89,11 +88,8 @@ function App() {
   );
 
   if (onboardingStep === null) {
-    console.log("Onboarding step is null, showing loading state.");
-    return null; // Or a loading spinner
+    return null;
   }
-
-  console.log("Rendering app with onboardingStep:", onboardingStep);
 
   return (
     <ThemeProvider theme={theme}>

@@ -12,6 +12,7 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
 import { useTranslation } from "react-i18next";
+import OTPDialog from "../Components/OTP";
 
 function Signup({ onClose, open }) {
   const { t } = useTranslation();
@@ -24,6 +25,12 @@ function Signup({ onClose, open }) {
   const [signupErrors, setSignupErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState("");
+  const [otpOpen, setOtpOpen] = useState(false);
+  const [serverResponse, setServerResponse] = useState({
+    server_publish_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
+    server_device_id_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
+    long_lived_token: "",
+  });
 
   const handleClose = () => {
     onClose();
@@ -35,6 +42,12 @@ function Signup({ onClose, open }) {
     });
     setSignupErrors({});
     setResponseMessage("");
+    setOtpOpen(false);
+    setServerResponse({
+      server_publish_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
+      server_device_id_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
+      long_lived_token: "",
+    });
   };
 
   const handleSignupChange = (event) => {
@@ -67,7 +80,15 @@ function Signup({ onClose, open }) {
           signupData.password
         );
         console.log("Response:", response);
-        setResponseMessage(`Signup successful: ${response.message}`);
+        setResponseMessage(response.message);
+        if (response.requires_ownership_proof) {
+          setServerResponse({
+            server_publish_pub_key: response.server_publish_pub_key,
+            server_device_id_pub_key: response.server_device_id_pub_key,
+            long_lived_token: response.long_lived_token,
+          });
+          setOtpOpen(true); // Open the OTP dialog if required
+        }
       } catch (error) {
         console.error("Error:", error);
         setSignupErrors({ form: "Failed to create entity. Please try again." });
@@ -76,6 +97,28 @@ function Signup({ onClose, open }) {
       }
     } else {
       setSignupErrors(errors);
+    }
+  };
+
+  const handleOtpSubmit = async (otp) => {
+    setLoading(true);
+    try {
+      const response = await window.api.createEntity({
+        phoneNumber: signupData.phoneNumber,
+        password: signupData.password,
+        client_publish_pub_key: serverResponse.server_publish_pub_key,
+        client_device_id_pub_key: serverResponse.server_device_id_pub_key,
+        ownership_proof_response: signupData.otp,
+      });
+      console.log("OTP Verification Response:", response);
+      console.log("otp:", otp);
+      setResponseMessage(`OTP Verified: ${response.message}`);
+      handleClose(); // Close the dialog after successful OTP verification
+    } catch (error) {
+      console.error("OTP Verification Error:", error);
+      setResponseMessage(`OTP Verification Error: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -148,6 +191,12 @@ function Signup({ onClose, open }) {
           </Button>
         </Box>
       </form>
+      <OTPDialog
+        open={otpOpen}
+        onClose={() => setOtpOpen(false)}
+        onSubmit={handleOtpSubmit}
+        value={signupData.otp}
+      />
     </Dialog>
   );
 }

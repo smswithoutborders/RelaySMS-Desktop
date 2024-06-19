@@ -35,6 +35,7 @@
     "grpc-tools": "^1.12.4",
     "grpc-web": "^1.5.0",
     "i18next": "^23.11.4",
+    "libphonenumber-js": "^1.11.4",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",

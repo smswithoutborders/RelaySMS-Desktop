@@ -2,7 +2,7 @@ const { app, BrowserWindow, protocol, ipcMain } = require("electron");
 const path = require("path");
 const url = require("url");
 const storage = require("electron-json-storage");
-const { createEntity } = require("../src/grpcNode");
+const { createEntity, authenticateEntity } = require("../src/grpcNode");
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -74,17 +74,55 @@ app.on("web-contents-created", (event, contents) => {
 });
 
 // IPC handler for gRPC call
-ipcMain.handle("create-entity", async (event, { phoneNumber, password }) => {
-  return new Promise((resolve, reject) => {
-    createEntity(
-      { phone_number: phoneNumber, password: password },
-      (err, response) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(response);
+ipcMain.handle(
+  "create-entity",
+  async (
+    event,
+    {
+      phoneNumber,
+      password,
+      country_code,
+      client_device_id_pub_key,
+      client_publish_pub_key,
+      ownership_proof_response,
+    }
+  ) => {
+    return new Promise((resolve, reject) => {
+      createEntity(
+        {
+          phone_number: phoneNumber,
+          password: password,
+          country_code: country_code,
+          client_device_id_pub_key: client_device_id_pub_key,
+          client_publish_pub_key: client_publish_pub_key,
+          ownership_proof_response: ownership_proof_response,
+        },
+        (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(response);
+          }
         }
-      }
-    );
-  });
-});
+      );
+    });
+  }
+);
+
+ipcMain.handle(
+  "authenticate-entity",
+  async (event, { phoneNumber, password }) => {
+    return new Promise((resolve, reject) => {
+      authenticateEntity(
+        { phone_number: phoneNumber, password: password },
+        (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(response);
+          }
+        }
+      );
+    });
+  }
+);
