@@ -13,6 +13,7 @@ import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
 import { useTranslation } from "react-i18next";
 import OTPDialog from "../Components/OTP";
+import { parsePhoneNumber } from "react-phone-number-input";
 
 function Signup({ onClose, open }) {
   const { t } = useTranslation();
@@ -26,6 +27,7 @@ function Signup({ onClose, open }) {
   const [loading, setLoading] = useState(false);
   const [responseMessage, setResponseMessage] = useState("");
   const [otpOpen, setOtpOpen] = useState(false);
+  const [countryCode, setCountryCode] = useState("");
   const [serverResponse, setServerResponse] = useState({
     server_publish_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
     server_device_id_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
@@ -75,9 +77,19 @@ function Signup({ onClose, open }) {
     if (Object.keys(errors).length === 0) {
       setLoading(true);
       try {
+        const parsedPhoneNumber = parsePhoneNumber(signupData.phoneNumber);
+        if (parsedPhoneNumber) {
+          setCountryCode(parsedPhoneNumber.countryCallingCode);
+        } else {
+          setSignupErrors({ phoneNumber: "Invalid phone number" });
+          setLoading(false);
+          return;
+        }
+
         const response = await window.api.createEntity(
           signupData.phoneNumber,
-          signupData.password
+          signupData.password,
+          parsedPhoneNumber.countryCallingCode
         );
         console.log("Response:", response);
         setResponseMessage(response.message);
@@ -87,7 +99,7 @@ function Signup({ onClose, open }) {
             server_device_id_pub_key: response.server_device_id_pub_key,
             long_lived_token: response.long_lived_token,
           });
-          setOtpOpen(true); // Open the OTP dialog if required
+          setOtpOpen(true);
         }
       } catch (error) {
         console.error("Error:", error);
@@ -103,17 +115,20 @@ function Signup({ onClose, open }) {
   const handleOtpSubmit = async (otp) => {
     setLoading(true);
     try {
-      const response = await window.api.createEntity({
-        phoneNumber: signupData.phoneNumber,
-        password: signupData.password,
-        client_publish_pub_key: serverResponse.server_publish_pub_key,
-        client_device_id_pub_key: serverResponse.server_device_id_pub_key,
-        ownership_proof_response: signupData.otp,
-      });
+      const response = await window.api.createEntity(
+        signupData.phoneNumber,
+        signupData.password,
+        countryCode,
+        //serverResponse.server_publish_pub_key,
+        //serverResponse.server_device_id_pub_key,
+        "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
+        "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
+        otp
+      );
       console.log("OTP Verification Response:", response);
       console.log("otp:", otp);
       setResponseMessage(`OTP Verified: ${response.message}`);
-      handleClose(); // Close the dialog after successful OTP verification
+      handleClose();
     } catch (error) {
       console.error("OTP Verification Error:", error);
       setResponseMessage(`OTP Verification Error: ${error.message}`);
@@ -121,7 +136,6 @@ function Signup({ onClose, open }) {
       setLoading(false);
     }
   };
-
   return (
     <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
       <Typography align="center" variant="h6" sx={{ pt: 3 }}>
