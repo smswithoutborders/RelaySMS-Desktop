@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  TextField,
-  Button,
-  Box,
-  Dialog,
-  Typography,
-  Input,
-} from "@mui/material";
+import { TextField, Button, Box, Dialog, Typography } from "@mui/material";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
@@ -16,47 +9,82 @@ import OTPDialog from "../Components/OTP";
 function Login({ onClose, open }) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
+  const [loginData, setLoginData] = useState({
+    phoneNumber: "",
+    password: "",
+  });
   const [responseMessage, setResponseMessage] = useState("");
   const [otpOpen, setOtpOpen] = useState(false);
+  const [serverResponse, setServerResponse] = useState({
+    server_publish_pub_key: "",
+    server_device_id_pub_key: "",
+    long_lived_token: "",
+  });
 
   const handleClose = () => {
     onClose();
-    setPhoneNumber("");
-    setPassword("");
+    setLoginData({ phoneNumber: "", password: "" });
     setResponseMessage("");
     setOtpOpen(false);
-    console.log("Dialog closed, state reset.");
+    setServerResponse({
+      server_publish_pub_key: "",
+      server_device_id_pub_key: "",
+      long_lived_token: "",
+    });
   };
 
-  const handleAuthenticateEntity = async () => {
-    setLoading(true);
-    try {
-      const response = await window.api.authenticateEntity(
-        phoneNumber,
-        password
-      );
-      console.log("Response:", response);
-      setResponseMessage(response.message);
-      if (response.requires_ownership_proof) {
-        setOtpOpen(true); // Open the OTP dialog if required
+  const handleLoginChange = (event) => {
+    const { name, value } = event.target;
+    setLoginData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleLoginSubmit = async (event) => {
+    event.preventDefault();
+    const errors = {};
+    if (!loginData.phoneNumber) errors.phoneNumber = "Phone number is required";
+    if (!loginData.password) errors.password = "Password is required";
+
+    if (Object.keys(errors).length === 0) {
+      setLoading(true);
+      try {
+        const response = await window.api.authenticateEntity(
+          loginData.phoneNumber,
+          loginData.password
+        );
+        console.log("Response:", response);
+        setResponseMessage(response.message);
+        if (response.requires_ownership_proof) {
+          setServerResponse({
+            server_publish_pub_key: response.server_publish_pub_key,
+            server_device_id_pub_key: response.server_device_id_pub_key,
+            long_lived_token: response.long_lived_token,
+          });
+          setOtpOpen(true);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        setResponseMessage(`Error: ${error.message}`);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error:", error);
-      setResponseMessage(`Error: ${error.message}`);
-    } finally {
-      setLoading(false);
     }
   };
-
   const handleOtpSubmit = async (otp) => {
     setLoading(true);
     try {
-      const response = await window.api.verifyOtp(phoneNumber, otp);
+      const response = await window.api.authenticateEntity(
+        loginData.phoneNumber,
+        loginData.password,
+        "tWpZMXpbe8CBdWvftxE5BknAiMPWCaWV+OfGHIEtlj0=",
+        "jptPhaMJ+GCLoCKtlXcHHEKNYQjSspuWhj7E3uH2HBQ=",
+        otp
+      );
       console.log("OTP Verification Response:", response);
       setResponseMessage(`OTP Verified: ${response.message}`);
-      handleClose(); // Close the dialog after successful OTP verification
+      handleClose();
     } catch (error) {
       console.error("OTP Verification Error:", error);
       setResponseMessage(`OTP Verification Error: ${error.message}`);
@@ -66,45 +94,49 @@ function Login({ onClose, open }) {
   };
 
   return (
-    <Dialog sx={{ p: 10 }} onClose={handleClose} open={open}>
-      <Box sx={{ m: 4 }}>
-        <PhoneInput
-          flags={flags}
-          placeholder={t("enterPhoneNumber")}
-          defaultCountry="CM"
-          value={phoneNumber}
-          onChange={setPhoneNumber}
-          label="Phone number"
-          title="International phone number"
-          //inputComponent={TextField}
-        />
-
-        <TextField
-          fullWidth
-          label={t("password")}
-          name="password"
-          type="password"
-          variant="outlined"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          sx={{ mb: 4 }}
-        />
-        {responseMessage && (
-          <Typography variant="body2">{responseMessage}</Typography>
-        )}
-        <Button
-          onClick={handleAuthenticateEntity}
-          variant="contained"
-          color="primary"
-          disabled={loading}
-        >
-          {loading ? "Loading..." : t("login")}
-        </Button>
-      </Box>
+    <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
+      <Typography align="center" variant="h6" sx={{ pt: 3 }}>
+        {t("login")}
+      </Typography>
+      <form onSubmit={handleLoginSubmit}>
+        <Box sx={{ m: 4 }}>
+          <PhoneInput
+            flags={flags}
+            placeholder={t("enterPhoneNumber")}
+            defaultCountry="CM"
+            value={loginData.phoneNumber}
+            onChange={(value) =>
+              setLoginData((prevData) => ({ ...prevData, phoneNumber: value }))
+            }
+          />
+          <TextField
+            fullWidth
+            label={t("password")}
+            name="password"
+            type="password"
+            variant="outlined"
+            value={loginData.password}
+            onChange={handleLoginChange}
+            sx={{ mb: 4 }}
+          />
+          {responseMessage && (
+            <Typography variant="body2">{responseMessage}</Typography>
+          )}
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={loading}
+            type="submit"
+          >
+            {loading ? "Loading..." : t("login")}
+          </Button>
+        </Box>
+      </form>
       <OTPDialog
         open={otpOpen}
         onClose={() => setOtpOpen(false)}
         onSubmit={handleOtpSubmit}
+        // value={loginData.otp}
       />
     </Dialog>
   );

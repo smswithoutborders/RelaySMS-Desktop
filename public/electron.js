@@ -111,10 +111,25 @@ ipcMain.handle(
 
 ipcMain.handle(
   "authenticate-entity",
-  async (event, { phoneNumber, password }) => {
+  async (
+    event,
+    {
+      phoneNumber,
+      password,
+      client_publish_pub_key,
+      client_device_id_pub_key,
+      ownership_proof_response,
+    }
+  ) => {
     return new Promise((resolve, reject) => {
       authenticateEntity(
-        { phone_number: phoneNumber, password: password },
+        {
+          phone_number: phoneNumber,
+          password: password,
+          client_publish_pub_key: client_publish_pub_key,
+          client_device_id_pub_key: client_device_id_pub_key,
+          ownership_proof_response: ownership_proof_response,
+        },
         (err, response) => {
           if (err) {
             reject(err);

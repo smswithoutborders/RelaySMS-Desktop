@@ -50,11 +50,23 @@ function createEntity(
   );
 }
 
-function authenticateEntity({ phone_number, password }, callback) {
+function authenticateEntity(
+  {
+    phone_number,
+    password,
+    client_publish_pub_key,
+    client_device_id_pub_key,
+    ownership_proof_response,
+  },
+  callback
+) {
   client.AuthenticateEntity(
     {
       phone_number,
       password,
+      client_publish_pub_key,
+      client_device_id_pub_key,
+      ownership_proof_response,
     },
 
     function (err, response) {
