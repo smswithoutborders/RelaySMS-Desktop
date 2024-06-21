@@ -45,4 +45,21 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
+  storeParams: async (key, params) => {
+    try {
+      await ipcRenderer.invoke("store-params", { key, params });
+    } catch (error) {
+      console.error("Storage error:", error);
+      throw error;
+    }
+  },
+  retrieveParams: async (key) => {
+    try {
+      const params = await ipcRenderer.invoke("retrieve-params", { key });
+      return params;
+    } catch (error) {
+      console.error("Retrieval error:", error);
+      throw error;
+    }
+  },
 });

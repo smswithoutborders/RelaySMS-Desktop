@@ -141,3 +141,37 @@ ipcMain.handle(
     });
   }
 );
+
+ipcMain.handle("store-params", async (event, { key, params }) => {
+  return new Promise((resolve, reject) => {
+    const encryptedParams = safestorage.encryptString(JSON.stringify(params));
+    storage.set(key, { data: encryptedParams }, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+});
+
+ipcMain.handle("retrieve-params", async (event, { key }) => {
+  return new Promise((resolve, reject) => {
+    storage.get(key, (error, data) => {
+      if (error) {
+        reject(error);
+      } else {
+        if (data && data.data) {
+          try {
+            const decryptedParams = safestorage.decryptString(data.data);
+            resolve(JSON.parse(decryptedParams));
+          } catch (decryptionError) {
+            reject(decryptionError);
+          }
+        } else {
+          resolve(null);
+        }
+      }
+    });
+  });
+});

@@ -84,6 +84,7 @@ function Login({ onClose, open }) {
       );
       console.log("OTP Verification Response:", response);
       setResponseMessage(`OTP Verified: ${response.message}`);
+      await window.api.storeParams("serverResponse", response);
       handleClose();
     } catch (error) {
       console.error("OTP Verification Error:", error);
@@ -110,6 +111,18 @@ function Login({ onClose, open }) {
       setLoading(false);
     }
   };
+
+  // useEffect(() => {
+  //   const fetchParams = async () => {
+  //     try {
+  //       const storedParams = await window.api.retrieveParams("serverResponse");
+  //       console.log("Stored Params:", storedParams);
+  //     } catch (error) {
+  //       console.error("Retrieval Error:", error);
+  //     }
+  //   };
+  //   fetchParams();
+  // }, []);
 
   return (
     <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
