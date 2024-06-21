@@ -136,6 +136,26 @@ function Signup({ onClose, open }) {
       setLoading(false);
     }
   };
+
+  const handleResendOtp = async () => {
+    setLoading(true);
+    try {
+      // Implement your resend OTP logic here
+      const response = await window.api.createEntity(
+        signupData.phoneNumber,
+        signupData.password,
+        countryCode
+      );
+      console.log("Resend OTP Response:", response);
+      setResponseMessage(`OTP Resent: ${response.message}`);
+    } catch (error) {
+      console.error("Resend OTP Error:", error);
+      setResponseMessage(`Resend OTP Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
       <Typography align="center" variant="h6" sx={{ pt: 3 }}>
@@ -209,7 +229,7 @@ function Signup({ onClose, open }) {
         open={otpOpen}
         onClose={() => setOtpOpen(false)}
         onSubmit={handleOtpSubmit}
-        value={signupData.otp}
+        onResend={handleResendOtp}
       />
     </Dialog>
   );
