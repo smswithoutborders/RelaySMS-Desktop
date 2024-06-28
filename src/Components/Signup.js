@@ -74,41 +74,45 @@ function Signup({ onClose, open }) {
     if (!signupData.acceptPolicy)
       errors.acceptPolicy = "Please accept the privacy policy";
 
-    if (Object.keys(errors).length === 0) {
-      setLoading(true);
-      try {
-        const parsedPhoneNumber = parsePhoneNumber(signupData.phoneNumber);
-        if (parsedPhoneNumber) {
-          setCountryCode(parsedPhoneNumber.countryCallingCode);
-        } else {
-          setSignupErrors({ phoneNumber: "Invalid phone number" });
-          setLoading(false);
-          return;
-        }
+    if (Object.keys(errors).length > 0) {
+      alert(Object.values(errors).join(" "));
+      return;
+    }
 
-        const response = await window.api.createEntity(
-          signupData.phoneNumber,
-          signupData.password,
-          parsedPhoneNumber.countryCallingCode
-        );
-        console.log("Response:", response);
-        setResponseMessage(response.message);
-        if (response.requires_ownership_proof) {
-          setServerResponse({
-            server_publish_pub_key: response.server_publish_pub_key,
-            server_device_id_pub_key: response.server_device_id_pub_key,
-            long_lived_token: response.long_lived_token,
-          });
-          setOtpOpen(true);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        setSignupErrors({ form: "Failed to create entity. Please try again." });
-      } finally {
+    setLoading(true);
+    try {
+      const parsedPhoneNumber = parsePhoneNumber(signupData.phoneNumber);
+      if (parsedPhoneNumber) {
+        setCountryCode(parsedPhoneNumber.countryCallingCode);
+      } else {
+        alert("Invalid phone number");
         setLoading(false);
+        return;
       }
-    } else {
-      setSignupErrors(errors);
+
+      const response = await window.api.createEntity(
+        signupData.phoneNumber,
+        signupData.password,
+        parsedPhoneNumber.countryCallingCode
+      );
+      console.log("Response:", response);
+      setResponseMessage(response.message);
+      if (response.requires_ownership_proof) {
+        setServerResponse({
+          server_publish_pub_key: response.server_publish_pub_key,
+          server_device_id_pub_key: response.server_device_id_pub_key,
+          long_lived_token: response.long_lived_token,
+        });
+        setOtpOpen(true);
+      } else {
+        alert("OTP sent successfully. Check your phone for the code.");
+        handleClose();
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to create entity. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -126,12 +130,13 @@ function Signup({ onClose, open }) {
         otp
       );
       console.log("OTP Verification Response:", response);
-      console.log("otp:", otp);
+      alert("Signup successful");
       setResponseMessage(`OTP Verified: ${response.message}`);
-      await window.api.storeParams("serverResponse", response);
+      // await window.api.storeParams("serverResponse", response);
       handleClose();
     } catch (error) {
       console.error("OTP Verification Error:", error);
+      alert("Something went wrong, please check your OTP code and try again.");
       setResponseMessage(`OTP Verification Error: ${error.message}`);
     } finally {
       setLoading(false);
@@ -148,10 +153,10 @@ function Signup({ onClose, open }) {
         countryCode
       );
       console.log("Resend OTP Response:", response);
-      setResponseMessage(`OTP Resent: ${response.message}`);
+      alert("OTP Resent: " + response.message);
     } catch (error) {
       console.error("Resend OTP Error:", error);
-      setResponseMessage(`Resend OTP Error: ${error.message}`);
+      alert("Something went wrong, please try again.");
     } finally {
       setLoading(false);
     }
@@ -184,7 +189,6 @@ function Signup({ onClose, open }) {
             onChange={(value) =>
               setSignupData((prevData) => ({ ...prevData, phoneNumber: value }))
             }
-            error={!!signupErrors.phoneNumber}
           />
           <TextField
             fullWidth
@@ -219,14 +223,14 @@ function Signup({ onClose, open }) {
             label={t("acceptPrivacyPolicy")}
             sx={{ mb: 2 }}
           />
-          {signupErrors.form && (
+          {/* {signupErrors.form && (
             <Typography color="error" variant="body2">
               {signupErrors.form}
             </Typography>
           )}
           {responseMessage && (
             <Typography variant="body2">{responseMessage}</Typography>
-          )}
+          )} */}
           <Button
             sx={{ mt: 4 }}
             type="submit"

@@ -44,51 +44,61 @@ function Login({ onClose, open }) {
   const handleLoginSubmit = async (event) => {
     event.preventDefault();
     const errors = {};
-    if (!loginData.phoneNumber) errors.phoneNumber = "Phone number is required";
-    if (!loginData.password) errors.password = "Password is required";
+    if (!loginData.phoneNumber)
+      errors.phoneNumber = t("Phone number is required");
+    if (!loginData.password) errors.password = t("Password is required");
 
-    if (Object.keys(errors).length === 0) {
-      setLoading(true);
-      try {
-        const response = await window.api.authenticateEntity(
-          loginData.phoneNumber,
-          loginData.password
-        );
-        console.log("Response:", response);
-        setResponseMessage(response.message);
-        if (response.requires_ownership_proof) {
-          setServerResponse({
-            server_publish_pub_key: response.server_publish_pub_key,
-            server_device_id_pub_key: response.server_device_id_pub_key,
-            long_lived_token: response.long_lived_token,
-          });
-          setOtpOpen(true);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        setResponseMessage(`Error: ${error.message}`);
-      } finally {
-        setLoading(false);
+    if (Object.keys(errors).length > 0) {
+      setResponseMessage(Object.values(errors).join(" "));
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await window.api.authenticateEntity(
+        loginData.phoneNumber,
+        loginData.password
+      );
+      console.log("Response:", response);
+      setResponseMessage(response.message);
+      if (response.requires_ownership_proof) {
+        setServerResponse({
+          server_publish_pub_key: response.server_publish_pub_key,
+          server_device_id_pub_key: response.server_device_id_pub_key,
+          long_lived_token: response.long_lived_token,
+        });
+        setOtpOpen(true);
+      } else {
+        alert("OTP sent successfully. Check your phone for the code.");
+        handleClose();
       }
+    } catch (error) {
+      console.error("Login Error:", error);
+      alert(
+        "Something went wrong, please check your phone number and password"
+      );
+    } finally {
+      setLoading(false);
     }
   };
+
   const handleOtpSubmit = async (otp) => {
     setLoading(true);
     try {
       const response = await window.api.authenticateEntity(
         loginData.phoneNumber,
         loginData.password,
-        "tWpZMXpbe8CBdWvftxE5BknAiMPWCaWV+OfGHIEtlj0=",
-        "jptPhaMJ+GCLoCKtlXcHHEKNYQjSspuWhj7E3uH2HBQ=",
+        "11vOfAuKl3Fxdo4ZUnx2RMcmpzGighUmiBWWZsQkYkE=",
+        "5wg5+6uv17po5B5S/i41QunMD1W8ZOHzKAAVO6moA28=",
         otp
       );
       console.log("OTP Verification Response:", response);
-      setResponseMessage(`OTP Verified: ${response.message}`);
-      await window.api.storeParams("serverResponse", response);
+      alert("Login successful");
+      //await window.api.storeParams("serverResponse", response);
       handleClose();
     } catch (error) {
       console.error("OTP Verification Error:", error);
-      setResponseMessage(`OTP Verification Error: ${error.message}`);
+      alert("Something went wrong, please check your OTP code and try again.");
     } finally {
       setLoading(false);
     }
@@ -97,16 +107,15 @@ function Login({ onClose, open }) {
   const handleResendOtp = async () => {
     setLoading(true);
     try {
-      // Implement your resend OTP logic here
       const response = await window.api.authenticateEntity(
         loginData.phoneNumber,
         loginData.password
       );
       console.log("Resend OTP Response:", response);
-      setResponseMessage(`OTP Resent: ${response.message}`);
+      alert("OTP Resent: " + response.message);
     } catch (error) {
       console.error("Resend OTP Error:", error);
-      setResponseMessage(`Resend OTP Error: ${error.message}`);
+      alert("Something went wrong, please try again");
     } finally {
       setLoading(false);
     }
@@ -150,9 +159,11 @@ function Login({ onClose, open }) {
             onChange={handleLoginChange}
             sx={{ mb: 4 }}
           />
-          {responseMessage && (
-            <Typography variant="body2">{responseMessage}</Typography>
-          )}
+          {/* {responseMessage && (
+            <Typography color="error" variant="body2">
+              {responseMessage}
+            </Typography>
+          )} */}
           <Button
             variant="contained"
             color="primary"

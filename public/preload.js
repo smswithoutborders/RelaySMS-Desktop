@@ -62,4 +62,21 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
+  storeOnboardingStep: async (step) => {
+    try {
+      await ipcRenderer.invoke("store-onboarding-step", step);
+    } catch (error) {
+      console.error("Storage error:", error);
+      throw error;
+    }
+  },
+  retrieveOnboardingStep: async () => {
+    try {
+      const step = await ipcRenderer.invoke("retrieve-onboarding-step");
+      return step;
+    } catch (error) {
+      console.error("Retrieval error:", error);
+      throw error;
+    }
+  },
 });

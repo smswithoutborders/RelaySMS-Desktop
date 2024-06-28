@@ -24,46 +24,46 @@ const isElectron = () => {
   );
 };
 
-const storage = isElectron()
-  ? require("electron-json-storage")
-  : {
-      get: (key, callback) => {
-        const data = localStorage.getItem(key);
-        callback(null, data ? JSON.parse(data) : {});
-      },
-      set: (key, json, callback) => {
-        localStorage.setItem(key, JSON.stringify(json));
-        callback(null);
-      },
-    };
+let ipcRenderer;
+if (isElectron()) {
+  ipcRenderer = window.require("electron").ipcRenderer;
+}
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [onboardingStep, setOnboardingStep] = React.useState(null);
 
   const handleCompleteOnboarding = (step) => {
-    storage.set("onboardingStep", { step }, (error) => {
-      if (error) {
-        console.error("Error setting onboarding status:", error);
-        return;
-      }
-      console.log(`Onboarding step set to ${step}.`);
+    if (isElectron()) {
+      ipcRenderer
+        .invoke("store-onboarding-step", step)
+        .then(() => {
+          setOnboardingStep(step);
+        })
+        .catch((error) => {
+          console.error("Error setting onboarding status:", error);
+        });
+    } else {
+      localStorage.setItem("onboardingStep", JSON.stringify({ step }));
       setOnboardingStep(step);
-    });
+    }
   };
 
   React.useEffect(() => {
-    storage.get("onboardingStep", (error, data) => {
-      if (error) {
-        console.error("Error retrieving onboarding status:", error);
-        return;
-      }
-      if (data && data.step !== undefined) {
-        setOnboardingStep(data.step);
-      } else {
-        setOnboardingStep(0);
-      }
-    });
+    if (isElectron()) {
+      ipcRenderer
+        .invoke("retrieve-onboarding-step")
+        .then((step) => {
+          setOnboardingStep(step);
+        })
+        .catch((error) => {
+          console.error("Error retrieving onboarding status:", error);
+          setOnboardingStep(0);
+        });
+    } else {
+      const savedStep = localStorage.getItem("onboardingStep");
+      setOnboardingStep(savedStep ? JSON.parse(savedStep).step : 0);
+    }
   }, []);
 
   const theme = React.useMemo(
@@ -72,7 +72,7 @@ function App() {
         palette: {
           mode: prefersDarkMode ? "dark" : "light",
           primary: {
-            main: prefersDarkMode ? "#fff" : "#000", // White in dark mode, black in light mode
+            main: prefersDarkMode ? "#fff" : "#000",
           },
           background: {
             default: prefersDarkMode ? "#1E1E1E" : "#fafafa",
