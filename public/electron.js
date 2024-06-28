@@ -5,7 +5,6 @@ const storage = require("electron-json-storage");
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 
-// Define the gRPC client and functions directly in the main process
 const PROTO_PATH = path.join(__dirname, "vault.proto");
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
@@ -156,7 +155,6 @@ app.on("web-contents-created", (event, contents) => {
   });
 });
 
-// IPC handler for gRPC call
 ipcMain.handle(
   "create-entity",
   async (

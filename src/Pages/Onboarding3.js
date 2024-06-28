@@ -30,7 +30,7 @@ export default function Onboarding3() {
           </Box>
         </Grid>
         <Grid item md={6} sm={6}>
-          <Box component="img" src="pvault.png" sx={{ width: "100%" }} />
+          <Box component="img" src="vault.png" sx={{ width: "80%" }} />
         </Grid>
       </Grid>
       <Grid container>

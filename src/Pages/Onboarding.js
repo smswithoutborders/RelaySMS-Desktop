@@ -20,11 +20,11 @@ export default function Onboarding() {
     <>
       <Box sx={{ px: 5, py: 10 }}>
         <Grid container>
-          <Grid item md={6} sm={6} sx={{ py: 10 }}>
+          <Grid item md={7} sm={7} sx={{ py: 10 }}>
             <Typography variant="h5" sx={{ fontWeight: 600 }}>
               {t("welcome")}
             </Typography>
-            <Typography variant="h6" sx={{ opacity: "70%", pt: 10 }}>
+            <Typography variant="h6" sx={{ opacity: "70%", pt: 10, pr: 10 }}>
               {" "}
               {t("getStarted")}{" "}
             </Typography>
@@ -44,8 +44,8 @@ export default function Onboarding() {
             </Box>
             <SimpleDialog onClose={handleCloseDialog} open={openDialog} />
           </Grid>
-          <Grid item md={6} sm={6}>
-            <Box component="img" src="pdone2.png" sx={{ width: "90%" }} />
+          <Grid item md={5} sm={5} my="auto">
+            <Box component="img" src="welcome.png" sx={{ width: "69%" }} />
           </Grid>
         </Grid>
         <Grid container>

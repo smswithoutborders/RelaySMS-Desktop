@@ -1,4 +1,5 @@
 const webpack = require("webpack");
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = function override(config) {
   config.resolve.fallback = {
@@ -45,6 +46,20 @@ module.exports = function override(config) {
       process: "process/browser",
     }),
   ]);
+
+  // Add TerserPlugin for minification
+  config.optimization = {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: true,
+          },
+        },
+      }),
+    ],
+  };
 
   return config;
 };
