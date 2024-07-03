@@ -7,13 +7,16 @@ import {
   FormControlLabel,
   Checkbox,
   Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
 import { useTranslation } from "react-i18next";
 import OTPDialog from "../Components/OTP";
 import { parsePhoneNumber } from "react-phone-number-input";
+import { MuiTelInput } from "mui-tel-input";
+import { useNavigate } from "react-router-dom";
 
 function Signup({ onClose, open }) {
   const { t } = useTranslation();
@@ -25,7 +28,6 @@ function Signup({ onClose, open }) {
   });
   const [signupErrors, setSignupErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [responseMessage, setResponseMessage] = useState("");
   const [otpOpen, setOtpOpen] = useState(false);
   const [countryCode, setCountryCode] = useState("");
   const [serverResponse, setServerResponse] = useState({
@@ -33,6 +35,9 @@ function Signup({ onClose, open }) {
     server_device_id_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
     long_lived_token: "",
   });
+  const [alert, setAlert] = useState({ message: "", severity: "", open: false });
+
+  const navigate = useNavigate();
 
   const handleClose = () => {
     onClose();
@@ -43,13 +48,16 @@ function Signup({ onClose, open }) {
       acceptPolicy: false,
     });
     setSignupErrors({});
-    setResponseMessage("");
     setOtpOpen(false);
     setServerResponse({
       server_publish_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
       server_device_id_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
       long_lived_token: "",
     });
+  };
+
+  const handleAlertClose = () => {
+    setAlert({ ...alert, open: false });
   };
 
   const handleSignupChange = (event) => {
@@ -75,7 +83,7 @@ function Signup({ onClose, open }) {
       errors.acceptPolicy = "Please accept the privacy policy";
 
     if (Object.keys(errors).length > 0) {
-      alert(Object.values(errors).join(" "));
+      setAlert({ message: Object.values(errors).join(" "), severity: "error", open: true });
       return;
     }
 
@@ -85,7 +93,7 @@ function Signup({ onClose, open }) {
       if (parsedPhoneNumber) {
         setCountryCode(parsedPhoneNumber.countryCallingCode);
       } else {
-        alert("Invalid phone number");
+        setAlert({ message: "Invalid phone number", severity: "error", open: true });
         setLoading(false);
         return;
       }
@@ -96,7 +104,7 @@ function Signup({ onClose, open }) {
         parsedPhoneNumber.countryCallingCode
       );
       console.log("Response:", response);
-      setResponseMessage(response.message);
+      setAlert({ message: response.message, severity: "success", open: true });
       if (response.requires_ownership_proof) {
         setServerResponse({
           server_publish_pub_key: response.server_publish_pub_key,
@@ -105,12 +113,15 @@ function Signup({ onClose, open }) {
         });
         setOtpOpen(true);
       } else {
-        alert("OTP sent successfully. Check your phone for the code.");
-        handleClose();
+        setAlert({ message: "Signup successful. OTP sent successfully. Check your phone for the code.", severity: "success", open: true });
+        setTimeout(() => {
+          navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
+          handleClose();
+        }, 2000);
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to create entity. Please try again.");
+      setAlert({ message: "Failed to create entity. Please try again.", severity: "error", open: true });
     } finally {
       setLoading(false);
     }
@@ -123,21 +134,22 @@ function Signup({ onClose, open }) {
         signupData.phoneNumber,
         signupData.password,
         countryCode,
-        //serverResponse.server_publish_pub_key,
-        //serverResponse.server_device_id_pub_key,
+        // serverResponse.server_publish_pub_key,
+        // serverResponse.server_device_id_pub_key,
         "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
         "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
-        otp
+        otp,
       );
       console.log("OTP Verification Response:", response);
-      alert("Signup successful");
-      setResponseMessage(`OTP Verified: ${response.message}`);
-      // await window.api.storeParams("serverResponse", response);
+      setAlert({ message: "Signup successful", severity: "success", open: true });
+      //await window.api.storeParams("serverResponse", response);
+      setTimeout(() => {
+      navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
       handleClose();
+      }, 2000);
     } catch (error) {
       console.error("OTP Verification Error:", error);
-      alert("Something went wrong, please check your OTP code and try again.");
-      setResponseMessage(`OTP Verification Error: ${error.message}`);
+      setAlert({ message: "Something went wrong, please check your OTP code and try again.", severity: "error", open: true });
     } finally {
       setLoading(false);
     }
@@ -146,109 +158,101 @@ function Signup({ onClose, open }) {
   const handleResendOtp = async () => {
     setLoading(true);
     try {
-      // Implement your resend OTP logic here
       const response = await window.api.createEntity(
         signupData.phoneNumber,
         signupData.password,
         countryCode
       );
       console.log("Resend OTP Response:", response);
-      alert("OTP Resent: " + response.message);
+      setAlert({ message: "OTP Resent: " + response.message, severity: "success", open: true });
     } catch (error) {
       console.error("Resend OTP Error:", error);
-      alert("Something went wrong, please try again.");
+      setAlert({ message: "Something went wrong, please try again.", severity: "error", open: true });
     } finally {
       setLoading(false);
     }
   };
 
-  // useEffect(() => {
-  //   const fetchParams = async () => {
-  //     try {
-  //       const storedParams = await window.api.retrieveParams("serverResponse");
-  //       console.log("Stored Params:", storedParams);
-  //     } catch (error) {
-  //       console.error("Retrieval Error:", error);
-  //     }
-  //   };
-  //   fetchParams();
-  // }, []);
-
   return (
-    <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
-      <Typography align="center" variant="h6" sx={{ pt: 3 }}>
-        {t("signUp")}
-      </Typography>
-      <form onSubmit={handleSignupSubmit}>
-        <Box sx={{ m: 4 }}>
-          <PhoneInput
-            flags={flags}
-            placeholder={t("enterPhoneNumber")}
-            defaultCountry="CM"
-            value={signupData.phoneNumber}
-            onChange={(value) =>
-              setSignupData((prevData) => ({ ...prevData, phoneNumber: value }))
-            }
-          />
-          <TextField
-            fullWidth
-            label={t("password")}
-            name="password"
-            type="password"
-            variant="outlined"
-            value={signupData.password}
-            onChange={handleSignupChange}
-            sx={{ mb: 4 }}
-            error={!!signupErrors.password}
-          />
-          <TextField
-            fullWidth
-            label={t("repeatPassword")}
-            name="repeatPassword"
-            type="password"
-            variant="outlined"
-            value={signupData.repeatPassword}
-            onChange={handleSignupChange}
-            sx={{ mb: 4 }}
-            error={!!signupErrors.repeatPassword}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                name="acceptPolicy"
-                checked={signupData.acceptPolicy}
-                onChange={handleSignupChange}
-              />
-            }
-            label={t("acceptPrivacyPolicy")}
-            sx={{ mb: 2 }}
-          />
-          {/* {signupErrors.form && (
-            <Typography color="error" variant="body2">
-              {signupErrors.form}
-            </Typography>
-          )}
-          {responseMessage && (
-            <Typography variant="body2">{responseMessage}</Typography>
-          )} */}
-          <Button
-            sx={{ mt: 4 }}
-            type="submit"
-            variant="contained"
-            color="primary"
-            disabled={loading}
-          >
-            {loading ? "Loading..." : t("signUp")}
-          </Button>
-        </Box>
-      </form>
-      <OTPDialog
-        open={otpOpen}
-        onClose={() => setOtpOpen(false)}
-        onSubmit={handleOtpSubmit}
-        onResend={handleResendOtp}
-      />
-    </Dialog>
+    <div>
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={6000}
+        onClose={handleAlertClose}
+      >
+        <Alert onClose={handleAlertClose} severity={alert.severity} sx={{ width: '100%' }}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
+      <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
+        <Typography align="center" variant="h6" sx={{ pt: 3 }}>
+          {t("signUp")}
+        </Typography>
+        <form onSubmit={handleSignupSubmit}>
+          <Box sx={{ m: 4 }}>
+            <MuiTelInput
+              fullWidth
+              flags={flags}
+              sx={{ mb: 4 }}
+              placeholder={t("enterPhoneNumber")}
+              defaultCountry="CM"
+              value={signupData.phoneNumber}
+              onChange={(value) =>
+                setSignupData((prevData) => ({ ...prevData, phoneNumber: value }))
+              }
+            />
+            <TextField
+              fullWidth
+              label={t("password")}
+              name="password"
+              type="password"
+              variant="outlined"
+              value={signupData.password}
+              onChange={handleSignupChange}
+              sx={{ mb: 4 }}
+              error={!!signupErrors.password}
+            />
+            <TextField
+              fullWidth
+              label={t("repeatPassword")}
+              name="repeatPassword"
+              type="password"
+              variant="outlined"
+              value={signupData.repeatPassword}
+              onChange={handleSignupChange}
+              sx={{ mb: 4 }}
+              error={!!signupErrors.repeatPassword}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="acceptPolicy"
+                  checked={signupData.acceptPolicy}
+                  onChange={handleSignupChange}
+                />
+              }
+              label={t("acceptPrivacyPolicy")}
+              sx={{ mb: 2 }}
+            />
+            <Button
+              sx={{ mt: 4 }}
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={loading}
+            >
+              {loading ? "Loading..." : t("signUp")}
+            </Button>
+          </Box>
+        </form>
+        <OTPDialog
+          open={otpOpen}
+          onClose={() => setOtpOpen(false)}
+          onSubmit={handleOtpSubmit}
+          onResend={handleResendOtp}
+        />
+      </Dialog>
+    </div>
   );
 }
 

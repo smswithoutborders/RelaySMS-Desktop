@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { TextField, Button, Box, Dialog, Typography } from "@mui/material";
-import PhoneInput from "react-phone-number-input";
+import { TextField, Button, Box, Dialog, Typography, Alert, Snackbar } from "@mui/material";
+//import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
 import { useTranslation } from "react-i18next";
 import OTPDialog from "../Components/OTP";
+import { MuiTelInput } from "mui-tel-input";
+import { useNavigate } from "react-router-dom";
 
 function Login({ onClose, open }) {
   const { t } = useTranslation();
@@ -20,6 +22,7 @@ function Login({ onClose, open }) {
     server_device_id_pub_key: "",
     long_lived_token: "",
   });
+  const [alert, setAlert] = useState({ message: "", severity: "" });
 
   const handleClose = () => {
     onClose();
@@ -32,6 +35,11 @@ function Login({ onClose, open }) {
       long_lived_token: "",
     });
   };
+
+  const handleAlertClose = () => {
+    setAlert({ ...alert, open: false });
+  };
+  const navigate = useNavigate();
 
   const handleLoginChange = (event) => {
     const { name, value } = event.target;
@@ -49,7 +57,7 @@ function Login({ onClose, open }) {
     if (!loginData.password) errors.password = t("Password is required");
 
     if (Object.keys(errors).length > 0) {
-      setResponseMessage(Object.values(errors).join(" "));
+      setAlert({ message: Object.values(errors).join(" "), severity: "error" });
       return;
     }
 
@@ -60,7 +68,7 @@ function Login({ onClose, open }) {
         loginData.password
       );
       console.log("Response:", response);
-      setResponseMessage(response.message);
+      setAlert({ message: response.message, severity: "success", open: true });
       if (response.requires_ownership_proof) {
         setServerResponse({
           server_publish_pub_key: response.server_publish_pub_key,
@@ -69,14 +77,18 @@ function Login({ onClose, open }) {
         });
         setOtpOpen(true);
       } else {
-        alert("OTP sent successfully. Check your phone for the code.");
-        handleClose();
+       setAlert({ message: "Login successful. OTP sent successfully. Check your phone for the code.", severity: "success", open: true });
+        setTimeout(() => {
+          navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
+          handleClose();
+        }, 2000);
       }
     } catch (error) {
       console.error("Login Error:", error);
-      alert(
-        "Something went wrong, please check your phone number and password"
-      );
+      setAlert({
+        message: "Something went wrong, please check your phone number and password",
+        severity: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -88,17 +100,22 @@ function Login({ onClose, open }) {
       const response = await window.api.authenticateEntity(
         loginData.phoneNumber,
         loginData.password,
-        "11vOfAuKl3Fxdo4ZUnx2RMcmpzGighUmiBWWZsQkYkE=",
-        "5wg5+6uv17po5B5S/i41QunMD1W8ZOHzKAAVO6moA28=",
+        //serverResponse.server_publish_pub_key,
+        //serverResponse.server_device_id_pub_key,
+        "XTB8GBxvOWl/BuZjMYGidYL8zmKD7OrLJeS6CWgtg1Y=",
+        "OMMfRQIpQHtS/NfOUsR2bRrFFjU2PbszHn+cfXVty0U=",
         otp
-      );
+      ); 
       console.log("OTP Verification Response:", response);
-      alert("Login successful");
-      //await window.api.storeParams("serverResponse", response);
-      handleClose();
+      setAlert({ message: "Login successful", severity: "success", open: true });
+      setTimeout(() => {
+        navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
+        //await window.api.storeParams("serverResponse", response);
+        handleClose();
+      }, 2000);
     } catch (error) {
       console.error("OTP Verification Error:", error);
-      alert("Something went wrong, please check your OTP code and try again.");
+      setAlert({ message: "Something went wrong, please check your OTP code and try again.", severity: "error", open: true });
     } finally {
       setLoading(false);
     }
@@ -112,14 +129,15 @@ function Login({ onClose, open }) {
         loginData.password
       );
       console.log("Resend OTP Response:", response);
-      alert("OTP Resent: " + response.message);
+      setAlert({ message: "OTP Resent: " + response.message, severity: "success", open: true });
     } catch (error) {
       console.error("Resend OTP Error:", error);
-      alert("Something went wrong, please try again");
+      setAlert({ message: "Something went wrong, please try again", severity: "error", open: true });
     } finally {
       setLoading(false);
     }
   };
+
 
   // useEffect(() => {
   //   const fetchParams = async () => {
@@ -134,53 +152,67 @@ function Login({ onClose, open }) {
   // }, []);
 
   return (
-    <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
-      <Typography align="center" variant="h6" sx={{ pt: 3 }}>
-        {t("login")}
-      </Typography>
-      <form onSubmit={handleLoginSubmit}>
-        <Box sx={{ m: 4 }}>
-          <PhoneInput
-            flags={flags}
-            placeholder={t("enterPhoneNumber")}
-            defaultCountry="CM"
-            value={loginData.phoneNumber}
-            onChange={(value) =>
-              setLoginData((prevData) => ({ ...prevData, phoneNumber: value }))
-            }
-          />
-          <TextField
-            fullWidth
-            label={t("password")}
-            name="password"
-            type="password"
-            variant="outlined"
-            value={loginData.password}
-            onChange={handleLoginChange}
-            sx={{ mb: 4 }}
-          />
-          {/* {responseMessage && (
-            <Typography color="error" variant="body2">
-              {responseMessage}
-            </Typography>
-          )} */}
-          <Button
-            variant="contained"
-            color="primary"
-            disabled={loading}
-            type="submit"
-          >
-            {loading ? "Loading..." : t("login")}
-          </Button>
-        </Box>
-      </form>
-      <OTPDialog
-        open={otpOpen}
-        onClose={() => setOtpOpen(false)}
-        onSubmit={handleOtpSubmit}
-        onResend={handleResendOtp}
-      />
-    </Dialog>
+    <>
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={6000}
+        onClose={handleAlertClose}
+      >
+        <Alert onClose={handleAlertClose} severity={alert.severity} sx={{ width: '100%' }}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
+      <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
+        <Typography align="center" variant="h6" sx={{ pt: 3 }}>
+          {t("login")}
+        </Typography>
+        {alert.message && (
+          <Alert severity={alert.severity} sx={{ mb: 2 }}>
+            {alert.message}
+          </Alert>
+        )}
+        <form onSubmit={handleLoginSubmit}>
+          <Box sx={{ m: 4 }}>
+            <MuiTelInput
+              fullWidth
+              flags={flags}
+              placeholder={t("enterPhoneNumber")}
+              defaultCountry="CM"
+              value={loginData.phoneNumber}
+              sx={{ mb: 4 }}
+              onChange={(value) =>
+                setLoginData((prevData) => ({ ...prevData, phoneNumber: value }))
+              }
+            />
+            <TextField
+              fullWidth
+              label={t("password")}
+              name="password"
+              type="password"
+              variant="outlined"
+              value={loginData.password}
+              onChange={handleLoginChange}
+              sx={{ mb: 4 }}
+            />
+
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={loading}
+              type="submit"
+            >
+              {loading ? "Loading..." : t("login")}
+            </Button>
+          </Box>
+        </form>
+        <OTPDialog
+          open={otpOpen}
+          onClose={() => setOtpOpen(false)}
+          onSubmit={handleOtpSubmit}
+          onResend={handleResendOtp}
+        />
+      </Dialog>
+    </>
   );
 }
 

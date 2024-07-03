@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 export default function Onboarding3() {
   const { t } = useTranslation();
   return (
-    <Box sx={{ px: 5, py: 10 }}>
+    <Box my="auto" sx={{ px: 5, py: 10 }}>
       <Grid container>
         <Grid item md={6} sm={6} sx={{ py: 10 }}>
           <Typography variant="h5" sx={{ fontWeight: 600 }}>
@@ -34,7 +34,7 @@ export default function Onboarding3() {
         </Grid>
       </Grid>
       <Grid container>
-        <Grid item md={6} sx={{ position: "fixed", bottom: 50, mr: 10 }}>
+        <Grid item md={4} sx={{ position: "fixed", bottom: 50, mr: 10 }}>
           <Button
             component={Link}
             to="/onboarding2"
@@ -44,9 +44,19 @@ export default function Onboarding3() {
             <FaChevronLeft /> {t("previous")}{" "}
           </Button>
         </Grid>
+        <Grid item md={4} sx={{ position: "fixed", bottom: 50, ml :50 }}>
+          <Button
+            component={Link}
+            to="/messages"
+            variant="underlined"
+            sx={{ px: 2, textTransform: "none" }}
+          >
+            skip
+          </Button>
+        </Grid>
         <Grid
           item
-          md={6}
+          md={4}
           // position="relative"
           justifyContent="flex-end"
           sx={{
@@ -67,69 +77,6 @@ export default function Onboarding3() {
           </Button>
         </Grid>
       </Grid>
-      {/*  */}
-      {/*  */}
-      {/* <Box sx={{ px: 10, mt: 5 }}>
-        <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          {t("done")}
-        </Typography>
-      </Box>
-
-      <Box
-        my="auto"
-        display="flex"
-        justifyContent="center"
-        sx={{
-          px: 10,
-        }}
-      >
-        <Typography variant="h4" sx={{ pr: { md: 50, sm: 5 } }}>
-          {t("tourComplete")}
-        </Typography>
-      </Box>
-
-      <Box
-        component="footer"
-        justifyContent="center"
-        sx={{
-          px: 10,
-        }}
-      >
-        <Grid container>
-          <Grid item md={6} sx={{ position: "fixed", bottom: 50, mr: 10 }}>
-            <Button
-              component={Link}
-              to="/vaultsonboarding"
-              variant="contained"
-              sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
-            >
-              <FaChevronLeft /> {t("previous")}{" "}
-            </Button>
-          </Grid>
-          <Grid
-            item
-            md={6}
-            // position="relative"
-            justifyContent="flex-end"
-            sx={{
-              right: 0,
-              display: "flex",
-              position: "fixed",
-              bottom: 50,
-              mr: 10,
-            }}
-          >
-            <Button
-              component={Link}
-              to="/messages"
-              variant="contained"
-              sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
-            >
-              {t("finish")} <FaChevronRight />{" "}
-            </Button>
-          </Grid>
-        </Grid>
-      </Box> */}
     </Box>
   );
 }
