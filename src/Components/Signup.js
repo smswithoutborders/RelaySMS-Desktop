@@ -17,6 +17,16 @@ import OTPDialog from "../Components/OTP";
 import { parsePhoneNumber } from "react-phone-number-input";
 import { MuiTelInput } from "mui-tel-input";
 import { useNavigate } from "react-router-dom";
+import nacl from "tweetnacl";
+import naclUtil from "tweetnacl-util"
+
+function generateKeyPair() {
+  const keyPair = nacl.box.keyPair();
+  return {
+    publicKey: naclUtil.encodeBase64(keyPair.publicKey),
+    secretKey: naclUtil.encodeBase64(keyPair.secretKey),
+  };
+}
 
 function Signup({ onClose, open }) {
   const { t } = useTranslation();
@@ -128,16 +138,17 @@ function Signup({ onClose, open }) {
   };
 
   const handleOtpSubmit = async (otp) => {
+    // Generate Curve25519 key pairs
+    const clientPublishKeyPair = generateKeyPair();
+    const clientDeviceIdKeyPair = generateKeyPair();
     setLoading(true);
     try {
       const response = await window.api.createEntity(
         signupData.phoneNumber,
         signupData.password,
         countryCode,
-        // serverResponse.server_publish_pub_key,
-        // serverResponse.server_device_id_pub_key,
-        "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
-        "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
+        clientDeviceIdKeyPair.publicKey,
+        clientPublishKeyPair.publicKey,
         otp,
       );
       console.log("OTP Verification Response:", response);

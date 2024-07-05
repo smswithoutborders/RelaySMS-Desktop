@@ -31,6 +31,15 @@ function createEntity(
   },
   callback
 ) {
+  console.log("gRPC createEntity request payload:", {
+    phone_number,
+    password,
+    country_code,
+    client_publish_pub_key,
+    client_device_id_pub_key,
+    ownership_proof_response,
+  });
+
   client.CreateEntity(
     {
       phone_number,
@@ -40,7 +49,6 @@ function createEntity(
       client_device_id_pub_key,
       ownership_proof_response,
     },
-
     function (err, response) {
       if (err) {
         console.error("gRPC error:", err);
@@ -63,6 +71,14 @@ function authenticateEntity(
   },
   callback
 ) {
+  console.log("gRPC authenticateEntity request payload:", {
+    phone_number,
+    password,
+    client_publish_pub_key,
+    client_device_id_pub_key,
+    ownership_proof_response,
+  });
+
   client.AuthenticateEntity(
     {
       phone_number,
@@ -71,7 +87,6 @@ function authenticateEntity(
       client_device_id_pub_key,
       ownership_proof_response,
     },
-
     function (err, response) {
       if (err) {
         console.error("gRPC error:", err);
@@ -207,8 +222,8 @@ ipcMain.handle(
         {
           phone_number: phoneNumber,
           password: password,
-          client_publish_pub_key,
-          client_device_id_pub_key,
+          client_publish_pub_key: client_publish_pub_key,
+          client_device_id_pub_key: client_device_id_pub_key,
           ownership_proof_response: ownership_proof_response,
         },
         (err, response) => {
@@ -276,6 +291,57 @@ ipcMain.handle("retrieve-onboarding-step", async () => {
         reject(error);
       } else {
         resolve(data && data.step !== undefined ? data.step : 0);
+      }
+    });
+  });
+});
+
+ipcMain.handle("store-server-keys", async (event, { clientDeviceIdPrivKey, clientPublishPrivKey }) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const encryptedDeviceKey = safestorage.encryptString(clientDeviceIdPrivKey);
+      const encryptedPublishKey = safestorage.encryptString(clientPublishPrivKey);
+      storage.set("clientDeviceIdPrivKey", { data: encryptedDeviceKey }, (error) => {
+        if (error) {
+          reject(error);
+        } else {
+          storage.set("clientPublishPrivKey", { data: encryptedPublishKey }, (error) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve();
+            }
+          });
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+});
+
+ipcMain.handle("retrieve-server-keys", async () => {
+  return new Promise((resolve, reject) => {
+    storage.get("clientDeviceIdPrivKey", (error, deviceKeyData) => {
+      if (error) {
+        reject(error);
+      } else {
+        storage.get("clientPublishPrivKey", (error, publishKeyData) => {
+          if (error) {
+            reject(error);
+          } else {
+            try {
+              const decryptedDeviceKey = safestorage.decryptString(deviceKeyData.data);
+              const decryptedPublishKey = safestorage.decryptString(publishKeyData.data);
+              resolve({
+                clientDeviceIdPrivKey: decryptedDeviceKey,
+                clientPublishPrivKey: decryptedPublishKey,
+              });
+            } catch (decryptionError) {
+              reject(decryptionError);
+            }
+          }
+        });
       }
     });
   });

@@ -7,6 +7,16 @@ import { useTranslation } from "react-i18next";
 import OTPDialog from "../Components/OTP";
 import { MuiTelInput } from "mui-tel-input";
 import { useNavigate } from "react-router-dom";
+import nacl from "tweetnacl";
+import naclUtil from "tweetnacl-util"
+
+function generateKeyPair() {
+  const keyPair = nacl.box.keyPair();
+  return {
+    publicKey: naclUtil.encodeBase64(keyPair.publicKey),
+    secretKey: naclUtil.encodeBase64(keyPair.secretKey),
+  };
+}
 
 function Login({ onClose, open }) {
   const { t } = useTranslation();
@@ -95,6 +105,9 @@ function Login({ onClose, open }) {
   };
 
   const handleOtpSubmit = async (otp) => {
+     // Generate Curve25519 key pairs
+     const clientPublishKeyPair = generateKeyPair();
+     const clientDeviceIdKeyPair = generateKeyPair();
     setLoading(true);
     try {
       const response = await window.api.authenticateEntity(
@@ -102,13 +115,16 @@ function Login({ onClose, open }) {
         loginData.password,
         //serverResponse.server_publish_pub_key,
         //serverResponse.server_device_id_pub_key,
-        "XTB8GBxvOWl/BuZjMYGidYL8zmKD7OrLJeS6CWgtg1Y=",
-        "OMMfRQIpQHtS/NfOUsR2bRrFFjU2PbszHn+cfXVty0U=",
+        // "XTB8GBxvOWl/BuZjMYGidYL8zmKD7OrLJeS6CWgtg1Y=",
+        // "OMMfRQIpQHtS/NfOUsR2bRrFFjU2PbszHn+cfXVty0U=",
+        clientDeviceIdKeyPair.publicKey,
+        clientPublishKeyPair.publicKey,
         otp
       ); 
       console.log("OTP Verification Response:", response);
       setAlert({ message: "Login successful", severity: "success", open: true });
       setTimeout(() => {
+       // await window.api.storeServerKeys(client_device_id_priv_key, client_publish_priv_key);
         navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
         //await window.api.storeParams("serverResponse", response);
         handleClose();
