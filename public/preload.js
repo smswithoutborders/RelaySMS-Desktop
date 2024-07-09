@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require("electron");
+const safestorage = require('./storage');
 
 contextBridge.exposeInMainWorld("api", {
   createEntity: async (
@@ -52,23 +53,25 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
-  storeParams: async (key, params) => {
-    try {
-      await ipcRenderer.invoke("store-params", { key, params });
-    } catch (error) {
-      console.error("Storage error:", error);
-      throw error;
-    }
-  },
-  retrieveParams: async (key) => {
-    try {
-      const params = await ipcRenderer.invoke("retrieve-params", { key });
-      return params;
-    } catch (error) {
-      console.error("Retrieval error:", error);
-      throw error;
-    }
-  },
+  // storeParams: async (key, params) => {
+  //   try {
+  //     await ipcRenderer.invoke("store-params", { key, params });
+  //   } catch (error) {
+  //     console.error("Storage error:", error);
+  //     throw error;
+  //   }
+  // },
+  // retrieveParams: async (key) => {
+  //   try {
+  //     const params = await ipcRenderer.invoke("retrieve-params", { key });
+  //     return params;
+  //   } catch (error) {
+  //     console.error("Retrieval error:", error);
+  //     throw error;
+  //   }
+  // },
+  storeParams: (key, value) => safestorage.store(key, value),
+  retrieveParams: (key) => safestorage.retrieve(key),
   storeOnboardingStep: async (step) => {
     try {
       await ipcRenderer.invoke("store-onboarding-step", step);
@@ -100,6 +103,15 @@ contextBridge.exposeInMainWorld("api", {
       return keys;
     } catch (error) {
       console.error("Retrieval error:", error);
+      throw error;
+    }
+  },
+  listEntityStoredTokens: async (long_lived_token) => {
+    try {
+      const response = await ipcRenderer.invoke("list-entity-stored-tokens", { long_lived_token });
+      return response;
+    } catch (error) {
+      console.error("gRPC call error:", error);
       throw error;
     }
   },

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Drawer, Grid, Box, Typography } from "@mui/material";
 import GmailCompose from "../Components/ComposeGmail";
 import TwitterCompose from "../Components/ComposeTwitter";
@@ -8,6 +8,21 @@ export default function Compose({ open, onClose }) {
   const { t } = useTranslation();
   const [composeOpen, setComposeOpen] = useState(false);
   const [twitterOpen, setTwitterOpen] = useState(false);
+  const [tokens, setTokens] = useState([]);
+
+  useEffect(() => {
+    const fetchStoredTokens = async () => {
+      try {
+        const longLivedToken = await window.api.retrieveParams("longLivedToken");
+        const response = await window.api.listEntityStoredTokens(longLivedToken);
+        setTokens(response.stored_tokens);
+      } catch (error) {
+        console.error("Failed to fetch stored tokens:", error);
+      }
+    };
+
+    fetchStoredTokens();
+  }, []);
 
   const handleGmailClick = () => {
     setComposeOpen(true);
@@ -38,16 +53,18 @@ export default function Compose({ open, onClose }) {
         <Typography variant="h6">{t("savedPlatforms")}</Typography>
         <Typography variant="body1">{t("savedPlatforms1")}</Typography>
         <Grid container sx={{ pt: 5 }}>
-          <Grid item md={2} sm={3}>
-            <Box onClick={handleTwitterClick}>
-              <Box component="img" src="x-twitter.svg" sx={{ width: "30%" }} />
-            </Box>
-          </Grid>
-          <Grid item md={2} sm={3}>
-            <Box onClick={handleGmailClick}>
-              <Box component="img" src="gmail.svg" sx={{ width: "30%" }} />
-            </Box>
-          </Grid>
+          {tokens.map((token, index) => (
+            <Grid item md={2} sm={3} key={index}>
+              <Box onClick={token.platform === "gmail" ? handleGmailClick : handleTwitterClick}>
+                <Box
+                  component="img"
+                  src={token.platform === "gmail" ? "gmail.svg" : "x-twitter.svg"}
+                  sx={{ width: "30%" }}
+                />
+              </Box>
+              <Typography variant="body2">{token.account_identifier}</Typography>
+            </Grid>
+          ))}
         </Grid>
       </Box>
       <GmailCompose open={composeOpen} onClose={handleCloseCompose} />

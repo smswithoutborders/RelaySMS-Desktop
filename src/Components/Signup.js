@@ -18,7 +18,7 @@ import { parsePhoneNumber } from "react-phone-number-input";
 import { MuiTelInput } from "mui-tel-input";
 import { useNavigate } from "react-router-dom";
 import nacl from "tweetnacl";
-import naclUtil from "tweetnacl-util"
+import naclUtil from "tweetnacl-util";
 
 function generateKeyPair() {
   const keyPair = nacl.box.keyPair();
@@ -56,6 +56,7 @@ function Signup({ onClose, open }) {
       password: "",
       repeatPassword: "",
       acceptPolicy: false,
+      countryCode: "CM",
     });
     setSignupErrors({});
     setOtpOpen(false);
@@ -82,15 +83,22 @@ function Signup({ onClose, open }) {
     event.preventDefault();
     const errors = {};
 
-    if (!signupData.phoneNumber)
-      errors.phoneNumber = "Phone number is required";
+    // Check password strength
+  const passwordRegex = /^(?=.*[!@#$%^&*()_+\-=])[a-zA-Z0-9!@#$%^&*()_+\-=]{8,}$/;
+  if (!passwordRegex.test(signupData.password)) {
+    setAlert({
+      message: "Password must be at least 8 characters long; Must include at least one special character from the following set: !@#$%^&*()_+-",
+      severity: "error",
+      open: true
+    });
+    return;
+  }
+
+    if (!signupData.phoneNumber) errors.phoneNumber = "Phone number is required";
     if (!signupData.password) errors.password = "Password is required";
-    if (!signupData.repeatPassword)
-      errors.repeatPassword = "Please repeat your password";
-    if (signupData.password !== signupData.repeatPassword)
-      errors.repeatPassword = "Passwords do not match";
-    if (!signupData.acceptPolicy)
-      errors.acceptPolicy = "Please accept the privacy policy";
+    if (!signupData.repeatPassword) errors.repeatPassword = "Please repeat your password";
+    if (signupData.password !== signupData.repeatPassword) errors.repeatPassword = "Passwords do not match";
+    if (!signupData.acceptPolicy) errors.acceptPolicy = "Please accept the privacy policy";
 
     if (Object.keys(errors).length > 0) {
       setAlert({ message: Object.values(errors).join(" "), severity: "error", open: true });
@@ -100,20 +108,38 @@ function Signup({ onClose, open }) {
     setLoading(true);
     try {
       const parsedPhoneNumber = parsePhoneNumber(signupData.phoneNumber);
-      if (parsedPhoneNumber) {
-        setCountryCode(parsedPhoneNumber.countryCallingCode);
-      } else {
+      if (!parsedPhoneNumber) {
         setAlert({ message: "Invalid phone number", severity: "error", open: true });
         setLoading(false);
         return;
       }
 
+      // Generate Curve25519 key pairs
+      const clientPublishKeyPair = generateKeyPair();
+      const clientDeviceIdKeyPair = generateKeyPair();
+
+      // Store the generated keys for use in OTP verification
+      await window.api.storeParams("client_device_id_pub_key", clientDeviceIdKeyPair.publicKey);
+      await window.api.storeParams("client_publish_pub_key", clientPublishKeyPair.publicKey);
+
       const response = await window.api.createEntity(
         signupData.phoneNumber,
         signupData.password,
-        parsedPhoneNumber.countryCallingCode
+        parsedPhoneNumber.country,
+        clientDeviceIdKeyPair.publicKey,
+        clientPublishKeyPair.publicKey
       );
       console.log("Response:", response);
+
+      if (response.error === 'PASSWORD_BREACHED') {
+        setAlert({
+          message: "This password has been found in a data breach and should not be used. Please choose a different password.",
+          severity: "error",
+          open: true
+        });
+        return;
+      }
+
       setAlert({ message: response.message, severity: "success", open: true });
       if (response.requires_ownership_proof) {
         setServerResponse({
@@ -131,32 +157,32 @@ function Signup({ onClose, open }) {
       }
     } catch (error) {
       console.error("Error:", error);
-      setAlert({ message: "Failed to create entity. Please try again.", severity: "error", open: true });
+      setAlert({ message: "Failed to create entity.", error,  severity: "error", open: true });
     } finally {
       setLoading(false);
     }
   };
 
   const handleOtpSubmit = async (otp) => {
-    // Generate Curve25519 key pairs
-    const clientPublishKeyPair = generateKeyPair();
-    const clientDeviceIdKeyPair = generateKeyPair();
     setLoading(true);
     try {
+      // Retrieve the previously stored keys
+      const clientDeviceIdPubKey = await window.api.retrieveParams("client_device_id_pub_key");
+      const clientPublishPubKey = await window.api.retrieveParams("client_publish_pub_key");
+
       const response = await window.api.createEntity(
         signupData.phoneNumber,
         signupData.password,
         countryCode,
-        clientDeviceIdKeyPair.publicKey,
-        clientPublishKeyPair.publicKey,
+        clientDeviceIdPubKey,
+        clientPublishPubKey,
         otp,
       );
       console.log("OTP Verification Response:", response);
       setAlert({ message: "Signup successful", severity: "success", open: true });
-      //await window.api.storeParams("serverResponse", response);
       setTimeout(() => {
-      navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
-      handleClose();
+        navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
+        handleClose();
       }, 2000);
     } catch (error) {
       console.error("OTP Verification Error:", error);
@@ -203,9 +229,8 @@ function Signup({ onClose, open }) {
           <Box sx={{ m: 4 }}>
             <MuiTelInput
               fullWidth
-              flags={flags}
               sx={{ mb: 4 }}
-              placeholder={t("enterPhoneNumber")}
+              international="true"
               defaultCountry="CM"
               value={signupData.phoneNumber}
               onChange={(value) =>

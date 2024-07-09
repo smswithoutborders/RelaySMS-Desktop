@@ -1,22 +1,10 @@
-const keytar = require('keytar');
-
-const SERVICE_NAME = 'RelaySMS';
-
-async function saveKey(keyName, keyValue) {
-  await keytar.setPassword(SERVICE_NAME, keyName, keyValue);
-}
-
-async function getKey(keyName) {
-  const keyValue = await keytar.getPassword(SERVICE_NAME, keyName);
-  return keyValue;
-}
-
-async function deleteKey(keyName) {
-  await keytar.deletePassword(SERVICE_NAME, keyName);
-}
+const storage = new Map(); // Using an in-memory map for simplicity. Replace with actual secure storage.
 
 module.exports = {
-  saveKey,
-  getKey,
-  deleteKey,
+  store: (key, value) => {
+    storage.set(key, value);
+  },
+  retrieve: (key) => {
+    return storage.get(key);
+  }
 };

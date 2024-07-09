@@ -238,6 +238,33 @@ ipcMain.handle(
   }
 );
 
+function listEntityStoredTokens(long_lived_token, callback) {
+  client.ListEntityStoredTokens(
+    { long_lived_token },
+    function (err, response) {
+      if (err) {
+        console.error("gRPC error:", err);
+        callback(err, null);
+      } else {
+        console.log("gRPC response:", response);
+        callback(null, response);
+      }
+    }
+  );
+}
+
+ipcMain.handle("list-entity-stored-tokens", async (event, { long_lived_token }) => {
+  return new Promise((resolve, reject) => {
+    listEntityStoredTokens(long_lived_token, (err, response) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(response);
+      }
+    });
+  });
+});
+
 ipcMain.handle("store-params", async (event, { key, params }) => {
   return new Promise((resolve, reject) => {
     const encryptedParams = safestorage.encryptString(JSON.stringify(params));

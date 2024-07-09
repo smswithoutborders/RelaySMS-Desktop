@@ -1,22 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button, Box, Dialog, Typography, Alert, Snackbar } from "@mui/material";
-//import PhoneInput from "react-phone-number-input";
+// import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
 import { useTranslation } from "react-i18next";
 import OTPDialog from "../Components/OTP";
 import { MuiTelInput } from "mui-tel-input";
 import { useNavigate } from "react-router-dom";
-import nacl from "tweetnacl";
-import naclUtil from "tweetnacl-util"
-
-function generateKeyPair() {
-  const keyPair = nacl.box.keyPair();
-  return {
-    publicKey: naclUtil.encodeBase64(keyPair.publicKey),
-    secretKey: naclUtil.encodeBase64(keyPair.secretKey),
-  };
-}
+//import nacl from "tweetnacl";
+//import naclUtil from "tweetnacl-util";
 
 function Login({ onClose, open }) {
   const { t } = useTranslation();
@@ -33,6 +25,10 @@ function Login({ onClose, open }) {
     long_lived_token: "",
   });
   const [alert, setAlert] = useState({ message: "", severity: "" });
+  const [clientKeys, setClientKeys] = useState({
+    client_device_id_pub_key: "",
+    client_publish_pub_key: ""
+  });
 
   const handleClose = () => {
     onClose();
@@ -51,6 +47,22 @@ function Login({ onClose, open }) {
   };
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchClientKeys = async () => {
+      try {
+        const clientDeviceIdPubKey = await window.api.retrieveParams("client_device_id_pub_key");
+        const clientPublishPubKey = await window.api.retrieveParams("client_publish_pub_key");
+        setClientKeys({
+          client_device_id_pub_key: clientDeviceIdPubKey,
+          client_publish_pub_key: clientPublishPubKey,
+        });
+      } catch (error) {
+        console.error("Error retrieving client keys:", error);
+      }
+    };
+    fetchClientKeys();
+  }, []);
+
   const handleLoginChange = (event) => {
     const { name, value } = event.target;
     setLoginData((prevData) => ({
@@ -62,8 +74,7 @@ function Login({ onClose, open }) {
   const handleLoginSubmit = async (event) => {
     event.preventDefault();
     const errors = {};
-    if (!loginData.phoneNumber)
-      errors.phoneNumber = t("Phone number is required");
+    if (!loginData.phoneNumber) errors.phoneNumber = t("Phone number is required");
     if (!loginData.password) errors.password = t("Password is required");
 
     if (Object.keys(errors).length > 0) {
@@ -87,7 +98,8 @@ function Login({ onClose, open }) {
         });
         setOtpOpen(true);
       } else {
-       setAlert({ message: "Login successful. OTP sent successfully. Check your phone for the code.", severity: "success", open: true });
+        await window.api.storeParams("longLivedToken", response.long_lived_token); // Store the token here
+        setAlert({ message: "Login successful. OTP sent successfully. Check your phone for the code.", severity: "success", open: true });
         setTimeout(() => {
           navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
           handleClose();
@@ -105,28 +117,20 @@ function Login({ onClose, open }) {
   };
 
   const handleOtpSubmit = async (otp) => {
-     // Generate Curve25519 key pairs
-     const clientPublishKeyPair = generateKeyPair();
-     const clientDeviceIdKeyPair = generateKeyPair();
     setLoading(true);
     try {
       const response = await window.api.authenticateEntity(
         loginData.phoneNumber,
         loginData.password,
-        //serverResponse.server_publish_pub_key,
-        //serverResponse.server_device_id_pub_key,
-        // "XTB8GBxvOWl/BuZjMYGidYL8zmKD7OrLJeS6CWgtg1Y=",
-        // "OMMfRQIpQHtS/NfOUsR2bRrFFjU2PbszHn+cfXVty0U=",
-        clientDeviceIdKeyPair.publicKey,
-        clientPublishKeyPair.publicKey,
+        clientKeys.client_device_id_pub_key,
+        clientKeys.client_publish_pub_key,
         otp
       ); 
       console.log("OTP Verification Response:", response);
+      await window.api.storeParams("longLivedToken", response.long_lived_token); // Store the token here
       setAlert({ message: "Login successful", severity: "success", open: true });
       setTimeout(() => {
-       // await window.api.storeServerKeys(client_device_id_priv_key, client_publish_priv_key);
         navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
-        //await window.api.storeParams("serverResponse", response);
         handleClose();
       }, 2000);
     } catch (error) {
@@ -153,19 +157,6 @@ function Login({ onClose, open }) {
       setLoading(false);
     }
   };
-
-
-  // useEffect(() => {
-  //   const fetchParams = async () => {
-  //     try {
-  //       const storedParams = await window.api.retrieveParams("serverResponse");
-  //       console.log("Stored Params:", storedParams);
-  //     } catch (error) {
-  //       console.error("Retrieval Error:", error);
-  //     }
-  //   };
-  //   fetchParams();
-  // }, []);
 
   return (
     <>
