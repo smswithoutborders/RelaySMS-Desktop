@@ -45,7 +45,11 @@ function Signup({ onClose, open }) {
     server_device_id_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
     long_lived_token: "",
   });
-  const [alert, setAlert] = useState({ message: "", severity: "", open: false });
+  const [alert, setAlert] = useState({
+    message: "",
+    severity: "",
+    open: false,
+  });
 
   const navigate = useNavigate();
 
@@ -84,24 +88,34 @@ function Signup({ onClose, open }) {
     const errors = {};
 
     // Check password strength
-  const passwordRegex = /^(?=.*[!@#$%^&*()_+\-=])[a-zA-Z0-9!@#$%^&*()_+\-=]{8,}$/;
-  if (!passwordRegex.test(signupData.password)) {
-    setAlert({
-      message: "Password must be at least 8 characters long; Must include at least one special character from the following set: !@#$%^&*()_+-",
-      severity: "error",
-      open: true
-    });
-    return;
-  }
+    const passwordRegex =
+      /^(?=.*[!@#$%^&*()_+\-=])[a-zA-Z0-9!@#$%^&*()_+\-=]{8,}$/;
+    if (!passwordRegex.test(signupData.password)) {
+      setAlert({
+        message:
+          "Password must be at least 8 characters long; Must include at least one special character from the following set: !@#$%^&*()_+-",
+        severity: "error",
+        open: true,
+      });
+      return;
+    }
 
-    if (!signupData.phoneNumber) errors.phoneNumber = "Phone number is required";
+    if (!signupData.phoneNumber)
+      errors.phoneNumber = "Phone number is required";
     if (!signupData.password) errors.password = "Password is required";
-    if (!signupData.repeatPassword) errors.repeatPassword = "Please repeat your password";
-    if (signupData.password !== signupData.repeatPassword) errors.repeatPassword = "Passwords do not match";
-    if (!signupData.acceptPolicy) errors.acceptPolicy = "Please accept the privacy policy";
+    if (!signupData.repeatPassword)
+      errors.repeatPassword = "Please repeat your password";
+    if (signupData.password !== signupData.repeatPassword)
+      errors.repeatPassword = "Passwords do not match";
+    if (!signupData.acceptPolicy)
+      errors.acceptPolicy = "Please accept the privacy policy";
 
     if (Object.keys(errors).length > 0) {
-      setAlert({ message: Object.values(errors).join(" "), severity: "error", open: true });
+      setAlert({
+        message: Object.values(errors).join(" "),
+        severity: "error",
+        open: true,
+      });
       return;
     }
 
@@ -109,18 +123,30 @@ function Signup({ onClose, open }) {
     try {
       const parsedPhoneNumber = parsePhoneNumber(signupData.phoneNumber);
       if (!parsedPhoneNumber) {
-        setAlert({ message: "Invalid phone number", severity: "error", open: true });
+        setAlert({
+          message: "Invalid phone number",
+          severity: "error",
+          open: true,
+        });
         setLoading(false);
         return;
       }
+
+      setCountryCode(parsedPhoneNumber.country);
 
       // Generate Curve25519 key pairs
       const clientPublishKeyPair = generateKeyPair();
       const clientDeviceIdKeyPair = generateKeyPair();
 
       // Store the generated keys for use in OTP verification
-      await window.api.storeParams("client_device_id_pub_key", clientDeviceIdKeyPair.publicKey);
-      await window.api.storeParams("client_publish_pub_key", clientPublishKeyPair.publicKey);
+      await window.api.storeParams(
+        "client_device_id_pub_key",
+        clientDeviceIdKeyPair.publicKey
+      );
+      await window.api.storeParams(
+        "client_publish_pub_key",
+        clientPublishKeyPair.publicKey
+      );
 
       const response = await window.api.createEntity(
         signupData.phoneNumber,
@@ -131,11 +157,12 @@ function Signup({ onClose, open }) {
       );
       console.log("Response:", response);
 
-      if (response.error === 'PASSWORD_BREACHED') {
+      if (response.error === "PASSWORD_BREACHED") {
         setAlert({
-          message: "This password has been found in a data breach and should not be used. Please choose a different password.",
+          message:
+            "This password has been found in a data breach and should not be used. Please choose a different password.",
           severity: "error",
-          open: true
+          open: true,
         });
         return;
       }
@@ -149,15 +176,22 @@ function Signup({ onClose, open }) {
         });
         setOtpOpen(true);
       } else {
-        setAlert({ message: "Signup successful. OTP sent successfully. Check your phone for the code.", severity: "success", open: true });
+        setAlert({
+          message:
+            "Signup successful. OTP sent successfully. Check your phone for the code.",
+          severity: "success",
+          open: true,
+        });
         setTimeout(() => {
-          navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
+          navigate("/onboarding3"); // Navigate to /onboarding3 after showing the success message
           handleClose();
         }, 2000);
       }
     } catch (error) {
       console.error("Error:", error);
-      setAlert({ message: "Failed to create entity.", error,  severity: "error", open: true });
+      const errorMessage =
+        error?.message || "Failed to create entity. Please try again.";
+      setAlert({ message: errorMessage, severity: "error", open: true });
     } finally {
       setLoading(false);
     }
@@ -167,8 +201,12 @@ function Signup({ onClose, open }) {
     setLoading(true);
     try {
       // Retrieve the previously stored keys
-      const clientDeviceIdPubKey = await window.api.retrieveParams("client_device_id_pub_key");
-      const clientPublishPubKey = await window.api.retrieveParams("client_publish_pub_key");
+      const clientDeviceIdPubKey = await window.api.retrieveParams(
+        "client_device_id_pub_key"
+      );
+      const clientPublishPubKey = await window.api.retrieveParams(
+        "client_publish_pub_key"
+      );
 
       const response = await window.api.createEntity(
         signupData.phoneNumber,
@@ -176,17 +214,30 @@ function Signup({ onClose, open }) {
         countryCode,
         clientDeviceIdPubKey,
         clientPublishPubKey,
-        otp,
+        otp
       );
       console.log("OTP Verification Response:", response);
-      setAlert({ message: "Signup successful", severity: "success", open: true });
+      if (response.long_lived_token) {
+        await window.api.storeParams("long_lived_token", response.long_lived_token);
+      }
+      setAlert({
+        message: "Signup successful",
+        severity: "success",
+        open: true,
+      });
       setTimeout(() => {
-        navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
+        navigate("/onboarding3"); // Navigate to /onboarding3 after showing the success message
         handleClose();
       }, 2000);
     } catch (error) {
       console.error("OTP Verification Error:", error);
-      setAlert({ message: "Something went wrong, please check your OTP code and try again.", severity: "error", open: true });
+      
+      setAlert({
+        message:
+          "Something went wrong, please check your OTP code and try again.",
+        severity: "error",
+        open: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -201,10 +252,18 @@ function Signup({ onClose, open }) {
         countryCode
       );
       console.log("Resend OTP Response:", response);
-      setAlert({ message: "OTP Resent: " + response.message, severity: "success", open: true });
+      setAlert({
+        message: "OTP Resent: " + response.message,
+        severity: "success",
+        open: true,
+      });
     } catch (error) {
       console.error("Resend OTP Error:", error);
-      setAlert({ message: "Something went wrong, please try again.", severity: "error", open: true });
+      setAlert({
+        message: "Something went wrong, please try again.",
+        severity: "error",
+        open: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -217,7 +276,11 @@ function Signup({ onClose, open }) {
         autoHideDuration={6000}
         onClose={handleAlertClose}
       >
-        <Alert onClose={handleAlertClose} severity={alert.severity} sx={{ width: '100%' }}>
+        <Alert
+          onClose={handleAlertClose}
+          severity={alert.severity}
+          sx={{ width: "100%" }}
+        >
           {alert.message}
         </Alert>
       </Snackbar>
@@ -234,7 +297,10 @@ function Signup({ onClose, open }) {
               defaultCountry="CM"
               value={signupData.phoneNumber}
               onChange={(value) =>
-                setSignupData((prevData) => ({ ...prevData, phoneNumber: value }))
+                setSignupData((prevData) => ({
+                  ...prevData,
+                  phoneNumber: value,
+                }))
               }
             />
             <TextField

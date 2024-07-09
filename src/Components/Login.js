@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Button, Box, Dialog, Typography, Alert, Snackbar } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Box,
+  Dialog,
+  Typography,
+  Alert,
+  Snackbar,
+} from "@mui/material";
 // import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
@@ -7,8 +15,16 @@ import { useTranslation } from "react-i18next";
 import OTPDialog from "../Components/OTP";
 import { MuiTelInput } from "mui-tel-input";
 import { useNavigate } from "react-router-dom";
-//import nacl from "tweetnacl";
-//import naclUtil from "tweetnacl-util";
+import nacl from "tweetnacl";
+import naclUtil from "tweetnacl-util";
+
+function generateKeyPair() {
+  const keyPair = nacl.box.keyPair();
+  return {
+    publicKey: naclUtil.encodeBase64(keyPair.publicKey),
+    secretKey: naclUtil.encodeBase64(keyPair.secretKey),
+  };
+}
 
 function Login({ onClose, open }) {
   const { t } = useTranslation();
@@ -25,10 +41,6 @@ function Login({ onClose, open }) {
     long_lived_token: "",
   });
   const [alert, setAlert] = useState({ message: "", severity: "" });
-  const [clientKeys, setClientKeys] = useState({
-    client_device_id_pub_key: "",
-    client_publish_pub_key: ""
-  });
 
   const handleClose = () => {
     onClose();
@@ -47,22 +59,6 @@ function Login({ onClose, open }) {
   };
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchClientKeys = async () => {
-      try {
-        const clientDeviceIdPubKey = await window.api.retrieveParams("client_device_id_pub_key");
-        const clientPublishPubKey = await window.api.retrieveParams("client_publish_pub_key");
-        setClientKeys({
-          client_device_id_pub_key: clientDeviceIdPubKey,
-          client_publish_pub_key: clientPublishPubKey,
-        });
-      } catch (error) {
-        console.error("Error retrieving client keys:", error);
-      }
-    };
-    fetchClientKeys();
-  }, []);
-
   const handleLoginChange = (event) => {
     const { name, value } = event.target;
     setLoginData((prevData) => ({
@@ -74,7 +70,8 @@ function Login({ onClose, open }) {
   const handleLoginSubmit = async (event) => {
     event.preventDefault();
     const errors = {};
-    if (!loginData.phoneNumber) errors.phoneNumber = t("Phone number is required");
+    if (!loginData.phoneNumber)
+      errors.phoneNumber = t("Phone number is required");
     if (!loginData.password) errors.password = t("Password is required");
 
     if (Object.keys(errors).length > 0) {
@@ -83,10 +80,26 @@ function Login({ onClose, open }) {
     }
 
     setLoading(true);
+    // Generate Curve25519 key pairs
+    const clientPublishKeyPair = generateKeyPair();
+    const clientDeviceIdKeyPair = generateKeyPair();
+
+    // Store the generated keys for use in OTP verification
+    await window.api.storeParams(
+      "client_device_id_pub_key",
+      clientDeviceIdKeyPair.publicKey
+    );
+    await window.api.storeParams(
+      "client_publish_pub_key",
+      clientPublishKeyPair.publicKey
+    );
+
     try {
       const response = await window.api.authenticateEntity(
         loginData.phoneNumber,
-        loginData.password
+        loginData.password,
+        clientDeviceIdKeyPair.publicKey,
+        clientPublishKeyPair.publicKey
       );
       console.log("Response:", response);
       setAlert({ message: response.message, severity: "success", open: true });
@@ -98,17 +111,26 @@ function Login({ onClose, open }) {
         });
         setOtpOpen(true);
       } else {
-        await window.api.storeParams("longLivedToken", response.long_lived_token); // Store the token here
-        setAlert({ message: "Login successful. OTP sent successfully. Check your phone for the code.", severity: "success", open: true });
+        await window.api.storeParams(
+          "longLivedToken",
+          response.long_lived_token
+        ); // Store the token here
+        setAlert({
+          message:
+            "Login successful. OTP sent successfully. Check your phone for the code.",
+          severity: "success",
+          open: true,
+        });
         setTimeout(() => {
-          navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
+          navigate("/onboarding3"); // Navigate to /onboarding3 after showing the success message
           handleClose();
         }, 2000);
       }
     } catch (error) {
       console.error("Login Error:", error);
       setAlert({
-        message: "Something went wrong, please check your phone number and password",
+        message:
+          "Something went wrong, please check your phone number and password",
         severity: "error",
       });
     } finally {
@@ -119,23 +141,40 @@ function Login({ onClose, open }) {
   const handleOtpSubmit = async (otp) => {
     setLoading(true);
     try {
+      // Retrieve the previously stored keys
+      const clientDeviceIdPubKey = await window.api.retrieveParams(
+        "client_device_id_pub_key"
+      );
+      const clientPublishPubKey = await window.api.retrieveParams(
+        "client_publish_pub_key"
+      );
+
       const response = await window.api.authenticateEntity(
         loginData.phoneNumber,
         loginData.password,
-        clientKeys.client_device_id_pub_key,
-        clientKeys.client_publish_pub_key,
+        clientDeviceIdPubKey,
+        clientPublishPubKey,
         otp
-      ); 
+      );
       console.log("OTP Verification Response:", response);
       await window.api.storeParams("longLivedToken", response.long_lived_token); // Store the token here
-      setAlert({ message: "Login successful", severity: "success", open: true });
+      setAlert({
+        message: "Login successful",
+        severity: "success",
+        open: true,
+      });
       setTimeout(() => {
-        navigate('/onboarding3'); // Navigate to /onboarding3 after showing the success message
+        navigate("/onboarding3"); // Navigate to /onboarding3 after showing the success message
         handleClose();
       }, 2000);
     } catch (error) {
       console.error("OTP Verification Error:", error);
-      setAlert({ message: "Something went wrong, please check your OTP code and try again.", severity: "error", open: true });
+      setAlert({
+        message:
+          "Something went wrong, please check your OTP code and try again.",
+        severity: "error",
+        open: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -149,10 +188,18 @@ function Login({ onClose, open }) {
         loginData.password
       );
       console.log("Resend OTP Response:", response);
-      setAlert({ message: "OTP Resent: " + response.message, severity: "success", open: true });
+      setAlert({
+        message: "OTP Resent: " + response.message,
+        severity: "success",
+        open: true,
+      });
     } catch (error) {
       console.error("Resend OTP Error:", error);
-      setAlert({ message: "Something went wrong, please try again", severity: "error", open: true });
+      setAlert({
+        message: "Something went wrong, please try again",
+        severity: "error",
+        open: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -165,7 +212,11 @@ function Login({ onClose, open }) {
         autoHideDuration={6000}
         onClose={handleAlertClose}
       >
-        <Alert onClose={handleAlertClose} severity={alert.severity} sx={{ width: '100%' }}>
+        <Alert
+          onClose={handleAlertClose}
+          severity={alert.severity}
+          sx={{ width: "100%" }}
+        >
           {alert.message}
         </Alert>
       </Snackbar>
@@ -188,7 +239,10 @@ function Login({ onClose, open }) {
               value={loginData.phoneNumber}
               sx={{ mb: 4 }}
               onChange={(value) =>
-                setLoginData((prevData) => ({ ...prevData, phoneNumber: value }))
+                setLoginData((prevData) => ({
+                  ...prevData,
+                  phoneNumber: value,
+                }))
               }
             />
             <TextField
