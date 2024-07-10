@@ -7,6 +7,8 @@ import {
   Typography,
   Alert,
   Snackbar,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 // import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -17,6 +19,8 @@ import { MuiTelInput } from "mui-tel-input";
 import { useNavigate } from "react-router-dom";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 function generateKeyPair() {
   const keyPair = nacl.box.keyPair();
@@ -28,6 +32,7 @@ function generateKeyPair() {
 
 function Login({ onClose, open }) {
   const { t } = useTranslation();
+  const [showPassword, setShowPassword] = React.useState(false);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({
     phoneNumber: "",
@@ -41,6 +46,11 @@ function Login({ onClose, open }) {
     long_lived_token: "",
   });
   const [alert, setAlert] = useState({ message: "", severity: "" });
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
   const handleClose = () => {
     onClose();
@@ -115,6 +125,7 @@ function Login({ onClose, open }) {
           "longLivedToken",
           response.long_lived_token
         ); // Store the token here
+        await window.api.storeSession(response);
         setAlert({
           message:
             "Login successful. OTP sent successfully. Check your phone for the code.",
@@ -254,6 +265,18 @@ function Login({ onClose, open }) {
               value={loginData.password}
               onChange={handleLoginChange}
               sx={{ mb: 4 }}
+              endadornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
             />
 
             <Button

@@ -1,103 +1,12 @@
-const { app, BrowserWindow, protocol, ipcMain } = require("electron");
+/* eslint-disable no-unused-expressions */
+const { app, BrowserWindow, protocol, ipcMain, shell } = require("electron");
 const path = require("path");
 const url = require("url");
 const storage = require("electron-json-storage");
-const grpc = require("@grpc/grpc-js");
-const protoLoader = require("@grpc/proto-loader");
+const vault = require("./vault");
+const publisher = require("./publisher");
+const safestorage = require('./storage');
 
-const PROTO_PATH = path.join(__dirname, "vault.proto");
-
-const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-  keepCase: true,
-  longs: String,
-  enums: String,
-  defaults: true,
-  oneofs: true,
-});
-const vault_proto = grpc.loadPackageDefinition(packageDefinition).vault.v1;
-
-const target = "staging.smswithoutborders.com:9050";
-const credentials = grpc.credentials.createFromSecureContext();
-const client = new vault_proto.Entity(target, credentials);
-
-function createEntity(
-  {
-    phone_number,
-    password,
-    country_code,
-    client_device_id_pub_key,
-    client_publish_pub_key,
-    ownership_proof_response,
-  },
-  callback
-) {
-  console.log("gRPC createEntity request payload:", {
-    phone_number,
-    password,
-    country_code,
-    client_publish_pub_key,
-    client_device_id_pub_key,
-    ownership_proof_response,
-  });
-
-  client.CreateEntity(
-    {
-      phone_number,
-      password,
-      country_code,
-      client_publish_pub_key,
-      client_device_id_pub_key,
-      ownership_proof_response,
-    },
-    function (err, response) {
-      if (err) {
-        console.error("gRPC error:", err);
-        callback(err, null);
-      } else {
-        console.log("gRPC response:", response);
-        callback(null, response);
-      }
-    }
-  );
-}
-
-function authenticateEntity(
-  {
-    phone_number,
-    password,
-    client_publish_pub_key,
-    client_device_id_pub_key,
-    ownership_proof_response,
-  },
-  callback
-) {
-  console.log("gRPC authenticateEntity request payload:", {
-    phone_number,
-    password,
-    client_publish_pub_key,
-    client_device_id_pub_key,
-    ownership_proof_response,
-  });
-
-  client.AuthenticateEntity(
-    {
-      phone_number,
-      password,
-      client_publish_pub_key,
-      client_device_id_pub_key,
-      ownership_proof_response,
-    },
-    function (err, response) {
-      if (err) {
-        console.error("gRPC error:", err);
-        callback(err, null);
-      } else {
-        console.log("gRPC response:", response);
-        callback(null, response);
-      }
-    }
-  );
-}
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -184,7 +93,7 @@ ipcMain.handle(
     }
   ) => {
     return new Promise((resolve, reject) => {
-      createEntity(
+      vault.createEntity(
         {
           phone_number: phoneNumber,
           password: password,
@@ -218,7 +127,7 @@ ipcMain.handle(
     }
   ) => {
     return new Promise((resolve, reject) => {
-      authenticateEntity(
+      vault.authenticateEntity(
         {
           phone_number: phoneNumber,
           password: password,
@@ -238,32 +147,61 @@ ipcMain.handle(
   }
 );
 
-function listEntityStoredTokens(long_lived_token, callback) {
-  client.ListEntityStoredTokens(
-    { long_lived_token },
-    function (err, response) {
-      if (err) {
-        console.error("gRPC error:", err);
-        callback(err, null);
-      } else {
-        console.log("gRPC response:", response);
-        callback(null, response);
-      }
+ipcMain.handle(
+  "list-entity-stored-tokens",
+  async (
+    event,
+    {
+     long_lived_token
     }
-  );
-}
-
-ipcMain.handle("list-entity-stored-tokens", async (event, { long_lived_token }) => {
-  return new Promise((resolve, reject) => {
-    listEntityStoredTokens(long_lived_token, (err, response) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(response);
-      }
+  ) => {
+    return new Promise((resolve, reject) => {
+      vault.listEntityStoredTokens(
+        {
+         long_lived_token: long_lived_token,
+        },
+        (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(response);
+          }
+        }
+      );
     });
-  });
-});
+  }
+);
+
+ipcMain.handle(
+  "get-oauth2-authorization-url",
+  async (
+    event,
+    {
+      platform,
+      state,
+      code_verifier,
+      autogenerate_code_verifier,
+    }
+  ) => {
+    return new Promise((resolve, reject) => {
+     publisher.getOAuth2AuthorizationUrl(
+        {
+          platform: platform,
+          state: state,
+          code_verifier: code_verifier,
+          autogenerate_code_verifier: autogenerate_code_verifier,
+        },
+        (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(response);
+          }
+        }
+      );
+    });
+  }
+);
 
 ipcMain.handle("store-params", async (event, { key, params }) => {
   return new Promise((resolve, reject) => {
@@ -277,6 +215,43 @@ ipcMain.handle("store-params", async (event, { key, params }) => {
     });
   });
 });
+
+ipcMain.handle("store-session", async (event, sessionData) => {
+  return new Promise((resolve, reject) => {
+    storage.set("userSession", sessionData, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+});
+
+ipcMain.handle("retrieve-session", async () => {
+  return new Promise((resolve, reject) => {
+    storage.get("userSession", (error, data) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+});
+
+ipcMain.handle("delete-session", async () => {
+  return new Promise((resolve, reject) => {
+    storage.remove("userSession", (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+});
+
 
 ipcMain.handle("retrieve-params", async (event, { key }) => {
   return new Promise((resolve, reject) => {
@@ -372,4 +347,14 @@ ipcMain.handle("retrieve-server-keys", async () => {
       }
     });
   });
+});
+
+ipcMain.handle("open-external-url", async (event, url) => {
+  try {
+    await shell.openExternal(url);
+    event.returnValue = true; // Optional: return a value if needed
+  } catch (error) {
+    console.error("Failed to open external URL:", error);
+    event.returnValue = false; // Optional: handle failure if needed
+  }
 });

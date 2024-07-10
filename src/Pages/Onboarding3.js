@@ -1,11 +1,23 @@
 import { Typography, Box, Grid, Button } from "@mui/material";
-import React from "react";
+import React, {useState} from "react";
 import { FaChevronLeft, FaChevronRight, FaUsers } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import AddAccounts from "../Components/AddAccounts";
 
 export default function Onboarding3() {
   const { t } = useTranslation();
+  const [addAccountsDrawerOpen, setAddAccountsDrawerOpen] = useState(false); 
+
+
+  const handleAddAccountsClick = () => {
+    setAddAccountsDrawerOpen(true);
+  };
+
+  const handleAddAccountsDrawerClose = () => {
+    setAddAccountsDrawerOpen(false);
+  };
+
   return (
     <Box my="auto" sx={{ px: 5, py: 10 }}>
       <Grid container>
@@ -19,7 +31,7 @@ export default function Onboarding3() {
           </Typography>
 
           <Box sx={{ pt: 10 }}>
-            <Button
+            <Button  onClick={handleAddAccountsClick} 
               variant="contained"
               sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
             >
@@ -77,6 +89,7 @@ export default function Onboarding3() {
           </Button>
         </Grid>
       </Grid>
+      <AddAccounts open={addAccountsDrawerOpen} onClose={handleAddAccountsDrawerClose} />
     </Box>
   );
 }

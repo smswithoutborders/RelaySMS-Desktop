@@ -156,7 +156,6 @@ function Signup({ onClose, open }) {
         clientPublishKeyPair.publicKey
       );
       console.log("Response:", response);
-
       if (response.error === "PASSWORD_BREACHED") {
         setAlert({
           message:
@@ -176,6 +175,7 @@ function Signup({ onClose, open }) {
         });
         setOtpOpen(true);
       } else {
+        await window.api.storeSession(response);
         setAlert({
           message:
             "Signup successful. OTP sent successfully. Check your phone for the code.",

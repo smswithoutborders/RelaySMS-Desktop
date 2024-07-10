@@ -40,6 +40,8 @@ contextBridge.exposeInMainWorld("api", {
     ownership_proof_response
   ) => {
     try {
+      console.log("Authenticating entity with the following details:");
+      console.log("Phone Number:", phoneNumber);  
       const response = await ipcRenderer.invoke("authenticate-entity", {
         phoneNumber,
         password,
@@ -53,25 +55,62 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
-  // storeParams: async (key, params) => {
-  //   try {
-  //     await ipcRenderer.invoke("store-params", { key, params });
-  //   } catch (error) {
-  //     console.error("Storage error:", error);
-  //     throw error;
-  //   }
-  // },
-  // retrieveParams: async (key) => {
-  //   try {
-  //     const params = await ipcRenderer.invoke("retrieve-params", { key });
-  //     return params;
-  //   } catch (error) {
-  //     console.error("Retrieval error:", error);
-  //     throw error;
-  //   }
-  // },
+  getOAuth2AuthorizationUrl: async (
+    platform,
+    state,
+    code_verifier,
+    autogenerate_code_verifier
+  ) => {
+    try {
+      console.log("platform:", platform);
+      console.log("state:", state);
+      console.log("code_verifier", code_verifier);
+      console.log("autogenerate_code_verifier", autogenerate_code_verifier)
+      const response = await ipcRenderer.invoke("get-oauth2-authorization-url", {
+      platform,
+      state,
+      code_verifier,
+      autogenerate_code_verifier,
+      });
+      console.log("response:", response);
+      return response;
+    } catch (error) {
+      console.error("gRPC call error:", error);
+      throw error;
+    }
+  },
+ 
   storeParams: (key, value) => safestorage.store(key, value),
   retrieveParams: (key) => safestorage.retrieve(key),
+
+  storeSession: async (sessionData) => {
+    try {
+      await ipcRenderer.invoke("store-session", sessionData);
+    } catch (error) {
+      console.error("Session storage error:", error);
+      throw error;
+    }
+  },
+
+  retrieveSession: async () => {
+    try {
+      const sessionData = await ipcRenderer.invoke("retrieve-session");
+      return sessionData;
+    } catch (error) {
+      console.error("Session retrieval error:", error);
+      throw error;
+    }
+  },
+
+  deleteSession: async () => {
+    try {
+      await ipcRenderer.invoke("delete-session");
+    } catch (error) {
+      console.error("Session deletion error:", error);
+      throw error;
+    }
+  },
+
   storeOnboardingStep: async (step) => {
     try {
       await ipcRenderer.invoke("store-onboarding-step", step);
@@ -114,5 +153,17 @@ contextBridge.exposeInMainWorld("api", {
       console.error("gRPC call error:", error);
       throw error;
     }
+  },
+  openExternalUrl: (url) => {
+    return new Promise((resolve, reject) => {
+      ipcRenderer.invoke("open-external-url", url)
+        .then((result) => {
+          resolve(result); // Return true or false based on success
+        })
+        .catch((error) => {
+          console.error("Failed to invoke open-external-url:", error);
+          reject(error);
+        });
+    });
   },
 });
