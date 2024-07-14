@@ -10,7 +10,6 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
-// import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
 import { useTranslation } from "react-i18next";
@@ -21,6 +20,10 @@ import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { encode as encodeBase64, decode as decodeBase64 } from 'base64-arraybuffer';
+import { decode as utf8Decode, encode as utf8Encode } from 'utf8';
+import { createHash } from 'crypto-browserify';
+import { createDecipheriv, randomBytes } from 'crypto-browserify';
 
 function generateKeyPair() {
   const keyPair = nacl.box.keyPair();
@@ -30,9 +33,11 @@ function generateKeyPair() {
   };
 }
 
+
+
 function Login({ onClose, open }) {
   const { t } = useTranslation();
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({
     phoneNumber: "",
@@ -122,13 +127,19 @@ function Login({ onClose, open }) {
         setOtpOpen(true);
       } else {
         await window.api.storeParams(
+          "serverDeviceId",
+          response.server_device_id_pub_key
+        );
+        await window.api.storeParams(
           "longLivedToken",
           response.long_lived_token
-        ); // Store the token here
-        await window.api.storeSession(response);
+        );
+
+        await window.api.storeParams('serverDeviceId', response.server_device_id_pub_key);
+        await window.api.storeParams('longLivedToken', response.long_lived_token);
+
         setAlert({
-          message:
-            "Login successful. OTP sent successfully. Check your phone for the code.",
+          message: "Login successful. OTP sent successfully. Check your phone for the code.",
           severity: "success",
           open: true,
         });
@@ -168,12 +179,16 @@ function Login({ onClose, open }) {
         otp
       );
       console.log("OTP Verification Response:", response);
-      await window.api.storeParams("longLivedToken", response.long_lived_token); // Store the token here
+
+      await window.api.storeParams('serverDeviceId', response.server_device_id_pub_key);
+      await window.api.storeParams('longLivedToken', response.long_lived_token);
+      
       setAlert({
         message: "Login successful",
         severity: "success",
         open: true,
       });
+      
       setTimeout(() => {
         navigate("/onboarding3"); // Navigate to /onboarding3 after showing the success message
         handleClose();

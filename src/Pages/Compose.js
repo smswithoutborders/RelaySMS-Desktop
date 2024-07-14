@@ -3,6 +3,23 @@ import { Drawer, Grid, Box, Typography } from "@mui/material";
 import GmailCompose from "../Components/ComposeGmail";
 import TwitterCompose from "../Components/ComposeTwitter";
 import { useTranslation } from "react-i18next";
+import nacl from "tweetnacl";
+import naclUtil from "tweetnacl-util";
+import { decode } from "base64-arraybuffer";
+import { Buffer } from "buffer";
+import Fernet from "fernet";
+
+function generateSecretKey(serverPublicKey, clientSecretKey) {
+  const serverPubKeyUint8 = new Uint8Array(decode(serverPublicKey));
+  const clientSecKeyUint8 = new Uint8Array(decode(clientSecretKey));
+  return nacl.box.before(serverPubKeyUint8, clientSecKeyUint8);
+}
+
+function decryptToken(secretKey, encryptedToken) {
+  const secret = new Fernet.Secret(Buffer.from(secretKey, 'base64').toString('hex'));
+  const fernet = new Fernet({ key: secret });
+  return fernet.decode(encryptedToken).toString();
+}
 
 export default function Compose({ open, onClose }) {
   const { t } = useTranslation();
@@ -13,17 +30,26 @@ export default function Compose({ open, onClose }) {
   useEffect(() => {
     const fetchStoredTokens = async () => {
       try {
-        const longLivedToken = await window.api.retrieveParams("longLivedToken");
-        const response = await window.api.listEntityStoredTokens(longLivedToken);
+        const encryptedToken = await window.api.retrieveParams('longLivedToken');
+        const serverDeviceIdPubKey = await window.api.retrieveParams('serverDeviceId');
+        const clientDeviceIdSecretKey = await window.api.retrieveParams('clientDeviceIdSecretKey');
+  
+        // Decrypt token using Fernet
+        const secret = new Fernet.Secret(Buffer.from(clientDeviceIdSecretKey, 'base64').toString('hex'));
+        const fernet = new Fernet({ key: secret });
+        const decryptedToken = fernet.decode(encryptedToken).toString();
+  
+        const response = await window.api.listEntityStoredTokens(decryptedToken);
         setTokens(response.stored_tokens);
+        console.log('response:', response);
       } catch (error) {
-        console.error("Failed to fetch stored tokens:", error);
+        console.error('Failed to fetch stored tokens:', error);
       }
     };
-
+  
     fetchStoredTokens();
   }, []);
-
+  
   const handleGmailClick = () => {
     setComposeOpen(true);
     setTwitterOpen(false);

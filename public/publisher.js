@@ -30,6 +30,21 @@ function getOAuth2AuthorizationUrl({
   }, callback);
 }
 
+function exchangeOAuth2CodeAndStore({
+  long_lived_token,
+  platform,
+  authorization_code,
+  code_verifier,
+}, callback) {
+  client.exchangeOAuth2CodeAndStore({
+    long_lived_token,
+    platform,
+    authorization_code,
+    code_verifier,
+  }, callback);
+}
+
 module.exports = {
   getOAuth2AuthorizationUrl,
+  exchangeOAuth2CodeAndStore
 };

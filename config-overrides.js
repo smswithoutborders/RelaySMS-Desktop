@@ -4,6 +4,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 module.exports = function override(config) {
   config.resolve.fallback = {
     fs: require.resolve("browserify-fs"),
+    crypto: require.resolve('crypto-browserify'),
     path: require.resolve("path-browserify"),
     assert: require.resolve("assert"),
     util: require.resolve("util/"),
@@ -17,7 +18,7 @@ module.exports = function override(config) {
     tls: false,
     net: false,
     dns: false,
-    fs: false,
+    vm: false 
   };
 
   config.module.rules.push({

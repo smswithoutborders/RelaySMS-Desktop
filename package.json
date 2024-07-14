@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@getstation/electron-google-oauth2": "^14.0.0",
     "@grpc/grpc-js": "^1.10.8",
     "@grpc/proto-loader": "^0.7.13",
     "@mui/icons-material": "^5.16.0",
@@ -19,11 +20,15 @@
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
     "assert": "^2.1.0",
+    "base64-arraybuffer": "^1.0.2",
     "browserify-fs": "^1.0.0",
     "buffer": "^6.0.3",
     "constants-browserify": "^1.0.0",
+    "crypto": "^1.0.1",
+    "crypto-browserify": "^3.12.0",
     "electron-json-storage": "^4.6.0",
     "electron-store": "^10.0.0",
+    "fernet": "^0.3.2",
     "google-protobuf": "^3.21.2",
     "i18next": "^23.11.4",
     "keytar": "^7.9.0",
@@ -42,6 +47,7 @@
     "stream-browserify": "^3.0.0",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
+    "utf8": "^3.0.0",
     "util": "^0.12.5",
     "web-vitals": "^2.1.0"
   },
@@ -121,5 +127,8 @@
       "category": "Communication",
       "icon": "./public/icon.png"
     }
+  },
+  "config": {
+    "forge": "/config-overrides.js"
   }
 }

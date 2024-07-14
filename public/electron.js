@@ -5,11 +5,14 @@ const url = require("url");
 const storage = require("electron-json-storage");
 const vault = require("./vault");
 const publisher = require("./publisher");
-const safestorage = require('./storage');
+const safestorage = require("./storage");
+const os = require("os");
+const GoogleOAuth2 = require("@getstation/electron-google-oauth2").default;
 
+let mainWindow;
 
 function createWindow() {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
@@ -149,16 +152,11 @@ ipcMain.handle(
 
 ipcMain.handle(
   "list-entity-stored-tokens",
-  async (
-    event,
-    {
-     long_lived_token
-    }
-  ) => {
+  async (event, { long_lived_token }) => {
     return new Promise((resolve, reject) => {
       vault.listEntityStoredTokens(
         {
-         long_lived_token: long_lived_token,
+          long_lived_token: long_lived_token,
         },
         (err, response) => {
           if (err) {
@@ -176,20 +174,41 @@ ipcMain.handle(
   "get-oauth2-authorization-url",
   async (
     event,
-    {
-      platform,
-      state,
-      code_verifier,
-      autogenerate_code_verifier,
-    }
+    { platform, state, code_verifier, autogenerate_code_verifier }
   ) => {
     return new Promise((resolve, reject) => {
-     publisher.getOAuth2AuthorizationUrl(
+      publisher.getOAuth2AuthorizationUrl(
         {
           platform: platform,
           state: state,
           code_verifier: code_verifier,
           autogenerate_code_verifier: autogenerate_code_verifier,
+        },
+        (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(response);
+          }
+        }
+      );
+    });
+  }
+);
+
+ipcMain.handle(
+  "exchange-oauth2-code-and-store",
+  async (
+    event,
+    { long_lived_token, platform, authorization_code, code_verifier }
+  ) => {
+    return new Promise((resolve, reject) => {
+      publisher.exchangeOAuth2CodeAndStore(
+        {
+          long_lived_token: long_lived_token,
+          platform: platform,
+          authorization_code: authorization_code,
+          code_verifier: code_verifier,
         },
         (err, response) => {
           if (err) {
@@ -252,7 +271,6 @@ ipcMain.handle("delete-session", async () => {
   });
 });
 
-
 ipcMain.handle("retrieve-params", async (event, { key }) => {
   return new Promise((resolve, reject) => {
     storage.get(key, (error, data) => {
@@ -298,63 +316,61 @@ ipcMain.handle("retrieve-onboarding-step", async () => {
   });
 });
 
-ipcMain.handle("store-server-keys", async (event, { clientDeviceIdPrivKey, clientPublishPrivKey }) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const encryptedDeviceKey = safestorage.encryptString(clientDeviceIdPrivKey);
-      const encryptedPublishKey = safestorage.encryptString(clientPublishPrivKey);
-      storage.set("clientDeviceIdPrivKey", { data: encryptedDeviceKey }, (error) => {
-        if (error) {
-          reject(error);
-        } else {
-          storage.set("clientPublishPrivKey", { data: encryptedPublishKey }, (error) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve();
-            }
-          });
-        }
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
-});
+// ipcMain.handle("open-external-url", async (event, url) => {
+//   try {
+//     await shell.openExternal(url);
+//     return true;
+//   } catch (error) {
+//     console.error("Failed to open external URL:", error);
+//     return false;
+//   }
+// });
 
-ipcMain.handle("retrieve-server-keys", async () => {
-  return new Promise((resolve, reject) => {
-    storage.get("clientDeviceIdPrivKey", (error, deviceKeyData) => {
-      if (error) {
-        reject(error);
-      } else {
-        storage.get("clientPublishPrivKey", (error, publishKeyData) => {
-          if (error) {
-            reject(error);
-          } else {
-            try {
-              const decryptedDeviceKey = safestorage.decryptString(deviceKeyData.data);
-              const decryptedPublishKey = safestorage.decryptString(publishKeyData.data);
-              resolve({
-                clientDeviceIdPrivKey: decryptedDeviceKey,
-                clientPublishPrivKey: decryptedPublishKey,
-              });
-            } catch (decryptionError) {
-              reject(decryptionError);
-            }
-          }
-        });
-      }
+// Handle open-oauth invocation from renderer
+ipcMain.handle(
+  "open-oauth",
+  async (event, { oauthUrl, expectedRedirect, clientID, scope }) => {
+    const googleOAuth2 = new GoogleOAuth2(clientID, "", scope, {
+      successRedirectURL: expectedRedirect,
     });
-  });
-});
 
-ipcMain.handle("open-external-url", async (event, url) => {
-  try {
-    await shell.openExternal(url);
-    event.returnValue = true; // Optional: return a value if needed
-  } catch (error) {
-    console.error("Failed to open external URL:", error);
-    event.returnValue = false; // Optional: handle failure if needed
+    const code = await googleOAuth2.openAuthWindowAndGetAuthorizationCode(
+      oauthUrl
+    );
+    console.log(code);
+
+    // Get system architecture and app name
+    // const arch = os.arch();
+    // const appName = app.getName();
+
+    // console.log(os.platform());
+    // console.log(arch);
+    // console.log(appName);
+
+    // // Set user agent to mimic the latest version of Firefox with dynamic values
+    // const userAgent = `Mozilla/5.0 (${os.platform()}; ${arch}; rv:91.0) Gecko/20100101 Firefox/91.0 ${appName}`;
+    // authWindow.webContents.userAgent = userAgent;
+
+    // authWindow.loadURL(oauthUrl);
+    // // authWindow.webContents.on("did-redirect-navigation", (event, newUrl) => {
+    // //   const parsedUrl = new URL(newUrl);
+    // //   console.log(">>>1", parsedUrl);
+    // //   // Send the full URL including query parameters to the renderer process
+    // //   mainWindow.webContents.send("oauth-url", newUrl);
+    // //   authWindow.close();
+    // // });
+
+    // authWindow.webContents.on("will-navigate", (event, newUrl) => {
+    //   const parsedUrl = new URL(newUrl);
+    //   const parsedRedirectUrl = new URL(expectedRedirect);
+    //   console.log(newUrl);
+    //   if (
+    //     parsedUrl.hostname === parsedRedirectUrl.hostname &&
+    //     parsedUrl.pathname === parsedRedirectUrl.pathname
+    //   ) {
+    //     mainWindow.webContents.send("oauth-url", newUrl);
+    //     authWindow.close();
+    //   }
+    // });
   }
-});
+);

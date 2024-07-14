@@ -1,5 +1,5 @@
 const { contextBridge, ipcRenderer } = require("electron");
-const safestorage = require('./storage');
+const safestorage = require("./storage");
 
 contextBridge.exposeInMainWorld("api", {
   createEntity: async (
@@ -41,7 +41,7 @@ contextBridge.exposeInMainWorld("api", {
   ) => {
     try {
       console.log("Authenticating entity with the following details:");
-      console.log("Phone Number:", phoneNumber);  
+      console.log("Phone Number:", phoneNumber);
       const response = await ipcRenderer.invoke("authenticate-entity", {
         phoneNumber,
         password,
@@ -65,12 +65,56 @@ contextBridge.exposeInMainWorld("api", {
       console.log("platform:", platform);
       console.log("state:", state);
       console.log("code_verifier", code_verifier);
-      console.log("autogenerate_code_verifier", autogenerate_code_verifier)
-      const response = await ipcRenderer.invoke("get-oauth2-authorization-url", {
-      platform,
-      state,
-      code_verifier,
-      autogenerate_code_verifier,
+      console.log("autogenerate_code_verifier", autogenerate_code_verifier);
+      const response = await ipcRenderer.invoke(
+        "get-oauth2-authorization-url",
+        {
+          platform,
+          state,
+          code_verifier,
+          autogenerate_code_verifier,
+        }
+      );
+      console.log("response:", response);
+      return response;
+    } catch (error) {
+      console.error("gRPC call error:", error);
+      throw error;
+    }
+  },
+
+  exchangeOAuth2CodeAndStore: async (
+    long_lived_token,
+    platform,
+    authorization_code,
+    code_verifier
+  ) => {
+    try {
+      console.log("platform:", platform);
+      console.log("long_lived_token:", long_lived_token);
+      console.log("authorization_code", authorization_code);
+      console.log("code_verifier", code_verifier);
+      const response = await ipcRenderer.invoke(
+        "exchange-oauth2-code-and-store",
+        {
+          long_lived_token,
+          platform,
+          authorization_code,
+          code_verifier,
+        }
+      );
+      console.log("response:", response);
+      return response;
+    } catch (error) {
+      console.error("gRPC call error:", error);
+      throw error;
+    }
+  },
+  listEntityStoredTokens: async (long_lived_token) => {
+    try {
+      console.log("long_lived_token:", long_lived_token);
+      const response = await ipcRenderer.invoke("list-entity-stored-tokens", {
+        long_lived_token,
       });
       console.log("response:", response);
       return response;
@@ -79,7 +123,7 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
- 
+
   storeParams: (key, value) => safestorage.store(key, value),
   retrieveParams: (key) => safestorage.retrieve(key),
 
@@ -130,7 +174,10 @@ contextBridge.exposeInMainWorld("api", {
   },
   storeServerKeys: async (clientDeviceIdPrivKey, clientPublishPrivKey) => {
     try {
-      await ipcRenderer.invoke("store-server-keys", { clientDeviceIdPrivKey, clientPublishPrivKey });
+      await ipcRenderer.invoke("store-server-keys", {
+        clientDeviceIdPrivKey,
+        clientPublishPrivKey,
+      });
     } catch (error) {
       console.error("Storage error:", error);
       throw error;
@@ -145,25 +192,21 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
-  listEntityStoredTokens: async (long_lived_token) => {
-    try {
-      const response = await ipcRenderer.invoke("list-entity-stored-tokens", { long_lived_token });
-      return response;
-    } catch (error) {
-      console.error("gRPC call error:", error);
-      throw error;
-    }
-  },
-  openExternalUrl: (url) => {
+
+  openOauth: ({ oauthUrl, expectedRedirect, clientID, scope }) => {
     return new Promise((resolve, reject) => {
-      ipcRenderer.invoke("open-external-url", url)
-        .then((result) => {
-          resolve(result); // Return true or false based on success
-        })
-        .catch((error) => {
-          console.error("Failed to invoke open-external-url:", error);
-          reject(error);
-        });
+      ipcRenderer.invoke("open-oauth", {
+        oauthUrl,
+        expectedRedirect,
+        clientID,
+        scope,
+      });
+      console.log("Got here 0000111");
+      ipcRenderer.once("oauth-url", (event, newUrl) => {
+        console.log("Got here 111");
+        console.log("new", newUrl);
+        resolve(newUrl);
+      });
     });
   },
 });
