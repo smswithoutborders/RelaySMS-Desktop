@@ -7,11 +7,10 @@
   "description": "Relay SMS Desktop App",
   "homepage": "./",
   "category": "Communication",
-  "website": "https://relaysms.com",
+  "website": "https://relay.smswithoutborders.com",
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@getstation/electron-google-oauth2": "^14.0.0",
     "@grpc/grpc-js": "^1.10.8",
     "@grpc/proto-loader": "^0.7.13",
     "@mui/icons-material": "^5.16.0",

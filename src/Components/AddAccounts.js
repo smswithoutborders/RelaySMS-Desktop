@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import url from "url";
 import { Drawer, Grid, Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import nacl from "tweetnacl";
@@ -16,24 +17,15 @@ export default function AddAccounts({ open, onClose }) {
     { platform: "twitter" },
   ]);
 
-  const openOAuthScreen = async (
-    oauthUrl,
-    expectedRedirect,
-    clientID,
-    scope
-  ) => {
+  const openOAuthScreen = async (oauthUrl, expectedRedirect) => {
     try {
       const newUrl = await window.api.openOauth({
         oauthUrl,
         expectedRedirect,
-        clientID,
-        scope,
       });
-      console.log("Received OAuth2 redirection URL:", newUrl);
       handleMessage(newUrl);
     } catch (error) {
       console.error("Error opening OAuth screen:", error);
-      // Handle error, e.g., show a message to the user
     }
   };
 
@@ -52,14 +44,24 @@ export default function AddAccounts({ open, onClose }) {
         platform,
         "",
         "",
-        false
+        true
       );
-      openOAuthScreen(
-        response.authorization_url,
-        response.redirect_url,
-        response.client_id,
-        response.scope.split(",")
+      await window.api.storeParams("code", response.code_verifier);
+
+      const parsedAuthUrl = new URL(response.authorization_url);
+      const parsedRedirecthUrl = new URL(response.redirect_url);
+      const newRedirectUri = url.resolve(
+        "http://localhost:18000",
+        parsedRedirecthUrl.pathname
       );
+      parsedAuthUrl.searchParams.set("redirect_uri", newRedirectUri);
+
+      const auth_code = await window.api.openOauth({
+        oauthUrl: parsedAuthUrl.toString(),
+        expectedRedirect: newRedirectUri,
+      });
+
+      console.log(auth_code);
     } catch (error) {
       console.error("Failed to get OAuth2 authorization URL:", error);
     }

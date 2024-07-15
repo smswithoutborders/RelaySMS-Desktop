@@ -6,8 +6,7 @@ const storage = require("electron-json-storage");
 const vault = require("./vault");
 const publisher = require("./publisher");
 const safestorage = require("./storage");
-const os = require("os");
-const GoogleOAuth2 = require("@getstation/electron-google-oauth2").default;
+const OAuth2Handler = require("../src/OAuthHandler");
 
 let mainWindow;
 
@@ -316,61 +315,13 @@ ipcMain.handle("retrieve-onboarding-step", async () => {
   });
 });
 
-// ipcMain.handle("open-external-url", async (event, url) => {
-//   try {
-//     await shell.openExternal(url);
-//     return true;
-//   } catch (error) {
-//     console.error("Failed to open external URL:", error);
-//     return false;
-//   }
-// });
+ipcMain.handle("open-oauth", async (event, { oauthUrl, expectedRedirect }) => {
+  const oauthClient = new OAuth2Handler();
 
-// Handle open-oauth invocation from renderer
-ipcMain.handle(
-  "open-oauth",
-  async (event, { oauthUrl, expectedRedirect, clientID, scope }) => {
-    const googleOAuth2 = new GoogleOAuth2(clientID, "", scope, {
-      successRedirectURL: expectedRedirect,
-    });
+  const code = await oauthClient.openAuthWindowAndGetAuthorizationCode(
+    oauthUrl,
+    expectedRedirect
+  );
 
-    const code = await googleOAuth2.openAuthWindowAndGetAuthorizationCode(
-      oauthUrl
-    );
-    console.log(code);
-
-    // Get system architecture and app name
-    // const arch = os.arch();
-    // const appName = app.getName();
-
-    // console.log(os.platform());
-    // console.log(arch);
-    // console.log(appName);
-
-    // // Set user agent to mimic the latest version of Firefox with dynamic values
-    // const userAgent = `Mozilla/5.0 (${os.platform()}; ${arch}; rv:91.0) Gecko/20100101 Firefox/91.0 ${appName}`;
-    // authWindow.webContents.userAgent = userAgent;
-
-    // authWindow.loadURL(oauthUrl);
-    // // authWindow.webContents.on("did-redirect-navigation", (event, newUrl) => {
-    // //   const parsedUrl = new URL(newUrl);
-    // //   console.log(">>>1", parsedUrl);
-    // //   // Send the full URL including query parameters to the renderer process
-    // //   mainWindow.webContents.send("oauth-url", newUrl);
-    // //   authWindow.close();
-    // // });
-
-    // authWindow.webContents.on("will-navigate", (event, newUrl) => {
-    //   const parsedUrl = new URL(newUrl);
-    //   const parsedRedirectUrl = new URL(expectedRedirect);
-    //   console.log(newUrl);
-    //   if (
-    //     parsedUrl.hostname === parsedRedirectUrl.hostname &&
-    //     parsedUrl.pathname === parsedRedirectUrl.pathname
-    //   ) {
-    //     mainWindow.webContents.send("oauth-url", newUrl);
-    //     authWindow.close();
-    //   }
-    // });
-  }
-);
+  mainWindow.webContents.send("authorization-code", code);
+});

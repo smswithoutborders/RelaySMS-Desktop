@@ -193,19 +193,17 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
 
-  openOauth: ({ oauthUrl, expectedRedirect, clientID, scope }) => {
+  openOauth: ({ oauthUrl, expectedRedirect }) => {
+    console.log("r_url", expectedRedirect);
+    console.log("authURL:", oauthUrl )
     return new Promise((resolve, reject) => {
       ipcRenderer.invoke("open-oauth", {
         oauthUrl,
         expectedRedirect,
-        clientID,
-        scope,
       });
-      console.log("Got here 0000111");
-      ipcRenderer.once("oauth-url", (event, newUrl) => {
-        console.log("Got here 111");
-        console.log("new", newUrl);
-        resolve(newUrl);
+      ipcRenderer.once("authorization-code", (event, code) => {
+        console.log("Auth Code", code);
+        resolve(code);
       });
     });
   },
