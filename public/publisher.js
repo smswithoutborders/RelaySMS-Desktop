@@ -10,41 +10,44 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   defaults: true,
   oneofs: true,
 });
-const publisher_proto = grpc.loadPackageDefinition(packageDefinition).publisher.v1;
+const publisher_proto =
+  grpc.loadPackageDefinition(packageDefinition).publisher.v1;
 
-const target = "staging.smswithoutborders.com:9060"; 
-const credentials = grpc.credentials.createFromSecureContext(); 
-const client = new publisher_proto.Publisher(target, credentials); 
+const target = "staging.smswithoutborders.com:9060";
+const credentials = grpc.credentials.createFromSecureContext();
+const client = new publisher_proto.Publisher(target, credentials);
 
-function getOAuth2AuthorizationUrl({
-  platform,
-  state,
-  code_verifier,
-  autogenerate_code_verifier,
-}, callback) {
-  client.GetOAuth2AuthorizationUrl({
-    platform,
-    state,
-    code_verifier,
-    autogenerate_code_verifier,
-  }, callback);
+function getOAuth2AuthorizationUrl(
+  { platform, state, code_verifier, autogenerate_code_verifier },
+  callback
+) {
+  client.GetOAuth2AuthorizationUrl(
+    {
+      platform,
+      state,
+      code_verifier,
+      autogenerate_code_verifier,
+    },
+    callback
+  );
 }
 
-function exchangeOAuth2CodeAndStore({
-  long_lived_token,
-  platform,
-  authorization_code,
-  code_verifier,
-}, callback) {
-  client.exchangeOAuth2CodeAndStore({
-    long_lived_token,
-    platform,
-    authorization_code,
-    code_verifier,
-  }, callback);
+function exchangeOAuth2CodeAndStore(
+  { long_lived_token, platform, authorization_code, code_verifier },
+  callback
+) {
+  client.ExchangeOAuth2CodeAndStore(
+    {
+      long_lived_token,
+      platform,
+      authorization_code,
+      code_verifier,
+    },
+    callback
+  );
 }
 
 module.exports = {
   getOAuth2AuthorizationUrl,
-  exchangeOAuth2CodeAndStore
+  exchangeOAuth2CodeAndStore,
 };

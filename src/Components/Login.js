@@ -20,10 +20,7 @@ import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { encode as encodeBase64, decode as decodeBase64 } from 'base64-arraybuffer';
-import { decode as utf8Decode, encode as utf8Encode } from 'utf8';
-import { createHash } from 'crypto-browserify';
-import { createDecipheriv, randomBytes } from 'crypto-browserify';
+
 
 function generateKeyPair() {
   const keyPair = nacl.box.keyPair();
@@ -135,16 +132,14 @@ function Login({ onClose, open }) {
           response.long_lived_token
         );
 
-        await window.api.storeParams('serverDeviceId', response.server_device_id_pub_key);
-        await window.api.storeParams('longLivedToken', response.long_lived_token);
-
+        
         setAlert({
           message: "Login successful. OTP sent successfully. Check your phone for the code.",
           severity: "success",
           open: true,
         });
         setTimeout(() => {
-          navigate("/onboarding3"); // Navigate to /onboarding3 after showing the success message
+          navigate("/onboarding3"); 
           handleClose();
         }, 2000);
       }
@@ -190,7 +185,7 @@ function Login({ onClose, open }) {
       });
       
       setTimeout(() => {
-        navigate("/onboarding3"); // Navigate to /onboarding3 after showing the success message
+        navigate("/onboarding3"); 
         handleClose();
       }, 2000);
     } catch (error) {
@@ -206,23 +201,45 @@ function Login({ onClose, open }) {
     }
   };
 
+  
+
   const handleResendOtp = async () => {
     setLoading(true);
     try {
+      // Retrieve the previously stored keys
+      const clientDeviceIdPubKey = await window.api.retrieveParams(
+        "client_device_id_pub_key"
+      );
+      const clientPublishPubKey = await window.api.retrieveParams(
+        "client_publish_pub_key"
+      );
+
       const response = await window.api.authenticateEntity(
         loginData.phoneNumber,
-        loginData.password
+        loginData.password,
+        clientDeviceIdPubKey,
+        clientPublishPubKey,
       );
-      console.log("Resend OTP Response:", response);
+      console.log("OTP Verification Response:", response);
+
+      await window.api.storeParams('serverDeviceId', response.server_device_id_pub_key);
+      await window.api.storeParams('longLivedToken', response.long_lived_token);
+      
       setAlert({
-        message: "OTP Resent: " + response.message,
+        message: "Login successful",
         severity: "success",
         open: true,
       });
+      
+      setTimeout(() => {
+        navigate("/onboarding3"); 
+        handleClose();
+      }, 2000);
     } catch (error) {
-      console.error("Resend OTP Error:", error);
+      console.error("OTP Verification Error:", error);
       setAlert({
-        message: "Something went wrong, please try again",
+        message:
+          "Something went wrong, please check your OTP code and try again.",
         severity: "error",
         open: true,
       });
@@ -230,6 +247,7 @@ function Login({ onClose, open }) {
       setLoading(false);
     }
   };
+
 
   return (
     <>
@@ -259,7 +277,7 @@ function Login({ onClose, open }) {
           <Box sx={{ m: 4 }}>
             <MuiTelInput
               fullWidth
-              flags={flags}
+              variant="standard"
               placeholder={t("enterPhoneNumber")}
               defaultCountry="CM"
               value={loginData.phoneNumber}
@@ -275,23 +293,25 @@ function Login({ onClose, open }) {
               fullWidth
               label={t("password")}
               name="password"
-              type="password"
-              variant="outlined"
+              type={showPassword ? 'text' : 'password'} 
+              variant="standard"
               value={loginData.password}
               onChange={handleLoginChange}
               sx={{ mb: 4 }}
-              endadornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
 
             <Button

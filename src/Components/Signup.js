@@ -9,6 +9,8 @@ import {
   Button,
   Snackbar,
   Alert,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import "react-phone-number-input/style.css";
 import flags from "react-phone-number-input/flags";
@@ -19,6 +21,8 @@ import { MuiTelInput } from "mui-tel-input";
 import { useNavigate } from "react-router-dom";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 function generateKeyPair() {
   const keyPair = nacl.box.keyPair();
@@ -30,6 +34,7 @@ function generateKeyPair() {
 
 function Signup({ onClose, open }) {
   const { t } = useTranslation();
+  const [showPassword, setShowPassword] = useState(false);
   const [signupData, setSignupData] = useState({
     phoneNumber: "",
     password: "",
@@ -52,6 +57,12 @@ function Signup({ onClose, open }) {
   });
 
   const navigate = useNavigate();
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
 
   const handleClose = () => {
     onClose();
@@ -183,7 +194,7 @@ function Signup({ onClose, open }) {
           open: true,
         });
         setTimeout(() => {
-          navigate("/onboarding3"); // Navigate to /onboarding3 after showing the success message
+          navigate("/onboarding3"); 
           handleClose();
         }, 2000);
       }
@@ -226,7 +237,7 @@ function Signup({ onClose, open }) {
         open: true,
       });
       setTimeout(() => {
-        navigate("/onboarding3"); // Navigate to /onboarding3 after showing the success message
+        navigate("/onboarding3"); 
         handleClose();
       }, 2000);
     } catch (error) {
@@ -246,10 +257,20 @@ function Signup({ onClose, open }) {
   const handleResendOtp = async () => {
     setLoading(true);
     try {
+       // Retrieve the previously stored keys
+       const clientDeviceIdPubKey = await window.api.retrieveParams(
+        "client_device_id_pub_key"
+      );
+      const clientPublishPubKey = await window.api.retrieveParams(
+        "client_publish_pub_key"
+      );
+
       const response = await window.api.createEntity(
         signupData.phoneNumber,
         signupData.password,
-        countryCode
+        countryCode,
+        clientDeviceIdPubKey,
+        clientPublishPubKey,
       );
       console.log("Resend OTP Response:", response);
       setAlert({
@@ -293,6 +314,7 @@ function Signup({ onClose, open }) {
             <MuiTelInput
               fullWidth
               sx={{ mb: 4 }}
+              variant="standard"
               international="true"
               defaultCountry="CM"
               value={signupData.phoneNumber}
@@ -307,22 +329,50 @@ function Signup({ onClose, open }) {
               fullWidth
               label={t("password")}
               name="password"
-              type="password"
-              variant="outlined"
+              type={showPassword ? 'text' : 'password'}              
+              variant="standard"
               value={signupData.password}
               onChange={handleSignupChange}
               sx={{ mb: 4 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               error={!!signupErrors.password}
             />
             <TextField
               fullWidth
               label={t("repeatPassword")}
               name="repeatPassword"
-              type="password"
-              variant="outlined"
+              type={showPassword ? 'text' : 'password'} 
+              variant="standard"
               value={signupData.repeatPassword}
               onChange={handleSignupChange}
               sx={{ mb: 4 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               error={!!signupErrors.repeatPassword}
             />
             <FormControlLabel

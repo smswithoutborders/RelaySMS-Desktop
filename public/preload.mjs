@@ -1,5 +1,4 @@
 const { contextBridge, ipcRenderer } = require("electron");
-const safestorage = require("./storage");
 
 contextBridge.exposeInMainWorld("api", {
   createEntity: async (
@@ -124,8 +123,13 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
 
-  storeParams: (key, value) => safestorage.store(key, value),
-  retrieveParams: (key) => safestorage.retrieve(key),
+  storeParams: async (key, value) => {
+    console.log(">>>>> --", { key, value });
+    await ipcRenderer.invoke("store-params", { key, value });
+  },
+  retrieveParams: async (key) => {
+    return await ipcRenderer.invoke("retrieve-params", key);
+  },
 
   storeSession: async (sessionData) => {
     try {
@@ -172,30 +176,10 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
-  storeServerKeys: async (clientDeviceIdPrivKey, clientPublishPrivKey) => {
-    try {
-      await ipcRenderer.invoke("store-server-keys", {
-        clientDeviceIdPrivKey,
-        clientPublishPrivKey,
-      });
-    } catch (error) {
-      console.error("Storage error:", error);
-      throw error;
-    }
-  },
-  retrieveServerKeys: async () => {
-    try {
-      const keys = await ipcRenderer.invoke("retrieve-server-keys");
-      return keys;
-    } catch (error) {
-      console.error("Retrieval error:", error);
-      throw error;
-    }
-  },
-
+ 
   openOauth: ({ oauthUrl, expectedRedirect }) => {
     console.log("r_url", expectedRedirect);
-    console.log("authURL:", oauthUrl )
+    console.log("authURL:", oauthUrl);
     return new Promise((resolve, reject) => {
       ipcRenderer.invoke("open-oauth", {
         oauthUrl,

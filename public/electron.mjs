@@ -1,12 +1,16 @@
 /* eslint-disable no-unused-expressions */
-const { app, BrowserWindow, protocol, ipcMain, shell } = require("electron");
-const path = require("path");
-const url = require("url");
-const storage = require("electron-json-storage");
-const vault = require("./vault");
-const publisher = require("./publisher");
-const safestorage = require("./storage");
-const OAuth2Handler = require("../src/OAuthHandler");
+import { app, BrowserWindow, protocol, ipcMain } from "electron";
+import path from "path";
+import url from "url";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import Store from "electron-store";
+import OAuth2Handler from '../src/OAuthHandler.js'
+
+const storage = new Store({ name: "relaysms" });
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 let mainWindow;
 
@@ -15,8 +19,8 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      nodeIntegration: true,
+      preload: path.join(__dirname, "preload.mjs"),
+      nodeIntegration: false,
       contextIsolation: true,
     },
     icon: path.join(__dirname, "icon.png"),
@@ -49,11 +53,7 @@ function setupLocalFilesNormalizerProxy() {
   );
 }
 
-app.whenReady().then(() => {
-  const dataPath = app.getPath("userData");
-  console.log(`Setting storage data path: ${dataPath}`);
-  storage.setDataPath(dataPath);
-
+app.whenReady().then(async () => {
   createWindow();
   setupLocalFilesNormalizerProxy();
 
@@ -80,6 +80,16 @@ app.on("web-contents-created", (event, contents) => {
     }
   });
 });
+
+let vault;
+let publisher;
+
+async function loadModules() {
+  vault = await import("./vault.js");
+  publisher = await import("./publisher.js");
+}
+
+loadModules();
 
 ipcMain.handle(
   "create-entity",
@@ -221,17 +231,25 @@ ipcMain.handle(
   }
 );
 
-ipcMain.handle("store-params", async (event, { key, params }) => {
-  return new Promise((resolve, reject) => {
-    const encryptedParams = safestorage.encryptString(JSON.stringify(params));
-    storage.set(key, { data: encryptedParams }, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
+ipcMain.handle("store-params", async (event, { key, value }) => {
+  try {
+    console.log(">>>>", { key, value });
+    storage.set(key, value);
+    return true; 
+  } catch (error) {
+    console.error("Error storing params:", error);
+    throw error;
+  }
+});
+
+ipcMain.handle("retrieve-params", async (event, key) => {
+  try {
+    const params = storage.get(key);
+    return params;
+  } catch (error) {
+    console.error("Error retrieving params:", error);
+    throw error;
+  }
 });
 
 ipcMain.handle("store-session", async (event, sessionData) => {
@@ -265,27 +283,6 @@ ipcMain.handle("delete-session", async () => {
         reject(error);
       } else {
         resolve();
-      }
-    });
-  });
-});
-
-ipcMain.handle("retrieve-params", async (event, { key }) => {
-  return new Promise((resolve, reject) => {
-    storage.get(key, (error, data) => {
-      if (error) {
-        reject(error);
-      } else {
-        if (data && data.data) {
-          try {
-            const decryptedParams = safestorage.decryptString(data.data);
-            resolve(JSON.parse(decryptedParams));
-          } catch (decryptionError) {
-            reject(decryptionError);
-          }
-        } else {
-          resolve(null);
-        }
       }
     });
   });
