@@ -128,6 +128,7 @@ contextBridge.exposeInMainWorld("api", {
     await ipcRenderer.invoke("store-params", { key, value });
   },
   retrieveParams: async (key) => {
+    console.log(">>>>> --", { key });
     return await ipcRenderer.invoke("retrieve-params", key);
   },
 
@@ -176,7 +177,7 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
- 
+
   openOauth: ({ oauthUrl, expectedRedirect }) => {
     console.log("r_url", expectedRedirect);
     console.log("authURL:", oauthUrl);
@@ -189,6 +190,29 @@ contextBridge.exposeInMainWorld("api", {
         console.log("Auth Code", code);
         resolve(code);
       });
+    });
+  },
+
+  retrieveLongLivedToken: ({
+    client_device_id_secret_key,
+    server_device_id_pub_key,
+    long_lived_token_cipher,
+  }) => {
+    return new Promise((resolve, reject) => {
+      ipcRenderer
+        .invoke("get-long-lived-token", {
+          client_device_id_secret_key,
+          server_device_id_pub_key,
+          long_lived_token_cipher,
+        })
+        .then((decryptedToken) => {
+          console.log("Decrypted Token:", decryptedToken);
+          resolve(decryptedToken);
+        })
+        .catch((err) => {
+          console.error("Error:", err.message);
+          reject(err);
+        });
     });
   },
 });

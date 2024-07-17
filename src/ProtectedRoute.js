@@ -9,15 +9,19 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const session = await window.api.retrieveSession();
+        const session = await window.api.retrieveParams();
         if (session) {
-          setAuthenticated(true);
+          if (session.longLivedToken) { 
+            setAuthenticated(true);
+          } else {
+            navigate("/onboarding2");
+          }
         } else {
           navigate("/login");
         }
       } catch (error) {
         console.error("Error checking session:", error);
-        navigate("/login");
+        navigate("/onboarding2");
       } finally {
         setLoading(false);
       }
@@ -30,7 +34,7 @@ const ProtectedRoute = ({ children }) => {
     return <div>Loading...</div>;
   }
 
-  return authenticated ? children : <Navigate to="/login" />;
+  return authenticated ? children : <Navigate to="/onboarding2" />;
 };
 
 export default ProtectedRoute;

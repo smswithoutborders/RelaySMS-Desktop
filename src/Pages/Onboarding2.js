@@ -41,26 +41,28 @@ export default function Onboarding2() {
           <Box sx={{ pt: 10 }}>
             <Button
               onClick={handleOpenLogin}
-              variant="contained"
-              sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
+              size="large"
+              variant="outlined"
+              sx={{ borderRadius: 5, px: 3, textTransform: "none" }}
             >
               {t("login")}
             </Button>
             <Button
               onClick={handleOpenSignup}
-              variant="contained"
-              sx={{ borderRadius: 5, px: 2, textTransform: "none", ml: 5 }}
+              size="large"
+              variant="outlined"
+              sx={{ borderRadius: 5, px: 3, textTransform: "none", ml: 6 }}
             >
               {t("signUp")}
             </Button>
           </Box>
         </Grid>
         <Grid item md={6} sm={6}>
-          <Box component="img" src="login.png" sx={{ width: "100%" }} />
+          <Box component="img" src="login.png" sx={{ width: "80%" }} />
         </Grid>
       </Grid>
       <Grid container>
-        <Grid item md={6} sx={{ position: "fixed", bottom: 50, mr: 10 }}>
+        <Grid item md={6} sx={{ position: "fixed", bottom: 50, mr: 20 }}>
           <Button
             component={Link}
             to="/"

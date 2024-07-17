@@ -13,7 +13,6 @@ import {
   IconButton,
 } from "@mui/material";
 import "react-phone-number-input/style.css";
-import flags from "react-phone-number-input/flags";
 import { useTranslation } from "react-i18next";
 import OTPDialog from "../Components/OTP";
 import { parsePhoneNumber } from "react-phone-number-input";
@@ -21,8 +20,8 @@ import { MuiTelInput } from "mui-tel-input";
 import { useNavigate } from "react-router-dom";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 function generateKeyPair() {
   const keyPair = nacl.box.keyPair();
@@ -63,7 +62,6 @@ function Signup({ onClose, open }) {
     event.preventDefault();
   };
 
-
   const handleClose = () => {
     onClose();
     setSignupData({
@@ -97,19 +95,6 @@ function Signup({ onClose, open }) {
   const handleSignupSubmit = async (event) => {
     event.preventDefault();
     const errors = {};
-
-    // Check password strength
-    const passwordRegex =
-      /^(?=.*[!@#$%^&*()_+\-=])[a-zA-Z0-9!@#$%^&*()_+\-=]{8,}$/;
-    if (!passwordRegex.test(signupData.password)) {
-      setAlert({
-        message:
-          "Password must be at least 8 characters long; Must include at least one special character from the following set: !@#$%^&*()_+-",
-        severity: "error",
-        open: true,
-      });
-      return;
-    }
 
     if (!signupData.phoneNumber)
       errors.phoneNumber = "Phone number is required";
@@ -151,12 +136,12 @@ function Signup({ onClose, open }) {
 
       // Store the generated keys for use in OTP verification
       await window.api.storeParams(
-        "client_device_id_pub_key",
-        clientDeviceIdKeyPair.publicKey
+        "client_device_id_key_pair",
+        clientDeviceIdKeyPair
       );
       await window.api.storeParams(
-        "client_publish_pub_key",
-        clientPublishKeyPair.publicKey
+        "client_publish_key_pair",
+        clientPublishKeyPair
       );
 
       const response = await window.api.createEntity(
@@ -186,7 +171,6 @@ function Signup({ onClose, open }) {
         });
         setOtpOpen(true);
       } else {
-        await window.api.storeSession(response);
         setAlert({
           message:
             "Signup successful. OTP sent successfully. Check your phone for the code.",
@@ -194,7 +178,7 @@ function Signup({ onClose, open }) {
           open: true,
         });
         setTimeout(() => {
-          navigate("/onboarding3"); 
+          navigate("/onboarding3");
           handleClose();
         }, 2000);
       }
@@ -212,6 +196,60 @@ function Signup({ onClose, open }) {
     setLoading(true);
     try {
       // Retrieve the previously stored keys
+      const clientDeviceIdKeyPair = await window.api.retrieveParams(
+        "client_device_id_key_pair"
+      );
+      const clientPublishKeyPair = await window.api.retrieveParams(
+        "client_publish_key_pair"
+      );
+
+      const response = await window.api.createEntity(
+        signupData.phoneNumber,
+        signupData.password,
+        countryCode,
+        clientDeviceIdKeyPair.publicKey,
+        clientPublishKeyPair.publicKey,
+        otp
+      );
+      console.log("OTP Verification Response:", response);
+      if (response.long_lived_token) {
+        await window.api.storeParams(
+          "serverDeviceId",
+          response.server_device_id_pub_key
+        );
+        await window.api.storeParams(
+          "longLivedToken",
+          response.long_lived_token
+        );
+        await window.api.storeSession(response, clientDeviceIdKeyPair);
+      }
+      setAlert({
+        message: "Signup successful",
+        severity: "success",
+        open: true,
+      });
+      setTimeout(() => {
+        navigate("/onboarding3");
+        handleClose();
+      }, 2000);
+    } catch (error) {
+      console.error("OTP Verification Error:", error);
+
+      setAlert({
+        message:
+          error,
+        severity: "error",
+        open: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setLoading(true);
+    try {
+      // Retrieve the previously stored keys
       const clientDeviceIdPubKey = await window.api.retrieveParams(
         "client_device_id_pub_key"
       );
@@ -224,53 +262,7 @@ function Signup({ onClose, open }) {
         signupData.password,
         countryCode,
         clientDeviceIdPubKey,
-        clientPublishPubKey,
-        otp
-      );
-      console.log("OTP Verification Response:", response);
-      if (response.long_lived_token) {
-        await window.api.storeParams("long_lived_token", response.long_lived_token);
-      }
-      setAlert({
-        message: "Signup successful",
-        severity: "success",
-        open: true,
-      });
-      setTimeout(() => {
-        navigate("/onboarding3"); 
-        handleClose();
-      }, 2000);
-    } catch (error) {
-      console.error("OTP Verification Error:", error);
-      
-      setAlert({
-        message:
-          "Something went wrong, please check your OTP code and try again.",
-        severity: "error",
-        open: true,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    setLoading(true);
-    try {
-       // Retrieve the previously stored keys
-       const clientDeviceIdPubKey = await window.api.retrieveParams(
-        "client_device_id_pub_key"
-      );
-      const clientPublishPubKey = await window.api.retrieveParams(
-        "client_publish_pub_key"
-      );
-
-      const response = await window.api.createEntity(
-        signupData.phoneNumber,
-        signupData.password,
-        countryCode,
-        clientDeviceIdPubKey,
-        clientPublishPubKey,
+        clientPublishPubKey
       );
       console.log("Resend OTP Response:", response);
       setAlert({
@@ -281,7 +273,7 @@ function Signup({ onClose, open }) {
     } catch (error) {
       console.error("Resend OTP Error:", error);
       setAlert({
-        message: "Something went wrong, please try again.",
+        message: error,
         severity: "error",
         open: true,
       });
@@ -310,7 +302,7 @@ function Signup({ onClose, open }) {
           {t("signUp")}
         </Typography>
         <form onSubmit={handleSignupSubmit}>
-          <Box sx={{ m: 4 }}>
+          <Box sx={{ m: 6, mx: 8 }}>
             <MuiTelInput
               fullWidth
               sx={{ mb: 4 }}
@@ -329,7 +321,7 @@ function Signup({ onClose, open }) {
               fullWidth
               label={t("password")}
               name="password"
-              type={showPassword ? 'text' : 'password'}              
+              type={showPassword ? "text" : "password"}
               variant="standard"
               value={signupData.password}
               onChange={handleSignupChange}
@@ -354,11 +346,11 @@ function Signup({ onClose, open }) {
               fullWidth
               label={t("repeatPassword")}
               name="repeatPassword"
-              type={showPassword ? 'text' : 'password'} 
+              type={showPassword ? "text" : "password"}
               variant="standard"
               value={signupData.repeatPassword}
               onChange={handleSignupChange}
-              sx={{ mb: 4 }}
+              sx={{ mb: 2 }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -387,7 +379,7 @@ function Signup({ onClose, open }) {
               sx={{ mb: 2 }}
             />
             <Button
-              sx={{ mt: 4 }}
+              sx={{ borderRadius: 5, px: 3, textTransform: "none", mt: 11 }}
               type="submit"
               variant="contained"
               color="primary"

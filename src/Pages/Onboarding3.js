@@ -7,15 +7,15 @@ import AddAccounts from "../Components/AddAccounts";
 
 export default function Onboarding3() {
   const { t } = useTranslation();
-  const [addAccountsDrawerOpen, setAddAccountsDrawerOpen] = useState(false); 
+  const [addAccountsDialogOpen, setAddAccountsDialogOpen] = useState(false); 
 
 
   const handleAddAccountsClick = () => {
-    setAddAccountsDrawerOpen(true);
+    setAddAccountsDialogOpen(true);
   };
 
-  const handleAddAccountsDrawerClose = () => {
-    setAddAccountsDrawerOpen(false);
+  const handleAddAccountsDialogClose = () => {
+    setAddAccountsDialogOpen(false);
   };
 
   return (
@@ -56,7 +56,7 @@ export default function Onboarding3() {
             <FaChevronLeft /> {t("previous")}{" "}
           </Button>
         </Grid>
-        <Grid item md={4} sx={{ position: "fixed", bottom: 50, ml :50 }}>
+        <Grid item md={4} sx={{ position: "fixed", bottom: 50, ml :65 }}>
           <Button
             component={Link}
             to="/messages"
@@ -89,7 +89,7 @@ export default function Onboarding3() {
           </Button>
         </Grid>
       </Grid>
-      <AddAccounts open={addAccountsDrawerOpen} onClose={handleAddAccountsDrawerClose} />
+      <AddAccounts open={addAccountsDialogOpen} onClose={handleAddAccountsDialogClose} />
     </Box>
   );
 }

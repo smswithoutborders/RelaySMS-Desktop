@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import {
   TextField,
   Button,
@@ -11,7 +11,6 @@ import {
   IconButton,
 } from "@mui/material";
 import "react-phone-number-input/style.css";
-import flags from "react-phone-number-input/flags";
 import { useTranslation } from "react-i18next";
 import OTPDialog from "../Components/OTP";
 import { MuiTelInput } from "mui-tel-input";
@@ -21,7 +20,6 @@ import naclUtil from "tweetnacl-util";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-
 function generateKeyPair() {
   const keyPair = nacl.box.keyPair();
   return {
@@ -29,8 +27,6 @@ function generateKeyPair() {
     secretKey: naclUtil.encodeBase64(keyPair.secretKey),
   };
 }
-
-
 
 function Login({ onClose, open }) {
   const { t } = useTranslation();
@@ -40,9 +36,9 @@ function Login({ onClose, open }) {
     phoneNumber: "",
     password: "",
   });
-  const [responseMessage, setResponseMessage] = useState("");
+  const [setResponseMessage] = useState("");
   const [otpOpen, setOtpOpen] = useState(false);
-  const [serverResponse, setServerResponse] = useState({
+  const [setServerResponse] = useState({
     server_publish_pub_key: "",
     server_device_id_pub_key: "",
     long_lived_token: "",
@@ -96,14 +92,13 @@ function Login({ onClose, open }) {
     const clientPublishKeyPair = generateKeyPair();
     const clientDeviceIdKeyPair = generateKeyPair();
 
-    // Store the generated keys for use in OTP verification
     await window.api.storeParams(
-      "client_device_id_pub_key",
-      clientDeviceIdKeyPair.publicKey
+      "client_device_id_key_pair",
+      clientDeviceIdKeyPair
     );
     await window.api.storeParams(
-      "client_publish_pub_key",
-      clientPublishKeyPair.publicKey
+      "client_publish_key_pair",
+      clientPublishKeyPair
     );
 
     try {
@@ -123,16 +118,6 @@ function Login({ onClose, open }) {
         });
         setOtpOpen(true);
       } else {
-        await window.api.storeParams(
-          "serverDeviceId",
-          response.server_device_id_pub_key
-        );
-        await window.api.storeParams(
-          "longLivedToken",
-          response.long_lived_token
-        );
-
-        
         setAlert({
           message: "Login successful. OTP sent successfully. Check your phone for the code.",
           severity: "success",
@@ -147,8 +132,9 @@ function Login({ onClose, open }) {
       console.error("Login Error:", error);
       setAlert({
         message:
-          "Something went wrong, please check your phone number and password",
+          error,
         severity: "error",
+        open: true,
       });
     } finally {
       setLoading(false);
@@ -158,26 +144,26 @@ function Login({ onClose, open }) {
   const handleOtpSubmit = async (otp) => {
     setLoading(true);
     try {
-      // Retrieve the previously stored keys
-      const clientDeviceIdPubKey = await window.api.retrieveParams(
-        "client_device_id_pub_key"
+      const clientDeviceIdKeyPair = await window.api.retrieveParams(
+        "client_device_id_key_pair"
       );
-      const clientPublishPubKey = await window.api.retrieveParams(
-        "client_publish_pub_key"
+      const clientPublishKeyPair = await window.api.retrieveParams(
+        "client_publish_key_pair"
       );
 
       const response = await window.api.authenticateEntity(
         loginData.phoneNumber,
         loginData.password,
-        clientDeviceIdPubKey,
-        clientPublishPubKey,
+        clientDeviceIdKeyPair.publicKey,
+        clientPublishKeyPair.publicKey,
         otp
       );
       console.log("OTP Verification Response:", response);
 
       await window.api.storeParams('serverDeviceId', response.server_device_id_pub_key);
       await window.api.storeParams('longLivedToken', response.long_lived_token);
-      
+      await window.api.storeSession(response,clientDeviceIdKeyPair);
+
       setAlert({
         message: "Login successful",
         severity: "success",
@@ -192,7 +178,7 @@ function Login({ onClose, open }) {
       console.error("OTP Verification Error:", error);
       setAlert({
         message:
-          "Something went wrong, please check your OTP code and try again.",
+          error,
         severity: "error",
         open: true,
       });
@@ -206,25 +192,25 @@ function Login({ onClose, open }) {
   const handleResendOtp = async () => {
     setLoading(true);
     try {
-      // Retrieve the previously stored keys
-      const clientDeviceIdPubKey = await window.api.retrieveParams(
-        "client_device_id_pub_key"
+      const clientDeviceIdKeyPair = await window.api.retrieveParams(
+        "client_device_id_key_pair"
       );
-      const clientPublishPubKey = await window.api.retrieveParams(
-        "client_publish_pub_key"
+      const clientPublishKeyPair = await window.api.retrieveParams(
+        "client_publish_key_pair"
       );
 
       const response = await window.api.authenticateEntity(
         loginData.phoneNumber,
         loginData.password,
-        clientDeviceIdPubKey,
-        clientPublishPubKey,
+        clientDeviceIdKeyPair.publicKey,
+        clientPublishKeyPair.publicKey,
       );
       console.log("OTP Verification Response:", response);
 
       await window.api.storeParams('serverDeviceId', response.server_device_id_pub_key);
       await window.api.storeParams('longLivedToken', response.long_lived_token);
-      
+      await window.api.storeSession(response,clientDeviceIdKeyPair);
+
       setAlert({
         message: "Login successful",
         severity: "success",
@@ -239,7 +225,7 @@ function Login({ onClose, open }) {
       console.error("OTP Verification Error:", error);
       setAlert({
         message:
-          "Something went wrong, please check your OTP code and try again.",
+          error,
         severity: "error",
         open: true,
       });
@@ -265,7 +251,7 @@ function Login({ onClose, open }) {
         </Alert>
       </Snackbar>
       <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
-        <Typography align="center" variant="h6" sx={{ pt: 3 }}>
+        <Typography align="center" variant="h6" sx={{ pt: 4 }}>
           {t("login")}
         </Typography>
         {alert.message && (
@@ -274,7 +260,7 @@ function Login({ onClose, open }) {
           </Alert>
         )}
         <form onSubmit={handleLoginSubmit}>
-          <Box sx={{ m: 4 }}>
+          <Box sx={{ m: 6, mx:8}}>
             <MuiTelInput
               fullWidth
               variant="standard"
@@ -319,6 +305,7 @@ function Login({ onClose, open }) {
               color="primary"
               disabled={loading}
               type="submit"
+              sx={{ borderRadius: 5, px: 3, textTransform: "none" }}
             >
               {loading ? "Loading..." : t("login")}
             </Button>

@@ -5,7 +5,8 @@ import url from "url";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import Store from "electron-store";
-import OAuth2Handler from '../src/OAuthHandler.js'
+import OAuth2Handler from "../src/OAuthHandler.js";
+import { decryptLongLivedToken } from "../src/Cryptography.js";
 
 const storage = new Store({ name: "relaysms" });
 
@@ -235,7 +236,7 @@ ipcMain.handle("store-params", async (event, { key, value }) => {
   try {
     console.log(">>>>", { key, value });
     storage.set(key, value);
-    return true; 
+    return true;
   } catch (error) {
     console.error("Error storing params:", error);
     throw error;
@@ -244,6 +245,7 @@ ipcMain.handle("store-params", async (event, { key, value }) => {
 
 ipcMain.handle("retrieve-params", async (event, key) => {
   try {
+    console.log(">>>>", { key });
     const params = storage.get(key);
     return params;
   } catch (error) {
@@ -322,3 +324,28 @@ ipcMain.handle("open-oauth", async (event, { oauthUrl, expectedRedirect }) => {
 
   mainWindow.webContents.send("authorization-code", code);
 });
+
+ipcMain.handle(
+  "get-long-lived-token",
+  async (
+    event,
+    {
+      client_device_id_secret_key,
+      server_device_id_pub_key,
+      long_lived_token_cipher,
+    }
+  ) => {
+    try {
+      const decryptedToken = await decryptLongLivedToken(
+        client_device_id_secret_key,
+        server_device_id_pub_key,
+        long_lived_token_cipher
+      );
+      console.log("Decrypted Token:", decryptedToken);
+      return decryptedToken;
+    } catch (err) {
+      console.error("Error:", err.message);
+      throw err;
+    }
+  }
+);
