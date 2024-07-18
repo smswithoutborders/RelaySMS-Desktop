@@ -17,7 +17,7 @@ const ProtectedRoute = ({ children }) => {
             navigate("/onboarding2");
           }
         } else {
-          navigate("/login");
+          navigate("/onboarding2");
         }
       } catch (error) {
         console.error("Error checking session:", error);

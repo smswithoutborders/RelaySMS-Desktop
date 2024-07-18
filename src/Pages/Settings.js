@@ -62,8 +62,9 @@ export default function Settings() {
               </Typography>
               <SimpleDialog onClose={handleCloseDialog} open={openDialog} />
             </ListItemText>
-            <Divider />
           </ListItem>
+          <Divider />
+
           <Typography sx={{ pt: 4, ml: 9 }} variant="body2">
             {t("securityAndPrivacy")}
           </Typography>
@@ -81,8 +82,9 @@ export default function Settings() {
               </Typography>
               <Typography variant="body2">{t("security1")}</Typography>
             </ListItemText>
-            <Divider />
           </ListItem>
+          <Divider />
+
           <Typography sx={{ pt: 4, ml: 9 }} variant="body2">
             {t("advancedSettings")}
           </Typography>
@@ -101,6 +103,8 @@ export default function Settings() {
               <Typography variant="body2">{t("gatewayClients1")}</Typography>
             </ListItemText>
           </ListItem>
+          <Divider />
+
         </List>
       </Box>
     </Box>

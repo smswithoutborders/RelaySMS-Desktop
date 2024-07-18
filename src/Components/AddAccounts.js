@@ -77,7 +77,7 @@ export default function AddAccounts({ open, onClose }) {
     } catch (error) {
       console.error("Failed to get OAuth2 authorization URL:", error);
       setAlert({
-        message: error,
+        message: error.message,
         severity: "success",
         open: true,
       });

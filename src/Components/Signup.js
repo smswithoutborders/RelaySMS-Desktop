@@ -44,11 +44,6 @@ function Signup({ onClose, open }) {
   const [loading, setLoading] = useState(false);
   const [otpOpen, setOtpOpen] = useState(false);
   const [countryCode, setCountryCode] = useState("");
-  const [serverResponse, setServerResponse] = useState({
-    server_publish_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
-    server_device_id_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
-    long_lived_token: "",
-  });
   const [alert, setAlert] = useState({
     message: "",
     severity: "",
@@ -69,15 +64,9 @@ function Signup({ onClose, open }) {
       password: "",
       repeatPassword: "",
       acceptPolicy: false,
-      countryCode: "CM",
     });
     setSignupErrors({});
     setOtpOpen(false);
-    setServerResponse({
-      server_publish_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
-      server_device_id_pub_key: "goKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoI=",
-      long_lived_token: "",
-    });
   };
 
   const handleAlertClose = () => {
@@ -152,36 +141,9 @@ function Signup({ onClose, open }) {
         clientPublishKeyPair.publicKey
       );
       console.log("Response:", response);
-      if (response.error === "PASSWORD_BREACHED") {
-        setAlert({
-          message:
-            "This password has been found in a data breach and should not be used. Please choose a different password.",
-          severity: "error",
-          open: true,
-        });
-        return;
-      }
 
       setAlert({ message: response.message, severity: "success", open: true });
-      if (response.requires_ownership_proof) {
-        setServerResponse({
-          server_publish_pub_key: response.server_publish_pub_key,
-          server_device_id_pub_key: response.server_device_id_pub_key,
-          long_lived_token: response.long_lived_token,
-        });
-        setOtpOpen(true);
-      } else {
-        setAlert({
-          message:
-            "Signup successful. OTP sent successfully. Check your phone for the code.",
-          severity: "success",
-          open: true,
-        });
-        setTimeout(() => {
-          navigate("/onboarding3");
-          handleClose();
-        }, 2000);
-      }
+      setOtpOpen(true);
     } catch (error) {
       console.error("Error:", error);
       const errorMessage =
@@ -234,10 +196,8 @@ function Signup({ onClose, open }) {
       }, 2000);
     } catch (error) {
       console.error("OTP Verification Error:", error);
-
       setAlert({
-        message:
-          error,
+        message: error.message,
         severity: "error",
         open: true,
       });
@@ -273,7 +233,7 @@ function Signup({ onClose, open }) {
     } catch (error) {
       console.error("Resend OTP Error:", error);
       setAlert({
-        message: error,
+        message: error.message,
         severity: "error",
         open: true,
       });
@@ -283,7 +243,7 @@ function Signup({ onClose, open }) {
   };
 
   return (
-    <div>
+    <>
       <Snackbar
         open={alert.open}
         autoHideDuration={6000}
@@ -396,7 +356,7 @@ function Signup({ onClose, open }) {
           onResend={handleResendOtp}
         />
       </Dialog>
-    </div>
+    </>
   );
 }
 

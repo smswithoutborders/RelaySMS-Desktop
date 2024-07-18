@@ -1,6 +1,6 @@
 import { Typography, Box, Grid, Button } from "@mui/material";
 import React, { useState } from "react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+import { FaChevronLeft } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Login from "../Components/Login";
@@ -84,7 +84,7 @@ export default function Onboarding2() {
             mr: 10,
           }}
         >
-          <Button
+          {/* <Button
             component={Link}
             to="/onboarding3"
             variant="contained"
@@ -92,7 +92,7 @@ export default function Onboarding2() {
           >
             {t("next")}
             <FaChevronRight />
-          </Button>
+          </Button> */}
         </Grid>
       </Grid>
       <Login onClose={handleCloseLogin} open={openLoginDialog} />

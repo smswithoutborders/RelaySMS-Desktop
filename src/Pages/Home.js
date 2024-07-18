@@ -5,19 +5,28 @@ import {
   IconButton,
   InputBase,
   Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
   Tooltip,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { FaEllipsisVertical, FaMagnifyingGlass } from "react-icons/fa6";
+import { FaEllipsisVertical, FaGlobe, FaMagnifyingGlass, FaPenToSquare, FaServer, FaShieldHalved } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import Footer from "../Components/Footer";
+import Compose from "./Compose";
+//import { FaChevronCircleRight } from "react-icons/fa";
 
 export default function Landing() {
   const { t } = useTranslation();
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
+  const [composeDrawerOpen, setComposeDrawerOpen] = useState(false);
+
+
+  const handlePenClick = () => {
+    setComposeDrawerOpen(true);
+  };
+
+  const handleComposeDrawerClose = () => {
+    setComposeDrawerOpen(false);
+  };
 
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -25,8 +34,40 @@ export default function Landing() {
 
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
+<Drawer
+       // onClick={toggleDrawer}
+        variant="persistent"
+        anchor="left"
+        open={isDrawerOpen}
+        sx={{
+          width: 60,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: 60,
+            boxSizing: "border-box",
+            backgroundColor: "#0F171F"
+          },
+        }}
+      >
+          <Tooltip title="Compose" sx={{py: 3}}>
+            <IconButton>
+              <FaGlobe size="20px" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Compose" sx={{py: 3}}>
+            <IconButton>
+              <FaServer size="20px" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Compose" sx={{py: 3}}>
+            <IconButton>
+              <FaShieldHalved size="20px" />
+            </IconButton>
+          </Tooltip>
+              </Drawer>
+
       <Drawer
-        onClick={toggleDrawer}
+       // onClick={toggleDrawer}
         variant="persistent"
         anchor="left"
         open={isDrawerOpen}
@@ -36,6 +77,7 @@ export default function Landing() {
           "& .MuiDrawer-paper": {
             width: 280,
             boxSizing: "border-box",
+            marginLeft: 7
           },
         }}
       >
@@ -43,6 +85,11 @@ export default function Landing() {
           <Tooltip title="Settings">
             <IconButton component={Link} to="/settings">
               <FaEllipsisVertical size="20px" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Compose">
+            <IconButton onClick={handlePenClick}>
+              <FaPenToSquare size="20px" />
             </IconButton>
           </Tooltip>
         </Box>
@@ -59,12 +106,10 @@ export default function Landing() {
               padding: 0.3,
             }}
           />
-        </Box>
-        <List>
-          <ListItem button key="list-item-1">
-            <ListItemIcon>{/* Icon */}</ListItemIcon>
-          </ListItem>
-        </List>
+          <Footer />
+        </Box>       
+        
+        <Compose open={composeDrawerOpen} onClose={handleComposeDrawerClose}/>
       </Drawer>
 
       <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
@@ -79,8 +124,7 @@ export default function Landing() {
           <Typography variant="body1" sx={{ pt: 2 }}>
             {t("startConversation")}
           </Typography>
-        </Box>
-        <Footer />
+        </Box>      
       </Box>
     </Box>
   );

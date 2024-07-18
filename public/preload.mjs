@@ -1,3 +1,5 @@
+import { DeleteEntity } from "./vault";
+
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("api", {
@@ -109,10 +111,50 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
+
+  RevokeAndDeleteOAuth2Token: async (
+    long_lived_token,
+    platform,
+    account_identifier  
+  ) => {
+    try {
+      console.log("platform:", platform);
+      console.log("long_lived_token:", long_lived_token);
+      console.log("account_identifier", account_identifier);
+      const response = await ipcRenderer.invoke(
+        "revoke-and-delete-oauth2-token",
+        {
+          long_lived_token,
+          platform,
+          account_identifier
+        }
+      );
+      console.log("response:", response);
+      return response;
+    } catch (error) {
+      console.error("gRPC call error:", error);
+      throw error;
+    }
+  },
+
   listEntityStoredTokens: async (long_lived_token) => {
     try {
       console.log("long_lived_token:", long_lived_token);
       const response = await ipcRenderer.invoke("list-entity-stored-tokens", {
+        long_lived_token,
+      });
+      console.log("response:", response);
+      return response;
+    } catch (error) {
+      console.error("gRPC call error:", error);
+      throw error;
+    }
+  },
+
+  DeleteEntity: async (long_lived_token) => {
+    try {
+      console.log("long_lived_token:", long_lived_token);
+      const response = await ipcRenderer.invoke("delete-entity", {
         long_lived_token,
       });
       console.log("response:", response);

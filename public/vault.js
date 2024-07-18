@@ -54,8 +54,13 @@ function listEntityStoredTokens(long_lived_token, callback) {
   client.ListEntityStoredTokens({ long_lived_token }, callback);
 }
 
+function DeleteEntity(long_lived_token, callback) {
+  client.DeleteEntity({ long_lived_token }, callback);
+}
+
 module.exports = {
   createEntity,
   authenticateEntity,
   listEntityStoredTokens,
+  DeleteEntity
 };

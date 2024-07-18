@@ -36,13 +36,7 @@ function Login({ onClose, open }) {
     phoneNumber: "",
     password: "",
   });
-  const [setResponseMessage] = useState("");
   const [otpOpen, setOtpOpen] = useState(false);
-  const [setServerResponse] = useState({
-    server_publish_pub_key: "",
-    server_device_id_pub_key: "",
-    long_lived_token: "",
-  });
   const [alert, setAlert] = useState({ message: "", severity: "" });
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -53,13 +47,7 @@ function Login({ onClose, open }) {
   const handleClose = () => {
     onClose();
     setLoginData({ phoneNumber: "", password: "" });
-    setResponseMessage("");
     setOtpOpen(false);
-    setServerResponse({
-      server_publish_pub_key: "",
-      server_device_id_pub_key: "",
-      long_lived_token: "",
-    });
   };
 
   const handleAlertClose = () => {
@@ -109,30 +97,18 @@ function Login({ onClose, open }) {
         clientPublishKeyPair.publicKey
       );
       console.log("Response:", response);
-      setAlert({ message: response.message, severity: "success", open: true });
-      if (response.requires_ownership_proof) {
-        setServerResponse({
-          server_publish_pub_key: response.server_publish_pub_key,
-          server_device_id_pub_key: response.server_device_id_pub_key,
-          long_lived_token: response.long_lived_token,
-        });
-        setOtpOpen(true);
-      } else {
+      setAlert({ message: response.message, severity: "success", open: true });     
+        setOtpOpen(true);     
         setAlert({
           message: "Login successful. OTP sent successfully. Check your phone for the code.",
           severity: "success",
           open: true,
         });
-        setTimeout(() => {
-          navigate("/onboarding3"); 
-          handleClose();
-        }, 2000);
-      }
     } catch (error) {
       console.error("Login Error:", error);
       setAlert({
         message:
-          error,
+          error.message,
         severity: "error",
         open: true,
       });
@@ -162,14 +138,13 @@ function Login({ onClose, open }) {
 
       await window.api.storeParams('serverDeviceId', response.server_device_id_pub_key);
       await window.api.storeParams('longLivedToken', response.long_lived_token);
-      await window.api.storeSession(response,clientDeviceIdKeyPair);
+      await window.api.storeSession(response, clientDeviceIdKeyPair);
 
       setAlert({
         message: "Login successful",
         severity: "success",
         open: true,
       });
-      
       setTimeout(() => {
         navigate("/onboarding3"); 
         handleClose();
@@ -178,7 +153,7 @@ function Login({ onClose, open }) {
       console.error("OTP Verification Error:", error);
       setAlert({
         message:
-          error,
+          error.message,
         severity: "error",
         open: true,
       });
@@ -186,8 +161,6 @@ function Login({ onClose, open }) {
       setLoading(false);
     }
   };
-
-  
 
   const handleResendOtp = async () => {
     setLoading(true);
@@ -216,16 +189,11 @@ function Login({ onClose, open }) {
         severity: "success",
         open: true,
       });
-      
-      setTimeout(() => {
-        navigate("/onboarding3"); 
-        handleClose();
-      }, 2000);
     } catch (error) {
       console.error("OTP Verification Error:", error);
       setAlert({
         message:
-          error,
+          error.message,
         severity: "error",
         open: true,
       });
@@ -233,7 +201,6 @@ function Login({ onClose, open }) {
       setLoading(false);
     }
   };
-
 
   return (
     <>

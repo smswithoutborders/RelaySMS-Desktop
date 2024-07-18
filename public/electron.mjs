@@ -181,6 +181,26 @@ ipcMain.handle(
 );
 
 ipcMain.handle(
+  "delete-entity",
+  async (event, { long_lived_token }) => {
+    return new Promise((resolve, reject) => {
+      vault.DeleteEntity(
+        {
+          long_lived_token: long_lived_token,
+        },
+        (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(response);
+          }
+        }
+      );
+    });
+  }
+);
+
+ipcMain.handle(
   "get-oauth2-authorization-url",
   async (
     event,
@@ -219,6 +239,31 @@ ipcMain.handle(
           platform: platform,
           authorization_code: authorization_code,
           code_verifier: code_verifier,
+        },
+        (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(response);
+          }
+        }
+      );
+    });
+  }
+);
+
+ipcMain.handle(
+  "revoke-and-delete-oauth2-token",
+  async (
+    event,
+    { long_lived_token, platform, account_identifier}
+  ) => {
+    return new Promise((resolve, reject) => {
+      publisher.RevokeAndDeleteOAuth2Token(
+        {
+          long_lived_token: long_lived_token,
+          platform: platform,
+          account_identifier: account_identifier
         },
         (err, response) => {
           if (err) {

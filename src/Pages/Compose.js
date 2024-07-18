@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Drawer, Grid, Box, Typography, Snackbar, Alert, Dialog } from "@mui/material";
+import { Grid, Box, Typography, Snackbar, Alert, Dialog } from "@mui/material";
 import GmailCompose from "../Components/ComposeGmail";
 import TwitterCompose from "../Components/ComposeTwitter";
 import { useTranslation } from "react-i18next";
@@ -28,13 +28,13 @@ export default function Compose({ open, onClose }) {
       const serverDevicePublicId = await window.api.retrieveParams("serverDeviceId");
       const clientDeviceSecretId = await window.api.retrieveParams("client_device_id_key_pair");
 
-      const longLT = await window.api.retrieveLongLivedToken({
+      const llt = await window.api.retrieveLongLivedToken({
         client_device_id_secret_key: clientDeviceSecretId.secretKey,
         server_device_id_pub_key: serverDevicePublicId,
         long_lived_token_cipher: longLivedToken,
       });
 
-      const response = await window.api.listEntityStoredTokens(longLT);
+      const response = await window.api.listEntityStoredTokens(llt);
       setTokens(response.stored_tokens);
       console.log('response:', response);
       setAlert({

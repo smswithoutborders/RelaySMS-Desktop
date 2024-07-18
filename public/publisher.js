@@ -47,7 +47,22 @@ function exchangeOAuth2CodeAndStore(
   );
 }
 
+function RevokeAndDeleteOAuth2Token(
+  { long_lived_token, platform, account_identifier },
+  callback
+) {
+  client.RevokeAndDeleteOAuth2Token(
+    {
+      long_lived_token,
+      platform,
+      account_identifier
+    },
+    callback
+  );
+}
+
 module.exports = {
   getOAuth2AuthorizationUrl,
   exchangeOAuth2CodeAndStore,
+  RevokeAndDeleteOAuth2Token
 };
