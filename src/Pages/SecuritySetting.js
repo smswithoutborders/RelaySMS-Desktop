@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Box,
   Divider,
@@ -11,11 +12,16 @@ import {
   Snackbar,
   Alert,
   Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
 } from "@mui/material";
-import React, { useState } from "react";
 import { FaArrowLeft } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import ResetPasswordDialog from "../Components/NewPassword";
 
 export default function SecuritySettings() {
   const { t } = useTranslation();
@@ -26,6 +32,8 @@ export default function SecuritySettings() {
     open: false,
   });
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
 
   const handleAlertClose = () => {
     setAlert({ ...alert, open: false });
@@ -90,7 +98,7 @@ export default function SecuritySettings() {
         platform,
         accountIdentifier
       );
-      console.log(response)
+      console.log(response);
       setAlert({
         message: "Token revoked successfully",
         severity: "success",
@@ -108,6 +116,56 @@ export default function SecuritySettings() {
     }
   };
 
+  const handleDeleteClick = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      const longLivedToken = await window.api.retrieveParams("longLivedToken");
+      const clientDeviceSecretId = await window.api.retrieveParams(
+        "client_device_id_key_pair"
+      );
+      const serverDevicePublicId = await window.api.retrieveParams(
+        "serverDeviceId"
+      );
+
+      const longLT = await window.api.retrieveLongLivedToken({
+        client_device_id_secret_key: clientDeviceSecretId.secretKey,
+        server_device_id_pub_key: serverDevicePublicId,
+        long_lived_token_cipher: longLivedToken,
+      });
+
+      const delResponse = await window.api.deleteEntity(longLT);
+      console.log(delResponse);
+      setAlert({
+        message: "Account deleted successfully",
+        severity: "success",
+        open: true,
+      });
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to delete account:", error);
+      setAlert({
+        message: error.message,
+        severity: "error",
+        open: true,
+      });
+    }
+  };
+
+  const handleOpenResetPasswordDialog = () => {
+    setResetPasswordDialogOpen(true);
+  };
+
+  const handleCloseResetPasswordDialog = () => {
+    setResetPasswordDialogOpen(false);
+  };
+
   return (
     <Box sx={{ m: 4, mt: 6 }}>
       <Box sx={{ display: "flex", my: 2, ml: 2 }}>
@@ -121,9 +179,8 @@ export default function SecuritySettings() {
           <Typography sx={{ pt: 3, ml: 2 }} variant="body2">
             {t("phonelockoptions")}
           </Typography>
-
-          <ListItem>
-            <Grid container>
+          <Grid container>
+            <ListItem>
               <Grid item md={8} sm={8}>
                 <ListItemText>
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
@@ -135,10 +192,9 @@ export default function SecuritySettings() {
                   <Switch />
                 </Grid>
               </Grid>
-            </Grid>
-          </ListItem>
-          <Divider />
-          
+              <Divider />
+            </ListItem>
+          </Grid>
           <Typography sx={{ pt: 4, ml: 2 }} variant="body2">
             {t("vault")}
           </Typography>
@@ -149,12 +205,22 @@ export default function SecuritySettings() {
               </Typography>
               <Typography variant="body2">{t("securitytext2")}</Typography>
             </ListItemText>
+            <Divider />
           </ListItem>
-          <Divider />
-
           <Typography sx={{ pt: 4, ml: 2 }} variant="body2">
             {t("account")}
           </Typography>
+          <ListItem
+            button
+            onClick={handleOpenResetPasswordDialog}
+            sx={{ pt: 3 }}
+          >
+            <ListItemText>
+              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                {t("resetPassword")}
+              </Typography>
+            </ListItemText>
+          </ListItem>
           <ListItem>
             <ListItemText>
               <Typography variant="body1" sx={{ fontWeight: 500 }}>
@@ -163,9 +229,7 @@ export default function SecuritySettings() {
               <Typography variant="body2">{t("logouttext")}</Typography>
             </ListItemText>
           </ListItem>
-          <Divider />
-
-          <ListItem sx={{ pt: 3 }}>
+          <ListItem button onClick={handleDeleteClick} sx={{ pt: 3 }}>
             <ListItemText>
               <Typography variant="body1" sx={{ fontWeight: 500 }}>
                 {t("delete")}
@@ -173,7 +237,6 @@ export default function SecuritySettings() {
               <Typography variant="body2">{t("deletetext")}</Typography>
             </ListItemText>
           </ListItem>
-          <Divider />
         </List>
       </Box>
 
@@ -223,6 +286,26 @@ export default function SecuritySettings() {
           </Grid>
         </Box>
       </Dialog>
+
+      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
+        <DialogTitle>{t("deleteAccount")}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {t("deleteAccountConfirmation")}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog}>No</Button>
+          <Button onClick={handleConfirmDelete} color="primary">
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <ResetPasswordDialog
+        open={resetPasswordDialogOpen}
+        onClose={handleCloseResetPasswordDialog}
+      />
     </Box>
   );
 }

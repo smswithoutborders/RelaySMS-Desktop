@@ -15,7 +15,6 @@ import Login from "./Components/Login";
 import Signup from "./Components/Signup";
 import SecuritySettings from "./Pages/SecuritySetting";
 import AdvancedSettings from "./Pages/AdvancedSettings";
-import ProtectedRoute from "./ProtectedRoute";
 
 const isElectron = () => {
   return (
@@ -89,7 +88,7 @@ function App() {
   );
 
   if (onboardingStep === null) {
-    return null;
+    return null; // Or a loading spinner
   }
 
   return (
@@ -97,7 +96,7 @@ function App() {
       <CssBaseline />
       <HashRouter>
         <Routes>
-          <Route path="/messages" element={<ProtectedRoute> <Landing /> </ProtectedRoute>} />
+          <Route path="/messages" element={<Landing />} />
           <Route
             path="/"
             element={

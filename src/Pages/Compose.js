@@ -3,7 +3,6 @@ import { Grid, Box, Typography, Snackbar, Alert, Dialog } from "@mui/material";
 import GmailCompose from "../Components/ComposeGmail";
 import TwitterCompose from "../Components/ComposeTwitter";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 
 export default function Compose({ open, onClose }) {
   const { t } = useTranslation();
@@ -16,12 +15,8 @@ export default function Compose({ open, onClose }) {
     setAlert({ ...alert, open: false });
   };
 
-  const navigate = useNavigate();
-
-  const handleClose = () => {
-    onClose();
-  };
-
+  
+ 
   const fetchStoredTokens = async () => {
     try {
       const longLivedToken = await window.api.retrieveParams("longLivedToken");
@@ -33,7 +28,7 @@ export default function Compose({ open, onClose }) {
         server_device_id_pub_key: serverDevicePublicId,
         long_lived_token_cipher: longLivedToken,
       });
-
+console.log("check:", llt)
       const response = await window.api.listEntityStoredTokens(llt);
       setTokens(response.stored_tokens);
       console.log('response:', response);
@@ -42,11 +37,8 @@ export default function Compose({ open, onClose }) {
         severity: "success",
         open: true,
       });
+      await window.api.storeParams('decryptedllt', llt);
 
-      setTimeout(() => {
-        navigate("/onboarding3");
-        handleClose();
-      }, 2000);
     } catch (error) {
       console.error('Failed to fetch stored tokens:', error);
       setAlert({

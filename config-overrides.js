@@ -35,12 +35,13 @@ module.exports = function override(config) {
   });
 
   config.module.rules.push({
-    test: /\.m?js/,
+    test: /\.m?js$/,
     resolve: {
       fullySpecified: false,
     },
   });
 
+  
   config.plugins = (config.plugins || []).concat([
     new webpack.ProvidePlugin({
       Buffer: ["buffer", "Buffer"],

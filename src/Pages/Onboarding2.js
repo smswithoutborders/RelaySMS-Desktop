@@ -1,19 +1,25 @@
 import { Typography, Box, Grid, Button } from "@mui/material";
 import React, { useState } from "react";
-import { FaChevronLeft } from "react-icons/fa6";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Login from "../Components/Login";
 import Signup from "../Components/Signup";
+import ResetPassword from "../Components/ResetPassword";
 
 export default function Onboarding2() {
   const { t } = useTranslation();
 
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
+  const [openResetDialog, setOpenResetDialog] = useState(false);
   const [openSignupDialog, setOpenSignupDialog] = useState(false);
 
   const handleOpenLogin = () => {
     setOpenLoginDialog(true);
+  };
+
+  const handleOpenReset = () => {
+    setOpenResetDialog(true);
   };
 
   const handleOpenSignup = () => {
@@ -22,6 +28,10 @@ export default function Onboarding2() {
 
   const handleCloseLogin = () => {
     setOpenLoginDialog(false);
+  };
+
+  const handleCloseReset = () => {
+    setOpenResetDialog(false);
   };
 
   const handleCloseSignup = () => {
@@ -84,7 +94,7 @@ export default function Onboarding2() {
             mr: 10,
           }}
         >
-          {/* <Button
+          <Button
             component={Link}
             to="/onboarding3"
             variant="contained"
@@ -92,11 +102,19 @@ export default function Onboarding2() {
           >
             {t("next")}
             <FaChevronRight />
-          </Button> */}
+          </Button>
         </Grid>
       </Grid>
-      <Login onClose={handleCloseLogin} open={openLoginDialog} />
+      <Login
+        onClose={handleCloseLogin}
+        open={openLoginDialog}
+        onForgotPassword={() => {
+          handleCloseLogin();
+          handleOpenReset();
+        }}
+      />
       <Signup onClose={handleCloseSignup} open={openSignupDialog} />
+      <ResetPassword onClose={handleCloseReset} open={openResetDialog} />
     </Box>
   );
 }

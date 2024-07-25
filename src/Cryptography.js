@@ -4,6 +4,35 @@ const util = require("util");
 const crypto = require("crypto");
 nacl.util = require("tweetnacl-util");
 
+const algorithm = 'aes-256-cbc';
+const key = crypto.randomBytes(32);  // Securely handle this key
+const iv = crypto.randomBytes(16);
+
+function encrypt(text) {
+  let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return `${iv.toString('hex')}:${encrypted}`;
+}
+
+function decrypt(text) {
+  if (typeof text !== 'string') {
+    throw new TypeError('Encrypted value must be a string');
+  }
+  
+  const [ivHex, encrypted] = text.split(':');
+  
+  if (!ivHex || !encrypted) {
+    throw new Error('Invalid encrypted value format');
+  }
+
+  const ivBuffer = Buffer.from(ivHex, 'hex');
+  const decipher = crypto.createDecipheriv(algorithm, key, ivBuffer);
+  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted;
+}
+
 function deriveFernetKey(sharedSecret) {
   const encodedKey = Buffer.from(sharedSecret).toString("base64url");
   return new fernet.Secret(encodedKey);
@@ -55,5 +84,7 @@ async function decryptLongLivedToken(
 }
 
 module.exports = {
+  encrypt,
+  decrypt,
   decryptLongLivedToken,
 };

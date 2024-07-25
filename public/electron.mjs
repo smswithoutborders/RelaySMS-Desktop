@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import Store from "electron-store";
 import OAuth2Handler from "../src/OAuthHandler.js";
-import { decryptLongLivedToken } from "../src/Cryptography.js";
+import { decryptLongLivedToken, encrypt, decrypt } from "../src/Cryptography.js";
 
 const storage = new Store({ name: "relaysms" });
 
@@ -161,8 +161,71 @@ ipcMain.handle(
 );
 
 ipcMain.handle(
+  "reset-password",
+  async (
+    event,
+    {
+      phoneNumber,
+      new_password,
+      client_publish_pub_key,
+      client_device_id_pub_key,
+      ownership_proof_response,
+    }
+  ) => {
+    return new Promise((resolve, reject) => {
+      vault.resetPassword(
+        {
+          phone_number: phoneNumber,
+          new_password: new_password,
+          client_publish_pub_key: client_publish_pub_key,
+          client_device_id_pub_key: client_device_id_pub_key,
+          ownership_proof_response: ownership_proof_response,
+        },
+        (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(response);
+          }
+        }
+      );
+    });
+  }
+);
+
+ipcMain.handle(
+  "update-entity-password",
+  async (
+    event,
+    {
+      current_password,
+      long_lived_token,
+      new_password,
+    }
+  ) => {
+    return new Promise((resolve, reject) => {
+      vault.updateEntityPassword(
+        {
+          current_password: current_password,
+          long_lived_token: long_lived_token,
+          new_password: new_password,         
+        },
+        (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(response);
+          }
+        }
+      );
+    });
+  }
+);
+
+ipcMain.handle(
   "list-entity-stored-tokens",
   async (event, { long_lived_token }) => {
+    console.log("main llt:", long_lived_token)
     return new Promise((resolve, reject) => {
       vault.listEntityStoredTokens(
         {
@@ -279,7 +342,6 @@ ipcMain.handle(
 
 ipcMain.handle("store-params", async (event, { key, value }) => {
   try {
-    console.log(">>>>", { key, value });
     storage.set(key, value);
     return true;
   } catch (error) {
@@ -290,9 +352,8 @@ ipcMain.handle("store-params", async (event, { key, value }) => {
 
 ipcMain.handle("retrieve-params", async (event, key) => {
   try {
-    console.log(">>>>", { key });
-    const params = storage.get(key);
-    return params;
+   const params = storage.get(key);
+   return params
   } catch (error) {
     console.error("Error retrieving params:", error);
     throw error;
@@ -336,27 +397,28 @@ ipcMain.handle("delete-session", async () => {
 });
 
 ipcMain.handle("store-onboarding-step", async (event, step) => {
-  return new Promise((resolve, reject) => {
-    storage.set("onboardingStep", { step }, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
+  try {
+    const encryptedStep = encrypt(JSON.stringify(step));
+    storage.set("onboardingStep", encryptedStep);
+    return true;
+  } catch (error) {
+    console.error("Error storing onboarding step:", error);
+    throw error;
+  }
 });
 
 ipcMain.handle("retrieve-onboarding-step", async () => {
-  return new Promise((resolve, reject) => {
-    storage.get("onboardingStep", (error, data) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(data && data.step !== undefined ? data.step : 0);
-      }
-    });
-  });
+  try {
+    const encryptedStep = storage.get("onboardingStep");
+    if (typeof encryptedStep !== 'string') {
+      throw new TypeError('Stored onboarding step is not a string');
+    }
+    const step = JSON.parse(decrypt(encryptedStep));
+    return step;
+  } catch (error) {
+    console.error("Error retrieving onboarding step:", error);
+    return 0; 
+  }
 });
 
 ipcMain.handle("open-oauth", async (event, { oauthUrl, expectedRedirect }) => {

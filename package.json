@@ -52,9 +52,9 @@
     "eject": "react-scripts eject",
     "preelectron-pack": "yarn build",
     "electron:start": "concurrently -k \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electronmon .\"",
-    "electron:package:mac": "yarn build && electron-builder -m -c.extraMetadata.main=build/electron.js",
-    "electron:package:win": "yarn build && electron-builder -w -c.extraMetadata.main=build/electron.js",
-    "electron:package:linux": "yarn build && electron-builder -l -c.extraMetadata.main=build/electron.js"
+    "electron:package:mac": "yarn build && electron-builder -m -c.extraMetadata.main=build/electron.mjs",
+    "electron:package:win": "yarn build && electron-builder -w -c.extraMetadata.main=build/electron.mjs",
+    "electron:package:linux": "yarn build && electron-builder -l -c.extraMetadata.main=build/electron.mjs"
   },
   "eslintConfig": {
     "extends": [
@@ -120,7 +120,7 @@
       "icon": "./public/icon.png"
     }
   },
-  "config": {
-    "forge": "/config-overrides.js"
+  "extraMetadata": {
+    "main": "build/electron.mjs"
   }
 }

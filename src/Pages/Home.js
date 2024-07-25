@@ -34,38 +34,6 @@ export default function Landing() {
 
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
-<Drawer
-       // onClick={toggleDrawer}
-        variant="persistent"
-        anchor="left"
-        open={isDrawerOpen}
-        sx={{
-          width: 60,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: 60,
-            boxSizing: "border-box",
-            backgroundColor: "#0F171F"
-          },
-        }}
-      >
-          <Tooltip title="Compose" sx={{py: 3}}>
-            <IconButton>
-              <FaGlobe size="20px" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Compose" sx={{py: 3}}>
-            <IconButton>
-              <FaServer size="20px" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Compose" sx={{py: 3}}>
-            <IconButton>
-              <FaShieldHalved size="20px" />
-            </IconButton>
-          </Tooltip>
-              </Drawer>
-
       <Drawer
        // onClick={toggleDrawer}
         variant="persistent"
@@ -77,7 +45,6 @@ export default function Landing() {
           "& .MuiDrawer-paper": {
             width: 280,
             boxSizing: "border-box",
-            marginLeft: 7
           },
         }}
       >

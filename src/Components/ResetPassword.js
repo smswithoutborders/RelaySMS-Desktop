@@ -28,11 +28,11 @@ function generateKeyPair() {
   };
 }
 
-function Login({ onClose, open, onForgotPassword }) {
+function ResetPassword({ onClose, open }) {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loginData, setLoginData] = useState({
+  const [resetData, setResetData] = useState({
     phoneNumber: "",
     password: "",
   });
@@ -46,7 +46,7 @@ function Login({ onClose, open, onForgotPassword }) {
 
   const handleClose = () => {
     onClose();
-    setLoginData({ phoneNumber: "", password: "" });
+    setResetData({ phoneNumber: "", password: "" });
     setOtpOpen(false);
   };
 
@@ -55,20 +55,20 @@ function Login({ onClose, open, onForgotPassword }) {
   };
   const navigate = useNavigate();
 
-  const handleLoginChange = (event) => {
+  const handleResetChange = (event) => {
     const { name, value } = event.target;
-    setLoginData((prevData) => ({
+    setResetData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const handleLoginSubmit = async (event) => {
+  const handleResetSubmit = async (event) => {
     event.preventDefault();
     const errors = {};
-    if (!loginData.phoneNumber)
+    if (!resetData.phoneNumber)
       errors.phoneNumber = t("Phone number is required");
-    if (!loginData.password) errors.password = t("Password is required");
+    if (!resetData.password) errors.password = t("Password is required");
 
     if (Object.keys(errors).length > 0) {
       setAlert({ message: Object.values(errors).join(" "), severity: "error" });
@@ -90,9 +90,9 @@ function Login({ onClose, open, onForgotPassword }) {
     );
 
     try {
-      const response = await window.api.authenticateEntity(
-        loginData.phoneNumber,
-        loginData.password,
+      const response = await window.api.resetPassword(
+        resetData.phoneNumber,
+        resetData.password,
         clientDeviceIdKeyPair.publicKey,
         clientPublishKeyPair.publicKey
       );
@@ -127,9 +127,9 @@ function Login({ onClose, open, onForgotPassword }) {
         "client_publish_key_pair"
       );
 
-      const response = await window.api.authenticateEntity(
-        loginData.phoneNumber,
-        loginData.password,
+      const response = await window.api.resetPassword(
+        resetData.phoneNumber,
+        resetData.password,
         clientDeviceIdKeyPair.publicKey,
         clientPublishKeyPair.publicKey,
         otp
@@ -138,7 +138,7 @@ function Login({ onClose, open, onForgotPassword }) {
 
       await window.api.storeParams('serverDeviceId', response.server_device_id_pub_key);
       await window.api.storeParams('longLivedToken', response.long_lived_token);
-
+      
       setAlert({
         message: "Login successful",
         severity: "success",
@@ -171,9 +171,9 @@ function Login({ onClose, open, onForgotPassword }) {
         "client_publish_key_pair"
       );
 
-      const response = await window.api.authenticateEntity(
-        loginData.phoneNumber,
-        loginData.password,
+      const response = await window.api.resetPassword(
+        resetData.phoneNumber,
+        resetData.password,
         clientDeviceIdKeyPair.publicKey,
         clientPublishKeyPair.publicKey,
       );
@@ -181,6 +181,7 @@ function Login({ onClose, open, onForgotPassword }) {
 
       await window.api.storeParams('serverDeviceId', response.server_device_id_pub_key);
       await window.api.storeParams('longLivedToken', response.long_lived_token);
+      await window.api.storeSession(response,clientDeviceIdKeyPair);
 
       setAlert({
         message: "Login successful",
@@ -217,24 +218,24 @@ function Login({ onClose, open, onForgotPassword }) {
       </Snackbar>
       <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
         <Typography align="center" variant="h6" sx={{ pt: 4 }}>
-          {t("login")}
+          {t("resetPassword")}
         </Typography>
         {alert.message && (
           <Alert severity={alert.severity} sx={{ mb: 2 }}>
             {alert.message}
           </Alert>
         )}
-        <form onSubmit={handleLoginSubmit}>
+        <form onSubmit={handleResetSubmit}>
           <Box sx={{ m: 6, mx:8}}>
             <MuiTelInput
               fullWidth
               variant="standard"
               placeholder={t("enterPhoneNumber")}
               defaultCountry="CM"
-              value={loginData.phoneNumber}
+              value={resetData.phoneNumber}
               sx={{ mb: 4 }}
               onChange={(value) =>
-                setLoginData((prevData) => ({
+                setResetData((prevData) => ({
                   ...prevData,
                   phoneNumber: value,
                 }))
@@ -242,12 +243,12 @@ function Login({ onClose, open, onForgotPassword }) {
             />
             <TextField
               fullWidth
-              label={t("password")}
+              label={t("newPassword")}
               name="password"
               type={showPassword ? 'text' : 'password'} 
               variant="standard"
-              value={loginData.password}
-              onChange={handleLoginChange}
+              value={resetData.password}
+              onChange={handleResetChange}
               sx={{ mb: 4 }}
               InputProps={{
                 endAdornment: (
@@ -264,14 +265,7 @@ function Login({ onClose, open, onForgotPassword }) {
                 ),
               }}
             />
-           <Typography
-              variant="body2"
-              color="primary"
-              onClick={onForgotPassword}
-              sx={{ cursor: "pointer", pb: 2 }}
-            >
-              {t("forgotPassword")}
-            </Typography>
+
             <Button
               variant="contained"
               color="primary"
@@ -279,7 +273,7 @@ function Login({ onClose, open, onForgotPassword }) {
               type="submit"
               sx={{ borderRadius: 5, px: 3, textTransform: "none" }}
             >
-              {loading ? "Loading..." : t("login")}
+              {loading ? "Loading..." : t("submit")}
             </Button>
           </Box>
         </form>
@@ -294,4 +288,4 @@ function Login({ onClose, open, onForgotPassword }) {
   );
 }
 
-export default Login;
+export default ResetPassword;

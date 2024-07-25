@@ -1,5 +1,3 @@
-import { DeleteEntity } from "./vault";
-
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("api", {
@@ -49,6 +47,45 @@ contextBridge.exposeInMainWorld("api", {
         client_publish_pub_key,
         client_device_id_pub_key,
         ownership_proof_response,
+      });
+      return response;
+    } catch (error) {
+      console.error("gRPC call error:", error);
+      throw error;
+    }
+  },
+  resetPassword: async (
+    phoneNumber,
+    new_password,
+    client_publish_pub_key,
+    client_device_id_pub_key,
+    ownership_proof_response
+  ) => {
+    try {
+      console.log("Phone Number:", phoneNumber);
+      const response = await ipcRenderer.invoke("reset-password", {
+        phoneNumber,
+        new_password,
+        client_publish_pub_key,
+        client_device_id_pub_key,
+        ownership_proof_response,
+      });
+      return response;
+    } catch (error) {
+      console.error("gRPC call error:", error);
+      throw error;
+    }
+  },
+  updateEntityPassword: async (
+    current_password,
+    long_lived_token,
+    new_password,
+  ) => {
+    try {
+      const response = await ipcRenderer.invoke("update-entity-password", {
+        current_password,
+        long_lived_token,
+        new_password,
       });
       return response;
     } catch (error) {
@@ -166,11 +203,9 @@ contextBridge.exposeInMainWorld("api", {
   },
 
   storeParams: async (key, value) => {
-    console.log(">>>>> --", { key, value });
     await ipcRenderer.invoke("store-params", { key, value });
   },
   retrieveParams: async (key) => {
-    console.log(">>>>> --", { key });
     return await ipcRenderer.invoke("retrieve-params", key);
   },
 

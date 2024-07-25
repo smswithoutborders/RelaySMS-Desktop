@@ -183,7 +183,6 @@ function Signup({ onClose, open }) {
           "longLivedToken",
           response.long_lived_token
         );
-        await window.api.storeSession(response, clientDeviceIdKeyPair);
       }
       setAlert({
         message: "Signup successful",

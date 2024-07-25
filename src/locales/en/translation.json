@@ -24,7 +24,7 @@
   "enterPhoneNumber": "Enter phone number",
   "phoneNumber": "Phone number",
   "acceptPrivacyPolicy": "Accept privacy policy",
-  "password": "Pasword",
+  "password": "Password",
   "repeatPassword": "Repeat Password",
   "settings": "Settings",
   "accessibility": "Accessibility",
@@ -52,5 +52,14 @@
   "logout": "Logout",
   "logouttext": "Logout of your account. You can always log back in, however your current messages would be deleted.",
   "delete": "Delete",
-  "deletetext": "Deleting your account means deleting all your saved accounts online. You can always recreate your account once needed."
+  "deletetext": "Deleting your account means deleting all your saved accounts online. You can always recreate your account once needed.",
+  "resetPassword": "Reset Password",
+  "newPassword": "New Password",
+  "submit": "Submit",
+  "forgotPassword": "Forgot Password",
+  "oldPassword": "Old Password",
+  "confirmPassword": "Confirm Password",
+  "createNewPass": "Create New Password",
+  "deleteAccount": "Delete Account",
+  "deleteAccountConfirmation": "Are you sure you want to delete your account?"
 }
