@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import url from "url";
-import { Grid, Box, Typography, Dialog, Snackbar, Alert } from "@mui/material";
+import {
+  Grid,
+  Box,
+  Typography,
+  Dialog,
+  Snackbar,
+  Alert,
+  Paper,
+} from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -13,7 +21,9 @@ export default function AddAccounts({ open, onClose }) {
   useEffect(() => {
     const fetchTokens = async () => {
       try {
-        const response = await fetch("https://raw.githubusercontent.com/smswithoutborders/SMSWithoutBorders-Publisher/staging/resources/platforms.json");
+        const response = await fetch(
+          "https://raw.githubusercontent.com/smswithoutborders/SMSWithoutBorders-Publisher/staging/resources/platforms.json"
+        );
         const data = await response.json();
         setUnstoredTokens(data);
       } catch (error) {
@@ -34,12 +44,20 @@ export default function AddAccounts({ open, onClose }) {
 
   const handleAddAccount = async (platform) => {
     try {
-      const response = await window.api.getOAuth2AuthorizationUrl(platform, "", "", true);
+      const response = await window.api.getOAuth2AuthorizationUrl(
+        platform,
+        "",
+        "",
+        true
+      );
       await window.api.storeParams("code", response.code_verifier);
 
       const parsedAuthUrl = new URL(response.authorization_url);
       const parsedRedirecthUrl = new URL(response.redirect_url);
-      const newRedirectUri = url.resolve("http://localhost:18000", parsedRedirecthUrl.pathname);
+      const newRedirectUri = url.resolve(
+        "http://localhost:18000",
+        parsedRedirecthUrl.pathname
+      );
       parsedAuthUrl.searchParams.set("redirect_uri", newRedirectUri);
 
       const auth_code = await window.api.openOauth({
@@ -48,8 +66,12 @@ export default function AddAccounts({ open, onClose }) {
       });
 
       const longLivedToken = await window.api.retrieveParams("longLivedToken");
-      const serverDevicePublicId = await window.api.retrieveParams("serverDeviceId");
-      const clientDeviceSecretId = await window.api.retrieveParams("client_device_id_key_pair");
+      const serverDevicePublicId = await window.api.retrieveParams(
+        "serverDeviceId"
+      );
+      const clientDeviceSecretId = await window.api.retrieveParams(
+        "client_device_id_key_pair"
+      );
 
       const llt = await window.api.retrieveLongLivedToken({
         client_device_id_secret_key: clientDeviceSecretId.secretKey,
@@ -100,6 +122,7 @@ export default function AddAccounts({ open, onClose }) {
         </Alert>
       </Snackbar>
       <Dialog
+        elevation={4}
         anchor="bottom"
         open={open}
         onClose={onClose}

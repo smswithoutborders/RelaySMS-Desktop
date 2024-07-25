@@ -174,16 +174,9 @@ function Signup({ onClose, open }) {
         otp
       );
       console.log("OTP Verification Response:", response);
-      if (response.long_lived_token) {
-        await window.api.storeParams(
-          "serverDeviceId",
-          response.server_device_id_pub_key
-        );
-        await window.api.storeParams(
-          "longLivedToken",
-          response.long_lived_token
-        );
-      }
+        await window.api.storeParams("serverDeviceId", response.server_device_id_pub_key);
+        await window.api.storeParams("longLivedToken", response.long_lived_token);
+      
       setAlert({
         message: "Signup successful",
         severity: "success",

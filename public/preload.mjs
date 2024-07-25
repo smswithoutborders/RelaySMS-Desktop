@@ -276,6 +276,9 @@ contextBridge.exposeInMainWorld("api", {
     long_lived_token_cipher,
   }) => {
     return new Promise((resolve, reject) => {
+      console.log("client_device_id_secret_key:", client_device_id_secret_key)
+      console.log("server_device_id_pub_key:", server_device_id_pub_key)
+      console.log("long_lived_token_cipher:", long_lived_token_cipher)
       ipcRenderer
         .invoke("get-long-lived-token", {
           client_device_id_secret_key,

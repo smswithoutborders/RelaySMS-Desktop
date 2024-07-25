@@ -76,7 +76,7 @@ function App() {
           },
           background: {
             default: prefersDarkMode ? "#1E1E1E" : "#fafafa",
-            paper: prefersDarkMode ? "#0C1D2FE6" : "#449DD1",
+            paper: prefersDarkMode ? "#002244" : "#4682B4",
           },
           text: {
             primary: prefersDarkMode ? "#fff" : "#000",

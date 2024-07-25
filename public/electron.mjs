@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import Store from "electron-store";
 import OAuth2Handler from "../src/OAuthHandler.js";
-import { decryptLongLivedToken, encrypt, decrypt } from "../src/Cryptography.js";
+import { decryptLongLivedToken} from "../src/Cryptography.js";
 
 const storage = new Store({ name: "relaysms" });
 
@@ -397,28 +397,26 @@ ipcMain.handle("delete-session", async () => {
 });
 
 ipcMain.handle("store-onboarding-step", async (event, step) => {
-  try {
-    const encryptedStep = encrypt(JSON.stringify(step));
-    storage.set("onboardingStep", encryptedStep);
-    return true;
-  } catch (error) {
-    console.error("Error storing onboarding step:", error);
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    storage.set("onboardingStep", { step }, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
 });
-
 ipcMain.handle("retrieve-onboarding-step", async () => {
-  try {
-    const encryptedStep = storage.get("onboardingStep");
-    if (typeof encryptedStep !== 'string') {
-      throw new TypeError('Stored onboarding step is not a string');
-    }
-    const step = JSON.parse(decrypt(encryptedStep));
-    return step;
-  } catch (error) {
-    console.error("Error retrieving onboarding step:", error);
-    return 0; 
-  }
+  return new Promise((resolve, reject) => {
+    storage.get("onboardingStep", (error, data) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(data && data.step !== undefined ? data.step : 0);
+      }
+    });
+  });
 });
 
 ipcMain.handle("open-oauth", async (event, { oauthUrl, expectedRedirect }) => {

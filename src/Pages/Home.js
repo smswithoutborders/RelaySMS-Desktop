@@ -68,8 +68,8 @@ export default function Landing() {
             }
             sx={{
               width: "100%",
-              border: "1px solid grey",
-              borderRadius: 8,
+              // border: "1px solid gray",
+              // borderRadius: 8,
               padding: 0.3,
             }}
           />
