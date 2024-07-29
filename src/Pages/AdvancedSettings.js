@@ -5,6 +5,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Popover,
   Typography,
 } from "@mui/material";
 import React from "react";
@@ -12,29 +13,25 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-export default function AdvancedSettings() {
+export default function AdvancedSettings({open, onClose}) {
   const { t } = useTranslation();
   return (
-    <Box sx={{ m: 4, mt: 6 }}>
-      <Box sx={{ display: "flex", my: 2, ml: 2 }}>
-        <IconButton sx={{ mr: 2 }} component={Link} to="/settings">
-          <FaArrowLeft size="20px" />
-        </IconButton>
-        <Typography variant="h6">{t("settings")}</Typography>
-      </Box>
-      {/*  */}
-      <Box>
+    <Popover open={open} onClose={onClose} sx={{ m: 4, mt: 6 }}>
+      <Box sx={{p:4}}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          {t("gatewayClients")}
+        </Typography>
         <List>
           <ListItem>
             <ListItemText>
               <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                XXX XXX XXX
+                +237 000 000 000
               </Typography>
             </ListItemText>
             <Divider />
           </ListItem>
         </List>
       </Box>
-    </Box>
+    </Popover>
   );
 }

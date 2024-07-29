@@ -4,9 +4,8 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import DialogTitle from "@mui/material/DialogTitle";
-import Dialog from "@mui/material/Dialog";
 import { useTranslation } from "react-i18next";
+import { Box, Popover, Typography } from "@mui/material";
 
 export default function SimpleDialog({ onClose, open }) {
   const { t, i18n } = useTranslation();
@@ -21,27 +20,31 @@ export default function SimpleDialog({ onClose, open }) {
   };
 
   return (
-    <Dialog onClose={handleClose} open={open}>
-      <DialogTitle>{t("selectLanguage")}</DialogTitle>
-      <List sx={{ pt: 0 }}>
-        <ListItem disableGutters>
-          <ListItemButton onClick={() => handleListItemClick("en")}>
-            <ListItemText> English </ListItemText>
-          </ListItemButton>
-        </ListItem>
+    <Popover onClose={handleClose} open={open}>
+      <Box sx={{ py: 3, px: 3 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          {t("selectLanguage")}
+        </Typography>
+        <List sx={{ pt: 2 }}>
+          <ListItem disableGutters>
+            <ListItemButton onClick={() => handleListItemClick("en")}>
+              <ListItemText> English </ListItemText>
+            </ListItemButton>
+          </ListItem>
 
-        <ListItem disableGutters>
-          <ListItemButton onClick={() => handleListItemClick("fr")}>
-            <ListItemText> French </ListItemText>
-          </ListItemButton>
-        </ListItem>
+          <ListItem disableGutters>
+            <ListItemButton onClick={() => handleListItemClick("fr")}>
+              <ListItemText> French </ListItemText>
+            </ListItemButton>
+          </ListItem>
 
-        <ListItem disableGutters>
-          <ListItemButton onClick={() => handleListItemClick("fa")}>
-            <ListItemText> Farsi</ListItemText>
-          </ListItemButton>
-        </ListItem>
-      </List>
-    </Dialog>
+          <ListItem disableGutters>
+            <ListItemButton onClick={() => handleListItemClick("fa")}>
+              <ListItemText> Farsi</ListItemText>
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Box>
+    </Popover>
   );
 }

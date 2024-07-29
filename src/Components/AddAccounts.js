@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import url from "url";
 import {
-  Grid,
   Box,
   Typography,
   Dialog,
   Snackbar,
   Alert,
-  Paper,
+  Popover,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -121,49 +124,42 @@ export default function AddAccounts({ open, onClose }) {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Dialog
+      <Popover
         elevation={4}
         anchor="bottom"
         open={open}
         onClose={onClose}
-        sx={{ my: 10, mx: 5 }}
+        sx={{ my: 3, mx: 5 }}
       >
         <Box sx={{ py: 8, px: 5 }}>
-          <Typography variant="h6" textAlign="center">
-            {t("Add Accounts")}
-          </Typography>
-          <Typography sx={{ pt: 2 }} variant="body1" textAlign="center">
+          <Typography variant="h6">{t("Add Accounts")}</Typography>
+          <Typography sx={{ pt: 2 }} variant="body1">
             {t("Adding accounts blah blah blah")}
           </Typography>
-          <Grid
-            container
-            sx={{ pt: 6 }}
-            justifyContent="center"
-            alignItems="center"
-            spacing={3}
-          >
-            {unstoredTokens.map((token, index) => (
-              <Grid
-                item
-                md={4}
-                sm={6}
-                xs={12}
-                key={index}
-                sx={{ textAlign: "center" }}
+
+          {unstoredTokens.map((token, index) => (
+            <List key={index}>
+              <ListItem
+                button
+                onClick={() => handleAddAccount(token.name)}
+                sx={{ display: "flex", alignItems: "center" }}
               >
-                <Box onClick={() => handleAddAccount(token.name)}>
-                  <img
+                <ListItemAvatar>
+                  <Box
+                    component="img"
                     src={token.icon_svg}
                     alt={token.name}
-                    style={{ width: "30%", cursor: "pointer" }}
+                    sx={{ width: "40px", height: "40px", marginRight: 2 }}
                   />
-                </Box>
-                <Typography variant="body2">{token.name}</Typography>
-              </Grid>
-            ))}
-          </Grid>
+                </ListItemAvatar>
+                <ListItemText>
+                  <Typography variant="body2">{token.name}</Typography>
+                </ListItemText>
+              </ListItem>
+            </List>
+          ))}
         </Box>
-      </Dialog>
+      </Popover>
     </>
   );
 }

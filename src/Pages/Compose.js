@@ -1,27 +1,29 @@
 import React, { useState, useEffect } from "react";
 import {
-  Grid,
   Box,
   Typography,
   Snackbar,
   Alert,
-  SwipeableDrawer,
-  Card,
-  CardMedia,
-  CardContent,
-  Divider,
-  Paper,
+  Popover,
+  ListItem,
+  ListItemText,
+  List,
+  ListItemAvatar,
 } from "@mui/material";
 import GmailCompose from "../Components/ComposeGmail";
 import TwitterCompose from "../Components/ComposeTwitter";
+import TelegramCompose from "../Components/ComposeTelegram";
 import { useTranslation } from "react-i18next";
 
 export default function Compose({ open, onClose }) {
   const { t } = useTranslation();
   const [composeOpen, setComposeOpen] = useState(false);
   const [twitterOpen, setTwitterOpen] = useState(false);
+  const [telegramOpen, setTelegramOpen] = useState(false);
   const [tokens, setTokens] = useState([]);
   const [alert, setAlert] = useState({ message: "", severity: "" });
+  const [popoverAnchor, setPopoverAnchor] = useState(null);
+  const [selectedPlatform, setSelectedPlatform] = useState("");
 
   const handleAlertClose = () => {
     setAlert({ ...alert, open: false });
@@ -70,11 +72,23 @@ export default function Compose({ open, onClose }) {
   const handleGmailClick = () => {
     setComposeOpen(true);
     setTwitterOpen(false);
+    setTelegramOpen(false);
+    setPopoverAnchor(null);
+    onClose();
   };
 
   const handleTwitterClick = () => {
     setTwitterOpen(true);
     setComposeOpen(false);
+    setTelegramOpen(false);
+    setPopoverAnchor(null);
+  };
+
+  const handleTelegramClick = () => {
+    setTelegramOpen(true);
+    setComposeOpen(false);
+    setTwitterOpen(false);
+    setPopoverAnchor(null);
   };
 
   const handleCloseCompose = () => {
@@ -84,6 +98,23 @@ export default function Compose({ open, onClose }) {
   const handleCloseTwitter = () => {
     setTwitterOpen(false);
   };
+
+  const handleCloseTelegram = () => {
+    setTelegramOpen(false);
+  };
+
+  const handlePlatformClick = (event, platform) => {
+    setPopoverAnchor(event.currentTarget);
+    setSelectedPlatform(platform);
+  };
+
+  const handlePopoverClose = () => {
+    setPopoverAnchor(null);
+  };
+
+  const filteredTokens = tokens.filter(
+    (token) => token.platform === selectedPlatform
+  );
 
   return (
     <>
@@ -100,61 +131,95 @@ export default function Compose({ open, onClose }) {
           {alert.message}
         </Alert>
       </Snackbar>
-      <SwipeableDrawer
+      <Popover
         anchor="left"
         open={open}
         onClose={onClose}
         onOpen={() => {}}
-        sx={{ my: 10, mx: 3 }}
+        sx={{ my: 5, mx: 3 }}
       >
         <Box sx={{ py: 8, px: 3, width: 300 }}>
-          <Typography variant="h6" sx={{ fontWeight: 500 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
             {t("savedPlatforms")}
           </Typography>
-          {/* <Typography variant="body1">{t("savedPlatforms1")}</Typography> */}
-          <Box sx={{ pt: 5 }}>
-            {tokens.map((token, index) => (
-              <Box key={index}>
-                <Grid
-                  container
-                  component={Paper}
-                  elevation={4}
-                  sx={{ my: 1, py: 2, px: 2 }}
-                  onClick={
-                    token.platform === "gmail"
-                      ? handleGmailClick
-                      : handleTwitterClick
-                  }
-                >
-                 
-                  <Grid item md={2} sm={2}>
-                    <Box
-                      component="img"
-                      src={
-                        token.platform === "gmail"
-                          ? "gmail.svg"
-                          : "x-twitter.svg"
-                      }
-                      sx={{
-                        width: "80%",
-                      }}
-                    />
-                  </Grid>
-                  <Grid item md={10} sm={10}>
-                    <Typography variant="body2">
-                      {token.account_identifier}
-                    </Typography>
-                  </Grid>
-                
-                </Grid>
-                <Divider />
-              </Box>
-            ))}
+          <Box sx={{ pt: 3 }}>
+            <List>
+              {["gmail", "twitter", "telegram"].map((platform) => (
+                <React.Fragment key={platform}>
+                  <ListItem
+                    button
+                    onClick={(event) => handlePlatformClick(event, platform)}
+                    sx={{ display: "flex", alignItems: "center" }}
+                  >
+                    <ListItemAvatar>
+                      <Box
+                        component="img"
+                        src={
+                          platform === "gmail"
+                            ? "gmail.svg"
+                            : platform === "twitter"
+                            ? "twitter.svg"
+                            : "telegram.svg"
+                        }
+                        sx={{ width: "40px", height: "40px", marginRight: 2 }}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText>
+                      <Typography variant="body2" sx={{ textTransform: "none" }}>
+                        {platform}
+                      </Typography>
+                    </ListItemText>
+                  </ListItem>
+                </React.Fragment>
+              ))}
+            </List>
           </Box>
         </Box>
-        <GmailCompose open={composeOpen} onClose={handleCloseCompose} />
-        <TwitterCompose open={twitterOpen} onClose={handleCloseTwitter} />
-      </SwipeableDrawer>
+        <Popover
+          open={Boolean(popoverAnchor)}
+          anchorEl={popoverAnchor}
+          onClose={handlePopoverClose}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+        >
+          <Box sx={{ p: 2 }}>
+            {filteredTokens.length === 0 ? (
+              <Typography variant="body2">No stored accounts</Typography>
+            ) : (
+              filteredTokens.map((token, index) => (
+                <List key={index}>
+                  <ListItem
+                    button
+                    onClick={
+                      selectedPlatform === "gmail"
+                        ? handleGmailClick
+                        : selectedPlatform === "twitter"
+                        ? handleTwitterClick
+                        : handleTelegramClick
+                    }
+                    sx={{ display: "flex", alignItems: "center" }}
+                  >
+                    <ListItemText>
+                      <Typography variant="body2" sx={{ cursor: "pointer" }}>
+                        {token.account_identifier}
+                      </Typography>
+                    </ListItemText>
+                  </ListItem>
+                </List>
+              ))
+            )}
+          </Box>
+        </Popover>
+      </Popover>
+      <GmailCompose open={composeOpen} onClose={handleCloseCompose} />
+      <TwitterCompose open={twitterOpen} onClose={handleCloseTwitter} />
+      <TelegramCompose open={telegramOpen} onClose={handleCloseTelegram} />
     </>
   );
 }
