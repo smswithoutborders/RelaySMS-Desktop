@@ -47,7 +47,7 @@ function exchangeOAuth2CodeAndStore(
   );
 }
 
-function RevokeAndDeleteOAuth2Token(
+function revokeAndDeleteOAuth2Token(
   { long_lived_token, platform, account_identifier },
   callback
 ) {
@@ -55,7 +55,33 @@ function RevokeAndDeleteOAuth2Token(
     {
       long_lived_token,
       platform,
-      account_identifier
+      account_identifier,
+    },
+    callback
+  );
+}
+
+function getPNBACode({ phone_number, platform }, callback) {
+  client.GetPNBACode(
+    {
+      phone_number,
+      platform,
+    },
+    callback
+  );
+}
+
+function exchangePNBACodeAndStore(
+  { authorization_code, long_lived_token, password, phone_number, platform },
+  callback
+) {
+  client.ExchangePNBACodeAndStore(
+    {
+      authorization_code,
+      long_lived_token,
+      password,
+      phone_number,
+      platform,
     },
     callback
   );
@@ -64,5 +90,7 @@ function RevokeAndDeleteOAuth2Token(
 module.exports = {
   getOAuth2AuthorizationUrl,
   exchangeOAuth2CodeAndStore,
-  RevokeAndDeleteOAuth2Token
+  revokeAndDeleteOAuth2Token,
+  getPNBACode,
+  exchangePNBACodeAndStore,
 };

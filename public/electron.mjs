@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import Store from "electron-store";
 import OAuth2Handler from "../src/OAuthHandler.js";
-import { decryptLongLivedToken} from "../src/Cryptography.js";
+import { decryptLongLivedToken } from "../src/Cryptography.js";
 
 const storage = new Store({ name: "relaysms" });
 
@@ -195,20 +195,13 @@ ipcMain.handle(
 
 ipcMain.handle(
   "update-entity-password",
-  async (
-    event,
-    {
-      current_password,
-      long_lived_token,
-      new_password,
-    }
-  ) => {
+  async (event, { current_password, long_lived_token, new_password }) => {
     return new Promise((resolve, reject) => {
       vault.updateEntityPassword(
         {
           current_password: current_password,
           long_lived_token: long_lived_token,
-          new_password: new_password,         
+          new_password: new_password,
         },
         (err, response) => {
           if (err) {
@@ -225,7 +218,7 @@ ipcMain.handle(
 ipcMain.handle(
   "list-entity-stored-tokens",
   async (event, { long_lived_token }) => {
-    console.log("main llt:", long_lived_token)
+    console.log("main llt:", long_lived_token);
     return new Promise((resolve, reject) => {
       vault.listEntityStoredTokens(
         {
@@ -243,25 +236,22 @@ ipcMain.handle(
   }
 );
 
-ipcMain.handle(
-  "delete-entity",
-  async (event, { long_lived_token }) => {
-    return new Promise((resolve, reject) => {
-      vault.DeleteEntity(
-        {
-          long_lived_token: long_lived_token,
-        },
-        (err, response) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(response);
-          }
+ipcMain.handle("delete-entity", async (event, { long_lived_token }) => {
+  return new Promise((resolve, reject) => {
+    vault.deleteEntity(
+      {
+        long_lived_token: long_lived_token,
+      },
+      (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(response);
         }
-      );
-    });
-  }
-);
+      }
+    );
+  });
+});
 
 ipcMain.handle(
   "get-oauth2-authorization-url",
@@ -317,16 +307,58 @@ ipcMain.handle(
 
 ipcMain.handle(
   "revoke-and-delete-oauth2-token",
-  async (
-    event,
-    { long_lived_token, platform, account_identifier}
-  ) => {
+  async (event, { long_lived_token, platform, account_identifier }) => {
     return new Promise((resolve, reject) => {
-      publisher.RevokeAndDeleteOAuth2Token(
+      publisher.revokeAndDeleteOAuth2Token(
         {
           long_lived_token: long_lived_token,
           platform: platform,
-          account_identifier: account_identifier
+          account_identifier: account_identifier,
+        },
+        (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(response);
+          }
+        }
+      );
+    });
+  }
+);
+
+ipcMain.handle("get-pnba-code", async (event, { phone_number, platform }) => {
+  return new Promise((resolve, reject) => {
+    publisher.getPNBACode(
+      {
+        phone_number: phone_number,
+        platform: platform,
+      },
+      (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(response);
+        }
+      }
+    );
+  });
+});
+
+ipcMain.handle(
+  "exchange-pnba-code-and-store",
+  async (
+    event,
+    { authorization_code, long_lived_token, password, phone_number, platform }
+  ) => {
+    return new Promise((resolve, reject) => {
+      publisher.exchangePNBACodeAndStore(
+        {
+          authorization_code: authorization_code,
+          long_lived_token: long_lived_token,
+          password: password,
+          phone_number: phone_number,
+          platform: platform,
         },
         (err, response) => {
           if (err) {
@@ -352,8 +384,8 @@ ipcMain.handle("store-params", async (event, { key, value }) => {
 
 ipcMain.handle("retrieve-params", async (event, key) => {
   try {
-   const params = storage.get(key);
-   return params
+    const params = storage.get(key);
+    return params;
   } catch (error) {
     console.error("Error retrieving params:", error);
     throw error;

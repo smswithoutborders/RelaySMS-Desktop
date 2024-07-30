@@ -8,16 +8,13 @@ import {
   Tooltip,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { FaEllipsisVertical, FaGlobe, FaMagnifyingGlass, FaPenToSquare, FaServer, FaShieldHalved, FaTowerCell, FaUsers } from "react-icons/fa6";
-import { Link } from "react-router-dom";
-import Footer from "../Components/Footer";
+import { FaEllipsisVertical, FaMagnifyingGlass, FaPenToSquare, FaTowerCell, FaUsers } from "react-icons/fa6";
 import Compose from "./Compose";
 import { FaLanguage } from "react-icons/fa";
 import AddAccounts from "../Components/AddAccounts";
 import SimpleDialog from "../Components/SelectLanguage";
 import SecuritySettings from "./SecuritySetting";
 import AdvancedSettings from "./AdvancedSettings";
-//import { FaChevronCircleRight } from "react-icons/fa";
 
 export default function Landing() {
   const { t } = useTranslation();
@@ -81,10 +78,10 @@ export default function Landing() {
         anchor="left"
         open={isDrawerOpen}
         sx={{
-          width: 320,
+          width: 400,
           flexShrink: 0,
           "& .MuiDrawer-paper": {
-            width: 320,
+            width: 400,
             boxSizing: "border-box",
           },
         }}

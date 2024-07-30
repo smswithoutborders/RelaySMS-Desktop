@@ -149,7 +149,7 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
 
-  RevokeAndDeleteOAuth2Token: async (
+  revokeAndDeleteOAuth2Token: async (
     long_lived_token,
     platform,
     account_identifier  
@@ -174,6 +174,54 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
 
+  getPNBACode: async (
+    phone_number,
+    platform,    
+  ) => {
+    try {
+      console.log("platform:", platform);
+      console.log("phone_number:", phone_number);
+      const response = await ipcRenderer.invoke(
+        "get-pnba-code",
+        {
+          phone_number,
+          platform,         
+        }
+      );
+      console.log("response:", response);
+      return response;
+    } catch (error) {
+      console.error("gRPC call error:", error);
+      throw error;
+    }
+  },
+
+  exchangePNBACodeAndStore: async (
+    authorization_code, long_lived_token, password, phone_number, platform 
+  ) => {
+    try {   
+      console.log("phone_number:", phone_number);
+      console.log("authorization_code:", authorization_code);
+      console.log("long_lived_token:", long_lived_token);
+      console.log("platform:", platform);
+      const response = await ipcRenderer.invoke(
+        "exchange-pnba-code-and-store",
+        {
+          authorization_code,
+          long_lived_token,
+          password,
+          phone_number,
+          platform,      
+        }
+      );
+      console.log("response:", response);
+      return response;
+    } catch (error) {
+      console.error("gRPC call error:", error);
+      throw error;
+    }
+  },
+
   listEntityStoredTokens: async (long_lived_token) => {
     try {
       console.log("long_lived_token:", long_lived_token);
@@ -188,7 +236,7 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
 
-  DeleteEntity: async (long_lived_token) => {
+  deleteEntity: async (long_lived_token) => {
     try {
       console.log("long_lived_token:", long_lived_token);
       const response = await ipcRenderer.invoke("delete-entity", {

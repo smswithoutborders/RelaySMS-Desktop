@@ -3,7 +3,6 @@ import url from "url";
 import {
   Box,
   Typography,
-  Dialog,
   Snackbar,
   Alert,
   Popover,
@@ -14,11 +13,13 @@ import {
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import TelegramAuthDialog from "./Telegram";
 
 export default function AddAccounts({ open, onClose }) {
   const { t } = useTranslation();
   const [alert, setAlert] = useState({ message: "", severity: "" });
   const [unstoredTokens, setUnstoredTokens] = useState([]);
+  const [telegramDialogOpen, setTelegramDialogOpen] = useState(false); // State for Telegram dialog
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,6 +47,11 @@ export default function AddAccounts({ open, onClose }) {
   };
 
   const handleAddAccount = async (platform) => {
+    if (platform === "telegram") {
+      setTelegramDialogOpen(true);
+      return;
+    }
+    
     try {
       const response = await window.api.getOAuth2AuthorizationUrl(
         platform,
@@ -103,10 +109,23 @@ export default function AddAccounts({ open, onClose }) {
       console.error("Failed to get OAuth2 authorization URL:", error);
       setAlert({
         message: error.message,
-        severity: "success",
+        severity: "error",
         open: true,
       });
     }
+  };
+
+  const handleTelegramAuthenticate = () => {
+    setAlert({
+      message: "Telegram account added successfully",
+      severity: "success",
+      open: true,
+    });
+    setTelegramDialogOpen(false);
+    setTimeout(() => {
+      navigate("/onboarding4");
+      handleClose();
+    }, 2000);
   };
 
   return (
@@ -129,14 +148,9 @@ export default function AddAccounts({ open, onClose }) {
         anchor="bottom"
         open={open}
         onClose={onClose}
-        sx={{ my: 3, mx: 5 }}
       >
-        <Box sx={{ py: 8, px: 5 }}>
+        <Box sx={{ py: 5, px: 3 }}>
           <Typography variant="h6">{t("Add Accounts")}</Typography>
-          <Typography sx={{ pt: 2 }} variant="body1">
-            {t("Adding accounts blah blah blah")}
-          </Typography>
-
           {unstoredTokens.map((token, index) => (
             <List key={index}>
               <ListItem
@@ -149,7 +163,7 @@ export default function AddAccounts({ open, onClose }) {
                     component="img"
                     src={token.icon_svg}
                     alt={token.name}
-                    sx={{ width: "40px", height: "40px", marginRight: 2 }}
+                    sx={{ width: "40px", height: "40px", marginRight: 0 }}
                   />
                 </ListItemAvatar>
                 <ListItemText>
@@ -160,6 +174,11 @@ export default function AddAccounts({ open, onClose }) {
           ))}
         </Box>
       </Popover>
+      <TelegramAuthDialog
+        open={telegramDialogOpen}
+        onClose={() => setTelegramDialogOpen(false)}
+        onAuthenticate={handleTelegramAuthenticate}
+      />
     </>
   );
 }

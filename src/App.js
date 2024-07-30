@@ -6,15 +6,10 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Onboarding from "./Pages/Onboarding";
 import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 import Landing from "./Pages/Home";
-import Settings from "./Pages/Settings";
 import "./i18n";
 import Onboarding2 from "./Pages/Onboarding2";
 import Onboarding3 from "./Pages/Onboarding3";
 import Onboarding4 from "./Pages/Onboarding4";
-import Login from "./Components/Login";
-import Signup from "./Components/Signup";
-import SecuritySettings from "./Pages/SecuritySetting";
-import AdvancedSettings from "./Pages/AdvancedSettings";
 
 const isElectron = () => {
   return (
@@ -145,12 +140,7 @@ function App() {
               <Onboarding4 onComplete={() => handleCompleteOnboarding(4)} />
             }
           />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/securitysettings" element={<SecuritySettings />} />
-          <Route path="/advancedsettings" element={<AdvancedSettings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
         </Routes>
       </HashRouter>
     </ThemeProvider>
