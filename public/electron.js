@@ -1,26 +1,33 @@
 /* eslint-disable no-unused-expressions */
-import { app, BrowserWindow, protocol, ipcMain } from "electron";
-import path from "path";
-import url from "url";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-import Store from "electron-store";
-import OAuth2Handler from "../src/OAuthHandler.js";
-import { decryptLongLivedToken } from "../src/Cryptography.js";
+const { app, BrowserWindow, protocol, ipcMain } = require("electron");
+const path = require("path");
+const url = require("url");
 
-const storage = new Store({ name: "relaysms" });
+const OAuth2Handler = require(path.join(__dirname, '../src/OAuthHandler.js'));
+const { decryptLongLivedToken } = require("../src/Cryptography.js");
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const vault = require("./vault.js");
+const publisher = require("./publisher.js");
 
 let mainWindow;
 
-function createWindow() {
+// Dynamic import of electron-store
+let storage;
+
+async function loadModules() {
+  const Store = (await import("electron-store")).default;
+  storage = new Store({ name: "relaysms" });
+}
+
+async function createWindow() {
+  await loadModules();
+  
+  console.log('Creating main window...');
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
-      preload: path.join(__dirname, "preload.mjs"),
+      preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
     },
@@ -54,7 +61,8 @@ function setupLocalFilesNormalizerProxy() {
   );
 }
 
-app.whenReady().then(async () => {
+app.whenReady().then(() => {
+  console.log('App is ready');
   createWindow();
   setupLocalFilesNormalizerProxy();
 
@@ -81,16 +89,6 @@ app.on("web-contents-created", (event, contents) => {
     }
   });
 });
-
-let vault;
-let publisher;
-
-async function loadModules() {
-  vault = await import("./vault.js");
-  publisher = await import("./publisher.js");
-}
-
-loadModules();
 
 ipcMain.handle(
   "create-entity",
@@ -486,3 +484,4 @@ ipcMain.handle(
     }
   }
 );
+

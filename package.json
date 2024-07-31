@@ -2,7 +2,7 @@
   "name": "relaysms",
   "version": "0.1.0",
   "private": true,
-  "main": "./public/electron.mjs",
+  "main": "./public/electron.js",
   "author": "RelaySMS <developers@smswithoutborders.com>",
   "description": "Relay SMS Desktop App",
   "homepage": "./",
@@ -52,9 +52,9 @@
     "eject": "react-scripts eject",
     "preelectron-pack": "yarn build",
     "electron:start": "concurrently -k \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electronmon .\"",
-    "electron:package:mac": "yarn build && electron-builder -m -c.extraMetadata.main=build/electron.mjs",
-    "electron:package:win": "yarn build && electron-builder -w -c.extraMetadata.main=build/electron.mjs",
-    "electron:package:linux": "yarn build && electron-builder -l -c.extraMetadata.main=build/electron.mjs"
+    "electron:package:mac": "yarn build && electron-builder -m -c.extraMetadata.main=build/electron.js",
+    "electron:package:win": "yarn build && electron-builder -w -c.extraMetadata.main=build/electron.js",
+    "electron:package:linux": "yarn build && electron-builder -l -c.extraMetadata.main=build/electron.js"
   },
   "eslintConfig": {
     "extends": [
@@ -100,6 +100,7 @@
     "files": [
       "build/**/*",
       "./dist/**/*",
+      "./src/**/*",
       "./public/**/*"
     ],
     "directories": {
@@ -119,8 +120,5 @@
       "category": "Communication",
       "icon": "./public/icon.png"
     }
-  },
-  "extraMetadata": {
-    "main": "build/electron.mjs"
   }
 }
