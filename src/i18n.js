@@ -15,12 +15,16 @@ const resources = {
   },
   fa: {
     translation: faTranslation,
-    direction: "rtl",
   },
 };
 
 // Retrieve the language choice from local storage
 const storedLanguage = localStorage.getItem(localStorageKey);
+
+const setDirection = (language) => {
+  const direction = language === 'fa' ? 'rtl' : 'ltr';
+  document.documentElement.setAttribute("dir", direction);
+};
 
 i18n.use(initReactI18next).init({
   resources,
@@ -29,10 +33,22 @@ i18n.use(initReactI18next).init({
   interpolation: {
     escapeValue: false,
   },
+  react: {
+    useSuspense: false,
+  },
+  initImmediate: false,
+}, () => {
+  setDirection(i18n.language);
+});
+
+i18n.on('languageChanged', (lng) => {
+  setDirection(lng);
 });
 
 export default i18n;
 
 export const setLanguage = (language) => {
-  localStorage.setItem(localStorageKey, language);
+  i18n.changeLanguage(language).then(() => {
+    localStorage.setItem(localStorageKey, language);
+  });
 };

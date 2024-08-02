@@ -1,6 +1,5 @@
 {
   "welcome": "Welcome to RelaySMS",
-  "languageName": "English",
   "recent": "Recent",
   "noRecentMessages": "No recent messages",
   "startConversation": "Start a conversation by clicking the compose button",
@@ -61,5 +60,19 @@
   "confirmPassword": "Confirm Password",
   "createNewPass": "Create New Password",
   "deleteAccount": "Delete Account",
-  "deleteAccountConfirmation": "Are you sure you want to delete your account?"
-}
+  "deleteAccountConfirmation": "Are you sure you want to delete your account?",
+  "skip": "Skip",
+  "english": "English",
+  "french": "French",
+  "Farsi": "Farsi",
+  "compose": "Compose",
+  "changeLanguage": "Chamge Language",
+  "more": "More",
+  "menuItems": "Menu Items",
+  "help": "Help",
+  "savedAccounts": "Saved Accounts",
+  "yes": "Yes",
+  "no": "No",
+  "cancel": "Cancel",
+  "noStoredAccounts": "No Stored Accounts"
+} 

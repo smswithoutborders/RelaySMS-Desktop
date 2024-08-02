@@ -1,4 +1,3 @@
-// SimpleDialog.js
 import React from "react";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -15,7 +14,7 @@ export default function SimpleDialog({ onClose, open }) {
   };
 
   const handleListItemClick = (lang) => {
-    i18n.changeLanguage(lang); // Change the language
+    i18n.changeLanguage(lang); 
     onClose();
   };
 
@@ -29,19 +28,19 @@ export default function SimpleDialog({ onClose, open }) {
         <List sx={{ px: 1 }}>
           <ListItem disableGutters>
             <ListItemButton onClick={() => handleListItemClick("en")}>
-              <ListItemText> English </ListItemText>
+              <ListItemText> {t("english")} </ListItemText>
             </ListItemButton>
           </ListItem>
 
           <ListItem disableGutters>
             <ListItemButton onClick={() => handleListItemClick("fr")}>
-              <ListItemText> French </ListItemText>
+              <ListItemText> {t("french")} </ListItemText>
             </ListItemButton>
           </ListItem>
 
           <ListItem disableGutters>
             <ListItemButton onClick={() => handleListItemClick("fa")}>
-              <ListItemText> Farsi</ListItemText>
+              <ListItemText> {t("farsi")}</ListItemText>
             </ListItemButton>
           </ListItem>
         </List>

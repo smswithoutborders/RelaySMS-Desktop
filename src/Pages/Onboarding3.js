@@ -63,7 +63,7 @@ export default function Onboarding3() {
             variant="underlined"
             sx={{ px: 2, textTransform: "none" }}
           >
-            skip
+            {t("skip")}
           </Button>
         </Grid>
         <Grid

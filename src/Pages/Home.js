@@ -4,18 +4,14 @@ import {
   Box,
   IconButton,
   InputBase,
-  Drawer,
   Tooltip,
-  Divider,
   Grid,
   Paper,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import {
   FaEllipsis,
-  FaEllipsisVertical,
   FaMagnifyingGlass,
-  FaPenToSquare,
   FaRegCircleQuestion,
   FaTowerCell,
   FaUsers,
@@ -30,7 +26,6 @@ import Footer from "../Components/Footer";
 
 export default function Landing() {
   const { t } = useTranslation();
-  const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const [composeDrawerOpen, setComposeDrawerOpen] = useState(false);
   const [addAccountsDrawerOpen, setAddAccountsDrawerOpen] = useState(false);
   const [selectLanguage, setSelectLanguage] = useState(false);
@@ -69,17 +64,11 @@ export default function Landing() {
     setGatewayClients(false);
   };
 
-  const handleCompose = () => {
-    setComposeDrawerOpen(true);
-  };
 
   const handleComposeDrawerClose = () => {
     setComposeDrawerOpen(false);
   };
 
-  const toggleDrawer = () => {
-    setIsDrawerOpen(!isDrawerOpen);
-  };
 
   return (
     <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
@@ -108,22 +97,22 @@ export default function Landing() {
                 sx={{ width: "30%", my: 3 }}
               />
             </Tooltip>
-            <Tooltip title="Add Accounts" sx={{ my: 3 }}>
+            <Tooltip title={t("addAccounts")} sx={{ my: 3 }}>
               <IconButton onClick={handleAddAccountsClick}>
                 <FaUsers size="17px" />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Gateway Clients" sx={{ my: 3 }}>
+            <Tooltip title={t("gatewayClients")} sx={{ my: 3 }}>
               <IconButton onClick={handleGatewayClients}>
                 <FaTowerCell size="17px" />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Change Language" sx={{ my: 3 }}>
+            <Tooltip title={t("changeLanguage")} sx={{ my: 3 }}>
               <IconButton onClick={handleLanguageChange}>
                 <FaLanguage size="17px" />
               </IconButton>
             </Tooltip>
-            <Tooltip title="More">
+            <Tooltip title={t("more")}>
               <IconButton onClick={handleMenuChange} sx={{ my: 2 }}>
                 <FaEllipsis size="17px" />
               </IconButton>

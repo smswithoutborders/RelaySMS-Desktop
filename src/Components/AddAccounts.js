@@ -151,7 +151,7 @@ export default function AddAccounts({ open, onClose }) {
         onClose={onClose}
       >
         <Box sx={{ py: 3, px:1}}>
-          <Typography  sx={{fontWeight: 600}} variant="body2">{t("Add Accounts")}</Typography>
+          <Typography  sx={{fontWeight: 600}} variant="body2">{t("addAccounts")}</Typography>
           <Divider/>
           {unstoredTokens.map((token, index) => (
             <List key={index} sx={{px: 2}}>

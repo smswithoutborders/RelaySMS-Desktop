@@ -176,7 +176,7 @@ export default function SecuritySettings({ open, onClose }) {
       <Popover open={open} onClose={onClose} >
         <Box sx={{px:1, py: 3}}>
       <Typography variant="body1" sx={{ fontWeight: 600 }}>
-          {t("Menu Items")}
+          {t("menuItems")}
         </Typography>
         <Divider/>
         <List sx={{px:1}}>
@@ -234,10 +234,10 @@ export default function SecuritySettings({ open, onClose }) {
       <Popover
         open={revokeDialogOpen}
         onClose={handleCloseRevokeDialog}
-        sx={{ my: 10, mx: 5 }}
+       
       >
-        <Box sx={{ py: 8, px: 5 }}>
-          <Typography variant="h6">{t("savedAccounts")}</Typography>
+        <Box sx={{ py: 4, px: 2 }}>
+          <Typography variant="body2" sx={{fontWeight: 600}}>{t("savedAccounts")}</Typography>
           <List>
             {tokens.map((token, index) => (
               <List key={index}>
@@ -281,19 +281,21 @@ export default function SecuritySettings({ open, onClose }) {
               variant="contained"
               item
               sm={4}
+              sx={{borderRadius: 3}}
               onClick={handleCloseDeleteDialog}
             >
-              No
+              {t("no")}
             </Button>
             <Button
               component={Grid}
               variant="contained"
               item
               sm={4}
+              sx={{borderRadius: 3}}
               onClick={handleConfirmDelete}
               color="primary"
             >
-              Yes
+              {t("yes")}
             </Button>
           </Grid>
         </Box>

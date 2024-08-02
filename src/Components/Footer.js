@@ -8,7 +8,6 @@ export default function Footer() {
   const { t } = useTranslation();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
- 
   const handlePenClick = () => {
     setDrawerOpen(true);
   };

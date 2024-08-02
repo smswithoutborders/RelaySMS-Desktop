@@ -194,7 +194,7 @@ export default function Compose({ open, onClose }) {
         >
           <Box sx={{ p: 2 }}>
             {filteredTokens.length === 0 ? (
-              <Typography variant="body2">No stored accounts</Typography>
+              <Typography variant="body2">{t("noStoredAccounts")}</Typography>
             ) : (
               filteredTokens.map((token, index) => (
                 <List key={index}>
