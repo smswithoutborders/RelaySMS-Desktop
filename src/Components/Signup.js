@@ -217,6 +217,9 @@ function Signup({ onClose, open }) {
         clientPublishPubKey
       );
       console.log("Resend OTP Response:", response);
+      await window.api.storeParams("serverDeviceId", response.server_device_id_pub_key);
+      await window.api.storeParams("longLivedToken", response.long_lived_token);
+      
       setAlert({
         message: "OTP Resent: " + response.message,
         severity: "success",

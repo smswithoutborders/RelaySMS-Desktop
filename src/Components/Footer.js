@@ -1,37 +1,38 @@
-import { Box, Fab } from "@mui/material";
+import { Box, Button, } from "@mui/material";
 import React, { useState } from "react";
-import { FaUsers } from "react-icons/fa";
-import AddAccounts from "../Components/AddAccounts"; 
 import { useTranslation } from "react-i18next";
+import { FaPen } from "react-icons/fa6";
+import Compose from "../Pages/Compose";
 
 export default function Footer() {
   const { t } = useTranslation();
-  const [addAccountsDrawerOpen, setAddAccountsDrawerOpen] = useState(false); 
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const handleAddAccountsClick = () => {
-    setAddAccountsDrawerOpen(true);
+ 
+  const handlePenClick = () => {
+    setDrawerOpen(true);
   };
 
-  const handleAddAccountsDrawerClose = () => {
-    setAddAccountsDrawerOpen(false);
-  };
+  const handleCloseDrawer = () => {
+    setDrawerOpen(false);
+};
 
   return (
     <Box
       sx={{
         position: "fixed",
         bottom: 0,
-        left: 80,
+        right: 0,
         margin: "28px",
         justifyContent: "flex-end",
       }}
     >
       <Box>
-        <Fab variant="extended" sx={{ textTransform: "none" }} onClick={handleAddAccountsClick}>
-          <FaUsers size="20px" style={{ marginRight: 3 }} /> {t("addAccounts")}
-        </Fab>
-      </Box>
-      <AddAccounts open={addAccountsDrawerOpen} onClose={handleAddAccountsDrawerClose} />
+          <Button variant="contained" onClick={handlePenClick} sx={{borderRadius: 2, textTransform: "none"}}>
+            {t("compose")}<FaPen size="16px" style={{marginLeft: 7}}/>
+          </Button>
+     </Box>
+     <Compose open={drawerOpen} onClose={handleCloseDrawer} />{" "}
     </Box>
   );
 }

@@ -31,11 +31,12 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
+
   authenticateEntity: async (
     phoneNumber,
     password,
-    client_publish_pub_key,
     client_device_id_pub_key,
+    client_publish_pub_key,
     ownership_proof_response
   ) => {
     try {
@@ -54,6 +55,7 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
+
   resetPassword: async (
     phoneNumber,
     new_password,
@@ -76,10 +78,11 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
+
   updateEntityPassword: async (
     current_password,
     long_lived_token,
-    new_password,
+    new_password
   ) => {
     try {
       const response = await ipcRenderer.invoke("update-entity-password", {
@@ -93,6 +96,7 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
+
   getOAuth2AuthorizationUrl: async (
     platform,
     state,
@@ -152,7 +156,7 @@ contextBridge.exposeInMainWorld("api", {
   revokeAndDeleteOAuth2Token: async (
     long_lived_token,
     platform,
-    account_identifier  
+    account_identifier
   ) => {
     try {
       console.log("platform:", platform);
@@ -163,7 +167,7 @@ contextBridge.exposeInMainWorld("api", {
         {
           long_lived_token,
           platform,
-          account_identifier
+          account_identifier,
         }
       );
       console.log("response:", response);
@@ -174,20 +178,14 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
 
-  getPNBACode: async (
-    phone_number,
-    platform,    
-  ) => {
+  getPNBACode: async (phone_number, platform) => {
     try {
       console.log("platform:", platform);
       console.log("phone_number:", phone_number);
-      const response = await ipcRenderer.invoke(
-        "get-pnba-code",
-        {
-          phone_number,
-          platform,         
-        }
-      );
+      const response = await ipcRenderer.invoke("get-pnba-code", {
+        phone_number,
+        platform,
+      });
       console.log("response:", response);
       return response;
     } catch (error) {
@@ -197,9 +195,13 @@ contextBridge.exposeInMainWorld("api", {
   },
 
   exchangePNBACodeAndStore: async (
-    authorization_code, long_lived_token, password, phone_number, platform 
+    authorization_code,
+    long_lived_token,
+    password,
+    phone_number,
+    platform
   ) => {
-    try {   
+    try {
       console.log("phone_number:", phone_number);
       console.log("authorization_code:", authorization_code);
       console.log("long_lived_token:", long_lived_token);
@@ -211,7 +213,7 @@ contextBridge.exposeInMainWorld("api", {
           long_lived_token,
           password,
           phone_number,
-          platform,      
+          platform,
         }
       );
       console.log("response:", response);
@@ -324,9 +326,9 @@ contextBridge.exposeInMainWorld("api", {
     long_lived_token_cipher,
   }) => {
     return new Promise((resolve, reject) => {
-      console.log("client_device_id_secret_key:", client_device_id_secret_key)
-      console.log("server_device_id_pub_key:", server_device_id_pub_key)
-      console.log("long_lived_token_cipher:", long_lived_token_cipher)
+      console.log("client_device_id_secret_key:", client_device_id_secret_key);
+      console.log("server_device_id_pub_key:", server_device_id_pub_key);
+      console.log("long_lived_token_cipher:", long_lived_token_cipher);
       ipcRenderer
         .invoke("get-long-lived-token", {
           client_device_id_secret_key,

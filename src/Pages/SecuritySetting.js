@@ -3,25 +3,17 @@ import {
   Box,
   Divider,
   Grid,
-  IconButton,
   List,
   ListItem,
   ListItemText,
-  Switch,
   Typography,
   Snackbar,
   Alert,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Button,
   Popover,
   ListItemAvatar,
 } from "@mui/material";
-import { FaArrowLeft } from "react-icons/fa6";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import ResetPasswordDialog from "../Components/NewPassword";
 
@@ -180,16 +172,20 @@ export default function SecuritySettings({ open, onClose }) {
   };
 
   return (
-    <Box sx={{ m: 5, mt: 6 }}>
-      <Popover open={open} onClose={onClose}>
-        <List>
+    <Box>
+      <Popover open={open} onClose={onClose} >
+        <Box sx={{px:1, py: 3}}>
+      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+          {t("Menu Items")}
+        </Typography>
+        <Divider/>
+        <List sx={{px:1}}>
           <ListItem button onClick={handleRevokeTokensClick}>
             <ListItemText>
               <Typography variant="body1" sx={{ fontWeight: 500 }}>
                 {t("revoke")}
               </Typography>
             </ListItemText>
-            <Divider />
           </ListItem>
 
           <ListItem
@@ -218,6 +214,7 @@ export default function SecuritySettings({ open, onClose }) {
             </ListItemText>
           </ListItem>
         </List>
+        </Box>
       </Popover>
 
       <Snackbar

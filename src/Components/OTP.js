@@ -7,17 +7,20 @@ import {
   TextField,
   Typography,
   Box,
+  Grid,
 } from "@mui/material";
 
-function OTPDialog({ open, onClose, onSubmit, onResend }) {
-  const [otp, setOtp] = useState("");
-  const [counter, setCounter] = useState(60);
+function OTPDialog({ open, onClose, onSubmit, onResend, counterTimestamp }) {
+  const [otp, setOtp] = useState(Array(6).fill(""));
+  const [counter, setCounter] = useState(0);
 
   useEffect(() => {
     if (open) {
-      setCounter(60);
+      const now = Math.floor(Date.now() / 1000);
+      const remainingTime = counterTimestamp - now;
+      setCounter(remainingTime > 0 ? remainingTime : 0);
     }
-  }, [open]);
+  }, [open, counterTimestamp]);
 
   useEffect(() => {
     if (counter > 0) {
@@ -26,49 +29,108 @@ function OTPDialog({ open, onClose, onSubmit, onResend }) {
     }
   }, [counter]);
 
-  const handleOtpChange = (event) => {
-    setOtp(event.target.value);
+  const handleOtpChange = (event, index) => {
+    const value = event.target.value;
+    if (/^[0-9]?$/.test(value)) {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+
+      if (value && index < 5) {
+        const nextInput = document.getElementById(`otp-${index + 1}`);
+        if (nextInput) nextInput.focus();
+      }
+    }
   };
 
   const handleOtpSubmit = () => {
-    onSubmit(otp);
+    onSubmit(otp.join(""));
   };
 
   const handleResend = () => {
-    setCounter(60);
     onResend();
   };
+
+  const handleKeyDown = (event, index) => {
+    if (event.key === "Backspace" && otp[index] === "") {
+      if (index > 0) {
+        const prevInput = document.getElementById(`otp-${index - 1}`);
+        if (prevInput) prevInput.focus();
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (open) {
+      const firstInput = document.getElementById("otp-0");
+      if (firstInput) firstInput.focus();
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogContent>
-        <Typography variant="h6">Enter OTP</Typography>
-        <TextField
-          autoFocus
-          margin="dense"
-          label="OTP"
-          type="text"
-          fullWidth
-          value={otp}
-          onChange={handleOtpChange}
-        />
+        <Typography variant="h6" gutterBottom>
+          Verify Your Identity
+        </Typography>
+        <Typography variant="body2" color="textSecondary" gutterBottom>
+          Please enter the One-Time Password (OTP) sent to your registered
+          mobile number.
+        </Typography>
+        <Box mt={2} mb={2}>
+          <Grid container spacing={1}>
+            {otp.map((digit, index) => (
+              <Grid item xs={2} key={index}>
+                <TextField
+                  id={`otp-${index}`}
+                  type="text"
+                  value={digit}
+                  onChange={(e) => handleOtpChange(e, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  inputProps={{
+                    maxLength: 1,
+                    style: { textAlign: "center" },
+                  }}
+                  variant="outlined"
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
         <Box mt={2}>
           {counter > 0 ? (
-            <Typography variant="body2">
-              Resend OTP in {counter} seconds
-            </Typography>
+            <>
+              <Typography variant="body2" color="textSecondary">
+                Resend OTP in {counter} seconds
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                If you didn't receive the OTP, you can request a new one after
+                the timer ends. Make sure your phone number is correct and has
+                network coverage.
+              </Typography>
+            </>
           ) : (
-            <Button onClick={handleResend} color="primary">
+            <Button
+              onClick={handleResend}
+              color="primary"
+              fullWidth
+              variant="outlined"
+            >
               Resend OTP
             </Button>
           )}
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="primary">
+      <DialogActions style={{ padding: "16px" }}>
+        <Button
+          onClick={onClose}
+          color="secondary"
+          variant="outlined"
+          style={{ marginRight: "8px" }}
+        >
           Cancel
         </Button>
-        <Button onClick={handleOtpSubmit} color="primary">
+        <Button onClick={handleOtpSubmit} color="primary" variant="contained">
           Submit
         </Button>
       </DialogActions>

@@ -10,6 +10,7 @@ import {
   ListItem,
   ListItemText,
   ListItemAvatar,
+  Divider,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -149,10 +150,11 @@ export default function AddAccounts({ open, onClose }) {
         open={open}
         onClose={onClose}
       >
-        <Box sx={{ py: 5, px: 3 }}>
-          <Typography variant="h6">{t("Add Accounts")}</Typography>
+        <Box sx={{ py: 3, px:1}}>
+          <Typography  sx={{fontWeight: 600}} variant="body2">{t("Add Accounts")}</Typography>
+          <Divider/>
           {unstoredTokens.map((token, index) => (
-            <List key={index}>
+            <List key={index} sx={{px: 2}}>
               <ListItem
                 button
                 onClick={() => handleAddAccount(token.name)}
@@ -163,7 +165,7 @@ export default function AddAccounts({ open, onClose }) {
                     component="img"
                     src={token.icon_svg}
                     alt={token.name}
-                    sx={{ width: "40px", height: "40px", marginRight: 0 }}
+                    sx={{ width: "30px", height: "30px", marginRight: 0 }}
                   />
                 </ListItemAvatar>
                 <ListItemText>
@@ -172,6 +174,7 @@ export default function AddAccounts({ open, onClose }) {
               </ListItem>
             </List>
           ))}
+          <Divider/>
         </Box>
       </Popover>
       <TelegramAuthDialog

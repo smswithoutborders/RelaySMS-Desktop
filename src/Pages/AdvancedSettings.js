@@ -17,11 +17,12 @@ export default function AdvancedSettings({open, onClose}) {
   const { t } = useTranslation();
   return (
     <Popover open={open} onClose={onClose} sx={{ m: 4, mt: 6 }}>
-      <Box sx={{p:4}}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+      <Box sx={{px:1, py: 3}}>
+        <Typography variant="body1" sx={{ fontWeight: 600 }}>
           {t("gatewayClients")}
         </Typography>
-        <List>
+        <Divider/>
+        <List sx={{px: 1}}>
           <ListItem>
             <ListItemText>
               <Typography variant="body1" sx={{ fontWeight: 500 }}>
@@ -31,6 +32,7 @@ export default function AdvancedSettings({open, onClose}) {
             <Divider />
           </ListItem>
         </List>
+        <Divider/>
       </Box>
     </Popover>
   );

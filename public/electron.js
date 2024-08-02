@@ -11,7 +11,6 @@ const publisher = require("./publisher.js");
 
 let mainWindow;
 
-// Dynamic import of electron-store
 let storage;
 
 async function loadModules() {

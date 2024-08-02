@@ -5,7 +5,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import { useTranslation } from "react-i18next";
-import { Box, Popover, Typography } from "@mui/material";
+import { Box, Divider, Popover, Typography } from "@mui/material";
 
 export default function SimpleDialog({ onClose, open }) {
   const { t, i18n } = useTranslation();
@@ -21,11 +21,12 @@ export default function SimpleDialog({ onClose, open }) {
 
   return (
     <Popover onClose={handleClose} open={open}>
-      <Box sx={{ py: 3, px: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+      <Box sx={{ py: 3, px: 2 }}>
+        <Typography variant="body1" sx={{ fontWeight: 600 }}>
           {t("selectLanguage")}
         </Typography>
-        <List sx={{ pt: 2 }}>
+        <Divider/>
+        <List sx={{ px: 1 }}>
           <ListItem disableGutters>
             <ListItemButton onClick={() => handleListItemClick("en")}>
               <ListItemText> English </ListItemText>
@@ -44,6 +45,7 @@ export default function SimpleDialog({ onClose, open }) {
             </ListItemButton>
           </ListItem>
         </List>
+        <Divider/>
       </Box>
     </Popover>
   );

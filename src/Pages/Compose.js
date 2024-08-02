@@ -9,6 +9,7 @@ import {
   ListItemText,
   List,
   ListItemAvatar,
+  Divider,
 } from "@mui/material";
 import GmailCompose from "../Components/ComposeGmail";
 import TwitterCompose from "../Components/ComposeTwitter";
@@ -132,17 +133,20 @@ export default function Compose({ open, onClose }) {
         </Alert>
       </Snackbar>
       <Popover
-        anchor="left"
+         anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
         open={open}
         onClose={onClose}
         onOpen={() => {}}
-        sx={{ my: 5, mx: 3 }}
       >
-        <Box sx={{ py: 8, px: 3, width: 300 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        <Box sx={{ py: 3, px: 2, width: 300 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
             {t("savedPlatforms")}
           </Typography>
-          <Box sx={{ pt: 3 }}>
+          <Divider/>
+          <Box sx={{ pt: 1 }}>
             <List>
               {["gmail", "twitter", "telegram"].map((platform) => (
                 <React.Fragment key={platform}>
@@ -161,7 +165,7 @@ export default function Compose({ open, onClose }) {
                             ? "twitter.svg"
                             : "telegram.svg"
                         }
-                        sx={{ width: "40px", height: "40px", marginRight: 2 }}
+                        sx={{ width: "30px", height: "30px", marginRight: 2 }}
                       />
                     </ListItemAvatar>
                     <ListItemText>
