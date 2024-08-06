@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import {TextField, List, ListItem, ListItemText, SwipeableDrawer, Fab } from "@mui/material";
+import {
+  TextField,
+  Fab,
+  Dialog,
+  Box,
+  Typography,
+} from "@mui/material";
 import { FaPaperPlane } from "react-icons/fa6";
 import { useTranslation } from "react-i18next";
 
@@ -16,62 +22,77 @@ export default function GmailCompose({ open, onClose }) {
   };
 
   return (
-    <SwipeableDrawer anchor="bottom" open={open} onClose={onClose} sx={{maxWidth:600}}>
-      <List sx={{px: 5, py: 3, mx: 4}}>
-        <ListItem>
-          <ListItemText sx={{fontWeight: 600}} primary={t("composeEmail")} />
+    <Dialog
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        style: {
+          position: "fixed",
+          bottom: 0,
+          right: 0,
+          margin: 0,
+          maxWidth: "600px",
+          width: "100%",
+          fontSize: "6px"
+        },
+      }}
+    >
+      <Box sx={{ px: 2, py: 3, backgroundColor: "background.custom" }}>
+        <Box justifyContent="space-between" sx={{display: "flex"}}>
+          <Typography sx={{ fontWeight: 600 }}>{t("composeEmail")}</Typography>
           <Fab>
-          <FaPaperPlane onClick={handleSend} />
+            <FaPaperPlane onClick={handleSend} />
           </Fab>
-        </ListItem>
-        <ListItem>
+        </Box>
+        
           <TextField
-          variant="standard"
+          sx={{fontSize: "6px"}}
+            variant="standard"
             label={t("to")}
             value={to}
             onChange={(e) => setTo(e.target.value)}
             fullWidth
           />
-        </ListItem>
-        <ListItem>
+       
+      <br/>
           <TextField
-           variant="standard"
-            label="CC"
+            variant="standard"
+            label="Cc"
             value={cc}
             onChange={(e) => setCC(e.target.value)}
             fullWidth
           />
-        </ListItem>
-        <ListItem>
+        
+        <br/>
           <TextField
-           variant="standard"
-            label="BCC"
+            variant="standard"
+            label="Bcc"
             value={bcc}
             onChange={(e) => setBCC(e.target.value)}
             fullWidth
           />
-        </ListItem>
-        <ListItem>
+        
+        <br/>
           <TextField
-           variant="standard"
+            variant="standard"
             label={t("subject")}
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             fullWidth
           />
-        </ListItem>
-        <ListItem>
+        
+        <br/>
           <TextField
-          variant="filled"
+            variant="standard"
             label={t("composeEmail")}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             fullWidth
             multiline
-            rows={8}
+            rows={14}
           />
-        </ListItem>
-      </List>
-    </SwipeableDrawer>
+       
+      </Box>
+    </Dialog>
   );
 }

@@ -1,5 +1,5 @@
 import { Typography, Box, Grid, Button } from "@mui/material";
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { FaChevronLeft, FaChevronRight, FaUsers } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -7,15 +7,17 @@ import AddAccounts from "../Components/AddAccounts";
 
 export default function Onboarding3() {
   const { t } = useTranslation();
-  const [addAccountsDialogOpen, setAddAccountsDialogOpen] = useState(false); 
+  const [addAccountsDialogOpen, setAddAccountsDialogOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-
-  const handleAddAccountsClick = () => {
+  const handleAddAccountsClick = (event) => {
+    setAnchorEl(event.currentTarget);
     setAddAccountsDialogOpen(true);
   };
 
   const handleAddAccountsDialogClose = () => {
     setAddAccountsDialogOpen(false);
+    setAnchorEl(null);
   };
 
   return (
@@ -31,7 +33,8 @@ export default function Onboarding3() {
           </Typography>
 
           <Box sx={{ pt: 10 }}>
-            <Button  onClick={handleAddAccountsClick} 
+            <Button
+              onClick={handleAddAccountsClick}
               variant="contained"
               sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
             >
@@ -56,7 +59,7 @@ export default function Onboarding3() {
             <FaChevronLeft /> {t("previous")}{" "}
           </Button>
         </Grid>
-        <Grid item md={4} sx={{ position: "fixed", bottom: 50, ml :65 }}>
+        <Grid item md={4} sx={{ position: "fixed", bottom: 50, ml: 65 }}>
           <Button
             component={Link}
             to="/messages"
@@ -89,7 +92,12 @@ export default function Onboarding3() {
           </Button>
         </Grid>
       </Grid>
-      <AddAccounts open={addAccountsDialogOpen} onClose={handleAddAccountsDialogClose} />
+      <AddAccounts
+        asPopover={true}
+        anchorEl={anchorEl}
+        open={addAccountsDialogOpen}
+        onClose={handleAddAccountsDialogClose}
+      />
     </Box>
   );
 }

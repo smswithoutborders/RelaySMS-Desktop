@@ -10,17 +10,16 @@ import {
   ListItem,
   ListItemText,
   ListItemAvatar,
-  Divider,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import TelegramAuthDialog from "./Telegram";
 
-export default function AddAccounts({ open, onClose }) {
+export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
   const { t } = useTranslation();
   const [alert, setAlert] = useState({ message: "", severity: "" });
   const [unstoredTokens, setUnstoredTokens] = useState([]);
-  const [telegramDialogOpen, setTelegramDialogOpen] = useState(false); // State for Telegram dialog
+  const [telegramDialogOpen, setTelegramDialogOpen] = useState(false); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -129,7 +128,7 @@ export default function AddAccounts({ open, onClose }) {
     }, 2000);
   };
 
-  return (
+  const content = (
     <>
       <Snackbar
         open={alert.open}
@@ -144,44 +143,51 @@ export default function AddAccounts({ open, onClose }) {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Popover
-        elevation={4}
-        anchor="bottom"
-        open={open}
-        onClose={onClose}
-      >
-        <Box sx={{ py: 3, px:1}}>
-          <Typography  sx={{fontWeight: 600}} variant="body2">{t("addAccounts")}</Typography>
-          <Divider/>
-          {unstoredTokens.map((token, index) => (
-            <List key={index} sx={{px: 2}}>
-              <ListItem
-                button
-                onClick={() => handleAddAccount(token.name)}
-                sx={{ display: "flex", alignItems: "center" }}
-              >
-                <ListItemAvatar>
-                  <Box
-                    component="img"
-                    src={token.icon_svg}
-                    alt={token.name}
-                    sx={{ width: "30px", height: "30px", marginRight: 0 }}
-                  />
-                </ListItemAvatar>
-                <ListItemText>
-                  <Typography variant="body2">{token.name}</Typography>
-                </ListItemText>
-              </ListItem>
-            </List>
-          ))}
-          <Divider/>
-        </Box>
-      </Popover>
+      <Box sx={{ py: 3, px: 2 }}>
+        <Typography sx={{ fontWeight: 600 }} variant="body2">
+          {t("addAccounts")} 
+        </Typography>
+        <br/>
+        <Typography  variant="body2">
+          {t("saveMultiple")} 
+        </Typography>
+        {unstoredTokens.map((token, index) => (
+          <List key={index} sx={{ pt: 2}}>
+            <ListItem
+              button
+              onClick={() => handleAddAccount(token.name)}
+              sx={{ display: "flex", alignItems: "center" }}
+            >
+              <ListItemAvatar>
+                <Box
+                  component="img"
+                  src={token.icon_svg}
+                  alt={token.name}
+                  sx={{ width: "30px", height: "30px", marginRight: 0 }}
+                />
+              </ListItemAvatar>
+              <ListItemText>
+                <Typography variant="body2">{token.name}</Typography>
+              </ListItemText>
+            </ListItem>
+          </List>
+        ))}
+      </Box>
       <TelegramAuthDialog
         open={telegramDialogOpen}
         onClose={() => setTelegramDialogOpen(false)}
         onAuthenticate={handleTelegramAuthenticate}
       />
     </>
+  );
+
+  return asPopover ? (
+    <Popover open={open} anchorEl={anchorEl} onClose={onClose}>
+      {content}
+    </Popover>
+  ) : (
+    <Box>
+      {content}
+    </Box>
   );
 }

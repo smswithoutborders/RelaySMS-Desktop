@@ -9,14 +9,13 @@ import {
   ListItemText,
   List,
   ListItemAvatar,
-  Divider,
 } from "@mui/material";
 import GmailCompose from "../Components/ComposeGmail";
 import TwitterCompose from "../Components/ComposeTwitter";
 import TelegramCompose from "../Components/ComposeTelegram";
 import { useTranslation } from "react-i18next";
 
-export default function Compose({ open, onClose }) {
+export default function Compose({ open, onClose, asPopover, anchorEl }) {
   const { t } = useTranslation();
   const [composeOpen, setComposeOpen] = useState(false);
   const [twitterOpen, setTwitterOpen] = useState(false);
@@ -117,7 +116,7 @@ export default function Compose({ open, onClose }) {
     (token) => token.platform === selectedPlatform
   );
 
-  return (
+  const content = (
     <>
       <Snackbar
         open={alert.open}
@@ -132,98 +131,106 @@ export default function Compose({ open, onClose }) {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Popover
-         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        open={open}
-        onClose={onClose}
-        onOpen={() => {}}
-      >
-        <Box sx={{ py: 3, px: 2, width: 300 }}>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {t("savedPlatforms")}
-          </Typography>
-          <Divider/>
-          <Box sx={{ pt: 1 }}>
-            <List>
-              {["gmail", "twitter", "telegram"].map((platform) => (
-                <React.Fragment key={platform}>
-                  <ListItem
-                    button
-                    onClick={(event) => handlePlatformClick(event, platform)}
-                    sx={{ display: "flex", alignItems: "center" }}
-                  >
-                    <ListItemAvatar>
-                      <Box
-                        component="img"
-                        src={
-                          platform === "gmail"
-                            ? "gmail.svg"
-                            : platform === "twitter"
-                            ? "twitter.svg"
-                            : "telegram.svg"
-                        }
-                        sx={{ width: "30px", height: "30px", marginRight: 2 }}
-                      />
-                    </ListItemAvatar>
-                    <ListItemText>
-                      <Typography variant="body2" sx={{ textTransform: "none" }}>
-                        {platform}
-                      </Typography>
-                    </ListItemText>
-                  </ListItem>
-                </React.Fragment>
-              ))}
-            </List>
-          </Box>
+      <Box sx={{ py: 3, px: 2, width: 300 }} onClick={fetchStoredTokens}>
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          {t("savedPlatforms")}
+        </Typography>
+        <Typography variant="body2" sx={{ pt: 3 }}>
+          {t("selectPlatform")}
+        </Typography>
+        <Box sx={{ pt: 1 }}>
+          <List>
+            {["gmail", "twitter", "telegram"].map((platform) => (
+              <React.Fragment key={platform}>
+                <ListItem
+                  button
+                  onClick={(event) => handlePlatformClick(event, platform)}
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <ListItemAvatar>
+                    <Box
+                      component="img"
+                      src={
+                        platform === "gmail"
+                          ? "gmail.svg"
+                          : platform === "twitter"
+                          ? "twitter.svg"
+                          : "telegram.svg"
+                      }
+                      sx={{ width: "30px", height: "30px", marginRight: 2 }}
+                    />
+                  </ListItemAvatar>
+                  <ListItemText>
+                    <Typography
+                      variant="body2"
+                      sx={{ textTransform: "none" }}
+                    >
+                      {platform}
+                    </Typography>
+                  </ListItemText>
+                </ListItem>
+              </React.Fragment>
+            ))}
+          </List>
         </Box>
-        <Popover
-          open={Boolean(popoverAnchor)}
-          anchorEl={popoverAnchor}
-          onClose={handlePopoverClose}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "left",
-          }}
-        >
-          <Box sx={{ p: 2 }}>
-            {filteredTokens.length === 0 ? (
-              <Typography variant="body2">{t("noStoredAccounts")}</Typography>
-            ) : (
-              filteredTokens.map((token, index) => (
-                <List key={index}>
-                  <ListItem
-                    button
-                    onClick={
-                      selectedPlatform === "gmail"
-                        ? handleGmailClick
-                        : selectedPlatform === "twitter"
-                        ? handleTwitterClick
-                        : handleTelegramClick
-                    }
-                    sx={{ display: "flex", alignItems: "center" }}
-                  >
-                    <ListItemText>
-                      <Typography variant="body2" sx={{ cursor: "pointer" }}>
-                        {token.account_identifier}
-                      </Typography>
-                    </ListItemText>
-                  </ListItem>
-                </List>
-              ))
-            )}
-          </Box>
-        </Popover>
+      </Box>
+      <Popover
+        open={Boolean(popoverAnchor)}
+        anchorEl={popoverAnchor}
+        onClose={handlePopoverClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+      >
+        <Box sx={{ p: 2 }}>
+          {filteredTokens.length === 0 ? (
+            <Typography variant="body2">{t("noStoredAccounts")}</Typography>
+          ) : (
+            filteredTokens.map((token, index) => (
+              <List key={index}>
+                <ListItem
+                  button
+                  onClick={
+                    selectedPlatform === "gmail"
+                      ? handleGmailClick
+                      : selectedPlatform === "twitter"
+                      ? handleTwitterClick
+                      : handleTelegramClick
+                  }
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <ListItemText>
+                    <Typography
+                      variant="body2"
+                      sx={{ cursor: "pointer" }}
+                    >
+                      {token.account_identifier}
+                    </Typography>
+                  </ListItemText>
+                </ListItem>
+              </List>
+            ))
+          )}
+        </Box>
       </Popover>
       <GmailCompose open={composeOpen} onClose={handleCloseCompose} />
       <TwitterCompose open={twitterOpen} onClose={handleCloseTwitter} />
       <TelegramCompose open={telegramOpen} onClose={handleCloseTelegram} />
     </>
+  );
+
+  return asPopover ? (
+    <Popover open={open} anchorEl={anchorEl} onClose={onClose}>
+      {content}
+    </Popover>
+  ) : (
+    <Box>
+      {content}
+    </Box>
   );
 }

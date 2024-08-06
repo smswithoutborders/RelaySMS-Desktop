@@ -8,13 +8,17 @@ import { useTranslation } from "react-i18next";
 export default function Onboarding() {
   const { t } = useTranslation();
   const [openDialog, setOpenDialog] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleLanguageChange = () => {
+  const handleLanguageChange = (event) => {
+    setAnchorEl(event.currentTarget);
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
+    setAnchorEl(null);
+
   };
   return (
     <>
@@ -42,7 +46,12 @@ export default function Onboarding() {
                 <FaGlobe style={{ marginRight: 4 }} /> {t("selectLanguage")}
               </Button>
             </Box>
-            <SimpleDialog onClose={handleCloseDialog} open={openDialog} />
+            <SimpleDialog
+              onClose={handleCloseDialog}
+              open={openDialog}
+              asPopover={true}
+              anchorEl={anchorEl}
+            />
           </Grid>
           <Grid item md={5} sm={5} my="auto">
             <Box component="img" src="welcome.png" sx={{ width: "69%" }} />
@@ -62,7 +71,6 @@ export default function Onboarding() {
           <Grid
             item
             md={6}
-            // position="relative"
             justifyContent="flex-end"
             sx={{
               right: 0,

@@ -345,4 +345,12 @@ contextBridge.exposeInMainWorld("api", {
         });
     });
   },
+  fetchGatewayClients: async () => {
+    try {
+      return await ipcRenderer.invoke('fetch-gateway-clients');
+    } catch (error) {
+      console.error('Error fetching gateway clients:', error);
+      throw error;
+    }
+  }
 });

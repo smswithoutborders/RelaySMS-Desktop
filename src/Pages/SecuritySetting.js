@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   Box,
-  Divider,
   Grid,
   List,
   ListItem,
@@ -173,16 +172,15 @@ export default function SecuritySettings({ open, onClose }) {
 
   return (
     <Box>
-      <Popover open={open} onClose={onClose} >
+      <Box open={open} onClose={onClose} >
         <Box sx={{px:1, py: 3}}>
-      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+      <Typography variant="body2" sx={{ fontWeight: 600 }}>
           {t("menuItems")}
         </Typography>
-        <Divider/>
-        <List sx={{px:1}}>
+        <List sx={{pt:1}}>
           <ListItem button onClick={handleRevokeTokensClick}>
             <ListItemText>
-              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {t("revoke")}
               </Typography>
             </ListItemText>
@@ -191,31 +189,30 @@ export default function SecuritySettings({ open, onClose }) {
           <ListItem
             button
             onClick={handleOpenResetPasswordDialog}
-            sx={{ pt: 3 }}
           >
             <ListItemText>
-              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {t("resetPassword")}
               </Typography>
             </ListItemText>
           </ListItem>
           <ListItem>
             <ListItemText>
-              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {t("logout")}
               </Typography>
             </ListItemText>
           </ListItem>
-          <ListItem button onClick={handleDeleteClick} sx={{ pt: 3 }}>
+          <ListItem button onClick={handleDeleteClick} >
             <ListItemText>
-              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {t("delete")}
               </Typography>
             </ListItemText>
           </ListItem>
         </List>
         </Box>
-      </Popover>
+      </Box>
 
       <Snackbar
         open={alert.open}
@@ -271,10 +268,12 @@ export default function SecuritySettings({ open, onClose }) {
       </Popover>
 
       <Popover open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
-        <Box sx={{ p: 3, backgroundColor: "#FF312E" }}>
+        <Box sx={{ p: 3, backgroundColor: "#FF312E", width: "400px" }}>
           <Typography>{t("deleteAccount")}</Typography>
           <br />
-          <Typography>{t("deleteAccountConfirmation")}</Typography>
+          <Typography sx={{fontWeight: 600}}>{t("deletetext")}</Typography>
+          <br />
+          <Typography >{t("deleteAccountConfirmation")}</Typography>
           <Grid container sx={{pt: 2}} columnGap={4}>
             <Button
               component={Grid}

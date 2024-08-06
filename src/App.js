@@ -3,63 +3,21 @@ import "./App.css";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import Onboarding from "./Pages/Onboarding";
 import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 import Landing from "./Pages/Home";
-import "./i18n";
+import Onboarding from "./Pages/Onboarding";
 import Onboarding2 from "./Pages/Onboarding2";
 import Onboarding3 from "./Pages/Onboarding3";
 import Onboarding4 from "./Pages/Onboarding4";
-
-const isElectron = () => {
-  return (
-    typeof window !== "undefined" &&
-    window.process &&
-    window.process.type === "renderer"
-  );
-};
-
-let ipcRenderer;
-if (isElectron()) {
-  ipcRenderer = window.require("electron").ipcRenderer;
-}
+import "./i18n";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-  const [onboardingStep, setOnboardingStep] = React.useState(null);
+  const [onboardingStep, setOnboardingStep] = React.useState(0);
 
   const handleCompleteOnboarding = (step) => {
-    if (isElectron()) {
-      ipcRenderer
-        .invoke("store-onboarding-step", step)
-        .then(() => {
-          setOnboardingStep(step);
-        })
-        .catch((error) => {
-          console.error("Error setting onboarding status:", error);
-        });
-    } else {
-      localStorage.setItem("onboardingStep", JSON.stringify({ step }));
-      setOnboardingStep(step);
-    }
+    setOnboardingStep(step);
   };
-
-  React.useEffect(() => {
-    if (isElectron()) {
-      ipcRenderer
-        .invoke("retrieve-onboarding-step")
-        .then((step) => {
-          setOnboardingStep(step);
-        })
-        .catch((error) => {
-          console.error("Error retrieving onboarding status:", error);
-          setOnboardingStep(0);
-        });
-    } else {
-      const savedStep = localStorage.getItem("onboardingStep");
-      setOnboardingStep(savedStep ? JSON.parse(savedStep).step : 0);
-    }
-  }, []);
 
   const theme = React.useMemo(
     () =>
@@ -83,16 +41,11 @@ function App() {
     [prefersDarkMode]
   );
 
-  if (onboardingStep === null) {
-    return null; // Or a loading spinner
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <HashRouter>
         <Routes>
-          <Route path="/messages" element={<Landing />} />
           <Route
             path="/"
             element={
@@ -116,6 +69,7 @@ function App() {
               )
             }
           />
+          <Route path="/messages" element={<Landing />} />
           <Route
             path="/onboarding"
             element={

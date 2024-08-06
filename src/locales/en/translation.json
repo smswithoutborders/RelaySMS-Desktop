@@ -64,9 +64,9 @@
   "skip": "Skip",
   "english": "English",
   "french": "French",
-  "Farsi": "Farsi",
+  "farsi": "Farsi",
   "compose": "Compose",
-  "changeLanguage": "Chamge Language",
+  "changeLanguage": "Language",
   "more": "More",
   "menuItems": "Menu Items",
   "help": "Help",
@@ -74,5 +74,7 @@
   "yes": "Yes",
   "no": "No",
   "cancel": "Cancel",
-  "noStoredAccounts": "No Stored Accounts"
+  "noStoredAccounts": "No Stored Accounts",
+  "selectPlatform": "Select a platform to see saved accounts to publish from.",
+  "saveMultiple": "You can save multiple accounts for one platform"
 } 

@@ -11,7 +11,9 @@ import {
 import { useTranslation } from "react-i18next";
 import {
   FaEllipsis,
+  FaHouse,
   FaMagnifyingGlass,
+  FaPenToSquare,
   FaRegCircleQuestion,
   FaTowerCell,
   FaUsers,
@@ -26,56 +28,58 @@ import Footer from "../Components/Footer";
 
 export default function Landing() {
   const { t } = useTranslation();
-  const [composeDrawerOpen, setComposeDrawerOpen] = useState(false);
-  const [addAccountsDrawerOpen, setAddAccountsDrawerOpen] = useState(false);
-  const [selectLanguage, setSelectLanguage] = useState(false);
-  const [mainMenu, setMainMenu] = useState(false);
-  const [gatewayClients, setGatewayClients] = useState(false);
+  const [currentComponent, setCurrentComponent] = useState(null);
 
   const handleAddAccountsClick = () => {
-    setAddAccountsDrawerOpen(true);
-  };
-
-  const handleAddAccountsDrawerClose = () => {
-    setAddAccountsDrawerOpen(false);
+    setCurrentComponent("AddAccounts");
   };
 
   const handleLanguageChange = () => {
-    setSelectLanguage(true);
-  };
-
-  const handleLanguageChangeClose = () => {
-    setSelectLanguage(false);
+    setCurrentComponent("SelectLanguage");
   };
 
   const handleMenuChange = () => {
-    setMainMenu(true);
-  };
-
-  const handleMenuChangeClose = () => {
-    setMainMenu(false);
+    setCurrentComponent("SecuritySettings");
   };
 
   const handleGatewayClients = () => {
-    setGatewayClients(true);
+    setCurrentComponent("AdvancedSettings");
   };
 
-  const handleGatewayClientsClose = () => {
-    setGatewayClients(false);
+  const handleHome = () => {
+    setCurrentComponent("");
   };
 
-
-  const handleComposeDrawerClose = () => {
-    setComposeDrawerOpen(false);
+  const handleComposeClick = () => {
+    setCurrentComponent("Compose");
   };
 
+  const renderComponent = () => {
+    switch (currentComponent) {
+      case "AddAccounts":
+        return <AddAccounts asPopover={false} />;
+      case "SelectLanguage":
+        return <SimpleDialog asPopover={false} open={true} onClose={() => setCurrentComponent(null)}/>;
+      case "SecuritySettings":
+        return <SecuritySettings />;
+        case "Compose":
+          return <Compose asPopover={false}/>;
+      case "AdvancedSettings":
+        return <AdvancedSettings />;
+      default:
+        return (
+          <Box sx={{height: "100%"}}>          
+          </Box>
+        );
+    }
+  };
 
   return (
     <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <Grid container sx={{ height: "100%" }}>
         <Grid
           item
-          sm={1}
+          sm={1.5}
           sx={{
             flexShrink: 0,
             backgroundColor: "background.custom",
@@ -97,38 +101,62 @@ export default function Landing() {
                 sx={{ width: "30%", my: 3 }}
               />
             </Tooltip>
-            <Tooltip title={t("addAccounts")} sx={{ my: 3 }}>
+
+            <Tooltip  sx={{ mt: 3 }}>
+              <IconButton onClick={handleHome}>
+                <FaHouse size="17px" />
+              </IconButton>
+            </Tooltip>
+            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("home")}</Typography>
+
+            <Tooltip sx={{ mt: 3 }}>
+              <IconButton onClick={handleComposeClick}>
+                <FaPenToSquare size="17px" />
+              </IconButton>
+            </Tooltip>
+            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("compose")}</Typography>
+
+            <Tooltip sx={{ mt: 3 }}>
               <IconButton onClick={handleAddAccountsClick}>
                 <FaUsers size="17px" />
               </IconButton>
             </Tooltip>
-            <Tooltip title={t("gatewayClients")} sx={{ my: 3 }}>
+            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("addAccounts")}</Typography>
+
+            <Tooltip sx={{ mt: 3 }}>
               <IconButton onClick={handleGatewayClients}>
                 <FaTowerCell size="17px" />
               </IconButton>
             </Tooltip>
-            <Tooltip title={t("changeLanguage")} sx={{ my: 3 }}>
+            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("gatewayClients")}</Typography>
+
+            <Tooltip sx={{ mt: 3 }}>
               <IconButton onClick={handleLanguageChange}>
                 <FaLanguage size="17px" />
               </IconButton>
             </Tooltip>
-            <Tooltip title={t("more")}>
-              <IconButton onClick={handleMenuChange} sx={{ my: 2 }}>
+            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("changeLanguage")}</Typography>
+
+            <Tooltip>
+              <IconButton onClick={handleMenuChange} sx={{ mt: 2 }}>
                 <FaEllipsis size="17px" />
               </IconButton>
             </Tooltip>
+            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("settings")}</Typography>
+
           </Box>
         </Grid>
 
         <Grid
           item
-          sm={3.5}
+          sm={3}
           sx={{
             flexShrink: 0,
             height: "100vh",
             display: "flex",
             flexDirection: "column",
             backgroundColor: "#2176AE",
+            color: "#fff"
           }}
         >
           <Box sx={{ pr: 6, py: 2, backgroundColor: "background.custom" }}>
@@ -145,6 +173,7 @@ export default function Landing() {
               />
             </Paper>
           </Box>
+          {renderComponent()}
         </Grid>
 
         <Grid
@@ -186,20 +215,11 @@ export default function Landing() {
               {t("startConversation")}
             </Typography>
           </Box>
+         
           <Footer />
         </Grid>
       </Grid>
-      <Compose open={composeDrawerOpen} onClose={handleComposeDrawerClose} />
-      <SimpleDialog open={selectLanguage} onClose={handleLanguageChangeClose} />
-      <SecuritySettings open={mainMenu} onClose={handleMenuChangeClose} />
-      <AdvancedSettings
-        open={gatewayClients}
-        onClose={handleGatewayClientsClose}
-      />
-      <AddAccounts
-        open={addAccountsDrawerOpen}
-        onClose={handleAddAccountsDrawerClose}
-      />
+      {/* <Compose open={currentComponent === "Compose"} onClose={() => setCurrentComponent(null)} /> */}
     </Box>
   );
 }

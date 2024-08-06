@@ -31,7 +31,7 @@ export default function Footer() {
             {t("compose")}<FaPen size="16px" style={{marginLeft: 7}}/>
           </Button>
      </Box>
-     <Compose open={drawerOpen} onClose={handleCloseDrawer} />{" "}
+     <Compose asPopover={true} open={drawerOpen} onClose={handleCloseDrawer} />{" "}
     </Box>
   );
 }

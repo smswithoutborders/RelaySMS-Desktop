@@ -2,6 +2,7 @@
 const { app, BrowserWindow, protocol, ipcMain } = require("electron");
 const path = require("path");
 const url = require("url");
+const axios = require('axios');
 
 const OAuth2Handler = require(path.join(__dirname, '../src/OAuthHandler.js'));
 const { decryptLongLivedToken } = require("../src/Cryptography.js");
@@ -484,3 +485,17 @@ ipcMain.handle(
   }
 );
 
+ipcMain.handle('fetch-gateway-clients', async () => {
+  try {
+    const response = await axios.get('https://smswithoutborders.com:15000/v3/clients');
+    const clients = response.data.map(client => ({
+      operator: client.operator,
+      msisdn: client.msisdn,
+      country: client.country
+    }));
+    return clients;
+  } catch (error) {
+    console.error('Error fetching gateway clients:', error);
+    throw error;
+  }
+});
