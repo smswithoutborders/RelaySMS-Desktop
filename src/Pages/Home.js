@@ -7,6 +7,7 @@ import {
   Tooltip,
   Grid,
   Paper,
+  Button,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import {
@@ -59,18 +60,43 @@ export default function Landing() {
       case "AddAccounts":
         return <AddAccounts asPopover={false} />;
       case "SelectLanguage":
-        return <SimpleDialog asPopover={false} open={true} onClose={() => setCurrentComponent(null)}/>;
+        return (
+          <SimpleDialog
+            asPopover={false}
+            open={true}
+            onClose={() => setCurrentComponent(null)}
+          />
+        );
       case "SecuritySettings":
         return <SecuritySettings />;
-        case "Compose":
-          return <Compose asPopover={false}/>;
+      case "Compose":
+        return (
+          <Compose 
+            open={currentComponent === "Compose"} 
+            onClose={() => setCurrentComponent(null)} 
+          />
+        );
       case "AdvancedSettings":
         return <AdvancedSettings />;
       default:
-        return (
-          <Box sx={{height: "100%"}}>          
-          </Box>
-        );
+        return null;
+    }
+  };
+
+  const handleSend = async () => {
+    const text = "Testing!!!";
+    try {
+      const number = "670338998";
+      console.log("Retrieved number:", number);
+      if (!number) {
+        console.error("No MSISDN selected");
+        return;
+      }
+    const body = await window.api.sendSMS({ text, number });
+    console.log("body:", body)
+      console.log("SMS sent successfully");
+    } catch (error) {
+      console.error("Error sending SMS1:", error);
     }
   };
 
@@ -79,7 +105,7 @@ export default function Landing() {
       <Grid container sx={{ height: "100%" }}>
         <Grid
           item
-          sm={1.5}
+          sm={1}
           sx={{
             flexShrink: 0,
             backgroundColor: "background.custom",
@@ -94,69 +120,105 @@ export default function Landing() {
               pt: 2,
             }}
           >
-            <Tooltip sx={{ my: 3 }}>
+            <Tooltip>
               <Box
                 component="img"
                 src="icon.png"
-                sx={{ width: "30%", my: 3 }}
+                sx={{ width: "25%", my: 3 }}
               />
             </Tooltip>
 
-            <Tooltip  sx={{ mt: 3 }}>
-              <IconButton onClick={handleHome}>
-                <FaHouse size="17px" />
+            <Tooltip onClick={handleHome} sx={{ mt: 2 }}>
+              <IconButton>
+                <FaHouse size="15px" />
               </IconButton>
             </Tooltip>
-            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("home")}</Typography>
+            <Typography
+              sx={{ mb: 1, fontSize: "11px" }}
+              textAlign="center"
+              variant="body2"
+            >
+              {t("home")}
+            </Typography>
 
-            <Tooltip sx={{ mt: 3 }}>
-              <IconButton onClick={handleComposeClick}>
-                <FaPenToSquare size="17px" />
+            <Tooltip onClick={handleComposeClick} sx={{ mt: 2 }}>
+              <IconButton>
+                <FaPenToSquare size="15px" />
               </IconButton>
             </Tooltip>
-            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("compose")}</Typography>
+            <Typography
+              sx={{ mb: 2, fontSize: "11px" }}
+              textAlign="center"
+              variant="body2"
+            >
+              {t("compose")}
+            </Typography>
 
-            <Tooltip sx={{ mt: 3 }}>
-              <IconButton onClick={handleAddAccountsClick}>
-                <FaUsers size="17px" />
+            <Tooltip onClick={handleAddAccountsClick} sx={{ mt: 2 }}>
+              <IconButton>
+                <FaUsers size="15px" />
               </IconButton>
             </Tooltip>
-            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("addAccounts")}</Typography>
+            <Typography
+              sx={{ mb: 2, fontSize: "11px" }}
+              textAlign="center"
+              variant="body2"
+            >
+              {t("addAccounts")}
+            </Typography>
 
-            <Tooltip sx={{ mt: 3 }}>
-              <IconButton onClick={handleGatewayClients}>
-                <FaTowerCell size="17px" />
+            <Tooltip onClick={handleGatewayClients} sx={{ mt: 2 }}>
+              <IconButton>
+                <FaTowerCell size="15px" />
               </IconButton>
             </Tooltip>
-            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("gatewayClients")}</Typography>
+            <Typography
+              sx={{ mb: 2, fontSize: "11px" }}
+              textAlign="center"
+              variant="body2"
+            >
+              {t("gatewayClients")}
+            </Typography>
 
-            <Tooltip sx={{ mt: 3 }}>
-              <IconButton onClick={handleLanguageChange}>
-                <FaLanguage size="17px" />
+            <Tooltip onClick={handleLanguageChange} sx={{ mt: 2 }}>
+              <IconButton>
+                <FaLanguage size="15px" />
               </IconButton>
             </Tooltip>
-            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("changeLanguage")}</Typography>
+            <Typography
+              sx={{ mb: 2, fontSize: "11px" }}
+              textAlign="center"
+              variant="body2"
+            >
+              {t("changeLanguage")}
+            </Typography>
 
-            <Tooltip>
-              <IconButton onClick={handleMenuChange} sx={{ mt: 2 }}>
-                <FaEllipsis size="17px" />
+            <Tooltip onClick={handleMenuChange} sx={{ mt: 2 }}>
+              <IconButton>
+                <FaEllipsis size="15px" />
               </IconButton>
             </Tooltip>
-            <Typography sx={{ mb: 3 }} textAlign="center" variant="body2">{t("settings")}</Typography>
-
+            <Typography
+              sx={{ mb: 2, fontSize: "11px" }}
+              textAlign="center"
+              variant="body2"
+            >
+              {t("settings")}
+            </Typography>
+            <Button size="small" onClick={handleSend}>Send</Button>
           </Box>
         </Grid>
 
         <Grid
           item
-          sm={3}
+          sm={3.3}
           sx={{
-            flexShrink: 0,
             height: "100vh",
             display: "flex",
             flexDirection: "column",
             backgroundColor: "#2176AE",
-            color: "#fff"
+            color: "#fff",
+            overflow: "none",
           }}
         >
           <Box sx={{ pr: 6, py: 2, backgroundColor: "background.custom" }}>
@@ -178,7 +240,7 @@ export default function Landing() {
 
         <Grid
           item
-          sm={7.5}
+          sm={7.7}
           sx={{ flexShrink: 0, display: "flex", flexDirection: "column" }}
         >
           <Box
@@ -215,11 +277,10 @@ export default function Landing() {
               {t("startConversation")}
             </Typography>
           </Box>
-         
+
           <Footer />
         </Grid>
       </Grid>
-      {/* <Compose open={currentComponent === "Compose"} onClose={() => setCurrentComponent(null)} /> */}
     </Box>
   );
 }

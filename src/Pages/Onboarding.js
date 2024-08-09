@@ -23,18 +23,18 @@ export default function Onboarding() {
   return (
     <>
       <Box sx={{ px: 6, py: 10 }}>
-        <Grid container>
+        <Grid container my="auto" sx={{overflow: "hidden"}}>
           <Grid item md={7} sm={7} sx={{ py: 10 }}>
-            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
               {t("welcome")}
             </Typography>
-            <Typography variant="h6" sx={{ opacity: "70%", pt: 10, pr: 10 }}>
+            <Typography variant="body1" sx={{ opacity: "70%", pt: 4, pr: 10 }}>
               {" "}
               {t("getStarted")}{" "}
             </Typography>
 
-            <Box sx={{ pt: 10 }}>
-              <Typography variant="body1" sx={{ opacity: "70%", pb: 2 }}>
+            <Box>
+              <Typography variant="body2" sx={{ opacity: "70%", pb: 2, pt: 6 }}>
                 {t("selectPrefaredLanguage")}
               </Typography>
               <Button

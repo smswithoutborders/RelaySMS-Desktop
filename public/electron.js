@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-expressions */
-const { app, BrowserWindow, protocol, ipcMain } = require("electron");
+const { app, BrowserWindow, protocol, ipcMain, Menu, shell } = require("electron");
 const path = require("path");
 const url = require("url");
 const axios = require('axios');
@@ -24,8 +24,9 @@ async function createWindow() {
   
   console.log('Creating main window...');
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 1100,
+    height: 700,
+    fullscreen: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
@@ -51,15 +52,86 @@ async function createWindow() {
 function setupLocalFilesNormalizerProxy() {
   protocol.registerHttpProtocol(
     "file",
-    (request) => {
-      const url = request.url.substr(8);
-      ({ path: path.normalize(`${__dirname}/${url}`) });
+    (request, callback) => {
+      const pathname = decodeURI(request.url.substr(7)); 
+      const normalizedPath = path.normalize(pathname);
+      callback({ path: normalizedPath });
     },
     (error) => {
-      if (error) console.error("Failed to register protocol");
+      if (error) console.error("Failed to register protocol:", error);
     }
-  );
+  );  
 }
+
+const isMac = process.platform === 'darwin';
+const template = [
+  ...(isMac ? [{ role: 'appMenu' }] : []),
+  {
+    label: 'File',
+    submenu: [
+      { role: 'close' }
+    ]
+  },
+  {
+    label: 'Edit',
+    submenu: [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' }
+    ]
+  },
+  {
+    label: 'View',
+    submenu: [
+      {
+        label: 'Toggle Full Screen',
+        accelerator: isMac ? 'Ctrl+Command+F' : 'F11',
+        click: () => {
+          mainWindow.setFullScreen(!mainWindow.isFullScreen());
+        }
+      },
+      { role: 'reload' },
+      { role: 'toggledevtools' }
+    ]
+  },
+  {
+    label: 'Help',
+    submenu: [
+      {
+        label: 'Documentation',
+        click: async () => {
+          await shell.openExternal('https://your-documentation-url.com');
+        }
+      },
+      {
+        label: 'Support',
+        click: async () => {
+          await shell.openExternal('https://your-support-url.com');
+        }
+      },
+      {
+        label: 'About',
+        click: () => {
+          const options = {
+            type: 'info',
+            buttons: ['OK'],
+            title: 'About',
+            message: 'Your Electron App\nVersion 1.0.0',
+            detail: 'Your app details here.'
+          };
+          require('electron').dialog.showMessageBox(mainWindow, options);
+        }
+      }
+    ]
+  }
+];
+
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
+
 
 app.whenReady().then(() => {
   console.log('App is ready');
@@ -499,3 +571,46 @@ ipcMain.handle('fetch-gateway-clients', async () => {
     throw error;
   }
 });
+
+ipcMain.handle('send-sms', async (event, { text, number }) => {
+  try {
+    console.log("Attempting to send SMS with text:", text, "and number:", number);
+
+    // Check system state
+    const stateResponse = await axios.get('http://localhost:6868/system/state');
+    console.log("System state response:", stateResponse.data);
+
+    if (stateResponse.data && stateResponse.data.outbound === 'active') {
+      
+      // Get modems
+      const modemsResponse = await axios.get('http://localhost:6868/modems');
+      console.log("Modems response:", modemsResponse.data);
+
+      const modems = modemsResponse.data;
+      
+      if (modems.length > 0) {
+        const modemIndex = modems[0].index; // Assuming using the first modem found
+        console.log("Using modem index:", modemIndex);
+        
+        // Send SMS
+        const smsResponse = await axios.post(
+          `http://localhost:6868/modems/${modemIndex}/sms`,
+          { text, number },
+          
+        );
+        console.log("SMS response:", smsResponse);
+        return smsResponse.data;
+      } else {
+        console.error('No active modems found');
+        throw new Error('No active modems found');
+      }
+    } else {
+      console.error('System not active');
+      throw new Error('System not active');
+    }
+  } catch (error) {
+    console.error('Error sending SMS:', error);
+    throw error;
+  }
+});
+

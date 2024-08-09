@@ -74,7 +74,6 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
     setTwitterOpen(false);
     setTelegramOpen(false);
     setPopoverAnchor(null);
-    onClose();
   };
 
   const handleTwitterClick = () => {
@@ -131,7 +130,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Box sx={{ py: 3, px: 2, width: 300 }} onClick={fetchStoredTokens}>
+      <Box sx={{ py: 3, px: 2 }} onClick={fetchStoredTokens}>
         <Typography variant="body2" sx={{ fontWeight: 600 }}>
           {t("savedPlatforms")}
         </Typography>
@@ -182,10 +181,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
           vertical: "top",
           horizontal: "right",
         }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
+        
       >
         <Box sx={{ p: 2 }}>
           {filteredTokens.length === 0 ? (

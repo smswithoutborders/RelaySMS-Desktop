@@ -76,5 +76,8 @@
   "cancel": "Cancel",
   "noStoredAccounts": "No Stored Accounts",
   "selectPlatform": "Select a platform to see saved accounts to publish from.",
-  "saveMultiple": "You can save multiple accounts for one platform"
+  "saveMultiple": "You can save multiple accounts for one platform",
+  "gmail": "Gmail",
+  "twitter": "Twitter",
+  "telegram": "Telegram"
 } 

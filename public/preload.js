@@ -352,5 +352,15 @@ contextBridge.exposeInMainWorld("api", {
       console.error('Error fetching gateway clients:', error);
       throw error;
     }
-  }
+  },
+  sendSMS: async ({text, number}) => {
+    try {
+      console.log("text:", text)
+      console.log("number:", number)
+      return await ipcRenderer.invoke("send-sms", { text, number });
+    } catch (error) {
+      console.error("Error sending SMS:", error);
+      throw error;
+    }
+  },
 });
