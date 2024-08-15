@@ -59,7 +59,6 @@ const handleSend = async () => {
           width: "100%",
           overflow: "hidden",
           height: "300px",
-          mr: 4,
         },
       }}
       anchor="bottom"

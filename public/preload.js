@@ -355,8 +355,6 @@ contextBridge.exposeInMainWorld("api", {
   },
   sendSMS: async ({text, number}) => {
     try {
-      console.log("text:", text)
-      console.log("number:", number)
       return await ipcRenderer.invoke("send-sms", { text, number });
     } catch (error) {
       console.error("Error sending SMS:", error);

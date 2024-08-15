@@ -250,7 +250,7 @@ function Login({ onClose, open, onForgotPassword }) {
               onChange={(value) =>
                 setLoginData((prevData) => ({
                   ...prevData,
-                  phoneNumber: value,
+                  phoneNumber: value.replace(/\s+/g, ""),
                 }))
               }
             />

@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import { Box, Fab, Dialog, Snackbar, Alert, Input } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Dialog, Snackbar, Alert, Input, Button } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { FaPaperPlane } from "react-icons/fa";
 import { MuiTelInput } from "mui-tel-input";
@@ -37,63 +37,70 @@ export default function TelegramCompose({ open, onClose }) {
 
   return (
     <>
-    <Snackbar
-    open={alert.open}
-    autoHideDuration={6000}
-    onClose={handleAlertClose}
-  >
-    <Alert
-      onClose={handleAlertClose}
-      severity={alert.severity}
-      sx={{ width: "100%" }}
-    >
-      {alert.message}
-    </Alert>
-  </Snackbar>
-    <Dialog  PaperProps={{
-        style: {
-          position: "fixed",
-          bottom: 0,
-          right: 0,
-          margin: 0,
-          maxWidth: "450px",
-          width: "100%",
-          overflow: "hidden",
-          height: "600px",
-          mr: 4,
-        },
-      }} anchor="bottom" open={open} onClose={onClose}>
-      <Box sx={{ p: 10 }}>
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <Fab onClick={handleSend}>
-            <FaPaperPlane />
-          </Fab>
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={6000}
+        onClose={handleAlertClose}
+      >
+        <Alert
+          onClose={handleAlertClose}
+          severity={alert.severity}
+          sx={{ width: "100%" }}
+        >
+          {alert.message}
+        </Alert>
+      </Snackbar>
+      <Dialog
+        PaperProps={{
+          style: {
+            position: "fixed",
+            bottom: 0,
+            right: 0,
+            margin: 0,
+            maxWidth: "450px",
+            width: "100%",
+            overflow: "hidden",
+          },
+        }}
+        anchor="bottom"
+        open={open}
+        onClose={onClose}
+      >
+        <Box sx={{ p: 5, bgcolor: "background.custom" }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button
+              variant="contained"
+              sx={{ textTransform: "none" }}
+              onClick={handleSend}
+            >
+              {t("send")} <FaPaperPlane />
+            </Button>
+          </Box>
+          <Box>
+            <MuiTelInput
+              fullWidth
+              variant="standard"
+              value={phoneNumber.replace(/\s+/g, "")}
+              onChange={(e) => setNumber(e.target.value)}
+              placeholder={t("enterPhoneNumber")}
+              defaultCountry="CM"
+              sx={{ mb: 4 }}
+            />
+          </Box>
+          <Box>
+            <Input
+              variant="filled"
+              value={message}
+              label={t("telegramText")}
+              fullWidth
+              onChange={(e) => setMessage(e.target.value)}
+              multiline
+              rows={2}
+              margin="normal"
+            />
+          </Box>
         </Box>
-        <Box>
-          <MuiTelInput
-            fullWidth
-            variant="standard"
-            value={phoneNumber}
-            onChange={(e) => setNumber(e.target.value)}
-            placeholder={t("enterPhoneNumber")}
-            defaultCountry="CM"
-            sx={{ mb: 4 }}
-          />
-        </Box>
-        <Box>
-          <Input
-            variant="filled"
-            value={message}
-            label={t("telegramText")}
-            fullWidth
-            onChange={(e) => setMessage(e.target.value)}
-            multiline
-            rows={4}
-            margin="normal"
-          />
-        </Box>
-      </Box>
-    </Dialog>
+      </Dialog>
     </>
   );
 }

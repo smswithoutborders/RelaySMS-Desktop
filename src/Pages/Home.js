@@ -83,23 +83,6 @@ export default function Landing() {
     }
   };
 
-  const handleSend = async () => {
-    const text = "Testing!!!";
-    try {
-      const number = "670338998";
-      console.log("Retrieved number:", number);
-      if (!number) {
-        console.error("No MSISDN selected");
-        return;
-      }
-    const body = await window.api.sendSMS({ text, number });
-    console.log("body:", body)
-      console.log("SMS sent successfully");
-    } catch (error) {
-      console.error("Error sending SMS1:", error);
-    }
-  };
-
   return (
     <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <Grid container sx={{ height: "100%" }}>
@@ -205,7 +188,6 @@ export default function Landing() {
             >
               {t("settings")}
             </Typography>
-            <Button size="small" onClick={handleSend}>Send</Button>
           </Box>
         </Grid>
 

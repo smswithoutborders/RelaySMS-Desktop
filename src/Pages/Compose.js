@@ -24,6 +24,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
   const [alert, setAlert] = useState({ message: "", severity: "" });
   const [popoverAnchor, setPopoverAnchor] = useState(null);
   const [selectedPlatform, setSelectedPlatform] = useState("");
+  const [selectedToken, setSelectedToken] = useState(null);
 
   const handleAlertClose = () => {
     setAlert({ ...alert, open: false });
@@ -52,14 +53,28 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
         severity: "success",
         open: true,
       });
+
       await window.api.storeParams("decryptedllt", llt);
+      await window.api.storeParams("storedTokens", response.stored_tokens);
     } catch (error) {
       console.error("Failed to fetch stored tokens:", error);
-      setAlert({
-        message: error.message,
-        severity: "error",
-        open: true,
-      });
+
+      try {
+        const storedTokens = await window.api.retrieveParams("storedTokens");
+        setTokens(storedTokens || []);
+        setAlert({
+          message: "Using locally stored tokens due to an error.",
+          severity: "warning",
+          open: true,
+        });
+      } catch (localError) {
+        console.error("Failed to retrieve stored tokens locally:", localError);
+        setAlert({
+          message: error.message,
+          severity: "error",
+          open: true,
+        });
+      }
     }
   };
 
@@ -69,14 +84,16 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
     }
   }, [open]);
 
-  const handleGmailClick = () => {
+  const handleGmailClick = (token) => {
+    setSelectedToken(token.account_identifier);
     setComposeOpen(true);
     setTwitterOpen(false);
     setTelegramOpen(false);
     setPopoverAnchor(null);
   };
 
-  const handleTwitterClick = () => {
+  const handleTwitterClick = (token) => {
+    setSelectedToken(token.account_identifier);
     setTwitterOpen(true);
     setComposeOpen(false);
     setTelegramOpen(false);
@@ -160,10 +177,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
                     />
                   </ListItemAvatar>
                   <ListItemText>
-                    <Typography
-                      variant="body2"
-                      sx={{ textTransform: "none" }}
-                    >
+                    <Typography variant="body2" sx={{ textTransform: "none" }}>
                       {platform}
                     </Typography>
                   </ListItemText>
@@ -181,7 +195,6 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
           vertical: "top",
           horizontal: "right",
         }}
-        
       >
         <Box sx={{ p: 2 }}>
           {filteredTokens.length === 0 ? (
@@ -191,20 +204,19 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
               <List key={index}>
                 <ListItem
                   button
-                  onClick={
-                    selectedPlatform === "gmail"
-                      ? handleGmailClick
-                      : selectedPlatform === "twitter"
-                      ? handleTwitterClick
-                      : handleTelegramClick
-                  }
+                  onClick={() => {
+                    if (selectedPlatform === "gmail") {
+                      handleGmailClick(token);
+                    } else if (selectedPlatform === "twitter") {
+                      handleTwitterClick(token);
+                    } else if (selectedPlatform === "telegram") {
+                      handleTelegramClick();
+                    }
+                  }}
                   sx={{ display: "flex", alignItems: "center" }}
                 >
                   <ListItemText>
-                    <Typography
-                      variant="body2"
-                      sx={{ cursor: "pointer" }}
-                    >
+                    <Typography variant="body2" sx={{ cursor: "pointer" }}>
                       {token.account_identifier}
                     </Typography>
                   </ListItemText>
@@ -214,8 +226,12 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
           )}
         </Box>
       </Popover>
-      <GmailCompose open={composeOpen} onClose={handleCloseCompose} />
-      <TwitterCompose open={twitterOpen} onClose={handleCloseTwitter} />
+      <GmailCompose
+        open={composeOpen}
+        onClose={handleCloseCompose}
+        accountIdentifier={selectedToken}
+      />
+      <TwitterCompose open={twitterOpen} onClose={handleCloseTwitter}  accountIdentifier={selectedToken}/>
       <TelegramCompose open={telegramOpen} onClose={handleCloseTelegram} />
     </>
   );
@@ -225,8 +241,6 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
       {content}
     </Popover>
   ) : (
-    <Box>
-      {content}
-    </Box>
+    <Box>{content}</Box>
   );
 }

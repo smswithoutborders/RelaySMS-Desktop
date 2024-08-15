@@ -26,7 +26,6 @@ async function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1100,
     height: 700,
-    fullscreen: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
@@ -103,13 +102,13 @@ const template = [
       {
         label: 'Documentation',
         click: async () => {
-          await shell.openExternal('https://your-documentation-url.com');
+          await shell.openExternal('https://docs.smswithoutborders.com/');
         }
       },
       {
         label: 'Support',
         click: async () => {
-          await shell.openExternal('https://your-support-url.com');
+          await shell.openExternal('mailto://developers@smswithoutborders.com');
         }
       },
       {
@@ -134,7 +133,6 @@ Menu.setApplicationMenu(menu);
 
 
 app.whenReady().then(() => {
-  console.log('App is ready');
   createWindow();
   setupLocalFilesNormalizerProxy();
 

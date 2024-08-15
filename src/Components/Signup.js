@@ -268,7 +268,7 @@ function Signup({ onClose, open }) {
               onChange={(value) =>
                 setSignupData((prevData) => ({
                   ...prevData,
-                  phoneNumber: value,
+                  phoneNumber: value.replace(/\s+/g, ""),
                 }))
               }
             />
