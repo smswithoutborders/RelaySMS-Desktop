@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Box,
@@ -12,24 +12,38 @@ import {
 import { useTranslation } from "react-i18next";
 import {
   FaEllipsis,
+  FaGlobe,
   FaHouse,
   FaMagnifyingGlass,
+  FaMessage,
   FaPenToSquare,
   FaRegCircleQuestion,
   FaTowerCell,
   FaUsers,
 } from "react-icons/fa6";
 import Compose from "./Compose";
-import { FaLanguage } from "react-icons/fa";
 import AddAccounts from "../Components/AddAccounts";
 import SimpleDialog from "../Components/SelectLanguage";
 import SecuritySettings from "./SecuritySetting";
 import AdvancedSettings from "./AdvancedSettings";
 import Footer from "../Components/Footer";
+import MessageList from "../Components/MessageList";
 
 export default function Landing() {
   const { t } = useTranslation();
-  const [currentComponent, setCurrentComponent] = useState(null);
+  const [currentComponent, setCurrentComponent] = useState("Messages");
+  const [messages, setMessages] = useState([]);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+
+  useEffect(() => {
+    const loadMessages = async () => {
+      const storedMessages =
+        (await window.api.retrieveParams("messages")) || [];
+      setMessages(storedMessages);
+    };
+
+    loadMessages();
+  }, []);
 
   const handleAddAccountsClick = () => {
     setCurrentComponent("AddAccounts");
@@ -48,11 +62,26 @@ export default function Landing() {
   };
 
   const handleHome = () => {
-    setCurrentComponent("");
+    setCurrentComponent("Messages");
   };
 
   const handleComposeClick = () => {
     setCurrentComponent("Compose");
+  };
+
+  const handleMessageClick = (message) => {
+    setSelectedMessage(message);
+  };
+
+  const refreshMessages = (updatedMessages) => {
+    setMessages(updatedMessages);
+    if (
+      !updatedMessages.some(
+        (msg) => msg.timestamp === selectedMessage?.timestamp
+      )
+    ) {
+      setSelectedMessage(null);
+    }
   };
 
   const renderComponent = () => {
@@ -71,13 +100,43 @@ export default function Landing() {
         return <SecuritySettings />;
       case "Compose":
         return (
-          <Compose 
-            open={currentComponent === "Compose"} 
-            onClose={() => setCurrentComponent(null)} 
+          <Compose
+            open={currentComponent === "Compose"}
+            onClose={() => setCurrentComponent(null)}
           />
         );
       case "AdvancedSettings":
         return <AdvancedSettings />;
+      case "Messages":
+        return (
+          <>
+          <Box
+            sx={{
+              mt: 2,
+              mx: 3,
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+             {t("messages")}
+            </Typography>
+            <Button
+            size="small"
+              variant="contained"
+              sx={{ textTransform: "none" }}
+              onClick={handleComposeClick}
+            >
+              {t("compose")} {" "} <FaPenToSquare size="15px" />
+            </Button>
+          </Box>
+          <MessageList
+            messages={messages}
+            onMessageSelect={handleMessageClick}
+            refreshMessages={refreshMessages}
+          />
+          </>
+        );
       default:
         return null;
     }
@@ -113,7 +172,7 @@ export default function Landing() {
 
             <Tooltip onClick={handleHome} sx={{ mt: 2 }}>
               <IconButton>
-                <FaHouse size="15px" />
+                <FaMessage size="15px" />
               </IconButton>
             </Tooltip>
             <Typography
@@ -121,7 +180,7 @@ export default function Landing() {
               textAlign="center"
               variant="body2"
             >
-              {t("home")}
+              {t("messages")}
             </Typography>
 
             <Tooltip onClick={handleComposeClick} sx={{ mt: 2 }}>
@@ -165,7 +224,7 @@ export default function Landing() {
 
             <Tooltip onClick={handleLanguageChange} sx={{ mt: 2 }}>
               <IconButton>
-                <FaLanguage size="15px" />
+                <FaGlobe size="15px" />
               </IconButton>
             </Tooltip>
             <Typography
@@ -173,7 +232,7 @@ export default function Landing() {
               textAlign="center"
               variant="body2"
             >
-              {t("changeLanguage")}
+              {t("language")}
             </Typography>
 
             <Tooltip onClick={handleMenuChange} sx={{ mt: 2 }}>
@@ -186,7 +245,7 @@ export default function Landing() {
               textAlign="center"
               variant="body2"
             >
-              {t("settings")}
+              {t("more")}
             </Typography>
           </Box>
         </Grid>
@@ -217,14 +276,10 @@ export default function Landing() {
               />
             </Paper>
           </Box>
+          
           {renderComponent()}
         </Grid>
-
-        <Grid
-          item
-          sm={7.7}
-          sx={{ flexShrink: 0, display: "flex", flexDirection: "column" }}
-        >
+        <Grid item sm={7.7}>
           <Box
             sx={{
               py: 1.8,
@@ -236,7 +291,7 @@ export default function Landing() {
             }}
           >
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              {t("recent")}
+              {selectedMessage ? selectedMessage.from : t("recent")}
             </Typography>
             <Tooltip title="Help">
               <IconButton>
@@ -244,23 +299,54 @@ export default function Landing() {
               </IconButton>
             </Tooltip>
           </Box>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100%",
-            }}
-          >
-            <Box component="img" src="nomessages.png" sx={{ width: "25%" }} />
-            <Typography variant="h4">{t("noRecentMessages")}</Typography>
-            <Typography variant="body1" sx={{ pt: 2 }}>
-              {t("startConversation")}
-            </Typography>
-          </Box>
 
-          <Footer />
+          {selectedMessage ? (
+            selectedMessage.platform === "gmail" ? (
+              <Box sx={{ px: 2, mt: 4 }}>
+                <Typography variant="h6">
+                  {selectedMessage.subject || t("noSubject")}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ mt: 1 }}
+                  color="textSecondary"
+                >
+                  {selectedMessage.from}
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }} component="div">
+                  {selectedMessage.message}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ mt: 4 }}
+                  color="textSecondary"
+                >
+                  {selectedMessage.timestamp}
+                </Typography>
+              </Box>
+            ) : selectedMessage.platform === "twitter" ? (
+              <Box sx={{ px: 2, mt: 4 }}>
+                <Typography variant="body2" sx={{ mt: 1 }} component="div">
+                  {selectedMessage.message}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ mt: 4 }}
+                  color="textSecondary"
+                >
+                  {selectedMessage.timestamp}
+                </Typography>
+              </Box>
+            ) : null
+          ) : (
+            <Typography
+              sx={{ px: 2, pt: 4 }}
+              variant="h5"
+              color="textSecondary"
+            >
+              {messages.length === 0 ? t("noMessages") : t("selectMessage")}
+            </Typography>
+          )}
         </Grid>
       </Grid>
     </Box>

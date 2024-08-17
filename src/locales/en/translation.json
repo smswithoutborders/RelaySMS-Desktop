@@ -79,5 +79,10 @@
   "saveMultiple": "You can save multiple accounts for one platform",
   "gmail": "Gmail",
   "twitter": "Twitter",
-  "telegram": "Telegram"
+  "telegram": "Telegram",
+  "deleteMessage": "Delete Message",
+  "noMessages": "No messages",
+  "selectMessage": "Please select a message",
+  "noSubject": "No Subject",
+  "messages": "Messages"
 } 

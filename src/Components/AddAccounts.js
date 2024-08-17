@@ -17,21 +17,52 @@ import TelegramAuthDialog from "./Telegram";
 
 export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
   const { t } = useTranslation();
-  const [alert, setAlert] = useState({ message: "", severity: "" });
+  const [alert, setAlert] = useState({
+    message: "",
+    severity: "",
+    open: false,
+  });
   const [unstoredTokens, setUnstoredTokens] = useState([]);
-  const [telegramDialogOpen, setTelegramDialogOpen] = useState(false); 
+  const [telegramDialogOpen, setTelegramDialogOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTokens = async () => {
-      try {
-        const response = await fetch(
-          "https://raw.githubusercontent.com/smswithoutborders/SMSWithoutBorders-Publisher/staging/resources/platforms.json"
-        );
-        const data = await response.json();
-        setUnstoredTokens(data);
-      } catch (error) {
-        console.error("Failed to fetch token data:", error);
+      const isOnline = navigator.onLine;
+
+      if (isOnline) {
+        try {
+          const response = await fetch(
+            "https://raw.githubusercontent.com/smswithoutborders/SMSWithoutBorders-Publisher/staging/resources/platforms.json"
+          );
+          const data = await response.json();
+          await window.api.storeParams("tokens", data);
+          setUnstoredTokens(data);
+        } catch (error) {
+          console.error("Failed to fetch token data:", error);
+          const savedTokens = await window.api.retrieveParams("tokens");
+          if (savedTokens) {
+            setUnstoredTokens(savedTokens);
+          } else {
+            setAlert({
+              message:
+                "Failed to fetch token data and no local data available.",
+              severity: "error",
+              open: true,
+            });
+          }
+        }
+      } else {
+        const savedTokens = await window.api.retrieveParams("tokens");
+        if (savedTokens) {
+          setUnstoredTokens(savedTokens);
+        } else {
+          setAlert({
+            message: "No internet connection and no local data available.",
+            severity: "error",
+            open: true,
+          });
+        }
       }
     };
 
@@ -51,7 +82,7 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
       setTelegramDialogOpen(true);
       return;
     }
-    
+
     try {
       const response = await window.api.getOAuth2AuthorizationUrl(
         platform,
@@ -145,32 +176,32 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
       </Snackbar>
       <Box sx={{ py: 3, px: 2 }}>
         <Typography sx={{ fontWeight: 600 }} variant="body2">
-          {t("addAccounts")} 
+          {t("addAccounts")}
         </Typography>
-        <br/>
-        <Typography  variant="body2">
-          {t("saveMultiple")} 
-        </Typography>
+        <br />
+        <Typography variant="body2">{t("saveMultiple")}</Typography>
         {unstoredTokens.map((token, index) => (
-          <List key={index} sx={{ pt: 2}}>
-            <ListItem
-              button
-              onClick={() => handleAddAccount(token.name)}
-              sx={{ display: "flex", alignItems: "center" }}
-            >
-              <ListItemAvatar>
-                <Box
-                  component="img"
-                  src={token.icon_svg}
-                  alt={token.name}
-                  sx={{ width: "30px", height: "30px", marginRight: 0 }}
-                />
-              </ListItemAvatar>
-              <ListItemText>
-                <Typography variant="body2">{token.name}</Typography>
-              </ListItemText>
-            </ListItem>
-          </List>
+          <Box sx={{ pt: 1 }}>
+            <List key={index}>
+              <ListItem
+                button
+                onClick={() => handleAddAccount(token.name)}
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <ListItemAvatar>
+                  <Box
+                    component="img"
+                    src={token.icon_svg}
+                    alt={token.name}
+                    sx={{ width: "30px", height: "30px", marginRight: 0 }}
+                  />
+                </ListItemAvatar>
+                <ListItemText>
+                  <Typography variant="body2">{token.name}</Typography>
+                </ListItemText>
+              </ListItem>
+            </List>
+          </Box>
         ))}
       </Box>
       <TelegramAuthDialog
@@ -186,8 +217,6 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
       {content}
     </Popover>
   ) : (
-    <Box>
-      {content}
-    </Box>
+    <Box>{content}</Box>
   );
 }

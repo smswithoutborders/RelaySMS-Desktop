@@ -27,6 +27,7 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
 
   const handleSend = async () => {
     const text = `${accountIdentifier}\n${to}\n${cc}\n${bcc}\n${subject}\n${message}`;
+    const timestamp = new Date().toLocaleString();
     setLoading(true);
     try {
       const number = await window.api.retrieveParams("selectedMSISDN");
@@ -35,7 +36,13 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
         return;
       }
       await window.api.sendSMS({ text, number });
-      console.log("SMS sent successfully");
+        const platform = "gmail"
+      const newMessage = { from: accountIdentifier, to, message, timestamp, platform };
+      let storedMessages = await window.api.retrieveParams("messages");
+      if (!storedMessages) storedMessages = [];
+      storedMessages.push(newMessage);
+      await window.api.storeParams("messages", storedMessages);
+  
       setAlert({
         message: "SMS sent successfully",
         severity: "success",
@@ -58,6 +65,7 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
       setLoading(false);
     }
   };
+  
 
   return (
     <>

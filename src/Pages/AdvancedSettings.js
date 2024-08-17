@@ -26,7 +26,6 @@ export default function AdvancedSettings({ open, onClose }) {
     try {
       const clients = await window.api.fetchGatewayClients();
       setGatewayClients(clients);
-      // Retrieve the stored selected MSISDN
       const storedMSISDN = await window.api.retrieveParams("selectedMSISDN");
       setSelectedMSISDN(storedMSISDN);
     } catch (error) {
@@ -53,13 +52,12 @@ export default function AdvancedSettings({ open, onClose }) {
 
   const handleSelectMSISDN = (msisdn) => {
     setSelectedMSISDN(msisdn);
-    // Save the selected MSISDN using the API or other preferred method
     window.api.storeParams("selectedMSISDN", msisdn);
   };
 
   return (
     <Box open={open} onClose={onClose}>
-      <Box onClick={fetchClients} sx={{ px: 1, py: 2 }}>
+      <Box open={fetchClients} sx={{ px: 1, py: 2 }}>
         <Box justifyContent="space-between" sx={{ display: "flex" }}>
           <Button
             size="small"

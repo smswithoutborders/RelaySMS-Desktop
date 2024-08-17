@@ -231,7 +231,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
         onClose={handleCloseCompose}
         accountIdentifier={selectedToken}
       />
-      <TwitterCompose open={twitterOpen} onClose={handleCloseTwitter}  accountIdentifier={selectedToken}/>
+      <TwitterCompose open={twitterOpen} onClose={handleCloseTwitter} accountIdentifier={selectedToken}/>
       <TelegramCompose open={telegramOpen} onClose={handleCloseTelegram} />
     </>
   );

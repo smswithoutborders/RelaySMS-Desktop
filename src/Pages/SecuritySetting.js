@@ -174,7 +174,7 @@ export default function SecuritySettings({ open, onClose }) {
     <Box>
       <Box open={open} onClose={onClose} >
         <Box sx={{px:1, py: 3}}>
-      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+      <Typography variant="body2" sx={{ fontWeight: 600, ml: 2 }}>
           {t("menuItems")}
         </Typography>
         <List sx={{pt:1}}>
