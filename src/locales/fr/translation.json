@@ -75,5 +75,20 @@
   "yes": "Oui",
   "no": "Non",
   "cancel": "Annuler",
-  "noStoredAccounts": "Aucun compte enregistré"
+  "noStoredAccounts": "Aucun compte enregistré",
+  "selectPlatform": "Sélectionnez une plateforme pour voir les comptes enregistrés à partir desquels publier.",
+  "saveMultiple": "Vous pouvez enregistrer plusieurs comptes pour une même plateforme",
+  "gmail": "Gmail",
+  "twitter": "Twitter",
+  "telegram": "Telegram",
+  "deleteMessage": "Supprimer le message",
+  "noMessages": "Aucun message",
+  "selectMessage": "Veuillez sélectionner un message",
+  "noSubject": "Pas de sujet",
+  "messages": "Messages",
+  "tutorial": {
+    "addAccounts": "Vous pouvez envoyer des messages à vos comptes enregistrés ultérieurement à l'aide de RelaySMS.",
+    "addGatewayClients": "Les clients Gateway vous aident à acheminer vos SMS vers les plateformes en ligne. Nous vous conseillons donc de choisir un numéro le plus proche de votre emplacement.",
+    "compose": "Super ! Vous pouvez désormais rédiger des messages pour différentes plateformes."
+  }
 }

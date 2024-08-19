@@ -174,7 +174,7 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Box sx={{ py: 3, px: 2 }}>
+      <Box sx={{ py: 2, px: 2 }}>
         <Typography sx={{ fontWeight: 600 }} variant="body2">
           {t("addAccounts")}
         </Typography>
@@ -182,7 +182,8 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
         <Typography variant="body2">{t("saveMultiple")}</Typography>
         {unstoredTokens.map((token, index) => (
           <Box sx={{ pt: 1 }}>
-            <List key={index}>
+            <List >
+              <React.Fragment key={index}>
               <ListItem
                 button
                 onClick={() => handleAddAccount(token.name)}
@@ -200,6 +201,7 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
                   <Typography variant="body2">{token.name}</Typography>
                 </ListItemText>
               </ListItem>
+              </React.Fragment>
             </List>
           </Box>
         ))}

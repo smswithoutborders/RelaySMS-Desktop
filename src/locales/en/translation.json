@@ -84,5 +84,11 @@
   "noMessages": "No messages",
   "selectMessage": "Please select a message",
   "noSubject": "No Subject",
-  "messages": "Messages"
-} 
+  "messages": "Messages",
+  "tutorial": {
+    "addAccounts": "You can send messages to your saved accounts later using RelaySMS .",
+    "addGatewayClients": "Gateway clients help you route your SMS to the online platforms. So we advice you choose a number closest to your location.",
+    "compose": "Great! Now you can compose messages for different platforms."
+  }
+}
+

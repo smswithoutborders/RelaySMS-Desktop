@@ -96,7 +96,7 @@ export default function Onboarding2() {
         >
           <Button
             component={Link}
-            to="/onboarding3"
+            to="/messages"
             variant="contained"
             sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
           >

@@ -1,10 +1,9 @@
 import React from "react";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import { useTranslation } from "react-i18next";
-import { Box, Divider, Popover, Typography } from "@mui/material";
+import { Box, Popover, Typography } from "@mui/material";
 
 export default function SimpleDialog({ onClose, open, asPopover, anchorEl }) {
   const { t, i18n } = useTranslation();
@@ -23,26 +22,19 @@ export default function SimpleDialog({ onClose, open, asPopover, anchorEl }) {
       <Typography variant="body2" sx={{ fontWeight: 600 }}>
         {t("selectLanguage")}
       </Typography>
-      <List sx={{ px: 1 }}>
+      <List sx={{ pt: 2 }}>
         <ListItem disableGutters>
-          <ListItemButton onClick={() => handleListItemClick("en")}>
-            <ListItemText variant="body2"> {t("english")} </ListItemText>
-          </ListItemButton>
+            <ListItemText onClick={() => handleListItemClick("en")} variant="body2"> {t("english")} </ListItemText>
         </ListItem>
 
         <ListItem disableGutters>
-          <ListItemButton onClick={() => handleListItemClick("fr")}>
-            <ListItemText variant="body2"> {t("french")} </ListItemText>
-          </ListItemButton>
+            <ListItemText onClick={() => handleListItemClick("fr")} variant="body2"> {t("french")} </ListItemText>
         </ListItem>
 
         <ListItem disableGutters>
-          <ListItemButton onClick={() => handleListItemClick("fa")}>
-            <ListItemText variant="body2"> {t("farsi")} </ListItemText>
-          </ListItemButton>
+            <ListItemText onClick={() => handleListItemClick("fa")} variant="body2"> {t("farsi")} </ListItemText>
         </ListItem>
       </List>
-      <Divider />
     </Box>
   );
 
