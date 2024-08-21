@@ -61,7 +61,7 @@ export default function AdvancedSettings({ open, onClose }) {
         <Box justifyContent="space-between" sx={{ display: "flex" }}>
           <Button
             size="small"
-            variant="contained"
+            variant="outlined"
             sx={{
               textTransform: "none",
               backgroundColor: "whitesmoke",
@@ -72,7 +72,7 @@ export default function AdvancedSettings({ open, onClose }) {
           </Button>
           <Button
             size="small"
-            variant="contained"
+            variant="outlined"
             sx={{
               textTransform: "none",
               backgroundColor: "whitesmoke",
@@ -119,7 +119,7 @@ export default function AdvancedSettings({ open, onClose }) {
             </Button>
           </Box>
         ) : (
-          <List sx={{ px: 1 }}>
+          <List sx={{ px: 1, overflow: "auto" }}>
             {gatewayClients.map((client, index) => (
               <ListItem
                 key={index}

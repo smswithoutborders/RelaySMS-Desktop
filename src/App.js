@@ -7,10 +7,7 @@ import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 import Landing from "./Pages/Home";
 import Onboarding from "./Pages/Onboarding";
 import Onboarding2 from "./Pages/Onboarding2";
-import Onboarding3 from "./Pages/Onboarding3";
-import Onboarding4 from "./Pages/Onboarding4";
 import "./i18n";
-import TryExample from "./Pages/TryExample";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -59,13 +56,7 @@ function App() {
                     onboardingStep === 0
                       ? "/onboarding"
                       : onboardingStep === 1
-                      ? "/onboarding2"
-                      : onboardingStep === 2
-                      ? "/onboarding3"
-                      : onboardingStep === 3
-                      ? "/tryexample"
-                      : onboardingStep === 4
-                      ? "/onboarding4"
+                      ? "/onboarding2"   
                       : "/messages"
                   }
                   replace
@@ -84,24 +75,6 @@ function App() {
             path="/onboarding2"
             element={
               <Onboarding2 onComplete={() => handleCompleteOnboarding(2)} />
-            }
-          />
-          <Route
-            path="/onboarding3"
-            element={
-              <Onboarding3 onComplete={() => handleCompleteOnboarding(3)} />
-            }
-          />
-          <Route
-            path="/onboarding4"
-            element={
-              <Onboarding4 onComplete={() => handleCompleteOnboarding(5)} />
-            }
-          />
-          <Route
-            path="/tryexample"
-            element={
-              <TryExample onComplete={() => handleCompleteOnboarding(4)} />
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />

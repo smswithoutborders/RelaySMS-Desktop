@@ -168,7 +168,8 @@ export default function Landing() {
                 sx={{ textTransform: "none" }}
                 onClick={handleComposeClick}
               >
-                {t("compose")} <FaPenToSquare style={{marginLeft: 10}} size="15px" />
+                {t("compose")}{" "}
+                <FaPenToSquare style={{ marginLeft: 10 }} size="15px" />
               </Button>
             </Box>
             <MessageList
@@ -199,7 +200,13 @@ export default function Landing() {
           }
         }}
       />
-      <Grid container sx={{ height: "100%" }}>
+      <Grid
+        container
+        sx={{
+          flexGrow: 1,
+          overflow: "hidden",
+        }}
+      >
         <Grid
           item
           sm={1}
@@ -325,10 +332,19 @@ export default function Landing() {
             display: "flex",
             flexDirection: "column",
             backgroundColor: "background.side",
-            overflow: "none",
+            overflowY: "auto",
           }}
         >
-          <Box sx={{ pr: 6, py: 2, backgroundColor: "background.custom" }}>
+          <Box
+            sx={{
+              pr: 6,
+              py: 2,
+              backgroundColor: "background.custom",
+              position: "sticky",
+              top: 0,
+              zIndex: 1000,
+            }}
+          >
             <Paper component="form">
               <InputBase
                 value={searchQuery}

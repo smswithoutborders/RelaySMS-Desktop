@@ -18,3 +18,9 @@ a {
 .css-19kzrtu{
     padding: 0 !important;
 }
+
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent; /* optional: just to ensure the scrollbar is transparent */
+  }
+  

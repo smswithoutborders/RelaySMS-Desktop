@@ -96,6 +96,7 @@
     "wait-on": "^7.2.0"
   },
   "build": {
+    "compression": "maximum",
     "appId": "RelaySMS",
     "productName": "RelaySMS",
     "copyright": "Copyright © 2024 ${author}",
