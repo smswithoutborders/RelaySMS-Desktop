@@ -1,11 +1,24 @@
 /* eslint-disable no-unused-expressions */
-const { app, BrowserWindow, protocol, ipcMain, Menu, shell } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  protocol,
+  ipcMain,
+  Menu,
+  shell,
+} = require("electron");
 const path = require("path");
 const url = require("url");
-const axios = require('axios');
+const axios = require("axios");
+const { execSync, execFile } = require("child_process");
+const fs = require("fs-extra");
 
-const OAuth2Handler = require(path.join(__dirname, '../src/OAuthHandler.js'));
-const { decryptLongLivedToken } = require("../src/Cryptography.js");
+const OAuth2Handler = require(path.join(__dirname, "../src/OAuthHandler.js"));
+const {
+  decryptLongLivedToken,
+  publishSharedSecret,
+  createPayload,
+} = require("../src/Cryptography.js");
 
 const vault = require("./vault.js");
 const publisher = require("./publisher.js");
@@ -19,10 +32,12 @@ async function loadModules() {
   storage = new Store({ name: "relaysms" });
 }
 
+
+
 async function createWindow() {
   await loadModules();
-  
-  console.log('Creating main window...');
+
+  console.log("Creating main window...");
   mainWindow = new BrowserWindow({
     width: 1100,
     height: 700,
@@ -46,95 +61,113 @@ async function createWindow() {
   if (!app.isPackaged) {
     mainWindow.webContents.openDevTools();
   }
+
+  app.whenReady().then(() => {
+    // Register a custom protocol
+    protocol.registerFileProtocol('relaydesktop', (request, callback) => {
+      const url = request.url.substr(7); // Remove 'myapp://' prefix
+      const parsedUrl = new URL(url);
+  
+      // Handle different paths in your app
+      if (parsedUrl.pathname === '/auth-callback') {
+        // Handle the OAuth2 callback here
+        // Extract the auth code or tokens from the URL
+        const authCode = parsedUrl.searchParams.get('code');
+        console.log('Authorization Code:', authCode);
+        // Do something with the auth code, like exchanging it for tokens
+      }
+  
+      // Optionally, you can load a local file or serve specific content
+      callback({ path: path.normalize(`${__dirname}/index.html`) });
+    });
+  });
 }
 
 function setupLocalFilesNormalizerProxy() {
   protocol.registerHttpProtocol(
     "file",
     (request, callback) => {
-      const pathname = decodeURI(request.url.substr(7)); 
+      const pathname = decodeURI(request.url.substr(7));
       const normalizedPath = path.normalize(pathname);
       callback({ path: normalizedPath });
     },
     (error) => {
       if (error) console.error("Failed to register protocol:", error);
     }
-  );  
+  );
 }
 
-const isMac = process.platform === 'darwin';
+const isMac = process.platform === "darwin";
 const template = [
-  ...(isMac ? [{ role: 'appMenu' }] : []),
+  ...(isMac ? [{ role: "appMenu" }] : []),
   {
-    label: 'File',
-    submenu: [
-      { role: 'close' }
-    ]
+    label: "File",
+    submenu: [{ role: "close" }],
   },
   {
-    label: 'Edit',
+    label: "Edit",
     submenu: [
-      { role: 'undo' },
-      { role: 'redo' },
-      { type: 'separator' },
-      { role: 'cut' },
-      { role: 'copy' },
-      { role: 'paste' }
-    ]
+      { role: "undo" },
+      { role: "redo" },
+      { type: "separator" },
+      { role: "cut" },
+      { role: "copy" },
+      { role: "paste" },
+    ],
   },
   {
-    label: 'View',
+    label: "View",
     submenu: [
       {
-        label: 'Toggle Full Screen',
-        accelerator: isMac ? 'Ctrl+Command+F' : 'F11',
+        label: "Toggle Full Screen",
+        accelerator: isMac ? "Ctrl+Command+F" : "F11",
         click: () => {
           mainWindow.setFullScreen(!mainWindow.isFullScreen());
-        }
+        },
       },
-      { role: 'reload' },
-      { role: 'toggledevtools' }
-    ]
+      { role: "reload" },
+      { role: "toggledevtools" },
+    ],
   },
   {
-    label: 'Help',
+    label: "Help",
     submenu: [
       {
-        label: 'Documentation',
+        label: "Documentation",
         click: async () => {
-          await shell.openExternal('https://docs.smswithoutborders.com/');
-        }
+          await shell.openExternal("https://docs.smswithoutborders.com/");
+        },
       },
       {
-        label: 'Support',
+        label: "Support",
         click: async () => {
-          await shell.openExternal('mailto://developers@smswithoutborders.com');
-        }
+          await shell.openExternal("mailto://developers@smswithoutborders.com");
+        },
       },
       {
-        label: 'About',
+        label: "About",
         click: () => {
           const options = {
-            type: 'info',
-            buttons: ['OK'],
-            title: 'About',
-            message: 'Your Electron App\nVersion 1.0.0',
-            detail: 'Your app details here.'
+            type: "info",
+            buttons: ["OK"],
+            title: "About",
+            message: "Your Electron App\nVersion 1.0.0",
+            detail: "Your app details here.",
           };
-          require('electron').dialog.showMessageBox(mainWindow, options);
-        }
-      }
-    ]
-  }
+          require("electron").dialog.showMessageBox(mainWindow, options);
+        },
+      },
+    ],
+  },
 ];
 
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 
-
 app.whenReady().then(() => {
   createWindow();
   setupLocalFilesNormalizerProxy();
+  app.setAsDefaultProtocolClient('relaydesktop');
 
   app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -159,6 +192,49 @@ app.on("web-contents-created", (event, contents) => {
     }
   });
 });
+
+const pythonDir = path.join(__dirname, "../resources/python");
+const venvDir = path.join(pythonDir, "venv");
+const setupFlagFile = path.join(pythonDir, "setup_done.flag");
+const cliRepoDir = path.join(pythonDir, "py_double_ratchet_cli");
+// Function to perform setup
+function setupPythonEnvironment() {
+  if (fs.existsSync(setupFlagFile)) {
+    console.log("Python environment setup has already been completed.");
+    return;
+  }
+
+  console.log("Setting up Python environment...");
+
+  // Ensure Python directory exists
+  fs.mkdirSync(pythonDir, { recursive: true });
+
+  // Clone the repository if it doesn't exist
+  if (!fs.existsSync(cliRepoDir)) {
+    execSync(
+      `git clone https://github.com/smswithoutborders/py_double_ratchet_cli.git ${cliRepoDir}`,
+      { stdio: "inherit" }
+    );
+  }
+
+  // Create a virtual environment
+  execSync(`python3 -m venv ${venvDir}`, { stdio: "inherit" });
+
+  // Install requirements
+  execSync(
+    `. ${path.join(venvDir, "bin/activate")} && pip install -r ${path.join(
+      cliRepoDir,
+      "requirements.txt"
+    )}`,
+    { stdio: "inherit" }
+  );
+
+  // Create a flag file to indicate setup is done
+  fs.writeFileSync(setupFlagFile, "Python environment setup completed.");
+}
+
+// Run the setup function
+setupPythonEnvironment();
 
 ipcMain.handle(
   "create-entity",
@@ -555,60 +631,142 @@ ipcMain.handle(
   }
 );
 
-ipcMain.handle('fetch-gateway-clients', async () => {
+ipcMain.handle("fetch-gateway-clients", async () => {
   try {
-    const response = await axios.get('https://smswithoutborders.com:15000/v3/clients');
-    const clients = response.data.map(client => ({
+    const response = await axios.get(
+      "https://smswithoutborders.com:15000/v3/clients"
+    );
+    const clients = response.data.map((client) => ({
       operator: client.operator,
       msisdn: client.msisdn,
-      country: client.country
+      country: client.country,
     }));
     return clients;
   } catch (error) {
-    console.error('Error fetching gateway clients:', error);
+    console.error("Error fetching gateway clients:", error);
     throw error;
   }
 });
 
-ipcMain.handle('send-sms', async (event, { text, number }) => {
+ipcMain.handle("send-sms", async (event, { text, number }) => {
   try {
-    console.log("Attempting to send SMS with text:", text, "and number:", number);
+    console.log(
+      "Attempting to send SMS with text:",
+      text,
+      "and number:",
+      number
+    );
 
     // Check system state
-    const stateResponse = await axios.get('http://localhost:6868/system/state');
+    const stateResponse = await axios.get("http://localhost:6868/system/state");
     console.log("System state response:", stateResponse.data);
 
-    if (stateResponse.data && stateResponse.data.outbound === 'active') {
-      
+    if (stateResponse.data && stateResponse.data.outbound === "active") {
       // Get modems
-      const modemsResponse = await axios.get('http://localhost:6868/modems');
+      const modemsResponse = await axios.get("http://localhost:6868/modems");
       console.log("Modems response:", modemsResponse.data);
 
       const modems = modemsResponse.data;
-      
+
       if (modems.length > 0) {
         const modemIndex = modems[0].index; // Assuming using the first modem found
         console.log("Using modem index:", modemIndex);
-        
+
         // Send SMS
         const smsResponse = await axios.post(
           `http://localhost:6868/modems/${modemIndex}/sms`,
-          { text, number },
-          
+          { text, number }
         );
         console.log("SMS response:", smsResponse);
         return smsResponse.data;
       } else {
-        console.error('No active modems found');
-        throw new Error('No active modems found');
+        console.error("No active modems found");
+        throw new Error("No active modems found");
       }
     } else {
-      console.error('System not active');
-      throw new Error('System not active');
+      console.error("System not active");
+      throw new Error("System not active");
     }
   } catch (error) {
-    console.error('Error sending SMS:', error);
+    console.error("Error sending SMS:", error);
     throw error;
   }
 });
+
+function encryptMessage({content, phoneNumber, secretKey, publicKey}) {
+  return new Promise((resolve, reject) => {
+    const pythonDir = path.join(__dirname, "../resources/python");
+    const venvActivate = path.join(pythonDir, "venv/bin/activate");
+    const cliPath = path.join(pythonDir, "py_double_ratchet_cli/cli.py");
+    console.log("You got here, hurray!")
+    // Command to run the CLI
+    const command = `source ${venvActivate} && python3 ${cliPath} -c "${content}" -p "${phoneNumber}" -s "${secretKey}" -k "${publicKey}"`;
+
+    execFile("bash", ["-c", command], (error, stdout, stderr) => {
+      if (error) {
+        reject(stderr);
+      } else {
+        resolve(stdout);
+      }
+    });
+  });
+}
+
+ipcMain.handle(
+  "encrypt-message",
+  async (event, { content, phoneNumber, secretKey, publicKey }) => {
+    console.log(">>>1")
+    try {
+      const result = await encryptMessage({
+        content: content,
+        phoneNumber: phoneNumber,
+        secretKey: secretKey,
+        publicKey: publicKey
+    });
+    console.log(">>>2")
+      return result;
+    } catch (error) {
+      throw new Error(`Encryption failed: ${error}`);
+    }
+  }
+);
+
+ipcMain.handle(
+  "publish-shared-secret",
+  async (event, { client_publish_secret_key, server_publish_pub_key }) => {
+    console.log("publish-shared-client_publish_secret_key:", client_publish_secret_key);
+    console.log("publish-server_publish_pub_key-secret:", server_publish_pub_key);
+    try {
+      const result = publishSharedSecret(
+        client_publish_secret_key,
+        server_publish_pub_key
+      );
+      console.log("publish-shared-secret:", result);
+      return result;
+    } catch (err) {
+      console.error("Error:", err.message);
+      throw err;
+    }
+  }
+);
+
+ipcMain.handle(
+  "create-payload",
+  async (event, { encryptedContent, pl }) => {
+    console.log("encryptedContent:", encryptedContent);
+    console.log("pl:", pl);
+    try {
+      const result = createPayload(
+        encryptedContent,
+        pl
+      );
+      console.log("payload:", result);
+      return result;
+    } catch (err) {
+      console.error("Error:", err.message);
+      throw err;
+    }
+  }
+);
+
 

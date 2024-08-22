@@ -13,7 +13,7 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 const publisher_proto =
   grpc.loadPackageDefinition(packageDefinition).publisher.v1;
 
-const target = "staging.smswithoutborders.com:9060";
+const target = "publisher.beta.smswithoutborders.com:443";
 const credentials = grpc.credentials.createFromSecureContext();
 const client = new publisher_proto.Publisher(target, credentials);
 

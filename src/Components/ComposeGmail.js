@@ -26,23 +26,58 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
   };
 
   const handleSend = async () => {
-    const text = `${accountIdentifier}\n${to}\n${cc}\n${bcc}\n${subject}\n${message}`;
+    const phoneNumber = await window.api.retrieveParams("phone_number");
+    const messagebody = `${accountIdentifier}\n${to}\n${cc}\n${bcc}\n${subject}\n${message}`;
     const timestamp = new Date().toLocaleString();
+
+    const client_pub_key_pair = await window.api.retrieveParams(
+      "client_publish_key_pair"
+    );
+    const server_pub_key = await window.api.retrieveParams(
+      "serverPublishPubKey"
+    );
     setLoading(true);
     try {
       const number = await window.api.retrieveParams("selectedMSISDN");
       if (!number) {
         console.error("No MSISDN selected");
+        setLoading(false); 
         return;
       }
+
+      const sharedSecret = await window.api.publishSharedSecret({
+        client_publish_secret_key: client_pub_key_pair.secretKey,
+        server_publish_pub_key: server_pub_key,
+      });
+
+      const encryptedText = await window.api.encryptMessage({
+        content: messagebody,
+        secretKey: sharedSecret,
+        phoneNumber: phoneNumber,
+        publicKey: server_pub_key,
+      });
+
+     // const encryptedContent = encryptedText;
+      //const pl = "g";
+      const incomingPayload = await window.api.createPayload({
+        encryptedContent: encryptedText,
+        pl: "g",
+      });
+      const text = incomingPayload;
       await window.api.sendSMS({ text, number });
-        const platform = "gmail"
-      const newMessage = { from: accountIdentifier, to, message, timestamp, platform };
+      const platform = "gmail";
+      const newMessage = {
+        from: accountIdentifier,
+        to,
+        message,
+        timestamp,
+        platform,
+      };
       let storedMessages = await window.api.retrieveParams("messages");
       if (!storedMessages) storedMessages = [];
       storedMessages.push(newMessage);
       await window.api.storeParams("messages", storedMessages);
-  
+
       setAlert({
         message: "SMS sent successfully",
         severity: "success",
@@ -54,7 +89,7 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
       setSubject("");
       setMessage("");
       setLoading(false);
-      onClose(); 
+      onClose();
     } catch (error) {
       setAlert({
         message: error.message,
@@ -65,7 +100,6 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
       setLoading(false);
     }
   };
-  
 
   return (
     <>
@@ -114,7 +148,7 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
               size="small"
               variant="contained"
               onClick={handleSend}
-              disabled={loading} 
+              disabled={loading}
             >
               {loading ? "Loading..." : t("send")}{" "}
               <FaPaperPlane style={{ marginLeft: 4 }} />

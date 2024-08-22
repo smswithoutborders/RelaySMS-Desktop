@@ -12,7 +12,7 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 });
 const vault_proto = grpc.loadPackageDefinition(packageDefinition).vault.v1;
 
-const target = "staging.smswithoutborders.com:9050";
+const target = "vault.beta.smswithoutborders.com:443";
 const credentials = grpc.credentials.createFromSecureContext();
 const client = new vault_proto.Entity(target, credentials);
 

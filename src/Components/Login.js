@@ -99,6 +99,9 @@ function Login({ onClose, open, onForgotPassword }) {
 
       if (response.requires_ownership_proof) {
         setOTPCounter(response.next_attempt_timestamp);
+        await Promise.all([
+          window.api.storeParams("phone_number", loginData.phoneNumber),
+        ]);
         setAlert({
           message: response.message,
           severity: "success",
@@ -141,7 +144,12 @@ function Login({ onClose, open, onForgotPassword }) {
           "serverDeviceId",
           response.server_device_id_pub_key
         ),
+
         window.api.storeParams("longLivedToken", response.long_lived_token),
+        window.api.storeParams(
+          "serverPublishPubKey",
+          response.server_publish_pub_key
+        ),
       ]);
 
       if (response.long_lived_token) {

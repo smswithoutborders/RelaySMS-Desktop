@@ -105,6 +105,14 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
         expectedRedirect: newRedirectUri,
       });
 
+    //   const parsedAuthUrl = new URL(response.authorization_url);
+    // parsedAuthUrl.searchParams.set("redirect_uri", "relaydesktop://auth-callback");
+
+    // const auth_code = await window.api.openOauth({
+    //   oauthUrl: parsedAuthUrl.toString(),
+    //   expectedRedirect: "relaydesktop://auth-callback",
+    // });
+
       const longLivedToken = await window.api.retrieveParams("longLivedToken");
       const serverDevicePublicId = await window.api.retrieveParams(
         "serverDeviceId"
@@ -133,7 +141,6 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
       });
 
       setTimeout(() => {
-        navigate("/onboarding4");
         handleClose();
       }, 2000);
     } catch (error) {

@@ -123,15 +123,13 @@ function Signup({ onClose, open }) {
       const clientPublishKeyPair = generateKeyPair();
       const clientDeviceIdKeyPair = generateKeyPair();
 
-      // Store the generated keys for use in OTP verification
-      await window.api.storeParams(
-        "client_device_id_key_pair",
-        clientDeviceIdKeyPair
-      );
-      await window.api.storeParams(
-        "client_publish_key_pair",
-        clientPublishKeyPair
-      );
+      await Promise.all([
+        window.api.storeParams(
+          "client_device_id_key_pair",
+          clientDeviceIdKeyPair
+        ),
+        window.api.storeParams("client_publish_key_pair", clientPublishKeyPair),
+      ]);
 
       const response = await window.api.createEntity(
         signupData.phoneNumber,
@@ -141,7 +139,9 @@ function Signup({ onClose, open }) {
         clientPublishKeyPair.publicKey
       );
       console.log("Response:", response);
-
+      await Promise.all([
+        window.api.storeParams("phone_number", signupData.phoneNumber),
+      ]);
       setAlert({ message: response.message, severity: "success", open: true });
       setOtpOpen(true);
     } catch (error) {
@@ -157,13 +157,10 @@ function Signup({ onClose, open }) {
   const handleOtpSubmit = async (otp) => {
     setLoading(true);
     try {
-      // Retrieve the previously stored keys
-      const clientDeviceIdKeyPair = await window.api.retrieveParams(
-        "client_device_id_key_pair"
-      );
-      const clientPublishKeyPair = await window.api.retrieveParams(
-        "client_publish_key_pair"
-      );
+      const [clientDeviceIdKeyPair, clientPublishKeyPair] = await Promise.all([
+        window.api.retrieveParams("client_device_id_key_pair"),
+        window.api.retrieveParams("client_publish_key_pair"),
+      ]);
 
       const response = await window.api.createEntity(
         signupData.phoneNumber,
@@ -174,9 +171,28 @@ function Signup({ onClose, open }) {
         otp
       );
       console.log("OTP Verification Response:", response);
-        await window.api.storeParams("serverDeviceId", response.server_device_id_pub_key);
-        await window.api.storeParams("longLivedToken", response.long_lived_token);
-      
+      await window.api.storeParams(
+        "serverDeviceId",
+        response.server_device_id_pub_key
+      );
+      await window.api.storeParams("longLivedToken", response.long_lived_token);
+      await window.api.storeParams(
+        "serverPublishPubKey",
+        response.server_publish_pub_key
+      );
+      await Promise.all([
+        window.api.storeParams(
+          "serverDeviceId",
+          response.server_device_id_pub_key
+        ),
+        window.api.storeParams("longLivedToken", response.long_lived_token),
+        window.api.storeParams(
+          "serverPublishPubKey",
+          response.server_publish_pub_key
+        ),
+        window.api.storeParams("phone_number", signupData.phoneNumber),
+      ]);
+
       setAlert({
         message: "Signup successful",
         severity: "success",
@@ -217,9 +233,12 @@ function Signup({ onClose, open }) {
         clientPublishPubKey
       );
       console.log("Resend OTP Response:", response);
-      await window.api.storeParams("serverDeviceId", response.server_device_id_pub_key);
+      await window.api.storeParams(
+        "serverDeviceId",
+        response.server_device_id_pub_key
+      );
       await window.api.storeParams("longLivedToken", response.long_lived_token);
-      
+
       setAlert({
         message: "OTP Resent: " + response.message,
         severity: "success",

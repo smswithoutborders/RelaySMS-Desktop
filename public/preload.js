@@ -256,7 +256,9 @@ contextBridge.exposeInMainWorld("api", {
     await ipcRenderer.invoke("store-params", { key, value });
   },
   retrieveParams: async (key) => {
-    return await ipcRenderer.invoke("retrieve-params", key);
+    let value = await ipcRenderer.invoke("retrieve-params", key);
+    console.log(">>>>>>>>>>>>>> Val: ", value);
+    return value;
   },
 
   storeSession: async (sessionData) => {
@@ -347,18 +349,86 @@ contextBridge.exposeInMainWorld("api", {
   },
   fetchGatewayClients: async () => {
     try {
-      return await ipcRenderer.invoke('fetch-gateway-clients');
+      return await ipcRenderer.invoke("fetch-gateway-clients");
     } catch (error) {
-      console.error('Error fetching gateway clients:', error);
+      console.error("Error fetching gateway clients:", error);
       throw error;
     }
   },
-  sendSMS: async ({text, number}) => {
+  sendSMS: async ({ text, number }) => {
     try {
       return await ipcRenderer.invoke("send-sms", { text, number });
     } catch (error) {
       console.error("Error sending SMS:", error);
       throw error;
     }
+  },
+  encryptMessage: ({ content, phoneNumber, secretKey, publicKey }) => {
+    return new Promise((resolve, reject) => {
+      console.log("content:", content);
+      console.log("phoneNumber:", phoneNumber);
+      console.log("secretKey:", secretKey);
+      console.log("publicKey:", publicKey);
+
+      ipcRenderer
+        .invoke("encrypt-message", {
+          content,
+          phoneNumber,
+          secretKey,
+          publicKey,
+        })
+        .then((result) => {
+          console.log(">>>>encrypting", result);
+          resolve(result);
+        })
+        .catch((err) => {
+          console.error("Error:", err.message);
+          reject(err);
+        });
+    });
+  },
+
+  publishSharedSecret: ({
+    client_publish_secret_key,
+    server_publish_pub_key,
+  }) => {
+    return new Promise((resolve, reject) => {
+      console.log(">>>client_publish_secret_key:", client_publish_secret_key);
+      console.log(">>>server_publish_pub_key:", server_publish_pub_key);
+
+      ipcRenderer
+        .invoke("publish-shared-secret", {
+          client_publish_secret_key,
+          server_publish_pub_key,
+        })
+        .then((result) => {
+          console.log(">>>>3", result);
+          resolve(result);
+        })
+        .catch((err) => {
+          console.error("Error:", err.message);
+          reject(err);
+        });
+    });
+  },
+
+  createPayload: ({ encryptedContent, pl }) => {
+    return new Promise((resolve, reject) => {
+      console.log("encryptedContent:", encryptedContent);
+      console.log("pl:", pl);
+
+      ipcRenderer
+        .invoke("create-payload", {
+          encryptedContent,
+          pl,
+        }).then((result) => {
+          console.log(">>>>pay", result);
+          resolve(result);
+        })
+        .catch((err) => {
+          console.error("Error:", err.message);
+          reject(err);
+        });
+    });
   },
 });
