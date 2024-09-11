@@ -147,7 +147,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Box sx={{ py: 2, px: 2 }} onClick={fetchStoredTokens}>
+      <Box sx={{ py: 2, px: 2 }} >
         <Typography variant="body2" sx={{ fontWeight: 600 }}>
           {t("compose")}
         </Typography>

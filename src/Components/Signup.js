@@ -199,7 +199,7 @@ function Signup({ onClose, open }) {
         open: true,
       });
       setTimeout(() => {
-        navigate("/onboarding3");
+        navigate("/messages");
         handleClose();
       }, 2000);
     } catch (error) {

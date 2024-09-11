@@ -159,7 +159,7 @@ function Login({ onClose, open, onForgotPassword }) {
           open: true,
         });
         setTimeout(() => {
-          navigate("/onboarding3");
+          navigate("/messages");
           handleClose();
         }, 2000);
       } else {

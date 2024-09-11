@@ -86,7 +86,7 @@
   "noSubject": "No Subject",
   "messages": "Messages",
   "tutorial": {
-    "addAccounts": "You can send messages to your saved accounts later using RelaySMS .",
+    "addAccounts": "When you add accounts, you grant RelaySMS permission to send messages on your behalf.",
     "addGatewayClients": "Gateway clients help you route your SMS to the online platforms. So we advice you choose a number closest to your location.",
     "compose": "Great! Now you can compose messages for different platforms."
   }

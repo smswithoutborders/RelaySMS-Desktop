@@ -2,7 +2,7 @@
 const {
   app,
   BrowserWindow,
-  protocol,
+  //protocol,
   ipcMain,
   Menu,
   shell,
@@ -13,7 +13,6 @@ const axios = require("axios");
 const { execSync, execFile } = require("child_process");
 const fs = require("fs-extra");
 
-const OAuth2Handler = require(path.join(__dirname, "../src/OAuthHandler.js"));
 const {
   decryptLongLivedToken,
   publishSharedSecret,
@@ -27,214 +26,46 @@ let mainWindow;
 
 let storage;
 
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient("apps", process.execPath, [
+      path.resolve(process.argv[1]),
+    ]);
+  }
+} else {
+  app.setAsDefaultProtocolClient("apps");
+}
+
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on("second-instance", (event, commandLine, workingDirectory) => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+    const deepLinkUrl = commandLine.find((arg) => arg.startsWith("apps://"));
+    if (deepLinkUrl) {
+      const parsed = url.parse(deepLinkUrl, true);
+      if (parsed.query.code) {
+        mainWindow.webContents.send("authorization-code", parsed.query.code);
+      } else {
+        console.error("Authorization code not found");
+      }
+    }
+  });
+
+  app.whenReady().then(() => {
+    createWindow();
+  });
+}
+
 async function loadModules() {
   const Store = (await import("electron-store")).default;
   storage = new Store({ name: "relaysms" });
 }
-
-
-
-async function createWindow() {
-  await loadModules();
-
-  console.log("Creating main window...");
-  mainWindow = new BrowserWindow({
-    width: 1100,
-    height: 700,
-    webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      nodeIntegration: false,
-      contextIsolation: true,
-    },
-    icon: path.join(__dirname, "icon.png"),
-  });
-
-  const appURL = app.isPackaged
-    ? url.format({
-        pathname: path.join(__dirname, "index.html"),
-        protocol: "file:",
-        slashes: true,
-      })
-    : "http://localhost:3000";
-  mainWindow.loadURL(appURL);
-
-  if (!app.isPackaged) {
-    mainWindow.webContents.openDevTools();
-  }
-
-  app.whenReady().then(() => {
-    // Register a custom protocol
-    protocol.registerFileProtocol('relaydesktop', (request, callback) => {
-      const url = request.url.substr(7); // Remove 'myapp://' prefix
-      const parsedUrl = new URL(url);
-  
-      // Handle different paths in your app
-      if (parsedUrl.pathname === '/auth-callback') {
-        // Handle the OAuth2 callback here
-        // Extract the auth code or tokens from the URL
-        const authCode = parsedUrl.searchParams.get('code');
-        console.log('Authorization Code:', authCode);
-        // Do something with the auth code, like exchanging it for tokens
-      }
-  
-      // Optionally, you can load a local file or serve specific content
-      callback({ path: path.normalize(`${__dirname}/index.html`) });
-    });
-  });
-}
-
-function setupLocalFilesNormalizerProxy() {
-  protocol.registerHttpProtocol(
-    "file",
-    (request, callback) => {
-      const pathname = decodeURI(request.url.substr(7));
-      const normalizedPath = path.normalize(pathname);
-      callback({ path: normalizedPath });
-    },
-    (error) => {
-      if (error) console.error("Failed to register protocol:", error);
-    }
-  );
-}
-
-const isMac = process.platform === "darwin";
-const template = [
-  ...(isMac ? [{ role: "appMenu" }] : []),
-  {
-    label: "File",
-    submenu: [{ role: "close" }],
-  },
-  {
-    label: "Edit",
-    submenu: [
-      { role: "undo" },
-      { role: "redo" },
-      { type: "separator" },
-      { role: "cut" },
-      { role: "copy" },
-      { role: "paste" },
-    ],
-  },
-  {
-    label: "View",
-    submenu: [
-      {
-        label: "Toggle Full Screen",
-        accelerator: isMac ? "Ctrl+Command+F" : "F11",
-        click: () => {
-          mainWindow.setFullScreen(!mainWindow.isFullScreen());
-        },
-      },
-      { role: "reload" },
-      { role: "toggledevtools" },
-    ],
-  },
-  {
-    label: "Help",
-    submenu: [
-      {
-        label: "Documentation",
-        click: async () => {
-          await shell.openExternal("https://docs.smswithoutborders.com/");
-        },
-      },
-      {
-        label: "Support",
-        click: async () => {
-          await shell.openExternal("mailto://developers@smswithoutborders.com");
-        },
-      },
-      {
-        label: "About",
-        click: () => {
-          const options = {
-            type: "info",
-            buttons: ["OK"],
-            title: "About",
-            message: "Your Electron App\nVersion 1.0.0",
-            detail: "Your app details here.",
-          };
-          require("electron").dialog.showMessageBox(mainWindow, options);
-        },
-      },
-    ],
-  },
-];
-
-const menu = Menu.buildFromTemplate(template);
-Menu.setApplicationMenu(menu);
-
-app.whenReady().then(() => {
-  createWindow();
-  setupLocalFilesNormalizerProxy();
-  app.setAsDefaultProtocolClient('relaydesktop');
-
-  app.on("activate", function () {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
-});
-
-app.on("window-all-closed", function () {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
-
-const allowedNavigationDestinations = "https://my-electron-app.com";
-app.on("web-contents-created", (event, contents) => {
-  contents.on("will-navigate", (event, navigationUrl) => {
-    const parsedUrl = new URL(navigationUrl);
-
-    if (!allowedNavigationDestinations.includes(parsedUrl.origin)) {
-      event.preventDefault();
-    }
-  });
-});
-
-const pythonDir = path.join(__dirname, "../resources/python");
-const venvDir = path.join(pythonDir, "venv");
-const setupFlagFile = path.join(pythonDir, "setup_done.flag");
-const cliRepoDir = path.join(pythonDir, "py_double_ratchet_cli");
-// Function to perform setup
-function setupPythonEnvironment() {
-  if (fs.existsSync(setupFlagFile)) {
-    console.log("Python environment setup has already been completed.");
-    return;
-  }
-
-  console.log("Setting up Python environment...");
-
-  // Ensure Python directory exists
-  fs.mkdirSync(pythonDir, { recursive: true });
-
-  // Clone the repository if it doesn't exist
-  if (!fs.existsSync(cliRepoDir)) {
-    execSync(
-      `git clone https://github.com/smswithoutborders/py_double_ratchet_cli.git ${cliRepoDir}`,
-      { stdio: "inherit" }
-    );
-  }
-
-  // Create a virtual environment
-  execSync(`python3 -m venv ${venvDir}`, { stdio: "inherit" });
-
-  // Install requirements
-  execSync(
-    `. ${path.join(venvDir, "bin/activate")} && pip install -r ${path.join(
-      cliRepoDir,
-      "requirements.txt"
-    )}`,
-    { stdio: "inherit" }
-  );
-
-  // Create a flag file to indicate setup is done
-  fs.writeFileSync(setupFlagFile, "Python environment setup completed.");
-}
-
-// Run the setup function
-setupPythonEnvironment();
 
 ipcMain.handle(
   "create-entity",
@@ -397,19 +228,24 @@ ipcMain.handle("delete-entity", async (event, { long_lived_token }) => {
   });
 });
 
+ipcMain.handle("open-oauth", async (event, { oauthUrl }) => {
+  shell.openExternal(oauthUrl);
+});
+
 ipcMain.handle(
   "get-oauth2-authorization-url",
   async (
     event,
-    { platform, state, code_verifier, autogenerate_code_verifier }
+    { platform, state, code_verifier, autogenerate_code_verifier, redirect_url }
   ) => {
     return new Promise((resolve, reject) => {
       publisher.getOAuth2AuthorizationUrl(
         {
-          platform: platform,
-          state: state,
-          code_verifier: code_verifier,
-          autogenerate_code_verifier: autogenerate_code_verifier,
+          platform,
+          state,
+          code_verifier,
+          autogenerate_code_verifier,
+          redirect_url,
         },
         (err, response) => {
           if (err) {
@@ -427,15 +263,22 @@ ipcMain.handle(
   "exchange-oauth2-code-and-store",
   async (
     event,
-    { long_lived_token, platform, authorization_code, code_verifier }
+    {
+      long_lived_token,
+      platform,
+      authorization_code,
+      code_verifier,
+      redirect_url,
+    }
   ) => {
     return new Promise((resolve, reject) => {
       publisher.exchangeOAuth2CodeAndStore(
         {
-          long_lived_token: long_lived_token,
-          platform: platform,
-          authorization_code: authorization_code,
-          code_verifier: code_verifier,
+          long_lived_token,
+          platform,
+          authorization_code,
+          code_verifier,
+          redirect_url,
         },
         (err, response) => {
           if (err) {
@@ -595,17 +438,6 @@ ipcMain.handle("retrieve-onboarding-step", async () => {
   });
 });
 
-ipcMain.handle("open-oauth", async (event, { oauthUrl, expectedRedirect }) => {
-  const oauthClient = new OAuth2Handler();
-
-  const code = await oauthClient.openAuthWindowAndGetAuthorizationCode(
-    oauthUrl,
-    expectedRedirect
-  );
-
-  mainWindow.webContents.send("authorization-code", code);
-});
-
 ipcMain.handle(
   "get-long-lived-token",
   async (
@@ -693,12 +525,12 @@ ipcMain.handle("send-sms", async (event, { text, number }) => {
   }
 });
 
-function encryptMessage({content, phoneNumber, secretKey, publicKey}) {
+function encryptMessage({ content, phoneNumber, secretKey, publicKey }) {
   return new Promise((resolve, reject) => {
     const pythonDir = path.join(__dirname, "../resources/python");
     const venvActivate = path.join(pythonDir, "venv/bin/activate");
     const cliPath = path.join(pythonDir, "py_double_ratchet_cli/cli.py");
-    console.log("You got here, hurray!")
+    console.log("You got here, hurray!");
     // Command to run the CLI
     const command = `source ${venvActivate} && python3 ${cliPath} -c "${content}" -p "${phoneNumber}" -s "${secretKey}" -k "${publicKey}"`;
 
@@ -715,15 +547,15 @@ function encryptMessage({content, phoneNumber, secretKey, publicKey}) {
 ipcMain.handle(
   "encrypt-message",
   async (event, { content, phoneNumber, secretKey, publicKey }) => {
-    console.log(">>>1")
+    console.log(">>>1");
     try {
       const result = await encryptMessage({
         content: content,
         phoneNumber: phoneNumber,
         secretKey: secretKey,
-        publicKey: publicKey
-    });
-    console.log(">>>2")
+        publicKey: publicKey,
+      });
+      console.log(">>>2");
       return result;
     } catch (error) {
       throw new Error(`Encryption failed: ${error}`);
@@ -734,8 +566,14 @@ ipcMain.handle(
 ipcMain.handle(
   "publish-shared-secret",
   async (event, { client_publish_secret_key, server_publish_pub_key }) => {
-    console.log("publish-shared-client_publish_secret_key:", client_publish_secret_key);
-    console.log("publish-server_publish_pub_key-secret:", server_publish_pub_key);
+    console.log(
+      "publish-shared-client_publish_secret_key:",
+      client_publish_secret_key
+    );
+    console.log(
+      "publish-server_publish_pub_key-secret:",
+      server_publish_pub_key
+    );
     try {
       const result = publishSharedSecret(
         client_publish_secret_key,
@@ -750,23 +588,213 @@ ipcMain.handle(
   }
 );
 
-ipcMain.handle(
-  "create-payload",
-  async (event, { encryptedContent, pl }) => {
-    console.log("encryptedContent:", encryptedContent);
-    console.log("pl:", pl);
-    try {
-      const result = createPayload(
-        encryptedContent,
-        pl
-      );
-      console.log("payload:", result);
-      return result;
-    } catch (err) {
-      console.error("Error:", err.message);
-      throw err;
-    }
+ipcMain.handle("create-payload", async (event, { encryptedContent, pl }) => {
+  console.log("encryptedContent:", encryptedContent);
+  console.log("pl:", pl);
+  try {
+    const result = createPayload(encryptedContent, pl);
+    console.log("payload:", result);
+    return result;
+  } catch (err) {
+    console.error("Error:", err.message);
+    throw err;
   }
-);
+});
 
+async function createWindow() {
+  await loadModules();
 
+  console.log("Creating main window...");
+  mainWindow = new BrowserWindow({
+    width: 1100,
+    height: 700,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+    },
+    icon: path.join(__dirname, "icon.png"),
+  });
+
+  const appURL = app.isPackaged
+    ? url.format({
+        pathname: path.join(__dirname, "index.html"),
+        protocol: "file:",
+        slashes: true,
+      })
+    : "http://localhost:3000";
+  mainWindow.loadURL(appURL);
+
+  if (!app.isPackaged) {
+    mainWindow.webContents.openDevTools();
+  }
+}
+
+// app.whenReady().then(() => {
+//   // Register the custom protocol
+//   protocol.registerFileProtocol("apps", (request, callback) => {
+//     const parsedUrl = new URL(request.url);
+//     const authCode = parsedUrl.searchParams.get("code");
+//     console.log("Authorization Code:", authCode);
+
+//     callback({ path: path.normalize(`${__dirname}/index.html`) });
+//   });
+
+//   // Create the window after protocol registration
+//   createWindow();
+
+//   app.on("activate", function () {
+//     if (BrowserWindow.getAllWindows().length === 0) {
+//       createWindow();
+//     }
+//   });
+// });
+
+app.on("window-all-closed", function () {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
+
+// Ensure the app is the default handler for the protocol on macOS when it is reopened
+// app.on("open-url", (event, url) => {
+//   event.preventDefault();
+//   const parsedUrl = new URL(url);
+
+//   if (parsedUrl.pathname === "/auth-callback") {
+//     const authCode = parsedUrl.searchParams.get("code");
+//     console.log("Authorization Code:", authCode);
+//     // Handle the auth code here
+//   }
+
+//   // Bring the app to the foreground if it was minimized
+//   if (mainWindow) {
+//     mainWindow.focus();
+//   }
+// });
+
+// if (!app.isDefaultProtocolClient("app")) {
+//   app.setAsDefaultProtocolClient("app");
+// }
+
+const isMac = process.platform === "darwin";
+const template = [
+  ...(isMac ? [{ role: "appMenu" }] : []),
+  {
+    label: "File",
+    submenu: [{ role: "close" }],
+  },
+  {
+    label: "Edit",
+    submenu: [
+      { role: "undo" },
+      { role: "redo" },
+      { type: "separator" },
+      { role: "cut" },
+      { role: "copy" },
+      { role: "paste" },
+    ],
+  },
+  {
+    label: "View",
+    submenu: [
+      {
+        label: "Toggle Full Screen",
+        accelerator: isMac ? "Ctrl+Command+F" : "F11",
+        click: () => {
+          mainWindow.setFullScreen(!mainWindow.isFullScreen());
+        },
+      },
+      { role: "reload" },
+      { role: "toggledevtools" },
+    ],
+  },
+  {
+    label: "Help",
+    submenu: [
+      {
+        label: "Documentation",
+        click: async () => {
+          await shell.openExternal("https://docs.smswithoutborders.com/");
+        },
+      },
+      {
+        label: "Support",
+        click: async () => {
+          await shell.openExternal("mailto://developers@smswithoutborders.com");
+        },
+      },
+      {
+        label: "About",
+        click: () => {
+          const options = {
+            type: "info",
+            buttons: ["OK"],
+            title: "About",
+            message: "Your Electron App\nVersion 1.0.0",
+            detail: "Your app details here.",
+          };
+          require("electron").dialog.showMessageBox(mainWindow, options);
+        },
+      },
+    ],
+  },
+];
+
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
+
+const allowedNavigationDestinations = "https://oauth.afkanerd.com/";
+app.on("web-contents-created", (event, contents) => {
+  contents.on("will-navigate", (event, navigationUrl) => {
+    const parsedUrl = new URL(navigationUrl);
+
+    if (!allowedNavigationDestinations.includes(parsedUrl.origin)) {
+      event.preventDefault();
+    }
+  });
+});
+
+const pythonDir = path.join(__dirname, "../resources/python");
+const venvDir = path.join(pythonDir, "venv");
+const setupFlagFile = path.join(pythonDir, "setup_done.flag");
+const cliRepoDir = path.join(pythonDir, "py_double_ratchet_cli");
+// Function to perform setup
+function setupPythonEnvironment() {
+  if (fs.existsSync(setupFlagFile)) {
+    console.log("Python environment setup has already been completed.");
+    return;
+  }
+
+  console.log("Setting up Python environment...");
+
+  // Ensure Python directory exists
+  fs.mkdirSync(pythonDir, { recursive: true });
+
+  // Clone the repository if it doesn't exist
+  if (!fs.existsSync(cliRepoDir)) {
+    execSync(
+      `git clone https://github.com/smswithoutborders/py_double_ratchet_cli.git ${cliRepoDir}`,
+      { stdio: "inherit" }
+    );
+  }
+
+  // Create a virtual environment
+  execSync(`python3 -m venv ${venvDir}`, { stdio: "inherit" });
+
+  // Install requirements
+  execSync(
+    `. ${path.join(venvDir, "bin/activate")} && pip install -r ${path.join(
+      cliRepoDir,
+      "requirements.txt"
+    )}`,
+    { stdio: "inherit" }
+  );
+
+  // Create a flag file to indicate setup is done
+  fs.writeFileSync(setupFlagFile, "Python environment setup completed.");
+}
+
+// Run the setup function
+setupPythonEnvironment();

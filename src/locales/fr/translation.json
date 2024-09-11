@@ -87,7 +87,7 @@
   "noSubject": "Pas de sujet",
   "messages": "Messages",
   "tutorial": {
-    "addAccounts": "Vous pouvez envoyer des messages à vos comptes enregistrés ultérieurement à l'aide de RelaySMS.",
+    "addAccounts": "Lorsque vous ajoutez des comptes, vous accordez la permission des RelaySMS pour envoyer des messages en votre nom.",
     "addGatewayClients": "Les clients Gateway vous aident à acheminer vos SMS vers les plateformes en ligne. Nous vous conseillons donc de choisir un numéro le plus proche de votre emplacement.",
     "compose": "Super ! Vous pouvez désormais rédiger des messages pour différentes plateformes."
   }

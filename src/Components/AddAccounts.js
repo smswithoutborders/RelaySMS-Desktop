@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import url from "url";
 import {
   Box,
   Typography,
@@ -83,43 +82,29 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
       return;
     }
 
+    const redirectUrl =
+      "https://oauth.afkanerd.com/platforms/gmail/protocols/oauth2/redirect_codes/";
+
     try {
       const response = await window.api.getOAuth2AuthorizationUrl(
         platform,
         "",
         "",
-        true
+        true,
+        redirectUrl
       );
       await window.api.storeParams("code", response.code_verifier);
 
       const parsedAuthUrl = new URL(response.authorization_url);
-      const parsedRedirecthUrl = new URL(response.redirect_url);
-      const newRedirectUri = url.resolve(
-        "http://localhost:18000",
-        parsedRedirecthUrl.pathname
-      );
-      parsedAuthUrl.searchParams.set("redirect_uri", newRedirectUri);
-
       const auth_code = await window.api.openOauth({
         oauthUrl: parsedAuthUrl.toString(),
-        expectedRedirect: newRedirectUri,
       });
-
-    //   const parsedAuthUrl = new URL(response.authorization_url);
-    // parsedAuthUrl.searchParams.set("redirect_uri", "relaydesktop://auth-callback");
-
-    // const auth_code = await window.api.openOauth({
-    //   oauthUrl: parsedAuthUrl.toString(),
-    //   expectedRedirect: "relaydesktop://auth-callback",
-    // });
-
-      const longLivedToken = await window.api.retrieveParams("longLivedToken");
-      const serverDevicePublicId = await window.api.retrieveParams(
-        "serverDeviceId"
-      );
-      const clientDeviceSecretId = await window.api.retrieveParams(
-        "client_device_id_key_pair"
-      );
+      const [longLivedToken, serverDevicePublicId, clientDeviceSecretId] =
+        await Promise.all([
+          window.api.retrieveParams("longLivedToken"),
+          window.api.retrieveParams("serverDeviceId"),
+          window.api.retrieveParams("client_device_id_key_pair"),
+        ]);
 
       const llt = await window.api.retrieveLongLivedToken({
         client_device_id_secret_key: clientDeviceSecretId.secretKey,
@@ -127,13 +112,14 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
         long_lived_token_cipher: longLivedToken,
       });
 
-      const store = await window.api.exchangeOAuth2CodeAndStore(
+      await window.api.exchangeOAuth2CodeAndStore(
         llt,
         platform,
         auth_code,
-        response.code_verifier
+        response.code_verifier,
+        redirectUrl
       );
-      console.log(store);
+
       setAlert({
         message: "Token stored successfully",
         severity: "success",
@@ -144,7 +130,6 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
         handleClose();
       }, 2000);
     } catch (error) {
-      console.error("Failed to get OAuth2 authorization URL:", error);
       setAlert({
         message: error.message,
         severity: "error",
@@ -189,25 +174,25 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
         <Typography variant="body2">{t("saveMultiple")}</Typography>
         {unstoredTokens.map((token, index) => (
           <Box sx={{ pt: 1 }}>
-            <List >
+            <List>
               <React.Fragment key={index}>
-              <ListItem
-                button
-                onClick={() => handleAddAccount(token.name)}
-                sx={{ display: "flex", alignItems: "center" }}
-              >
-                <ListItemAvatar>
-                  <Box
-                    component="img"
-                    src={token.icon_svg}
-                    alt={token.name}
-                    sx={{ width: "30px", height: "30px", marginRight: 0 }}
-                  />
-                </ListItemAvatar>
-                <ListItemText>
-                  <Typography variant="body2">{token.name}</Typography>
-                </ListItemText>
-              </ListItem>
+                <ListItem
+                  button
+                  onClick={() => handleAddAccount(token.name)}
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
+                  <ListItemAvatar>
+                    <Box
+                      component="img"
+                      src={token.icon_svg}
+                      alt={token.name}
+                      sx={{ width: "30px", height: "30px", marginRight: 0 }}
+                    />
+                  </ListItemAvatar>
+                  <ListItemText>
+                    <Typography variant="body2">{token.name}</Typography>
+                  </ListItemText>
+                </ListItem>
               </React.Fragment>
             </List>
           </Box>

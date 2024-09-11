@@ -87,7 +87,7 @@
     "@testing-library/dom": "^10.1.0",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
-    "electron": "^31.3.1",
+    "electron": "^32.0.2",
     "electron-builder": "^24.13.3",
     "electronmon": "^2.0.3",
     "file-loader": "^6.2.0",
@@ -103,11 +103,16 @@
     "appId": "RelaySMS",
     "productName": "RelaySMS",
     "copyright": "Copyright © 2024 ${author}",
+    "protocols": {
+      "name": "RelaySMS",
+      "schemes": ["apps"]
+    },
     "files": [
-      "build/**/*",
       "./dist/**/*",
       "./src/**/*",
-      "./public/**/*"
+      "./public/**/*",
+      "./public/*",
+      "./build/*"
     ],
     "directories": {
       "buildResources": "public"

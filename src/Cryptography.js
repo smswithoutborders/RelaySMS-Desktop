@@ -3,7 +3,7 @@ const fernet = require("fernet");
 const util = require("util");
 const crypto = require("crypto");
 nacl.util = require("tweetnacl-util");
-// const struct = require("python-struct"); 
+// const struct = require("python-struct");
 const base64 = require("base64-js");
 
 function deriveFernetKey(sharedSecret) {
@@ -56,34 +56,48 @@ async function decryptLongLivedToken(
   }
 }
 
-// Function to generate a shared secret with public keys
-function publishSharedSecret(client_publish_secret_key, server_publish_pub_key) {
+async function publishSharedSecret(
+  client_publish_secret_key,
+  server_publish_pub_key
+) {
   // Decode the keys from Base64
-  const clientSecretKeyDecoded = nacl.util.decodeBase64(client_publish_secret_key);
+  const clientSecretKeyDecoded = nacl.util.decodeBase64(
+    client_publish_secret_key
+  );
   const serverPubKeyDecoded = nacl.util.decodeBase64(server_publish_pub_key);
 
-
   // Generate shared secret
-  const publish_shared_secret = nacl.scalarMult(clientSecretKeyDecoded, serverPubKeyDecoded);
+  const publish_shared_secret = nacl.scalarMult(
+    clientSecretKeyDecoded,
+    serverPubKeyDecoded
+  );
 
-  // Encode the shared secret as a Base64 string
-  const publish_shared_secret_base64 = nacl.util.encodeBase64(publish_shared_secret);
+  try {
+    const derivedKey = await deriveSharedSecretKey(publish_shared_secret);
 
+    // Derive the Fernet key
+    const pub_shared_secret = deriveFernetKey(Buffer.from(derivedKey));
 
-  return publish_shared_secret_base64;
+    // Encode the shared secret as Base64
+    const shared_secret = nacl.util.encodeBase64(pub_shared_secret);
+    console.log(">>>>", shared_secret);
+
+    return shared_secret;
+  } catch (err) {
+    throw new Error(`Error generating shared secret: ${err.message}`);
+  }
 }
 
-
-
 function createPayload(encryptedContent, pl) {
-  // Pack the length of the encrypted content as a 4-byte integer (little-endian)
   const lengthBuffer = Buffer.alloc(4);
   lengthBuffer.writeInt32LE(encryptedContent.length);
 
-  // Combine all parts into a single buffer
-  const payload = Buffer.concat([lengthBuffer, Buffer.from(pl), Buffer.from(encryptedContent)]);
+  const payload = Buffer.concat([
+    lengthBuffer,
+    Buffer.from(pl),
+    Buffer.from(encryptedContent),
+  ]);
 
-  // Encode the payload to base64
   const incomingPayload = base64.fromByteArray(payload);
 
   return incomingPayload;
@@ -92,5 +106,5 @@ function createPayload(encryptedContent, pl) {
 module.exports = {
   decryptLongLivedToken,
   publishSharedSecret,
-  createPayload
+  createPayload,
 };

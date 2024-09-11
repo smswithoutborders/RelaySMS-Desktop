@@ -13,12 +13,12 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 const publisher_proto =
   grpc.loadPackageDefinition(packageDefinition).publisher.v1;
 
-const target = "publisher.beta.smswithoutborders.com:443";
+const target = "staging.smswithoutborders.com:9060";
 const credentials = grpc.credentials.createFromSecureContext();
 const client = new publisher_proto.Publisher(target, credentials);
 
 function getOAuth2AuthorizationUrl(
-  { platform, state, code_verifier, autogenerate_code_verifier },
+  { platform, state, code_verifier, autogenerate_code_verifier, redirect_url },
   callback
 ) {
   client.GetOAuth2AuthorizationUrl(
@@ -27,13 +27,20 @@ function getOAuth2AuthorizationUrl(
       state,
       code_verifier,
       autogenerate_code_verifier,
+      redirect_url,
     },
     callback
   );
 }
 
 function exchangeOAuth2CodeAndStore(
-  { long_lived_token, platform, authorization_code, code_verifier },
+  {
+    long_lived_token,
+    platform,
+    authorization_code,
+    code_verifier,
+    redirect_url,
+  },
   callback
 ) {
   client.ExchangeOAuth2CodeAndStore(
@@ -42,6 +49,7 @@ function exchangeOAuth2CodeAndStore(
       platform,
       authorization_code,
       code_verifier,
+      redirect_url,
     },
     callback
   );

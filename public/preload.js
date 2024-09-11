@@ -1,6 +1,16 @@
 const { contextBridge, ipcRenderer } = require("electron");
+process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = true;
+console.log("Preload script loaded");
 
 contextBridge.exposeInMainWorld("api", {
+  storeParams: async (key, value) => {
+    console.log("store-params hurray you got here");
+    await ipcRenderer.invoke("store-params", { key, value });
+  },
+  retrieveParams: async (key) => {
+    let value = await ipcRenderer.invoke("retrieve-params", key);
+    return value;
+  },
   createEntity: async (
     phoneNumber,
     password,
@@ -101,7 +111,8 @@ contextBridge.exposeInMainWorld("api", {
     platform,
     state,
     code_verifier,
-    autogenerate_code_verifier
+    autogenerate_code_verifier,
+    redirect_url
   ) => {
     try {
       console.log("platform:", platform);
@@ -115,6 +126,7 @@ contextBridge.exposeInMainWorld("api", {
           state,
           code_verifier,
           autogenerate_code_verifier,
+          redirect_url,
         }
       );
       console.log("response:", response);
@@ -129,7 +141,8 @@ contextBridge.exposeInMainWorld("api", {
     long_lived_token,
     platform,
     authorization_code,
-    code_verifier
+    code_verifier,
+    redirect_url
   ) => {
     try {
       console.log("platform:", platform);
@@ -143,6 +156,7 @@ contextBridge.exposeInMainWorld("api", {
           platform,
           authorization_code,
           code_verifier,
+          redirect_url,
         }
       );
       console.log("response:", response);
@@ -252,15 +266,6 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
 
-  storeParams: async (key, value) => {
-    await ipcRenderer.invoke("store-params", { key, value });
-  },
-  retrieveParams: async (key) => {
-    let value = await ipcRenderer.invoke("retrieve-params", key);
-    console.log(">>>>>>>>>>>>>> Val: ", value);
-    return value;
-  },
-
   storeSession: async (sessionData) => {
     try {
       await ipcRenderer.invoke("store-session", sessionData);
@@ -307,13 +312,11 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
 
-  openOauth: ({ oauthUrl, expectedRedirect }) => {
-    console.log("r_url", expectedRedirect);
+  openOauth: ({ oauthUrl }) => {
     console.log("authURL:", oauthUrl);
     return new Promise((resolve, reject) => {
       ipcRenderer.invoke("open-oauth", {
         oauthUrl,
-        expectedRedirect,
       });
       ipcRenderer.once("authorization-code", (event, code) => {
         console.log("Auth Code", code);
@@ -421,7 +424,8 @@ contextBridge.exposeInMainWorld("api", {
         .invoke("create-payload", {
           encryptedContent,
           pl,
-        }).then((result) => {
+        })
+        .then((result) => {
           console.log(">>>>pay", result);
           resolve(result);
         })

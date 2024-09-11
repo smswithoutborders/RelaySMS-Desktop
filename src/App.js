@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect } from "react";
 import "./App.css";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -17,6 +18,14 @@ function App() {
     setOnboardingStep(step);
   };
 
+  useEffect(() => {
+    const isFirstTime = localStorage.getItem("firstTimeUser");
+    if (!isFirstTime) {
+      setOnboardingStep(true);
+      localStorage.setItem("firstTimeUser", "false");
+    }
+  }, []);
+
   const theme = React.useMemo(
     () =>
       createTheme({
@@ -29,7 +38,7 @@ function App() {
             default: prefersDarkMode ? "#1E1E1E" : "#fafafa",
             paper: prefersDarkMode ? "#0D3B66" : "#98C1D9",
             custom: prefersDarkMode ? "#000" : "#fff",
-            side: prefersDarkMode ? "#0D3B66" : "#98C1D9"
+            side: prefersDarkMode ? "#0D3B66" : "#98C1D9",
           },
           text: {
             primary: prefersDarkMode ? "#fff" : "#000",
@@ -56,7 +65,7 @@ function App() {
                     onboardingStep === 0
                       ? "/onboarding"
                       : onboardingStep === 1
-                      ? "/onboarding2"   
+                      ? "/onboarding2"
                       : "/messages"
                   }
                   replace
