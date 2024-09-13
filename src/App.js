@@ -6,25 +6,33 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 import Landing from "./Pages/Home";
-import Onboarding from "./Pages/Onboarding";
-import Onboarding2 from "./Pages/Onboarding2";
+import OnboardingContainer from "./OnboardingCon";
 import "./i18n";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [onboardingStep, setOnboardingStep] = React.useState(0);
-
-  const handleCompleteOnboarding = (step) => {
-    setOnboardingStep(step);
-  };
+  const [isFirstTime, setIsFirstTime] = React.useState(true);
 
   useEffect(() => {
-    const isFirstTime = localStorage.getItem("firstTimeUser");
-    if (!isFirstTime) {
-      setOnboardingStep(true);
-      localStorage.setItem("firstTimeUser", "false");
+    const firstTimeUser = localStorage.getItem("firstTimeUser");
+    if (firstTimeUser) {
+      setIsFirstTime(true); 
     }
   }, []);
+
+  const handleNext = () => {
+    setOnboardingStep((prevStep) => prevStep + 1);
+  };
+
+  const handleBack = () => {
+    setOnboardingStep((prevStep) => prevStep - 1);
+  };
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem("firstTimeUser", "true");
+    setIsFirstTime(false);
+  };
 
   const theme = React.useMemo(
     () =>
@@ -54,39 +62,22 @@ function App() {
       <CssBaseline />
       <HashRouter>
         <Routes>
-          <Route
-            path="/"
-            element={
-              onboardingStep >= 4 ? (
-                <Navigate to="/messages" replace />
-              ) : (
-                <Navigate
-                  to={
-                    onboardingStep === 0
-                      ? "/onboarding"
-                      : onboardingStep === 1
-                      ? "/onboarding2"
-                      : "/messages"
-                  }
-                  replace
+          {isFirstTime ? (
+            <Route
+              path="/onboarding"
+              element={
+                <OnboardingContainer
+                  handleNext={handleNext}
+                  handleBack={handleBack}
+                  handleOnboardingComplete={handleOnboardingComplete}
+                  isNextDisabled={onboardingStep === 0}
                 />
-              )
-            }
-          />
-          <Route path="/messages" element={<Landing />} />
-          <Route
-            path="/onboarding"
-            element={
-              <Onboarding onComplete={() => handleCompleteOnboarding(1)} />
-            }
-          />
-          <Route
-            path="/onboarding2"
-            element={
-              <Onboarding2 onComplete={() => handleCompleteOnboarding(2)} />
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
+              }
+            />
+          ) : (
+            <Route path="/messages" element={<Landing />} />
+          )}
+          <Route path="*" element={<Navigate to={isFirstTime ? "/onboarding" : "/messages"} replace />} />
         </Routes>
       </HashRouter>
     </ThemeProvider>

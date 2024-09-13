@@ -1,6 +1,6 @@
 import { Typography, Box, Grid, Button } from "@mui/material";
 import React, { useState } from "react";
-import { FaChevronRight, FaGlobe } from "react-icons/fa6";
+import { FaGlobe } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import SimpleDialog from "../Components/SelectLanguage";
 import { useTranslation } from "react-i18next";
@@ -22,7 +22,7 @@ export default function Onboarding() {
   };
   return (
     <>
-      <Box sx={{ px: 6, py: 10 }}>
+      <Box sx={{ px: 6, py: 5 }}>
         <Grid container my="auto" sx={{overflow: "hidden"}}>
           <Grid item md={7} sm={7} sx={{ py: 10 }}>
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -80,14 +80,6 @@ export default function Onboarding() {
               mr: 10,
             }}
           >
-            <Button
-              component={Link}
-              to="/onboarding2"
-              variant="contained"
-              sx={{ borderRadius: 5, px: 2, textTransform: "none" }}
-            >
-              {t("next")} <FaChevronRight />{" "}
-            </Button>
           </Grid>
         </Grid>
       </Box>
