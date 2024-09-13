@@ -1,5 +1,5 @@
 {
-  "welcome": "به RelaySMS خوش آمدید",
+  "welcome": "Bienvenue sur RelaySMS",
   "recent": "Récent",
   "noRecentMessages": "Aucun message récent",
   "selectLanguage": "Choisir la langue",
@@ -90,5 +90,10 @@
     "addAccounts": "Lorsque vous ajoutez des comptes, vous accordez la permission des RelaySMS pour envoyer des messages en votre nom.",
     "addGatewayClients": "Les clients Gateway vous aident à acheminer vos SMS vers les plateformes en ligne. Nous vous conseillons donc de choisir un numéro le plus proche de votre emplacement.",
     "compose": "Super ! Vous pouvez désormais rédiger des messages pour différentes plateformes."
-  }
+  },
+  "settingUpGatewayClients": "Configuration des clients de passerelle",
+  "installDependencies": "Installer les dépendances",
+  "cloneRepoAndStart": "Cloner le dépôt et démarrer le projet",
+  "plugModem": "Branchez un modem avec une carte SIM pouvant envoyer des SMS",
+  "publish": "Qu'attendez-vous ? Vous pouvez désormais envoyer des SMS depuis votre ordinateur 🎉"
 }
