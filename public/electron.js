@@ -587,6 +587,25 @@ ipcMain.handle(
     }
   }
 );
+ipcMain.handle("logout", async () => {
+  try {
+    if (fs.existsSync(storage.path)) {
+      await fs.remove(storage.path);
+      console.log("relaysms file deleted successfully");
+
+      storage.clear();
+
+      return { success: true, message: "Logged out successfully" };
+    } else {
+      console.error("relaysms file does not exist");
+      return { success: false, message: "No relaysms file found" };
+    }
+  } catch (error) {
+    console.error("Error during logout:", error);
+    return { success: false, message: "Logout failed due to an error" };
+  }
+});
+
 
 ipcMain.handle("create-payload", async (event, { encryptedContent, pl }) => {
   console.log("encryptedContent:", encryptedContent);
@@ -631,52 +650,11 @@ async function createWindow() {
   }
 }
 
-// app.whenReady().then(() => {
-//   // Register the custom protocol
-//   protocol.registerFileProtocol("apps", (request, callback) => {
-//     const parsedUrl = new URL(request.url);
-//     const authCode = parsedUrl.searchParams.get("code");
-//     console.log("Authorization Code:", authCode);
-
-//     callback({ path: path.normalize(`${__dirname}/index.html`) });
-//   });
-
-//   // Create the window after protocol registration
-//   createWindow();
-
-//   app.on("activate", function () {
-//     if (BrowserWindow.getAllWindows().length === 0) {
-//       createWindow();
-//     }
-//   });
-// });
-
 app.on("window-all-closed", function () {
   if (process.platform !== "darwin") {
     app.quit();
   }
 });
-
-// Ensure the app is the default handler for the protocol on macOS when it is reopened
-// app.on("open-url", (event, url) => {
-//   event.preventDefault();
-//   const parsedUrl = new URL(url);
-
-//   if (parsedUrl.pathname === "/auth-callback") {
-//     const authCode = parsedUrl.searchParams.get("code");
-//     console.log("Authorization Code:", authCode);
-//     // Handle the auth code here
-//   }
-
-//   // Bring the app to the foreground if it was minimized
-//   if (mainWindow) {
-//     mainWindow.focus();
-//   }
-// });
-
-// if (!app.isDefaultProtocolClient("app")) {
-//   app.setAsDefaultProtocolClient("app");
-// }
 
 const isMac = process.platform === "darwin";
 const template = [

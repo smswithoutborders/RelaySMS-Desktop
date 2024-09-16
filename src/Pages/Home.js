@@ -27,6 +27,8 @@ import SecuritySettings from "./SecuritySetting";
 import AdvancedSettings from "./AdvancedSettings";
 import MessageList from "../Components/MessageList";
 import Joyride from "react-joyride";
+import Login from "../Components/Login";
+import Signup from "../Components/Signup";
 
 export default function Landing() {
   const { t } = useTranslation();
@@ -35,6 +37,9 @@ export default function Landing() {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [runTutorial, setRunTutorial] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [fileExists, setFileExists] = useState(false);
+  const [openLoginDialog, setOpenLoginDialog] = useState(false);
+  const [openSignupDialog, setOpenSignupDialog] = useState(false);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -53,14 +58,22 @@ export default function Landing() {
         (await window.api.retrieveParams("messages")) || [];
       setMessages(storedMessages);
     };
-
     loadMessages();
 
-     const isFirstTime = localStorage.getItem("firstTimeUser");
-     if (!isFirstTime) {
-    setRunTutorial(true);
-       localStorage.setItem("firstTimeUser", "false");
-     }
+    const isFirstTime = localStorage.getItem("firstTimeUser");
+    if (!isFirstTime) {
+      setRunTutorial(true);
+      localStorage.setItem("firstTimeUser", "false");
+    }
+  }, []);
+
+  const checkFileForToken = async () => {
+    const tokenExists = await window.api.retrieveParams("longLivedToken");
+    setFileExists(tokenExists);
+  };
+
+  useEffect(() => {
+    checkFileForToken();
   }, []);
 
   const steps = [
@@ -125,63 +138,116 @@ export default function Landing() {
     }
   };
 
+  const openLoginDialogHandler = () => {
+    setOpenLoginDialog(true);
+  };
+
+  const closeLoginDialogHandler = async () => {
+    setOpenLoginDialog(false);
+    await checkFileForToken();
+  };
+
+  const openSignupDialogHandler = () => {
+    setOpenSignupDialog(true);    
+  };
+
+  const closeSignupDialogHandler = async () => {
+    setOpenSignupDialog(false);
+    await checkFileForToken();
+  };
+
   const renderComponent = () => {
-    switch (currentComponent) {
-      case "AddAccounts":
-        return <AddAccounts asPopover={false} />;
-      case "SelectLanguage":
-        return (
-          <SimpleDialog
-            asPopover={false}
-            open={true}
-            onClose={() => setCurrentComponent(null)}
-          />
-        );
-      case "SecuritySettings":
-        return <SecuritySettings />;
-      case "Compose":
-        return (
-          <Compose
-            open={currentComponent === "Compose"}
-            onClose={() => setCurrentComponent(null)}
-          />
-        );
-      case "AdvancedSettings":
-        return <AdvancedSettings />;
-      case "Messages":
-        return (
-          <>
-            <Box
-              sx={{
-                mt: 2,
-                mx: 3,
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                {t("messages")}
-              </Typography>
-              <Button
-                size="small"
-                variant="contained"
-                sx={{ textTransform: "none" }}
-                onClick={handleComposeClick}
-              >
-                {t("compose")}{" "}
-                <FaPenToSquare style={{ marginLeft: 10 }} size="15px" />
-              </Button>
-            </Box>
-            <MessageList
-              messages={filteredMessages}
-              onMessageSelect={handleMessageClick}
-              refreshMessages={refreshMessages}
+    if (!fileExists) {
+      return (
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            {t("notLoggedIn")}
+          </Typography>
+          <Typography sx={{ py: 2 }} variant="body2" gutterBottom>
+            {t("needToLogIn")}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={openLoginDialogHandler}
+            sx={{ borderRadius: 5, textTransform: "none", mr: 2, px: 3 }}
+          >
+            {t("login")}
+          </Button>
+          <Button
+            variant="contained"
+            onClick={openSignupDialogHandler}
+            sx={{ borderRadius: 5, textTransform: "none" }}
+          >
+            {t("signUp")}
+          </Button>
+          {openLoginDialog && (
+            <Login open={openLoginDialog} onClose={closeLoginDialogHandler} />
+          )}
+          {openSignupDialog && (
+            <Signup
+              open={openSignupDialog}
+              onClose={closeSignupDialogHandler}
             />
-          </>
-        );
-      default:
-        return null;
-    }
+          )}
+        </Box>
+      );
+    } else
+      switch (currentComponent) {
+        case "AddAccounts":
+          return <AddAccounts asPopover={false} />;
+        case "SelectLanguage":
+          return (
+            <SimpleDialog
+              asPopover={false}
+              open={true}
+              onClose={() => setCurrentComponent(null)}
+            />
+          );
+        case "SecuritySettings":
+          return <SecuritySettings />;
+        case "Compose":
+          return (
+            <Compose
+              open={currentComponent === "Compose"}
+              onClose={() => setCurrentComponent(null)}
+            />
+          );
+        case "AdvancedSettings":
+          return <AdvancedSettings />;
+        case "Messages":
+          return (
+            <>
+              <Box
+                sx={{
+                  mt: 2,
+                  mx: 3,
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                  {t("messages")}
+                </Typography>
+                <Button
+                  size="small"
+                  variant="contained"
+                  sx={{ textTransform: "none" }}
+                  onClick={handleComposeClick}
+                >
+                  {t("compose")}{" "}
+                  <FaPenToSquare style={{ marginLeft: 10 }} size="15px" />
+                </Button>
+              </Box>
+              <MessageList
+                messages={filteredMessages}
+                onMessageSelect={handleMessageClick}
+                refreshMessages={refreshMessages}
+              />
+            </>
+          );
+        default:
+          return null;
+      }
   };
 
   return (

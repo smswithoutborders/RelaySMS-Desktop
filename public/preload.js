@@ -11,6 +11,16 @@ contextBridge.exposeInMainWorld("api", {
     let value = await ipcRenderer.invoke("retrieve-params", key);
     return value;
   },
+  logout: async () => {
+    try {
+      await ipcRenderer.invoke("logout");
+      console.log("User logged out successfully");
+    } catch (error) {
+      console.error("Logout error:", error);
+      throw error;
+    }
+  },
+  
   createEntity: async (
     phoneNumber,
     password,

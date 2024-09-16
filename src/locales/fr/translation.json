@@ -95,5 +95,7 @@
   "installDependencies": "Installer les dépendances",
   "cloneRepoAndStart": "Cloner le dépôt et démarrer le projet",
   "plugModem": "Branchez un modem avec une carte SIM pouvant envoyer des SMS",
-  "publish": "Qu'attendez-vous ? Vous pouvez désormais envoyer des SMS depuis votre ordinateur 🎉"
+  "publish": "Qu'attendez-vous ? Vous pouvez désormais envoyer des SMS depuis votre ordinateur 🎉",
+   "notLoggedIn": "Vous n'êtes pas connecté",
+  "needToLogIn": "Vous devez vous connecter ou vous inscrire pour commencer à utiliser RelaySMS"
 }

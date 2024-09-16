@@ -94,6 +94,8 @@
   "installDependencies": "Install dependencies",
   "cloneRepoAndStart": "Clone repository and start project",
   "plugModem": "Plug in a modem with a  sim that can send SMS",
-  "publish": "What are you waiting for? You can send SMS now from your computer 🎉"
+  "publish": "What are you waiting for? You can send SMS now from your computer 🎉",
+  "notLoggedIn": "You are not logged in",
+  "needToLogIn": "You need to log-in or sign-up to begin using RelaySMS"
 }
 

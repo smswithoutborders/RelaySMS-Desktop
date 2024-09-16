@@ -124,6 +124,28 @@ export default function SecuritySettings({ open, onClose }) {
     setDeleteDialogOpen(false);
   };
 
+  const handleLogout = async () => {
+    try {
+      await window.api.logout(); // Trigger logout via ipcRenderer
+      setAlert({
+        message: "Logged out successfully",
+        severity: "success",
+        open: true,
+      });
+      // Navigate to onboarding after successful logout
+      setTimeout(() => {
+        navigate("/onboarding");
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to logout:", error);
+      setAlert({
+        message: "Logout failed. Please try again.",
+        severity: "error",
+        open: true,
+      });
+    }
+  };
+
   const handleConfirmDelete = async () => {
     try {
       const longLivedToken = await window.api.retrieveParams("longLivedToken");
@@ -149,7 +171,7 @@ export default function SecuritySettings({ open, onClose }) {
       });
       setDeleteDialogOpen(false);
       setTimeout(() => {
-        navigate("/onboarding2"); 
+        navigate("/onboarding"); 
         handleClose();
       }, 2000);
     } catch (error) {
@@ -196,7 +218,7 @@ export default function SecuritySettings({ open, onClose }) {
               </Typography>
             </ListItemText>
           </ListItem>
-          <ListItem>
+          <ListItem button onClick={handleLogout}>
             <ListItemText>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {t("logout")}
