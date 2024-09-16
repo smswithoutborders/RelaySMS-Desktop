@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
-  CircularProgress,
   Divider,
   List,
   ListItem,
   ListItemText,
   Switch,
   Typography,
+  Skeleton,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { FaArrowsRotate, FaPlus } from "react-icons/fa6";
@@ -87,10 +87,19 @@ export default function AdvancedSettings({ open, onClose }) {
         <Typography variant="body2" sx={{ fontWeight: 600, pt: 2 }}>
           {t("gatewayClients")}
         </Typography>
+
         {isLoading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-            <CircularProgress />
-          </Box>
+          <List sx={{ px: 1, overflow: "auto" }}>
+            {[1, 2, 3, 4].map((_, index) => (
+              <ListItem key={index}>
+                <ListItemText
+                  primary={<Skeleton width="40%" />}
+                  secondary={<Skeleton width="30%" />}
+                />
+                <Skeleton variant="rectangular" width={24} height={24} />
+              </ListItem>
+            ))}
+          </List>
         ) : hasError ? (
           <Box
             sx={{

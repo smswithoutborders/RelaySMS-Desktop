@@ -9,6 +9,8 @@ import {
   ListItemText,
   List,
   ListItemAvatar,
+  Skeleton,
+  Grid,
 } from "@mui/material";
 import GmailCompose from "../Components/ComposeGmail";
 import TwitterCompose from "../Components/ComposeTwitter";
@@ -25,6 +27,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
   const [popoverAnchor, setPopoverAnchor] = useState(null);
   const [selectedPlatform, setSelectedPlatform] = useState("");
   const [selectedToken, setSelectedToken] = useState(null);
+  const [loading, setLoading] = useState(true); 
 
   const handleAlertClose = () => {
     setAlert({ ...alert, open: false });
@@ -75,6 +78,8 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
           open: true,
         });
       }
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -147,7 +152,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Box sx={{ py: 2, px: 2 }} >
+      <Box sx={{ py: 2, px: 2 }}>
         <Typography variant="body2" sx={{ fontWeight: 600 }}>
           {t("compose")}
         </Typography>
@@ -158,30 +163,49 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
           <List>
             {["gmail", "twitter", "telegram"].map((platform) => (
               <React.Fragment key={platform}>
-                <ListItem
-                  button
-                  onClick={(event) => handlePlatformClick(event, platform)}
-                  sx={{ display: "flex", alignItems: "center" }}
-                >
-                  <ListItemAvatar>
-                    <Box
-                      component="img"
-                      src={
-                        platform === "gmail"
-                          ? "gmail.svg"
-                          : platform === "twitter"
-                          ? "twitter.svg"
-                          : "telegram.svg"
-                      }
-                      sx={{ width: "30px", height: "30px", marginRight: 2 }}
-                    />
-                  </ListItemAvatar>
-                  <ListItemText>
-                    <Typography variant="body2" sx={{ textTransform: "none" }}>
-                      {platform}
-                    </Typography>
-                  </ListItemText>
-                </ListItem>
+                {loading ? (
+                  <Box>
+                    <Grid container>
+                      <Grid item md={3} sm={3}>
+                        <Skeleton
+                          variant="circular"
+                          sx={{ width: "30px", height: "30px" }}
+                        />
+                      </Grid>
+                      <Grid item md={8} sm={8}>
+                        <Skeleton variant="text" sx={{ mt: 1 }} />
+                      </Grid>
+                    </Grid>
+                  </Box>
+                ) : (
+                  <ListItem
+                    button
+                    onClick={(event) => handlePlatformClick(event, platform)}
+                    sx={{ display: "flex", alignItems: "center" }}
+                  >
+                    <ListItemAvatar>
+                      <Box
+                        component="img"
+                        src={
+                          platform === "gmail"
+                            ? "gmail.svg"
+                            : platform === "twitter"
+                            ? "twitter.svg"
+                            : "telegram.svg"
+                        }
+                        sx={{ width: "30px", height: "30px", marginRight: 2 }}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText>
+                      <Typography
+                        variant="body2"
+                        sx={{ textTransform: "none" }}
+                      >
+                        {platform}
+                      </Typography>
+                    </ListItemText>
+                  </ListItem>
+                )}
               </React.Fragment>
             ))}
           </List>
@@ -197,7 +221,9 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
         }}
       >
         <Box sx={{ p: 2 }}>
-          {filteredTokens.length === 0 ? (
+          {loading ? (
+            <Skeleton variant="rectangular" width={300} height={40} />
+          ) : filteredTokens.length === 0 ? (
             <Typography variant="body2">{t("noStoredAccounts")}</Typography>
           ) : (
             filteredTokens.map((token, index) => (
@@ -231,7 +257,11 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
         onClose={handleCloseCompose}
         accountIdentifier={selectedToken}
       />
-      <TwitterCompose open={twitterOpen} onClose={handleCloseTwitter} accountIdentifier={selectedToken}/>
+      <TwitterCompose
+        open={twitterOpen}
+        onClose={handleCloseTwitter}
+        accountIdentifier={selectedToken}
+      />
       <TelegramCompose open={telegramOpen} onClose={handleCloseTelegram} />
     </>
   );

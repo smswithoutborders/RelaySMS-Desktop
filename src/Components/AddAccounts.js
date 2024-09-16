@@ -9,6 +9,8 @@ import {
   ListItem,
   ListItemText,
   ListItemAvatar,
+  Skeleton,
+  Grid,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +24,7 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
     open: false,
   });
   const [unstoredTokens, setUnstoredTokens] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [telegramDialogOpen, setTelegramDialogOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -63,6 +66,8 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
           });
         }
       }
+
+      setLoading(false);
     };
 
     fetchTokens();
@@ -172,10 +177,34 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
         </Typography>
         <br />
         <Typography variant="body2">{t("saveMultiple")}</Typography>
-        {unstoredTokens.map((token, index) => (
-          <Box sx={{ pt: 1 }}>
-            <List>
-              <React.Fragment key={index}>
+        {loading ? (
+          <Box>
+            <Grid container>
+              <Grid item md={3} sm={3}>
+                <Skeleton
+                  variant="circular"
+                  sx={{ width: "30px", height: "30px"}}
+                />
+              </Grid>
+              <Grid item md={8} sm={8}>
+                <Skeleton variant="text" sx={{ mt: 1 }} />
+              </Grid>
+              {/*  */}
+              <Grid item md={3} sm={3}>
+                <Skeleton
+                  variant="circular"
+                  sx={{ width: "30px", height: "30px"}}
+                />
+              </Grid>
+              <Grid item md={8} sm={8}>
+                <Skeleton variant="text" sx={{ mt: 1 }} />
+              </Grid>
+            </Grid>
+          </Box>
+        ) : (
+          unstoredTokens.map((token, index) => (
+            <Box sx={{ pt: 1 }} key={index}>
+              <List>
                 <ListItem
                   button
                   onClick={() => handleAddAccount(token.name)}
@@ -193,10 +222,10 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
                     <Typography variant="body2">{token.name}</Typography>
                   </ListItemText>
                 </ListItem>
-              </React.Fragment>
-            </List>
-          </Box>
-        ))}
+              </List>
+            </Box>
+          ))
+        )}
       </Box>
       <TelegramAuthDialog
         open={telegramDialogOpen}
