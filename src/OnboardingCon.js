@@ -50,6 +50,13 @@ export default function OnboardingContainer({ handleOnboardingComplete }) {
           Previous
         </Button>
         <Button
+          onClick={handleOnboardingComplete}
+          variant="outlined"
+          sx={{ mr: 2, borderRadius: 7 }}
+        >
+          Skip
+        </Button>
+        <Button
           onClick={handleNext}
           disabled={isNextDisabled}
           variant="contained"
@@ -57,6 +64,7 @@ export default function OnboardingContainer({ handleOnboardingComplete }) {
         >
           {buttonText}
         </Button>
+        
       </Box>
     </Box>
   );
