@@ -97,5 +97,16 @@
   "plugModem": "Branchez un modem avec une carte SIM pouvant envoyer des SMS",
   "publish": "Qu'attendez-vous ? Vous pouvez désormais envoyer des SMS depuis votre ordinateur 🎉",
    "notLoggedIn": "Vous n'êtes pas connecté",
-  "needToLogIn": "Vous devez vous connecter ou vous inscrire pour commencer à utiliser RelaySMS"
+  "needToLogIn": "Vous devez vous connecter ou vous inscrire pour commencer à utiliser RelaySMS",
+  "appTutorials": "Tutoriels d'applications",
+  "github":"Ajoutez et partagez le projet sur GitHub",
+  "twitterFollow":"Suivez et partagez le projet sur X (Twitter)",
+"addAccountsInfo": "Le stockage des jetons de la plateforme (Gmail, X(Twitter), Telegram) signifie simplement donner à RelaySMS l'accès pour envoyer des messages en votre nom.",
+"selectGatewayClient": "Sélectionner le client de passerelle",
+"seeHow": "Découvrez comment",
+"composeInfo": "Cliquez sur l'icône de composition, sélectionnez la plate-forme pour voir les jetons enregistrés, choisissez-en un, rédigez un message et envoyez-le.",
+"step1": "Étape 1",
+"step2": "Étape 2",
+"step3": "Étape 3",
+"step4": "Étape 4"
 }

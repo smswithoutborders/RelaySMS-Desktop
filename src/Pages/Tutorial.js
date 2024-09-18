@@ -27,7 +27,7 @@ export default function Tutorial() {
         <Typography variant="body1" sx={{ fontWeight: 600, mb: 1 }}>
           {t("step1")}
         </Typography>
-        <Typography variant="body2">Login or sign up</Typography>
+        <Typography variant="body2">{t("login")}/{t("signUp")}</Typography>
       </Box>
 
       <Box sx={{ py: 2 }}>
@@ -35,9 +35,7 @@ export default function Tutorial() {
           {t("step2")}
         </Typography>
         <Typography variant="body2">
-          <b>Store tokens</b> - Storing platform (Gmail, X(Twitter), Telegram)
-          tokens simply means giving RelaySMS access to send messages on your
-          behalf.
+          <b>{t("addAccounts")}</b> - {t("addAccountsInfo")}
         </Typography>
       </Box>
 
@@ -52,15 +50,14 @@ export default function Tutorial() {
           {t("step3")}
         </Typography>
         <Typography variant="body2">
-          <b>Select Gateway Client(MSISDN)</b> - This is just a number that
-          helps route your offline messages to online platforms.{" "}
+          <b>{t("selectGatewayClient")}</b> - {t("tutorial.addGatewayClients")}{" "}
         </Typography>
         <Typography
           variant="body2"
           sx={{ py: 1, fontWeight: 600, color: "#347FC4", cursor: "pointer" }}
           onClick={handleToggleStep3}
         >
-          <b>See how</b>
+          <b>{t("seeHow")}</b>
           {showStep3Content ? <FaChevronUp /> : <FaChevronDown />}
         </Typography>
         <Collapse in={showStep3Content}>
@@ -75,7 +72,7 @@ export default function Tutorial() {
           {t("step4")}
         </Typography>
         <Typography variant="body2">
-          <b>Compose</b> - Click the compose Icon, select platform to see saved tokens, pick one, compose message and send.
+          <b>{t("compose")}</b> - {t("composeInfo")}
         </Typography>
       </Box>
 

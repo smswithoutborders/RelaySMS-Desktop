@@ -96,6 +96,17 @@
   "plugModem": "Plug in a modem with a  sim that can send SMS",
   "publish": "What are you waiting for? You can send SMS now from your computer 🎉",
   "notLoggedIn": "You are not logged in",
-  "needToLogIn": "You need to log-in or sign-up to begin using RelaySMS"
+  "needToLogIn": "You need to log-in or sign-up to begin using RelaySMS",
+  "appTutorials": "App tutorials",
+  "github":"Star and share the project on GitHub",
+  "twitterFollow":"Follow and share the project on X(Twitter)",
+"addAccountsInfo": "Storing platform (Gmail, X(Twitter), Telegram) tokens simply means giving RelaySMS access to send messages on your behalf.",
+"selectGatewayClient": "Select Gateway Client",
+"seeHow": "See how",
+"composeInfo": "Click the compose Icon, select platform to see saved tokens, pick one, compose message and send.",
+"step1": "Step 1",
+"step2": "Step 2",
+"step3": "Step 3",
+"step4": "Step 4"
 }
 
