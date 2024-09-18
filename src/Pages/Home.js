@@ -29,6 +29,7 @@ import MessageList from "../Components/MessageList";
 import Joyride from "react-joyride";
 import Login from "../Components/Login";
 import Signup from "../Components/Signup";
+import { Link } from "react-router-dom";
 
 export default function Landing() {
   const { t } = useTranslation();
@@ -443,7 +444,7 @@ export default function Landing() {
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
               {selectedMessage ? selectedMessage.from : t("recent")}
             </Typography>
-            <Tooltip title="Help">
+            <Tooltip component={Link} to="/help" title="Help">
               <IconButton>
                 <FaRegCircleQuestion size="16px" />
               </IconButton>

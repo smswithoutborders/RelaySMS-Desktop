@@ -20,6 +20,8 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
+
+  openExternalLink: (url) => ipcRenderer.invoke('open-external-link', url),
   
   createEntity: async (
     phoneNumber,

@@ -8,6 +8,8 @@ import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 import Landing from "./Pages/Home";
 import OnboardingContainer from "./OnboardingCon";
 import "./i18n";
+import Help from "./Pages/Help";
+import Tutorial from "./Pages/Tutorial";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -78,6 +80,8 @@ function App() {
             <Route path="/messages" element={<Landing />} />
           )}
           <Route path="*" element={<Navigate to={isFirstTime ? "/onboarding" : "/messages"} replace />} />
+          <Route path="/help" element={<Help/>} />
+          <Route path="/tutorial" element={<Tutorial/>} />
         </Routes>
       </HashRouter>
     </ThemeProvider>

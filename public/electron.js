@@ -620,6 +620,10 @@ ipcMain.handle("create-payload", async (event, { encryptedContent, pl }) => {
   }
 });
 
+ipcMain.handle('open-external-link', (event, url) => {
+  shell.openExternal(url);
+});
+
 async function createWindow() {
   await loadModules();
 

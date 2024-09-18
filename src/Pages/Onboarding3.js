@@ -62,7 +62,7 @@ export default function Onboarding3() {
               mb: 1,
             }}
           >
-            <pre style={{ margin: 0, flex: 1 }}>{command}</pre>
+            <pre style={{ margin: 0, flex: 1, overflow: "none", fontSize: "12px" }}>{command}</pre>
             <CopyToClipboard text={command} onCopy={() => setCopied(index)}>
               <IconButton aria-label="copy" color="primary">
                 <ContentCopy />
@@ -97,7 +97,7 @@ export default function Onboarding3() {
             mb: 1,
           }}
         >
-          <pre style={{ margin: 0, flex: 1 }}>{command}</pre>
+          <pre style={{ margin: 0, flex: 1,overflow: "none", fontSize: "12px" }}>{command}</pre>
           <CopyToClipboard
             text={command}
             onCopy={() =>
