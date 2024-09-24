@@ -1,26 +1,20 @@
-
-.button-text:hover{
- color: #BD9BC9;
-}
-
-a {
-    color: #BD9BC9;
-}
-
-.drawer {
-    background: rgb(0,0,0);
-    background: -moz-linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(36,62,116,1) 100%);
-    background: -webkit-linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(36,62,116,1) 100%);
-    background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(36,62,116,1) 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000",endColorstr="#243e74",GradientType=1); 
-}
-
+@font-face {
+    font-family: 'Josefin Sans';
+    src: url('/public/Josefin_Sans/JosefinSans-VariableFont_wght.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  body{
+    font-family: 'Josefin Sans', sans-serif, ;
+  }
+   
 .css-19kzrtu{
     padding: 0 !important;
 }
 
 ::-webkit-scrollbar {
     width: 0px;
-    background: transparent; /* optional: just to ensure the scrollbar is transparent */
+    background: transparent; 
   }
   

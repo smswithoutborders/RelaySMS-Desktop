@@ -3,22 +3,25 @@ import {
   Typography,
   Box,
   IconButton,
-  InputBase,
   Tooltip,
   Grid,
-  Paper,
   Button,
+  Divider,
+  FormControl,
+  InputLabel,
+  Input,
+  InputAdornment,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import {
   FaEllipsis,
   FaGlobe,
   FaMagnifyingGlass,
-  FaMessage,
   FaPenToSquare,
+  FaPlus,
   FaRegCircleQuestion,
-  FaTowerCell,
-  FaUsers,
+  FaRegComments,
+  FaTowerBroadcast,
 } from "react-icons/fa6";
 import Compose from "./Compose";
 import AddAccounts from "../Components/AddAccounts";
@@ -149,7 +152,7 @@ export default function Landing() {
   };
 
   const openSignupDialogHandler = () => {
-    setOpenSignupDialog(true);    
+    setOpenSignupDialog(true);
   };
 
   const closeSignupDialogHandler = async () => {
@@ -221,23 +224,12 @@ export default function Landing() {
               <Box
                 sx={{
                   mt: 2,
-                  mx: 3,
-                  display: "flex",
-                  justifyContent: "space-between",
+                  mx: 2,
                 }}
               >
                 <Typography variant="body1" sx={{ fontWeight: 600 }}>
                   {t("messages")}
                 </Typography>
-                <Button
-                  size="small"
-                  variant="contained"
-                  sx={{ textTransform: "none" }}
-                  onClick={handleComposeClick}
-                >
-                  {t("compose")}{" "}
-                  <FaPenToSquare style={{ marginLeft: 10 }} size="15px" />
-                </Button>
               </Box>
               <MessageList
                 messages={filteredMessages}
@@ -281,6 +273,7 @@ export default function Landing() {
             flexShrink: 0,
             backgroundColor: "background.custom",
             height: "100vh",
+            px: 1
           }}
         >
           <Box
@@ -291,17 +284,10 @@ export default function Landing() {
               pt: 2,
             }}
           >
-            <Tooltip>
-              <Box
-                component="img"
-                src="icon.png"
-                sx={{ width: "25%", my: 3 }}
-              />
-            </Tooltip>
-
-            <Tooltip onClick={handleHome} sx={{ mt: 3 }}>
+           
+            <Tooltip onClick={handleHome} >
               <IconButton>
-                <FaMessage size="15px" />
+                <FaRegComments size="18px" />
               </IconButton>
             </Tooltip>
             <Typography
@@ -318,7 +304,7 @@ export default function Landing() {
               sx={{ mt: 5 }}
             >
               <IconButton>
-                <FaPenToSquare size="15px" />
+                <FaPenToSquare size="17px" />
               </IconButton>
             </Tooltip>
             <Typography
@@ -335,7 +321,7 @@ export default function Landing() {
               sx={{ mt: 5 }}
             >
               <IconButton>
-                <FaUsers size="15px" />
+                <FaPlus size="18px" />
               </IconButton>
             </Tooltip>
             <Typography
@@ -352,7 +338,7 @@ export default function Landing() {
               sx={{ mt: 5 }}
             >
               <IconButton>
-                <FaTowerCell size="15px" />
+                <FaTowerBroadcast size="18px" />
               </IconButton>
             </Tooltip>
             <Typography
@@ -365,7 +351,7 @@ export default function Landing() {
 
             <Tooltip onClick={handleLanguageChange} sx={{ mt: 5 }}>
               <IconButton>
-                <FaGlobe size="15px" />
+                <FaGlobe size="18px" />
               </IconButton>
             </Tooltip>
             <Typography
@@ -378,7 +364,7 @@ export default function Landing() {
 
             <Tooltip onClick={handleMenuChange} sx={{ mt: 5 }}>
               <IconButton>
-                <FaEllipsis size="15px" />
+                <FaEllipsis size="18px" />
               </IconButton>
             </Tooltip>
             <Typography
@@ -388,9 +374,26 @@ export default function Landing() {
             >
               {t("more")}
             </Typography>
+
+            <Tooltip
+              component={Link}
+              to="/help"
+              sx={{ mt: 5}}
+            >
+              <IconButton>
+                <FaRegCircleQuestion size="18px" />
+              </IconButton>
+            </Tooltip>
+            <Typography
+              sx={{ fontSize: "11px" }}
+              textAlign="center"
+              variant="body2"
+            >
+              {t("help")}
+            </Typography>
           </Box>
         </Grid>
-
+        <Divider />
         <Grid
           item
           sm={3.3}
@@ -404,28 +407,49 @@ export default function Landing() {
         >
           <Box
             sx={{
-              pr: 6,
-              py: 2,
-              backgroundColor: "background.custom",
+              px: 2,
+              pb: 3,
               position: "sticky",
               top: 0,
               zIndex: 1000,
             }}
           >
-            <Paper component="form">
-              <InputBase
+            {/* <TextField
+              variant="standard"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder={t("search")}
+              endAdornment={<FaMagnifyingGlass style={{ marginRight: 5 }} />}
+              sx={{
+                width: "100%",
+                borderRadius: 3,
+                px: 0.5,
+                fontSize: "13px",
+              }}
+            /> */}
+
+            <FormControl sx={{ width: "100%" }} variant="standard">
+              <InputLabel sx={{fontSize: "13px"}}>
+                {t("search")}
+              </InputLabel>
+              <Input
+              size="small"
                 value={searchQuery}
                 onChange={handleSearchChange}
-                placeholder={t("search")}
-                endAdornment={<FaMagnifyingGlass style={{ marginRight: 5 }} />}
-                sx={{
-                  width: "100%",
-                  borderRadius: 3,
-                  px: 0.5,
-                  fontSize: "13px",
-                }}
+                id="standard-adornment-password"
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleSearchChange}
+                      onMouseDown={handleSearchChange}
+                    >
+                      <FaMagnifyingGlass size="13px"/>
+                    </IconButton>
+                  </InputAdornment>
+                }
               />
-            </Paper>
+            </FormControl>
           </Box>
 
           {renderComponent()}
@@ -434,21 +458,13 @@ export default function Landing() {
           <Box
             sx={{
               py: 1.8,
-              backgroundColor: "background.custom",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
+
               px: 2,
             }}
           >
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
               {selectedMessage ? selectedMessage.from : t("recent")}
             </Typography>
-            <Tooltip component={Link} to="/help" title="Help">
-              <IconButton>
-                <FaRegCircleQuestion size="16px" />
-              </IconButton>
-            </Tooltip>
           </Box>
 
           {selectedMessage ? (
