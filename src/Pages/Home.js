@@ -292,14 +292,12 @@ export default function Landing() {
           item
           sm={1}
           md={1}
-          xl={1}
-          maxWidth= {"10px"}
+          lg={0.5}
           sx={{
-            //flexShrink: 0,
+            flexShrink: 0,
             backgroundColor: "background.side",
             height: "100vh",
             px: 0,
-            
           }}
         >
           <Box
@@ -376,7 +374,7 @@ export default function Landing() {
             </Tooltip>
           </Box>
         </Grid>
-        <Divider orientation="vertical" />
+        <Divider orientation="vertical" sx={{bgcolor: "background.default"}}/>
 
         <Grid
           item
