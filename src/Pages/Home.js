@@ -230,6 +230,28 @@ export default function Landing() {
                 <Typography variant="body1" sx={{ fontWeight: 600 }}>
                   {t("messages")}
                 </Typography>
+                <FormControl sx={{ width: "100%" }} variant="standard">
+              <InputLabel sx={{fontSize: "13px"}}>
+                {t("search")}
+              </InputLabel>
+              <Input
+              size="small"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                id="standard-adornment-password"
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleSearchChange}
+                      onMouseDown={handleSearchChange}
+                    >
+                      <FaMagnifyingGlass size="13px"/>
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
               </Box>
               <MessageList
                 messages={filteredMessages}
@@ -262,18 +284,22 @@ export default function Landing() {
       <Grid
         container
         sx={{
-          flexGrow: 1,
+         flexGrow: 1,
           overflow: "hidden",
         }}
       >
         <Grid
           item
           sm={1}
+          md={1}
+          xl={1}
+          maxWidth= {"10px"}
           sx={{
-            flexShrink: 0,
-            backgroundColor: "background.custom",
+            //flexShrink: 0,
+            backgroundColor: "background.side",
             height: "100vh",
-            px: 1
+            px: 0,
+            
           }}
         >
           <Box
@@ -285,180 +311,97 @@ export default function Landing() {
             }}
           >
            
-            <Tooltip onClick={handleHome} >
+            <Tooltip arrow placement="right" title={t("messages")} onClick={handleHome} >
               <IconButton>
-                <FaRegComments size="18px" />
+                <FaRegComments size="20px" />
               </IconButton>
             </Tooltip>
-            <Typography
-              sx={{ fontSize: "11px" }}
-              textAlign="center"
-              variant="body2"
-            >
-              {t("messages")}
-            </Typography>
+           
 
-            <Tooltip
+            <Tooltip arrow placement="right" title={t("compose")}
               className="compose-button"
               onClick={handleComposeClick}
-              sx={{ mt: 5 }}
+              sx={{ mt: 3 }}
             >
               <IconButton>
-                <FaPenToSquare size="17px" />
+                <FaPenToSquare size="19px" />
               </IconButton>
             </Tooltip>
-            <Typography
-              sx={{ fontSize: "11px" }}
-              textAlign="center"
-              variant="body2"
-            >
-              {t("compose")}
-            </Typography>
+           
 
-            <Tooltip
+            <Tooltip arrow placement="right" title={t("addAccounts")}
               className="add-accounts-button"
               onClick={handleAddAccountsClick}
-              sx={{ mt: 5 }}
+              sx={{ mt: 3 }}
             >
               <IconButton>
-                <FaPlus size="18px" />
+                <FaPlus size="20px" />
               </IconButton>
             </Tooltip>
-            <Typography
-              sx={{ fontSize: "11px" }}
-              textAlign="center"
-              variant="body2"
-            >
-              {t("addAccounts")}
-            </Typography>
+           
 
-            <Tooltip
+            <Tooltip arrow placement="right" title={t("gatewayClients")}
               className="security-settings-button"
               onClick={handleGatewayClients}
-              sx={{ mt: 5 }}
+              sx={{ mt: 3 }}
             >
               <IconButton>
-                <FaTowerBroadcast size="18px" />
+                <FaTowerBroadcast size="20px" />
               </IconButton>
             </Tooltip>
-            <Typography
-              sx={{ fontSize: "11px" }}
-              textAlign="center"
-              variant="body2"
-            >
-              {t("gatewayClients")}
-            </Typography>
+           
 
-            <Tooltip onClick={handleLanguageChange} sx={{ mt: 5 }}>
+            <Tooltip arrow placement="right" title={t("language")} onClick={handleLanguageChange} sx={{ mt: 3 }}>
               <IconButton>
-                <FaGlobe size="18px" />
+                <FaGlobe size="20px" />
               </IconButton>
             </Tooltip>
-            <Typography
-              sx={{ fontSize: "11px" }}
-              textAlign="center"
-              variant="body2"
-            >
-              {t("language")}
-            </Typography>
+          
 
-            <Tooltip onClick={handleMenuChange} sx={{ mt: 5 }}>
+            <Tooltip arrow placement="right" title={t("more")} onClick={handleMenuChange} sx={{ mt: 3 }}>
               <IconButton>
-                <FaEllipsis size="18px" />
+                <FaEllipsis size="20px" />
               </IconButton>
             </Tooltip>
-            <Typography
-              sx={{ fontSize: "11px" }}
-              textAlign="center"
-              variant="body2"
-            >
-              {t("more")}
-            </Typography>
+           
 
-            <Tooltip
+            <Tooltip arrow placement="right" title= {t("help")}
               component={Link}
               to="/help"
-              sx={{ mt: 5}}
+              sx={{ mt: 3}}
             >
               <IconButton>
-                <FaRegCircleQuestion size="18px" />
+                <FaRegCircleQuestion size="20px" />
               </IconButton>
             </Tooltip>
-            <Typography
-              sx={{ fontSize: "11px" }}
-              textAlign="center"
-              variant="body2"
-            >
-              {t("help")}
-            </Typography>
           </Box>
         </Grid>
-        <Divider />
+        <Divider orientation="vertical" />
+
         <Grid
           item
           sm={3.3}
+          md={3.3}
+          xl={3.3}
           sx={{
             height: "100vh",
             display: "flex",
+            py: 1,
             flexDirection: "column",
             backgroundColor: "background.side",
             overflowY: "auto",
+            
           }}
         >
-          <Box
-            sx={{
-              px: 2,
-              pb: 3,
-              position: "sticky",
-              top: 0,
-              zIndex: 1000,
-            }}
-          >
-            {/* <TextField
-              variant="standard"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              placeholder={t("search")}
-              endAdornment={<FaMagnifyingGlass style={{ marginRight: 5 }} />}
-              sx={{
-                width: "100%",
-                borderRadius: 3,
-                px: 0.5,
-                fontSize: "13px",
-              }}
-            /> */}
-
-            <FormControl sx={{ width: "100%" }} variant="standard">
-              <InputLabel sx={{fontSize: "13px"}}>
-                {t("search")}
-              </InputLabel>
-              <Input
-              size="small"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                id="standard-adornment-password"
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleSearchChange}
-                      onMouseDown={handleSearchChange}
-                    >
-                      <FaMagnifyingGlass size="13px"/>
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
-          </Box>
 
           {renderComponent()}
         </Grid>
-        <Grid item sm={7.7}>
+        <Divider orientation="vertical" />
+
+        <Grid item sm={7.7} md={7.7} xl={7.7}>
           <Box
             sx={{
               py: 1.8,
-
               px: 2,
             }}
           >

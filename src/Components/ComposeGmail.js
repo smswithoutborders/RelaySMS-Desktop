@@ -40,7 +40,7 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
     try {
       const number = await window.api.retrieveParams("selectedMSISDN");
       if (!number) {
-        console.error("No MSISDN selected");
+        console.error("No MSISDN selected, please select a gateway client");
         setLoading(false); 
         return;
       }

@@ -33,12 +33,8 @@ export default function Help() {
         <FaChevronLeft />
         <Typography variant="body2">{t("messages")}</Typography>
       </Button>
-      <Box sx={{ my: 3, mx: 6 }}>
-        <Typography variant="h6" sx={{ mb: 3 }}>
-          {t("welcome")}
-        </Typography>
-        <Typography variant="body1">{t("getStarted")}</Typography>
-        <List>
+      <Box sx={{ my: 2 }}>
+       <List>
           <ListItem>
             <ListItemButton component={Link} to="/tutorial">
               <ListItemIcon>

@@ -48,7 +48,7 @@ function App() {
             default: prefersDarkMode ? "#1E1E1E" : "#fafafa",
             paper: prefersDarkMode ? "#0D3B66" : "#98C1D9",
             custom: prefersDarkMode ? "#232226" : "#fff",
-            side: prefersDarkMode ? "#242A36" : "#98C1D9",
+            side: prefersDarkMode ? "#171614" : "#E0E2DB",
           },
           text: {
             primary: prefersDarkMode ? "#fff" : "#000",

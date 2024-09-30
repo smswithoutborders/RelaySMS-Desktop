@@ -166,7 +166,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
                 {loading ? (
                   <Box>
                     <Grid container>
-                      <Grid item md={3} sm={3}>
+                      <Grid item md={3} sm={3} sx={{mb: 3}}>
                         <Skeleton
                           variant="circular"
                           sx={{ width: "30px", height: "30px" }}
