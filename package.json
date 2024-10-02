@@ -23,6 +23,7 @@
     "base64url": "^3.0.1",
     "browserify-fs": "^1.0.0",
     "buffer": "^6.0.3",
+    "caniuse-lite": "^1.0.30001664",
     "crypto": "^1.0.1",
     "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.2.0",
@@ -59,8 +60,7 @@
     "electron:start": "concurrently -k \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electronmon .\"",
     "electron:package:mac": "yarn build && electron-builder -m -c.extraMetadata.main=build/electron.js",
     "electron:package:win": "yarn build && electron-builder -w -c.extraMetadata.main=build/electron.js",
-    "electron:package:linux": "yarn build && electron-builder -l -c.extraMetadata.main=build/electron.js",
-    "postinstall": "node scripts/setupPythonEnv.js"
+    "electron:package:linux": "yarn build && electron-builder -l -c.extraMetadata.main=build/electron.js"
   },
   "eslintConfig": {
     "extends": [

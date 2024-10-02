@@ -30,20 +30,24 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
     const messagebody = `${accountIdentifier}\n${to}\n${cc}\n${bcc}\n${subject}\n${message}`;
     const timestamp = new Date().toLocaleString();
 
-    const client_pub_key_pair = await window.api.retrieveParams(
-      "client_publish_key_pair"
-    );
-    const server_pub_key = await window.api.retrieveParams(
-      "serverPublishPubKey"
-    );
     setLoading(true);
     try {
       const number = await window.api.retrieveParams("selectedMSISDN");
       if (!number) {
-        console.error("No MSISDN selected, please select a gateway client");
+        setAlert({
+          message: "No MSISDN selected, please select a gateway client",
+          severity: "error",
+          open: true,
+        });
         setLoading(false); 
         return;
       }
+
+      const [client_pub_key_pair, server_pub_key,] =
+      await Promise.all([
+        window.api.retrieveParams("client_publish_key_pair"),
+        window.api.retrieveParams("serverPublishPubKey"),
+      ]);
 
       const sharedSecret = await window.api.publishSharedSecret({
         client_publish_secret_key: client_pub_key_pair.secretKey,
@@ -57,8 +61,6 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
         publicKey: server_pub_key,
       });
 
-     // const encryptedContent = encryptedText;
-      //const pl = "g";
       const incomingPayload = await window.api.createPayload({
         encryptedContent: encryptedText,
         pl: "g",
@@ -150,7 +152,7 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
               onClick={handleSend}
               disabled={loading}
             >
-              {loading ? "Loading..." : t("send")}{" "}
+              {loading ? "Sending..." : t("send")}{" "}
               <FaPaperPlane style={{ marginLeft: 4 }} />
             </Button>
           </Box>

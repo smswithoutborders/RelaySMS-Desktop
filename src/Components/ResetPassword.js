@@ -237,7 +237,7 @@ function ResetPassword({ onClose, open }) {
               onChange={(value) =>
                 setResetData((prevData) => ({
                   ...prevData,
-                  phoneNumber: value,
+                  phoneNumber: value.replace(/\s+/g, ""),
                 }))
               }
             />

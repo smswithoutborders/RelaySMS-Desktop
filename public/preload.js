@@ -417,7 +417,7 @@ contextBridge.exposeInMainWorld("api", {
           server_publish_pub_key,
         })
         .then((result) => {
-          console.log(">>>>3", result);
+          console.log(">>>>3:", result);
           resolve(result);
         })
         .catch((err) => {

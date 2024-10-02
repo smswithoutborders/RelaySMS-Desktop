@@ -60,27 +60,38 @@ async function publishSharedSecret(
   client_publish_secret_key,
   server_publish_pub_key
 ) {
+  console.log(">>>>2", client_publish_secret_key);
+  console.log(">>>>2", server_publish_pub_key);
+
   // Decode the keys from Base64
   const clientSecretKeyDecoded = nacl.util.decodeBase64(
     client_publish_secret_key
   );
+  console.log(">>>clientSecretKeyDecoded:", clientSecretKeyDecoded);
+
   const serverPubKeyDecoded = nacl.util.decodeBase64(server_publish_pub_key);
+  console.log(">>>>serverPubKeyDecoded:", serverPubKeyDecoded);
 
   // Generate shared secret
   const publish_shared_secret = nacl.scalarMult(
     clientSecretKeyDecoded,
     serverPubKeyDecoded
   );
+  console.log(">>>>publish_shared_secret:", publish_shared_secret);
+
 
   try {
     const derivedKey = await deriveSharedSecretKey(publish_shared_secret);
+    console.log(">>>>derivedKey:", derivedKey);
+    
+    
+    // Encode the derived key using Buffer
+    const shared_secret_buffer = Buffer.from(derivedKey);
 
-    // Derive the Fernet key
-    const pub_shared_secret = deriveFernetKey(Buffer.from(derivedKey));
+    // Convert to Base64 or Base64URL
+    const shared_secret = shared_secret_buffer.toString("base64"); // Use "base64" if URL-safe is not needed
 
-    // Encode the shared secret as Base64
-    const shared_secret = nacl.util.encodeBase64(pub_shared_secret);
-    console.log(">>>>", shared_secret);
+    console.log(">>Crypto shared secret:", shared_secret);
 
     return shared_secret;
   } catch (err) {

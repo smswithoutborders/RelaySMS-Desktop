@@ -33,6 +33,7 @@ import Joyride from "react-joyride";
 import Login from "../Components/Login";
 import Signup from "../Components/Signup";
 import { Link } from "react-router-dom";
+import ResetPassword from "../Components/ResetPassword";
 
 export default function Landing() {
   const { t } = useTranslation();
@@ -44,6 +45,15 @@ export default function Landing() {
   const [fileExists, setFileExists] = useState(false);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
   const [openSignupDialog, setOpenSignupDialog] = useState(false);
+  const [openResetDialog, setOpenResetDialog] = useState(false);
+
+  const handleOpenReset = () => {
+    setOpenResetDialog(true);
+  };
+
+  const handleCloseReset = () => {
+    setOpenResetDialog(false);
+  };
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -164,29 +174,36 @@ export default function Landing() {
     if (!fileExists) {
       return (
         <Box sx={{ p: 2 }}>
-          <Typography variant="h6" gutterBottom>
+          <Typography sx={{ fontWeight: 600 }} variant="body2" gutterBottom>
             {t("notLoggedIn")}
           </Typography>
           <Typography sx={{ py: 2 }} variant="body2" gutterBottom>
             {t("needToLogIn")}
           </Typography>
           <Button
+          size="small"
             variant="contained"
             onClick={openLoginDialogHandler}
-            sx={{ borderRadius: 5, textTransform: "none", mr: 2, px: 3 }}
+            sx={{ borderRadius: 5, textTransform: "none", mr: 2, px: 2 }}
           >
             {t("login")}
           </Button>
           <Button
+          size="small"
             variant="contained"
             onClick={openSignupDialogHandler}
-            sx={{ borderRadius: 5, textTransform: "none" }}
+            sx={{ borderRadius: 5, textTransform: "none"}}
           >
             {t("signUp")}
           </Button>
           {openLoginDialog && (
-            <Login open={openLoginDialog} onClose={closeLoginDialogHandler} />
+            <Login onForgotPassword={() => {
+              closeLoginDialogHandler();
+              handleOpenReset();
+            }} open={openLoginDialog} onClose={closeLoginDialogHandler} />
           )}
+                <ResetPassword onClose={handleCloseReset} open={openResetDialog} />
+
           {openSignupDialog && (
             <Signup
               open={openSignupDialog}

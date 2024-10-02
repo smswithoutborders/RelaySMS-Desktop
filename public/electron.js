@@ -575,7 +575,7 @@ ipcMain.handle(
       server_publish_pub_key
     );
     try {
-      const result = publishSharedSecret(
+      const result = await publishSharedSecret(
         client_publish_secret_key,
         server_publish_pub_key
       );
