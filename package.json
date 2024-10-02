@@ -134,5 +134,13 @@
       "category": "Communication",
       "icon": "./public/icon.png"
     }
+  },
+  "extraResources": [
+  {
+    "from": "resources/python/venv",
+    "to": "python/venv",
+    "filter": ["**/*"]
   }
+]
+
 }

@@ -27,7 +27,7 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
 
   const handleSend = async () => {
     const phoneNumber = await window.api.retrieveParams("phone_number");
-    const messagebody = `${accountIdentifier}\n${to}\n${cc}\n${bcc}\n${subject}\n${message}`;
+    const messagebody = `${accountIdentifier}:${to}:${cc}:${bcc}:${subject}:${message}`;
     const timestamp = new Date().toLocaleString();
 
     setLoading(true);

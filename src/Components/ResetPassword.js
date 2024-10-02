@@ -14,7 +14,6 @@ import "react-phone-number-input/style.css";
 import { useTranslation } from "react-i18next";
 import OTPDialog from "../Components/OTP";
 import { MuiTelInput } from "mui-tel-input";
-import { useNavigate } from "react-router-dom";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
 import Visibility from '@mui/icons-material/Visibility';
@@ -53,7 +52,6 @@ function ResetPassword({ onClose, open }) {
   const handleAlertClose = () => {
     setAlert({ ...alert, open: false });
   };
-  const navigate = useNavigate();
 
   const handleResetChange = (event) => {
     const { name, value } = event.target;
@@ -145,7 +143,6 @@ function ResetPassword({ onClose, open }) {
         open: true,
       });
       setTimeout(() => {
-        navigate("/onboarding3"); 
         handleClose();
       }, 2000);
     } catch (error) {

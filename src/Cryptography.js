@@ -99,19 +99,22 @@ async function publishSharedSecret(
   }
 }
 
-function createPayload(encryptedContent, pl) {
+function createPayload(encryptedContent, pl, deviceID = "") {
+  const platformLetter = Buffer.from(pl, "utf-8");
+
+  const contentCiphertext = Buffer.from(encryptedContent, "base64");
+
   const lengthBuffer = Buffer.alloc(4);
-  lengthBuffer.writeInt32LE(encryptedContent.length);
+  lengthBuffer.writeInt32LE(contentCiphertext.length);
 
   const payload = Buffer.concat([
     lengthBuffer,
-    Buffer.from(pl),
-    Buffer.from(encryptedContent),
+    platformLetter,
+    contentCiphertext,
+    Buffer.from(deviceID),
   ]);
 
-  const incomingPayload = base64.fromByteArray(payload);
-
-  return incomingPayload;
+  return payload.toString("base64");
 }
 
 module.exports = {
