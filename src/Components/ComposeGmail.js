@@ -172,6 +172,8 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
             value={to}
             onChange={(e) => setTo(e.target.value)}
             fullWidth
+            required
+            type="email"
           />
           <Input
             sx={{ py: 1 }}

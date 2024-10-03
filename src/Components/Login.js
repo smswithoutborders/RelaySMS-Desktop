@@ -28,7 +28,7 @@ function generateKeyPair() {
   };
 }
 
-function Login({ onClose, open, onForgotPassword }) {
+function Login({ onClose, open, onForgotPassword, anchorEl, asDialog }) {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -222,9 +222,10 @@ function Login({ onClose, open, onForgotPassword }) {
     }
   };
 
-  return (
+
+  const content = ( 
     <>
-      <Snackbar
+    <Snackbar
         open={alert.open}
         autoHideDuration={6000}
         onClose={handleAlertClose}
@@ -237,7 +238,7 @@ function Login({ onClose, open, onForgotPassword }) {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
+      <Box>
         <Typography align="center" variant="h6" sx={{ pt: 4 }}>
           {t("login")}
         </Typography>
@@ -312,8 +313,16 @@ function Login({ onClose, open, onForgotPassword }) {
           onResend={handleResendOtp}
           counterTimestamp={OTPCounter}
         />
-      </Dialog>
-    </>
+      </Box>
+      </>
+  );
+
+  return asDialog ? (
+    <Dialog open={open} anchorEl={anchorEl} onClose={onClose}>
+      {content}
+    </Dialog>
+  ) : (
+    <Box>{content}</Box>
   );
 }
 

@@ -92,7 +92,7 @@ export default function MessageList({
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: "transparent" }}>
                   {platformInfo.logo ? (
-                    <img src={platformInfo.logo} alt={platformInfo.name} style={{ width: '100%' }} />
+                    <img src={platformInfo.logo} alt={platformInfo.name} style={{ width: '80%' }} />
                   ) : (
                     <Typography variant="body2">{platformInfo.name}</Typography>
                   )}

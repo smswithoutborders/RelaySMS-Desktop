@@ -56,8 +56,8 @@ export default function AdvancedSettings({ open, onClose }) {
   };
 
   return (
-    <Box open={open} onClose={onClose}>
-      <Box open={fetchClients} sx={{ px: 1, py: 2 }}>
+    <Box>
+      <Box sx={{ px: 1, py: 2 }}>
         <Box justifyContent="space-between" sx={{ display: "flex" }}>
           <Button
             size="small"
@@ -112,20 +112,6 @@ export default function AdvancedSettings({ open, onClose }) {
             <Typography variant="body2" sx={{ color: "red" }}>
               Something went wrong, please refresh.
             </Typography>
-            <Button
-              size="small"
-              variant="contained"
-              sx={{
-                textTransform: "none",
-                backgroundColor: "whitesmoke",
-                color: "black",
-                mt: 1,
-              }}
-              onClick={fetchClients}
-            >
-              Refresh
-              <FaArrowsRotate />
-            </Button>
           </Box>
         ) : (
           <List sx={{ px: 1, overflow: "auto" }}>

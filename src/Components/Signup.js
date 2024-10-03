@@ -31,7 +31,7 @@ function generateKeyPair() {
   };
 }
 
-function Signup({ onClose, open }) {
+function Signup({ onClose, open, anchorEl, asDialog }) {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [signupData, setSignupData] = useState({
@@ -256,9 +256,9 @@ function Signup({ onClose, open }) {
     }
   };
 
-  return (
-    <>
-      <Snackbar
+  const content = ( 
+   <>
+        <Snackbar
         open={alert.open}
         autoHideDuration={6000}
         onClose={handleAlertClose}
@@ -271,7 +271,7 @@ function Signup({ onClose, open }) {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
+      <Box sx={{ p: 4 }}>
         <Typography align="center" variant="h6" sx={{ pt: 3 }}>
           {t("signUp")}
         </Typography>
@@ -369,9 +369,18 @@ function Signup({ onClose, open }) {
           onSubmit={handleOtpSubmit}
           onResend={handleResendOtp}
         />
+      </Box>
+   </>
+
+    );
+
+    return asDialog ? (
+      <Dialog open={open} anchorEl={anchorEl} onClose={onClose}>
+        {content}
       </Dialog>
-    </>
-  );
+    ) : (
+      <Box>{content}</Box>
+    );
 }
 
 export default Signup;

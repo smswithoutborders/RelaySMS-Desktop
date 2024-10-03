@@ -66,12 +66,12 @@ export default function Landing() {
       message.message?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const loadMessages = async () => {
+    const storedMessages = (await window.api.retrieveParams("messages")) || [];
+    setMessages(storedMessages);
+  };
+
   useEffect(() => {
-    const loadMessages = async () => {
-      const storedMessages =
-        (await window.api.retrieveParams("messages")) || [];
-      setMessages(storedMessages);
-    };
     loadMessages();
 
     const isFirstTime = localStorage.getItem("firstTimeUser");
@@ -129,8 +129,9 @@ export default function Landing() {
     setCurrentComponent("AdvancedSettings");
   };
 
-  const handleHome = () => {
+  const handleHome = async () => {
     setCurrentComponent("Messages");
+    await loadMessages();
   };
 
   const handleComposeClick = () => {
@@ -181,7 +182,7 @@ export default function Landing() {
             {t("needToLogIn")}
           </Typography>
           <Button
-          size="small"
+            size="small"
             variant="contained"
             onClick={openLoginDialogHandler}
             sx={{ borderRadius: 5, textTransform: "none", mr: 2, px: 2 }}
@@ -189,20 +190,24 @@ export default function Landing() {
             {t("login")}
           </Button>
           <Button
-          size="small"
+            size="small"
             variant="contained"
             onClick={openSignupDialogHandler}
-            sx={{ borderRadius: 5, textTransform: "none"}}
+            sx={{ borderRadius: 5, textTransform: "none" }}
           >
             {t("signUp")}
           </Button>
           {openLoginDialog && (
-            <Login onForgotPassword={() => {
-              closeLoginDialogHandler();
-              handleOpenReset();
-            }} open={openLoginDialog} onClose={closeLoginDialogHandler} />
+            <Login
+              onForgotPassword={() => {
+                closeLoginDialogHandler();
+                handleOpenReset();
+              }}
+              open={openLoginDialog}
+              onClose={closeLoginDialogHandler}
+            />
           )}
-                <ResetPassword onClose={handleCloseReset} open={openResetDialog} />
+          <ResetPassword onClose={handleCloseReset} open={openResetDialog} />
 
           {openSignupDialog && (
             <Signup
@@ -234,7 +239,12 @@ export default function Landing() {
             />
           );
         case "AdvancedSettings":
-          return <AdvancedSettings />;
+          return (
+            <AdvancedSettings
+              open={true}
+              onClose={() => setCurrentComponent(null)}
+            />
+          );
         case "Messages":
           return (
             <>
@@ -248,27 +258,27 @@ export default function Landing() {
                   {t("messages")}
                 </Typography>
                 <FormControl sx={{ width: "100%" }} variant="standard">
-              <InputLabel sx={{fontSize: "13px"}}>
-                {t("search")}
-              </InputLabel>
-              <Input
-              size="small"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                id="standard-adornment-password"
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleSearchChange}
-                      onMouseDown={handleSearchChange}
-                    >
-                      <FaMagnifyingGlass size="13px"/>
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
+                  <InputLabel sx={{ fontSize: "13px" }}>
+                    {t("search")}
+                  </InputLabel>
+                  <Input
+                    size="small"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    id="standard-adornment-password"
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleSearchChange}
+                          onMouseDown={handleSearchChange}
+                        >
+                          <FaMagnifyingGlass size="13px" />
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                  />
+                </FormControl>
               </Box>
               <MessageList
                 messages={filteredMessages}
@@ -301,7 +311,7 @@ export default function Landing() {
       <Grid
         container
         sx={{
-         flexGrow: 1,
+          flexGrow: 1,
           overflow: "hidden",
         }}
       >
@@ -325,15 +335,21 @@ export default function Landing() {
               pt: 2,
             }}
           >
-           
-            <Tooltip arrow placement="right" title={t("messages")} onClick={handleHome} >
+            <Tooltip
+              arrow
+              placement="right"
+              title={t("messages")}
+              onClick={handleHome}
+            >
               <IconButton>
                 <FaRegComments size="20px" />
               </IconButton>
             </Tooltip>
-           
 
-            <Tooltip arrow placement="right" title={t("compose")}
+            <Tooltip
+              arrow
+              placement="right"
+              title={t("compose")}
               className="compose-button"
               onClick={handleComposeClick}
               sx={{ mt: 3 }}
@@ -342,9 +358,11 @@ export default function Landing() {
                 <FaPenToSquare size="19px" />
               </IconButton>
             </Tooltip>
-           
 
-            <Tooltip arrow placement="right" title={t("addAccounts")}
+            <Tooltip
+              arrow
+              placement="right"
+              title={t("addAccounts")}
               className="add-accounts-button"
               onClick={handleAddAccountsClick}
               sx={{ mt: 3 }}
@@ -353,9 +371,11 @@ export default function Landing() {
                 <FaPlus size="20px" />
               </IconButton>
             </Tooltip>
-           
 
-            <Tooltip arrow placement="right" title={t("gatewayClients")}
+            <Tooltip
+              arrow
+              placement="right"
+              title={t("gatewayClients")}
               className="security-settings-button"
               onClick={handleGatewayClients}
               sx={{ mt: 3 }}
@@ -364,26 +384,38 @@ export default function Landing() {
                 <FaTowerBroadcast size="20px" />
               </IconButton>
             </Tooltip>
-           
 
-            <Tooltip arrow placement="right" title={t("language")} onClick={handleLanguageChange} sx={{ mt: 3 }}>
+            <Tooltip
+              arrow
+              placement="right"
+              title={t("language")}
+              onClick={handleLanguageChange}
+              sx={{ mt: 3 }}
+            >
               <IconButton>
                 <FaGlobe size="20px" />
               </IconButton>
             </Tooltip>
-          
 
-            <Tooltip arrow placement="right" title={t("more")} onClick={handleMenuChange} sx={{ mt: 3 }}>
+            <Tooltip
+              arrow
+              placement="right"
+              title={t("more")}
+              onClick={handleMenuChange}
+              sx={{ mt: 3 }}
+            >
               <IconButton>
                 <FaEllipsis size="20px" />
               </IconButton>
             </Tooltip>
-           
 
-            <Tooltip arrow placement="right" title= {t("help")}
+            <Tooltip
+              arrow
+              placement="right"
+              title={t("help")}
               component={Link}
               to="/help"
-              sx={{ mt: 3}}
+              sx={{ mt: 3 }}
             >
               <IconButton>
                 <FaRegCircleQuestion size="20px" />
@@ -391,7 +423,10 @@ export default function Landing() {
             </Tooltip>
           </Box>
         </Grid>
-        <Divider orientation="vertical" sx={{bgcolor: "background.default"}}/>
+        <Divider
+          orientation="vertical"
+          sx={{ bgcolor: "background.default" }}
+        />
 
         <Grid
           item
@@ -405,10 +440,8 @@ export default function Landing() {
             flexDirection: "column",
             backgroundColor: "background.side",
             overflowY: "auto",
-            
           }}
         >
-
           {renderComponent()}
         </Grid>
         <Divider orientation="vertical" />
@@ -416,7 +449,7 @@ export default function Landing() {
         <Grid item sm={7.7} md={7.7} xl={7.7}>
           <Box
             sx={{
-              py: 1.8,
+              py: 3,
               px: 2,
             }}
           >
@@ -424,7 +457,6 @@ export default function Landing() {
               {selectedMessage ? selectedMessage.from : t("recent")}
             </Typography>
           </Box>
-
           {selectedMessage ? (
             selectedMessage.platform === "gmail" ? (
               <Box sx={{ px: 2, mt: 4 }}>
@@ -436,7 +468,7 @@ export default function Landing() {
                   sx={{ mt: 1 }}
                   color="textSecondary"
                 >
-                  {selectedMessage.from}
+                  {selectedMessage.to}
                 </Typography>
                 <Typography variant="body2" sx={{ mt: 1 }} component="div">
                   {selectedMessage.message}
@@ -471,7 +503,7 @@ export default function Landing() {
             >
               {messages.length === 0 ? t("noMessages") : t("selectMessage")}
             </Typography>
-          )}
+          )}       
         </Grid>
       </Grid>
     </Box>

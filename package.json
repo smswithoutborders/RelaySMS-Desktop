@@ -136,11 +136,14 @@
     }
   },
   "extraResources": [
-  {
-    "from": "resources/python/venv",
-    "to": "python/venv",
-    "filter": ["**/*"]
-  }
+    {
+      "from": "resources/python",
+      "to": "resources/python",
+      "filter": ["**/*"]
+    }
+],
+"asarUnpack": [
+    "resources/python/venv"
 ]
 
 }

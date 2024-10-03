@@ -3,8 +3,6 @@ const fernet = require("fernet");
 const util = require("util");
 const crypto = require("crypto");
 nacl.util = require("tweetnacl-util");
-// const struct = require("python-struct");
-const base64 = require("base64-js");
 
 function deriveFernetKey(sharedSecret) {
   const encodedKey = Buffer.from(sharedSecret).toString("base64url");
@@ -60,36 +58,28 @@ async function publishSharedSecret(
   client_publish_secret_key,
   server_publish_pub_key
 ) {
-  console.log(">>>>2", client_publish_secret_key);
-  console.log(">>>>2", server_publish_pub_key);
 
   // Decode the keys from Base64
   const clientSecretKeyDecoded = nacl.util.decodeBase64(
     client_publish_secret_key
   );
-  console.log(">>>clientSecretKeyDecoded:", clientSecretKeyDecoded);
 
   const serverPubKeyDecoded = nacl.util.decodeBase64(server_publish_pub_key);
-  console.log(">>>>serverPubKeyDecoded:", serverPubKeyDecoded);
 
   // Generate shared secret
   const publish_shared_secret = nacl.scalarMult(
     clientSecretKeyDecoded,
     serverPubKeyDecoded
   );
-  console.log(">>>>publish_shared_secret:", publish_shared_secret);
-
 
   try {
     const derivedKey = await deriveSharedSecretKey(publish_shared_secret);
-    console.log(">>>>derivedKey:", derivedKey);
-    
-    
+        
     // Encode the derived key using Buffer
     const shared_secret_buffer = Buffer.from(derivedKey);
 
-    // Convert to Base64 or Base64URL
-    const shared_secret = shared_secret_buffer.toString("base64"); // Use "base64" if URL-safe is not needed
+    // Convert to Base64 
+    const shared_secret = shared_secret_buffer.toString("base64"); 
 
     console.log(">>Crypto shared secret:", shared_secret);
 
