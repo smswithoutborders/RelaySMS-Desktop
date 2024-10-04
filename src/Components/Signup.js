@@ -11,6 +11,7 @@ import {
   Alert,
   InputAdornment,
   IconButton,
+  Paper,
 } from "@mui/material";
 import "react-phone-number-input/style.css";
 import { useTranslation } from "react-i18next";
@@ -272,11 +273,11 @@ function Signup({ onClose, open, anchorEl, asDialog }) {
         </Alert>
       </Snackbar>
       <Box sx={{ p: 4 }}>
-        <Typography align="center" variant="h6" sx={{ pt: 3 }}>
+        <Typography align="center" variant="body1" sx={{ pt: 3, fontWeight: 600 }}>
           {t("signUp")}
         </Typography>
         <form onSubmit={handleSignupSubmit}>
-          <Box sx={{ m: 6, mx: 8 }}>
+          <Box sx={{ m: 6, mx: 5 }}>
             <MuiTelInput
               fullWidth
               sx={{ mb: 4 }}
@@ -352,8 +353,9 @@ function Signup({ onClose, open, anchorEl, asDialog }) {
               label={t("acceptPrivacyPolicy")}
               sx={{ mb: 2 }}
             />
+             <Box mx="auto" align="center">
             <Button
-              sx={{ borderRadius: 5, px: 3, textTransform: "none", mt: 11 }}
+              sx={{ borderRadius: 5, px: 3, textTransform: "none" }}
               type="submit"
               variant="contained"
               color="primary"
@@ -361,6 +363,7 @@ function Signup({ onClose, open, anchorEl, asDialog }) {
             >
               {loading ? "Loading..." : t("signUp")}
             </Button>
+            </Box>
           </Box>
         </form>
         <OTPDialog
@@ -379,7 +382,7 @@ function Signup({ onClose, open, anchorEl, asDialog }) {
         {content}
       </Dialog>
     ) : (
-      <Box>{content}</Box>
+      <Box component={Paper} sx={{p: 3}}>{content}</Box>
     );
 }
 

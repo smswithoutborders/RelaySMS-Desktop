@@ -9,6 +9,7 @@ import {
   Snackbar,
   InputAdornment,
   IconButton,
+  Paper,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
@@ -239,7 +240,7 @@ function Login({ onClose, open, onForgotPassword, anchorEl, asDialog }) {
         </Alert>
       </Snackbar>
       <Box>
-        <Typography align="center" variant="h6" sx={{ pt: 4 }}>
+        <Typography align="center" variant="body1" sx={{ pt: 4, fontWeight: 600  }}>
           {t("login")}
         </Typography>
         {alert.message && (
@@ -295,6 +296,7 @@ function Login({ onClose, open, onForgotPassword, anchorEl, asDialog }) {
             >
               {t("forgotPassword")}
             </Typography>
+            <Box mx="auto" align="center">
             <Button
               variant="contained"
               color="primary"
@@ -304,6 +306,7 @@ function Login({ onClose, open, onForgotPassword, anchorEl, asDialog }) {
             >
               {loading ? "Loading..." : t("login")}
             </Button>
+            </Box>
           </Box>
         </form>
         <OTPDialog
@@ -322,7 +325,9 @@ function Login({ onClose, open, onForgotPassword, anchorEl, asDialog }) {
       {content}
     </Dialog>
   ) : (
-    <Box>{content}</Box>
+    <Box component={Paper} sx={{p: 3}}>
+      {content}
+      </Box>
   );
 }
 

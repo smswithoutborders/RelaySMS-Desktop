@@ -154,6 +154,7 @@ export default function Landing() {
   };
 
   const openLoginDialogHandler = () => {
+    setOpenSignupDialog(false);
     setOpenLoginDialog(true);
   };
 
@@ -163,12 +164,91 @@ export default function Landing() {
   };
 
   const openSignupDialogHandler = () => {
+    setOpenLoginDialog(false);
     setOpenSignupDialog(true);
   };
 
   const closeSignupDialogHandler = async () => {
     setOpenSignupDialog(false);
     await checkFileForToken();
+  };
+
+  const renderComponentInLargeGrid = () => {
+    if (selectedMessage) {
+      // Display the selected message
+      return (
+        <Box sx={{ px: 2, mt: 4 }}>
+          <Typography variant="h6">
+            {selectedMessage.subject || t("noSubject")}
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1 }} color="textSecondary">
+            {selectedMessage.from}
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1 }} component="div">
+            {selectedMessage.message}
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 4 }} color="textSecondary">
+            {selectedMessage.timestamp}
+          </Typography>
+        </Box>
+      );
+    } else if (!fileExists) {
+      // Show Login and Signup buttons if the user is not logged in
+      return (
+        <Box
+          sx={{
+            px: 7,
+            m: "auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "90vh",
+          }}
+        >
+          {openLoginDialog && (
+            <Login
+              onForgotPassword={() => {
+                closeLoginDialogHandler();
+                handleOpenReset();
+              }}
+              open={openLoginDialog}
+              onClose={closeLoginDialogHandler}
+            />
+          )}
+          <ResetPassword onClose={handleCloseReset} open={openResetDialog} />
+
+          {openSignupDialog && (
+            <Signup
+              open={openSignupDialog}
+              onClose={closeSignupDialogHandler}
+            />
+          )}
+        </Box>
+      );
+    } else if (messages.length > 0) {
+      // Display a message list when logged in and no specific message is selected
+      return (
+        <>
+          <Box
+            sx={{
+              mt: 2,
+              mx: 2,
+            }}
+          >
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              {t("selectMessage")}
+            </Typography>
+          </Box>
+        </>
+      );
+    } else {
+      // Display prompt when no messages are available
+      return (
+        <Typography sx={{ px: 2, pt: 4 }} variant="h5" color="textSecondary">
+          {t("noMessages")}
+        </Typography>
+      );
+    }
   };
 
   const renderComponent = () => {
@@ -197,24 +277,6 @@ export default function Landing() {
           >
             {t("signUp")}
           </Button>
-          {openLoginDialog && (
-            <Login
-              onForgotPassword={() => {
-                closeLoginDialogHandler();
-                handleOpenReset();
-              }}
-              open={openLoginDialog}
-              onClose={closeLoginDialogHandler}
-            />
-          )}
-          <ResetPassword onClose={handleCloseReset} open={openResetDialog} />
-
-          {openSignupDialog && (
-            <Signup
-              open={openSignupDialog}
-              onClose={closeSignupDialogHandler}
-            />
-          )}
         </Box>
       );
     } else
@@ -453,57 +515,8 @@ export default function Landing() {
               px: 2,
             }}
           >
-            <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              {selectedMessage ? selectedMessage.from : t("recent")}
-            </Typography>
+            {renderComponentInLargeGrid()}
           </Box>
-          {selectedMessage ? (
-            selectedMessage.platform === "gmail" ? (
-              <Box sx={{ px: 2, mt: 4 }}>
-                <Typography variant="h6">
-                  {selectedMessage.subject || t("noSubject")}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ mt: 1 }}
-                  color="textSecondary"
-                >
-                  {selectedMessage.to}
-                </Typography>
-                <Typography variant="body2" sx={{ mt: 1 }} component="div">
-                  {selectedMessage.message}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ mt: 4 }}
-                  color="textSecondary"
-                >
-                  {selectedMessage.timestamp}
-                </Typography>
-              </Box>
-            ) : selectedMessage.platform === "twitter" ? (
-              <Box sx={{ px: 2, mt: 4 }}>
-                <Typography variant="body2" sx={{ mt: 1 }} component="div">
-                  {selectedMessage.message}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ mt: 4 }}
-                  color="textSecondary"
-                >
-                  {selectedMessage.timestamp}
-                </Typography>
-              </Box>
-            ) : null
-          ) : (
-            <Typography
-              sx={{ px: 2, pt: 4 }}
-              variant="h5"
-              color="textSecondary"
-            >
-              {messages.length === 0 ? t("noMessages") : t("selectMessage")}
-            </Typography>
-          )}       
         </Grid>
       </Grid>
     </Box>
