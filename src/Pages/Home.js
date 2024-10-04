@@ -34,6 +34,7 @@ import Login from "../Components/Login";
 import Signup from "../Components/Signup";
 import { Link } from "react-router-dom";
 import ResetPassword from "../Components/ResetPassword";
+import ResetPasswordDialog from "../Components/NewPassword";
 
 export default function Landing() {
   const { t } = useTranslation();
@@ -46,14 +47,7 @@ export default function Landing() {
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
   const [openSignupDialog, setOpenSignupDialog] = useState(false);
   const [openResetDialog, setOpenResetDialog] = useState(false);
-
-  const handleOpenReset = () => {
-    setOpenResetDialog(true);
-  };
-
-  const handleCloseReset = () => {
-    setOpenResetDialog(false);
-  };
+  const [openResetPasswordDialog, setOpenResetPasswordDialog] = useState(false);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -173,9 +167,25 @@ export default function Landing() {
     await checkFileForToken();
   };
 
+  const openResetPasswordDialogHandler = () => {
+    setOpenResetPasswordDialog(true);
+  };
+
+  const closeResetPasswordDialogHandler = async () => {
+    setOpenResetPasswordDialog(false);
+    await checkFileForToken();
+  };
+
+  const handleOpenReset = () => {
+    setOpenResetDialog(true);
+  };
+
+  const handleCloseReset = () => {
+    setOpenResetDialog(false);
+  };
+
   const renderComponentInLargeGrid = () => {
     if (selectedMessage) {
-      // Display the selected message
       return (
         <Box sx={{ px: 2, mt: 4 }}>
           <Typography variant="h6">
@@ -193,7 +203,6 @@ export default function Landing() {
         </Box>
       );
     } else if (!fileExists) {
-      // Show Login and Signup buttons if the user is not logged in
       return (
         <Box
           sx={{
@@ -226,7 +235,6 @@ export default function Landing() {
         </Box>
       );
     } else if (messages.length > 0) {
-      // Display a message list when logged in and no specific message is selected
       return (
         <>
           <Box
@@ -242,11 +250,18 @@ export default function Landing() {
         </>
       );
     } else {
-      // Display prompt when no messages are available
       return (
-        <Typography sx={{ px: 2, pt: 4 }} variant="h5" color="textSecondary">
-          {t("noMessages")}
-        </Typography>
+        <>
+          <Typography sx={{ px: 2, pt: 4 }} variant="h5" color="textSecondary">
+            {t("noMessages")}
+          </Typography>
+          {openResetPasswordDialog && (
+            <ResetPasswordDialog
+              open={openResetPasswordDialog}
+              onClose={closeResetPasswordDialogHandler}
+            />
+          )}
+        </>
       );
     }
   };
@@ -292,7 +307,13 @@ export default function Landing() {
             />
           );
         case "SecuritySettings":
-          return <SecuritySettings />;
+          return (
+            <SecuritySettings
+              asDialog={false}
+              onClose={() => setCurrentComponent(null)}
+              openResetPasswordDialog={openResetPasswordDialogHandler}
+            />
+          );
         case "Compose":
           return (
             <Compose

@@ -9,6 +9,7 @@ import {
   Snackbar,
   InputAdornment,
   IconButton,
+  Paper,
 } from "@mui/material";
 import "react-phone-number-input/style.css";
 import { useTranslation } from "react-i18next";
@@ -27,7 +28,7 @@ function generateKeyPair() {
   };
 }
 
-function ResetPassword({ onClose, open }) {
+function ResetPassword({ onClose, open, anchorEl, asDialog }) {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -198,7 +199,7 @@ function ResetPassword({ onClose, open }) {
     }
   };
 
-  return (
+  const content = ( 
     <>
       <Snackbar
         open={alert.open}
@@ -213,7 +214,7 @@ function ResetPassword({ onClose, open }) {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Dialog sx={{ p: 4 }} onClose={handleClose} open={open}>
+      <Box sx={{ p: 4 }} onClose={handleClose} open={open}>
         <Typography align="center" variant="h6" sx={{ pt: 4 }}>
           {t("resetPassword")}
         </Typography>
@@ -280,8 +281,18 @@ function ResetPassword({ onClose, open }) {
           onSubmit={handleOtpSubmit}
           onResend={handleResendOtp}
         />
-      </Dialog>
+      </Box>
     </>
+  )
+
+  return asDialog ? (
+    <Dialog open={open} anchorEl={anchorEl} onClose={onClose}>
+      {content}
+    </Dialog>
+  ) : (
+    <Box component={Paper} sx={{p: 3}}>
+      {content}
+      </Box>
   );
 }
 

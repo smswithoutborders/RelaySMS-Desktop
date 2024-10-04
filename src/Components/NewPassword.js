@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import {
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
   TextField,
   Button,
   Snackbar,
   Alert,
-  Box
+  Box,
+  Paper,
+  Typography
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-function ResetPasswordDialog({ open, onClose }) {
+function ResetPasswordDialog({ open, onClose, anchorEl, asDialog }) {
   const { t } = useTranslation();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -65,10 +65,11 @@ function ResetPasswordDialog({ open, onClose }) {
     setAlert({ ...alert, open: false });
   };
 
-  return (
-    <Dialog open={open} onClose={onClose} sx={{px: 3}}>
-      <DialogTitle>{t("createNewPass")}</DialogTitle>
-      <DialogContent>
+  const content = ( 
+    <>
+     <Box open={open} onClose={onClose} sx={{px: 3}}>
+      <Typography variant="body1" sx={{fontWeight: 600}}>{t("createNewPass")}</Typography>
+     
         <form onSubmit={handleSubmit}>
           <Box sx={{ mb: 2 }}>
             <TextField
@@ -108,13 +109,24 @@ function ResetPasswordDialog({ open, onClose }) {
             <Button type="submit" color="primary">{t("submit")}</Button>
           </DialogActions>
         </form>
-      </DialogContent>
+    
       <Snackbar open={alert.open} autoHideDuration={6000} onClose={handleAlertClose}>
         <Alert onClose={handleAlertClose} severity={alert.severity}>
           {alert.message}
         </Alert>
       </Snackbar>
+    </Box>
+    </>
+  )
+
+  return asDialog ? (
+    <Dialog open={open} anchorEl={anchorEl} onClose={onClose}>
+      {content}
     </Dialog>
+  ) : (
+    <Box component={Paper} sx={{p: 3}}>
+      {content}
+      </Box>
   );
 }
 

@@ -18,7 +18,7 @@ import { useTranslation } from "react-i18next";
 import OTPDialog from "../Components/OTP";
 import { parsePhoneNumber } from "react-phone-number-input";
 import { MuiTelInput } from "mui-tel-input";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import nacl from "tweetnacl";
 import naclUtil from "tweetnacl-util";
 import Visibility from "@mui/icons-material/Visibility";
@@ -52,6 +52,10 @@ function Signup({ onClose, open, anchorEl, asDialog }) {
   });
 
   const navigate = useNavigate();
+
+  const handleOpenExternalLink = (url) => {
+    window.api.openExternalLink(url);
+  };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (event) => {
@@ -343,16 +347,27 @@ function Signup({ onClose, open, anchorEl, asDialog }) {
               error={!!signupErrors.repeatPassword}
             />
             <FormControlLabel
-              control={
-                <Checkbox
-                  name="acceptPolicy"
-                  checked={signupData.acceptPolicy}
-                  onChange={handleSignupChange}
-                />
-              }
-              label={t("acceptPrivacyPolicy")}
-              sx={{ mb: 2 }}
-            />
+            control={
+              <Checkbox
+                name="acceptPolicy"
+                checked={signupData.acceptPolicy}
+                onChange={handleSignupChange}
+              />
+            }
+            label={
+              <span>
+                {t("acceptPrivacyPolicy")}{" "}
+                <Link
+                  component="button"
+                  variant="body2"
+                  onClick={() => handleOpenExternalLink('https://smswithoutborders.com/privacy-policy')}
+                >
+                  {t("termsandconditions")}
+                </Link>
+              </span>
+            }
+            sx={{ mb: 2 }}
+          />
              <Box mx="auto" align="center">
             <Button
               sx={{ borderRadius: 5, px: 3, textTransform: "none" }}

@@ -1,7 +1,6 @@
 import { Typography, Box, Grid, Button } from "@mui/material";
 import React, { useState } from "react";
 import { FaGlobe } from "react-icons/fa6";
-import { Link } from "react-router-dom";
 import SimpleDialog from "../Components/SelectLanguage";
 import { useTranslation } from "react-i18next";
 
@@ -18,12 +17,15 @@ export default function Onboarding() {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setAnchorEl(null);
+  };
 
+  const handleOpenExternalLink = (url) => {
+    window.api.openExternalLink(url);
   };
   return (
     <>
       <Box sx={{ px: 6, py: 5 }}>
-        <Grid container my="auto" sx={{overflow: "hidden"}}>
+        <Grid container my="auto" sx={{ overflow: "hidden" }}>
           <Grid item md={7} sm={7} sx={{ py: 10 }}>
             <Typography variant="h6" sx={{ fontWeight: 600 }}>
               {t("welcome")}
@@ -60,12 +62,13 @@ export default function Onboarding() {
         <Grid container>
           <Grid item md={6} sx={{ position: "fixed", bottom: 50, mr: 10 }}>
             <Typography
-              component={Link}
-              to="/"
+              onClick={() =>
+                handleOpenExternalLink("https://smswithoutborders.com/privacy-policy")
+              }
               variant="body1"
               sx={{ borderRadius: 5, px: 2 }}
             >
-              {t("privacyPolicy")}
+              {t("acceptPrivacyPolicy", "termsandconditions")}
             </Typography>
           </Grid>
           <Grid
@@ -79,8 +82,7 @@ export default function Onboarding() {
               bottom: 50,
               mr: 10,
             }}
-          >
-          </Grid>
+          ></Grid>
         </Grid>
       </Box>
     </>

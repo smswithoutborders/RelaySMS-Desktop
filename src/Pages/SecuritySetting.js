@@ -14,9 +14,8 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import ResetPasswordDialog from "../Components/NewPassword";
 
-export default function SecuritySettings({ open, onClose }) {
+export default function SecuritySettings({ open, onClose, openResetPasswordDialog }) {
   const { t } = useTranslation();
   const [tokens, setTokens] = useState([]);
   const [alert, setAlert] = useState({
@@ -26,7 +25,6 @@ export default function SecuritySettings({ open, onClose }) {
   });
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
 
   const handleAlertClose = () => {
     setAlert({ ...alert, open: false });
@@ -184,14 +182,6 @@ export default function SecuritySettings({ open, onClose }) {
     }
   };
 
-  const handleOpenResetPasswordDialog = () => {
-    setResetPasswordDialogOpen(true);
-  };
-
-  const handleCloseResetPasswordDialog = () => {
-    setResetPasswordDialogOpen(false);
-  };
-
   return (
     <Box>
       <Box open={open} onClose={onClose} >
@@ -210,7 +200,7 @@ export default function SecuritySettings({ open, onClose }) {
 
           <ListItem
             button
-            onClick={handleOpenResetPasswordDialog}
+            onClick={openResetPasswordDialog}
           >
             <ListItemText>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
@@ -321,11 +311,6 @@ export default function SecuritySettings({ open, onClose }) {
           </Grid>
         </Box>
       </Popover>
-
-      <ResetPasswordDialog
-        open={resetPasswordDialogOpen}
-        onClose={handleCloseResetPasswordDialog}
-      />
     </Box>
   );
 }
