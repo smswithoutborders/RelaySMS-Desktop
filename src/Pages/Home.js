@@ -11,6 +11,7 @@ import {
   InputLabel,
   Input,
   InputAdornment,
+  styled,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import {
@@ -34,7 +35,17 @@ import Login from "../Components/Login";
 import Signup from "../Components/Signup";
 import { Link } from "react-router-dom";
 import ResetPassword from "../Components/ResetPassword";
-import ResetPasswordDialog from "../Components/NewPassword";
+
+const CustomTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} sx={{ mt: 3 }} />
+))(({ theme }) => ({
+  [`& .MuiTooltip-tooltip`]: {
+    backgroundColor: "white",
+    color: "gray",
+    borderRadius: "10px",
+    fontSize: "14px",
+  },
+}));
 
 export default function Landing() {
   const { t } = useTranslation();
@@ -44,10 +55,7 @@ export default function Landing() {
   const [runTutorial, setRunTutorial] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [fileExists, setFileExists] = useState(false);
-  const [openLoginDialog, setOpenLoginDialog] = useState(false);
-  const [openSignupDialog, setOpenSignupDialog] = useState(false);
-  const [openResetDialog, setOpenResetDialog] = useState(false);
-  const [openResetPasswordDialog, setOpenResetPasswordDialog] = useState(false);
+  const [openDialog, setOpenDialog] = useState("");
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -148,40 +156,29 @@ export default function Landing() {
   };
 
   const openLoginDialogHandler = () => {
-    setOpenSignupDialog(false);
-    setOpenLoginDialog(true);
+    setOpenDialog("login");
   };
 
   const closeLoginDialogHandler = async () => {
-    setOpenLoginDialog(false);
+    setOpenDialog("");
     await checkFileForToken();
   };
 
   const openSignupDialogHandler = () => {
-    setOpenLoginDialog(false);
-    setOpenSignupDialog(true);
+    setOpenDialog("signup");
   };
 
   const closeSignupDialogHandler = async () => {
-    setOpenSignupDialog(false);
-    await checkFileForToken();
-  };
-
-  const openResetPasswordDialogHandler = () => {
-    setOpenResetPasswordDialog(true);
-  };
-
-  const closeResetPasswordDialogHandler = async () => {
-    setOpenResetPasswordDialog(false);
+    setOpenDialog("");
     await checkFileForToken();
   };
 
   const handleOpenReset = () => {
-    setOpenResetDialog(true);
+    setOpenDialog("reset");
   };
 
   const handleCloseReset = () => {
-    setOpenResetDialog(false);
+    setOpenDialog("");
   };
 
   const renderComponentInLargeGrid = () => {
@@ -214,21 +211,26 @@ export default function Landing() {
             height: "90vh",
           }}
         >
-          {openLoginDialog && (
+          {openDialog === "login" && (
             <Login
               onForgotPassword={() => {
                 closeLoginDialogHandler();
                 handleOpenReset();
               }}
-              open={openLoginDialog}
+              open={openDialog === "login"}
               onClose={closeLoginDialogHandler}
             />
           )}
-          <ResetPassword onClose={handleCloseReset} open={openResetDialog} />
+          {openDialog === "reset" && (
+            <ResetPassword
+              onClose={handleCloseReset}
+              open={openDialog === "reset"}
+            />
+          )}
 
-          {openSignupDialog && (
+          {openDialog === "signup" && (
             <Signup
-              open={openSignupDialog}
+              open={openDialog === "signup"}
               onClose={closeSignupDialogHandler}
             />
           )}
@@ -250,19 +252,7 @@ export default function Landing() {
         </>
       );
     } else {
-      return (
-        <>
-          <Typography sx={{ px: 2, pt: 4 }} variant="h5" color="textSecondary">
-            {t("noMessages")}
-          </Typography>
-          {openResetPasswordDialog && (
-            <ResetPasswordDialog
-              open={openResetPasswordDialog}
-              onClose={closeResetPasswordDialogHandler}
-            />
-          )}
-        </>
-      );
+      return null;
     }
   };
 
@@ -306,14 +296,7 @@ export default function Landing() {
               onClose={() => setCurrentComponent(null)}
             />
           );
-        case "SecuritySettings":
-          return (
-            <SecuritySettings
-              asDialog={false}
-              onClose={() => setCurrentComponent(null)}
-              openResetPasswordDialog={openResetPasswordDialogHandler}
-            />
-          );
+        
         case "Compose":
           return (
             <Compose
@@ -321,6 +304,14 @@ export default function Landing() {
               onClose={() => setCurrentComponent(null)}
             />
           );
+          case "SecuritySettings":
+            return (
+              <SecuritySettings
+                asDialog={false}
+                onClose={() => setCurrentComponent(null)}
+              />
+            );
+  
         case "AdvancedSettings":
           return (
             <AdvancedSettings
@@ -415,11 +406,9 @@ export default function Landing() {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              pt: 2,
             }}
           >
-            <Tooltip
-              arrow
+            <CustomTooltip
               placement="right"
               title={t("messages")}
               onClick={handleHome}
@@ -427,83 +416,71 @@ export default function Landing() {
               <IconButton>
                 <FaRegComments size="20px" />
               </IconButton>
-            </Tooltip>
+            </CustomTooltip>
 
-            <Tooltip
-              arrow
+            <CustomTooltip
               placement="right"
               title={t("compose")}
               className="compose-button"
               onClick={handleComposeClick}
-              sx={{ mt: 3 }}
             >
               <IconButton>
                 <FaPenToSquare size="19px" />
               </IconButton>
-            </Tooltip>
+            </CustomTooltip>
 
-            <Tooltip
-              arrow
+            <CustomTooltip
               placement="right"
               title={t("addAccounts")}
               className="add-accounts-button"
               onClick={handleAddAccountsClick}
-              sx={{ mt: 3 }}
             >
               <IconButton>
                 <FaPlus size="20px" />
               </IconButton>
-            </Tooltip>
+            </CustomTooltip>
 
-            <Tooltip
-              arrow
+            <CustomTooltip
               placement="right"
               title={t("gatewayClients")}
               className="security-settings-button"
               onClick={handleGatewayClients}
-              sx={{ mt: 3 }}
             >
               <IconButton>
                 <FaTowerBroadcast size="20px" />
               </IconButton>
-            </Tooltip>
+            </CustomTooltip>
 
-            <Tooltip
-              arrow
+            <CustomTooltip
               placement="right"
               title={t("language")}
               onClick={handleLanguageChange}
-              sx={{ mt: 3 }}
             >
               <IconButton>
                 <FaGlobe size="20px" />
               </IconButton>
-            </Tooltip>
+            </CustomTooltip>
 
-            <Tooltip
-              arrow
+            <CustomTooltip
               placement="right"
               title={t("more")}
               onClick={handleMenuChange}
-              sx={{ mt: 3 }}
             >
               <IconButton>
                 <FaEllipsis size="20px" />
               </IconButton>
-            </Tooltip>
+            </CustomTooltip>
 
-            <Tooltip
-              arrow
+            <CustomTooltip
               placement="right"
               title={t("help")}
               component={Link}
               to="/help"
-              sx={{ mt: 3 }}
             >
               <IconButton>
                 <FaRegCircleQuestion size="20px" />
               </IconButton>
-            </Tooltip>
+            </CustomTooltip>
           </Box>
         </Grid>
         <Divider
