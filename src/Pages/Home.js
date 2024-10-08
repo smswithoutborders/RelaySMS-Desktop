@@ -35,6 +35,8 @@ import Login from "../Components/Login";
 import Signup from "../Components/Signup";
 import { Link } from "react-router-dom";
 import ResetPassword from "../Components/ResetPassword";
+import RevokeDialog from "../Components/RevokeDialog";
+import DeleteDialog from "../Components/DeleteDialog";
 
 const CustomTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} sx={{ mt: 3 }} />
@@ -56,6 +58,7 @@ export default function Landing() {
   const [searchQuery, setSearchQuery] = useState("");
   const [fileExists, setFileExists] = useState(false);
   const [openDialog, setOpenDialog] = useState("");
+  const [fetchStoredTokens, setFetchStoredTokens] = useState("");
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -132,15 +135,18 @@ export default function Landing() {
   };
 
   const handleHome = async () => {
+    setOpenDialog("");
     setCurrentComponent("Messages");
     await loadMessages();
   };
 
   const handleComposeClick = () => {
+    setOpenDialog("");
     setCurrentComponent("Compose");
   };
 
   const handleMessageClick = (message) => {
+    setOpenDialog("");
     setSelectedMessage(message);
   };
 
@@ -181,25 +187,17 @@ export default function Landing() {
     setOpenDialog("");
   };
 
+  const handleOpenRevokeDialog = async () => {
+    setOpenDialog("revoke");
+    await fetchStoredTokens();
+  };
+  // need to make fetchstoredtoken work, need to re-add reset password(new password), make UI for new pass better and render in renderComponentInLargeGrid
+  const handleOpenDeleteDialog = () => {
+    setOpenDialog("delete");
+  };
+
   const renderComponentInLargeGrid = () => {
-    if (selectedMessage) {
-      return (
-        <Box sx={{ px: 2, mt: 4 }}>
-          <Typography variant="h6">
-            {selectedMessage.subject || t("noSubject")}
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 1 }} color="textSecondary">
-            {selectedMessage.from}
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 1 }} component="div">
-            {selectedMessage.message}
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 4 }} color="textSecondary">
-            {selectedMessage.timestamp}
-          </Typography>
-        </Box>
-      );
-    } else if (!fileExists) {
+    if (!fileExists) {
       return (
         <Box
           sx={{
@@ -236,24 +234,34 @@ export default function Landing() {
           )}
         </Box>
       );
-    } else if (messages.length > 0) {
-      return (
-        <>
-          <Box
-            sx={{
-              mt: 2,
-              mx: 2,
-            }}
-          >
-            <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              {t("selectMessage")}
+    }
+    return (
+      <>
+        {openDialog === "revoke" && <RevokeDialog />}
+        {openDialog === "delete" && <DeleteDialog />}
+        {!selectedMessage && messages.length > 0 && openDialog === "" && (
+          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+            {t("selectMessage")}
+          </Typography>
+        )}
+        {selectedMessage && openDialog === "" && (
+          <Box sx={{ px: 2, mt: 4 }}>
+            <Typography variant="h6">
+              {selectedMessage.subject || t("noSubject")}
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }} color="textSecondary">
+              {selectedMessage.from}
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }} component="div">
+              {selectedMessage.message}
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 4 }} color="textSecondary">
+              {selectedMessage.timestamp}
             </Typography>
           </Box>
-        </>
-      );
-    } else {
-      return null;
-    }
+        )}
+      </>
+    );
   };
 
   const renderComponent = () => {
@@ -296,7 +304,7 @@ export default function Landing() {
               onClose={() => setCurrentComponent(null)}
             />
           );
-        
+
         case "Compose":
           return (
             <Compose
@@ -304,14 +312,14 @@ export default function Landing() {
               onClose={() => setCurrentComponent(null)}
             />
           );
-          case "SecuritySettings":
-            return (
-              <SecuritySettings
-                asDialog={false}
-                onClose={() => setCurrentComponent(null)}
-              />
-            );
-  
+        case "SecuritySettings":
+          return (
+            <SecuritySettings
+              handleDeleteClick={handleOpenDeleteDialog}
+              handleRevokeTokensClick={handleOpenRevokeDialog}
+            />
+          );
+
         case "AdvancedSettings":
           return (
             <AdvancedSettings
