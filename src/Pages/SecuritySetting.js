@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 export default function SecuritySettings({
   handleRevokeTokensClick,
   handleDeleteClick,
+  handleLogoutClick
 }) {
   const { t } = useTranslation();
   const [alert, setAlert] = useState({
@@ -23,25 +24,6 @@ export default function SecuritySettings({
 
   const handleAlertClose = () => {
     setAlert({ ...alert, open: false });
-  };
-
-  const handleLogout = async () => {
-    try {
-      await window.api.logout();
-      setAlert({
-        message: "Logged out successfully",
-        severity: "success",
-        open: true,
-      });
-      setTimeout(() => {}, 2000);
-    } catch (error) {
-      console.error("Failed to logout:", error);
-      setAlert({
-        message: "Logout failed. Please try again.",
-        severity: "error",
-        open: true,
-      });
-    }
   };
 
   return (
@@ -67,7 +49,7 @@ export default function SecuritySettings({
                 </Typography>
               </ListItemText>
             </ListItem> */}
-            <ListItem button onClick={handleLogout}>
+            <ListItem button onClick={handleLogoutClick}>
               <ListItemText>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
                   {t("logout")}
