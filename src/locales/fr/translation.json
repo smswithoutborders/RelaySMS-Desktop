@@ -100,7 +100,7 @@
   "notLoggedIn": "Vous n'êtes pas connecté",
   "needToLogIn": "Vous devez vous connecter ou vous inscrire pour commencer à utiliser RelaySMS",
   "appTutorials": "Tutoriels d'applications",
-  "github": "Ajoutez et partagez le projet sur GitHub",
+  "github": "GitHub",
   "mail": "Mail",
   "addAccountsInfo": "Le stockage des jetons de la plateforme (Gmail, X(Twitter), Telegram) signifie simplement donner à RelaySMS l'accès pour envoyer des messages en votre nom.",
   "selectGatewayClient": "Sélectionner le client de passerelle",

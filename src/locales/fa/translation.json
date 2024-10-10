@@ -100,7 +100,7 @@
   "notLoggedIn": "شما وارد نشده اید",
   "needToLogIn": "برای شروع استفاده از RelaySMS باید وارد شوید یا ثبت نام کنید",
   "appTutorials": "آموزش های اپلیکیشن",
-  "github": "ستاره و پروژه را در GitHub به اشتراک بگذارید",
+  "github": "GitHub",
   "mail": "ایمیل",
   "addAccountsInfo": "ذخیره توکن‌های پلتفرم (جی‌میل، ایکس (توئیتر)، تلگرام) به سادگی به معنای امکان دسترسی RelaySMS برای ارسال پیام از طرف شماست.",
   "selectGatewayClient": "Gateway Client را انتخاب کنید",
