@@ -38,6 +38,7 @@ import ResetPassword from "../Components/ResetPassword";
 import RevokeDialog from "../Components/RevokeDialog";
 import DeleteDialog from "../Components/DeleteDialog";
 import Logout from "../Components/Logout";
+import NewPassword from "../Components/NewPassword";
 
 const CustomTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} sx={{ mt: 3 }} />
@@ -194,6 +195,9 @@ export default function Landing() {
   const handleOpenRevokeDialog = () => {
     setOpenDialog("revoke");
   };
+  const handleOpenNewPassword = () => {
+    setOpenDialog("resetpassword");
+  };
   const handleOpenDeleteDialog = () => {
     setOpenDialog("delete");
   };
@@ -245,6 +249,7 @@ export default function Landing() {
       <>
         {openDialog === "revoke" && <RevokeDialog />}
         {openDialog === "delete" && <DeleteDialog />}
+        {openDialog === "resetpassword" && <NewPassword />}
         {openDialog === "logout" && <Logout onLogoutSuccess={() => checkFileForToken(false)}/>}
         {!selectedMessage && messages.length > 0 && openDialog === "" && (
           <Typography variant="body1" sx={{ fontWeight: 600 }}>
@@ -325,6 +330,7 @@ export default function Landing() {
               handleDeleteClick={handleOpenDeleteDialog}
               handleRevokeTokensClick={handleOpenRevokeDialog}
               handleLogoutClick={handleLogout}
+              openResetPasswordDialog={handleOpenNewPassword}
             />
           );
 

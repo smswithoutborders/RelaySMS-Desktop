@@ -13,7 +13,8 @@ import { useTranslation } from "react-i18next";
 export default function SecuritySettings({
   handleRevokeTokensClick,
   handleDeleteClick,
-  handleLogoutClick
+  handleLogoutClick,
+  openResetPasswordDialog
 }) {
   const { t } = useTranslation();
   const [alert, setAlert] = useState({
@@ -42,13 +43,13 @@ export default function SecuritySettings({
               </ListItemText>
             </ListItem>
 
-            {/* <ListItem button onClick={openResetPasswordDialog}>
+            <ListItem button onClick={openResetPasswordDialog}>
               <ListItemText>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
                   {t("resetPassword")}
                 </Typography>
               </ListItemText>
-            </ListItem> */}
+            </ListItem>
             <ListItem button onClick={handleLogoutClick}>
               <ListItemText>
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>

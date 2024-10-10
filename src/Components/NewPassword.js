@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-function ResetPasswordDialog({ open, onClose, anchorEl, asDialog }) {
+function NewPassword({ open, onClose, anchorEl, asDialog }) {
   const { t } = useTranslation();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -130,4 +130,4 @@ function ResetPasswordDialog({ open, onClose, anchorEl, asDialog }) {
   );
 }
 
-export default ResetPasswordDialog;
+export default NewPassword;
