@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Box,
-  Button,
   List,
   ListItem,
   ListItemButton,
@@ -10,9 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import {
-  FaChevronLeft,
   FaEnvelope,
   FaGithub,
   FaGlobe,
@@ -20,7 +17,7 @@ import {
   FaXTwitter,
 } from "react-icons/fa6";
 
-export default function Help() {
+export default function Help({ onOpenTutorial }) {
   const { t } = useTranslation();
 
   const handleOpenExternalLink = (url) => {
@@ -28,19 +25,18 @@ export default function Help() {
   };
 
   return (
-    <Box sx={{ m: 5 }}>
-      <Button sx={{ textTransform: "none" }} component={Link} to="/messages">
-        <FaChevronLeft />
-        <Typography variant="body2">{t("messages")}</Typography>
-      </Button>
-      <Box sx={{ my: 2 }}>
-       <List>
+    <Box sx={{ py: 2 }}>
+      <Box>
+        <List>
           <ListItem>
-            <ListItemButton component={Link} to="/tutorial">
+            <ListItemButton onClick={onOpenTutorial}>
               <ListItemIcon>
                 <FaNoteSticky />
               </ListItemIcon>
-              <ListItemText>{t("appTutorials")}</ListItemText>
+              <ListItemText>
+                {" "}
+                <Typography variant="body2"> {t("appTutorials")} </Typography>
+              </ListItemText>
             </ListItemButton>
           </ListItem>
           <ListItem>
@@ -52,7 +48,10 @@ export default function Help() {
               <ListItemIcon>
                 <FaGithub />
               </ListItemIcon>
-              <ListItemText>{t("github")} </ListItemText>
+              <ListItemText>
+                {" "}
+                <Typography variant="body2">{t("github")}</Typography>{" "}
+              </ListItemText>
             </ListItemButton>
           </ListItem>
           <ListItem>
@@ -63,7 +62,7 @@ export default function Help() {
                 <FaXTwitter />
               </ListItemIcon>
               <ListItemText>
-               {t("twitterFollow")}
+                <Typography variant="body2"> {t("twitter")} </Typography>
               </ListItemText>
             </ListItemButton>
           </ListItem>
@@ -76,7 +75,10 @@ export default function Help() {
               <ListItemIcon>
                 <FaGlobe />
               </ListItemIcon>
-              <ListItemText>relay.smswithoutborders.com</ListItemText>
+              <ListItemText>
+                {" "}
+                <Typography variant="body2">RelaySMS</Typography>
+              </ListItemText>
             </ListItemButton>
           </ListItem>
           <ListItem>
@@ -84,7 +86,10 @@ export default function Help() {
               <ListItemIcon>
                 <FaEnvelope />
               </ListItemIcon>
-              <ListItemText>developers@smswithoutborders.com</ListItemText>
+              <ListItemText>
+                {" "}
+                <Typography variant="body2">{t("mail")}</Typography>
+              </ListItemText>
             </ListItemButton>
           </ListItem>
         </List>

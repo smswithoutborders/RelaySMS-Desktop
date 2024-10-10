@@ -33,12 +33,13 @@ import MessageList from "../Components/MessageList";
 import Joyride from "react-joyride";
 import Login from "../Components/Login";
 import Signup from "../Components/Signup";
-import { Link } from "react-router-dom";
 import ResetPassword from "../Components/ResetPassword";
 import RevokeDialog from "../Components/RevokeDialog";
 import DeleteDialog from "../Components/DeleteDialog";
 import Logout from "../Components/Logout";
 import NewPassword from "../Components/NewPassword";
+import Help from "./Help";
+import Tutorial from "./Tutorial";
 
 const CustomTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} sx={{ mt: 3 }} />
@@ -134,6 +135,11 @@ export default function Landing() {
     setCurrentComponent("SecuritySettings");
   };
 
+  const handleHelp = () => {
+    setOpenDialog("");
+    setCurrentComponent("Help");
+  };
+
   const handleGatewayClients = () => {
     setOpenDialog("");
     setCurrentComponent("AdvancedSettings");
@@ -203,7 +209,12 @@ export default function Landing() {
   };
   const handleLogout = () => {
     setOpenDialog("logout");
-   if (!fileExists) {setOpenDialog("");}
+    if (!fileExists) {
+      setOpenDialog("");
+    }
+  };
+  const handleOpenTutorial = () => {
+    setOpenDialog("tutorial");
   };
 
   const renderComponentInLargeGrid = () => {
@@ -244,13 +255,16 @@ export default function Landing() {
           )}
         </Box>
       );
-    }  
+    }
     return (
       <>
         {openDialog === "revoke" && <RevokeDialog />}
         {openDialog === "delete" && <DeleteDialog />}
         {openDialog === "resetpassword" && <NewPassword />}
-        {openDialog === "logout" && <Logout onLogoutSuccess={() => checkFileForToken(false)}/>}
+        {openDialog === "tutorial" && <Tutorial />}
+        {openDialog === "logout" && (
+          <Logout onLogoutSuccess={() => checkFileForToken(false)} />
+        )}
         {!selectedMessage && messages.length > 0 && openDialog === "" && (
           <Typography variant="body1" sx={{ fontWeight: 600 }}>
             {t("selectMessage")}
@@ -333,7 +347,8 @@ export default function Landing() {
               openResetPasswordDialog={handleOpenNewPassword}
             />
           );
-
+        case "Help":
+          return <Help onOpenTutorial={handleOpenTutorial} />;
         case "AdvancedSettings":
           return (
             <AdvancedSettings
@@ -389,7 +404,7 @@ export default function Landing() {
   };
 
   return (
-    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+    <Box sx={{ display: "flex", height: "100vh", overflow: "auto" }}>
       <Joyride
         steps={steps}
         run={runTutorial}
@@ -404,20 +419,13 @@ export default function Landing() {
           }
         }}
       />
-      <Grid
-        container
-        sx={{
-          flexGrow: 1,
-          overflow: "hidden",
-        }}
-      >
+      <Grid container>
         <Grid
           item
           sm={1}
           md={1}
           lg={0.5}
           sx={{
-            flexShrink: 0,
             backgroundColor: "background.side",
             height: "100vh",
             px: 0,
@@ -496,8 +504,7 @@ export default function Landing() {
             <CustomTooltip
               placement="right"
               title={t("help")}
-              component={Link}
-              to="/help"
+              onClick={handleHelp}
             >
               <IconButton>
                 <FaRegCircleQuestion size="20px" />
@@ -528,7 +535,7 @@ export default function Landing() {
         </Grid>
         <Divider orientation="vertical" />
 
-        <Grid item sm={7.7} md={7.7} xl={7.7}>
+        <Grid item sm={7.7} md={7.7} xl={7.7} sx={{overflowY: "auto", height: "100vh"}}>
           <Box
             sx={{
               py: 3,

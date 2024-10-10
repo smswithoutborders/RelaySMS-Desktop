@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 export default function RevokeDialog() {
   const { t } = useTranslation();
   const [tokens, setTokens] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state for skeleton
+  const [loading, setLoading] = useState(true); 
   const [alert, setAlert] = useState({
     message: "",
     severity: "",
@@ -45,12 +45,11 @@ export default function RevokeDialog() {
       const response = await window.api.listEntityStoredTokens(longLT);
       setTokens(response.stored_tokens);
       console.log("response:", response);
-      setLoading(false); // Stop loading when tokens are fetched
+      setLoading(false); 
     } catch (error) {
-      // If there's an error (likely due to no internet), try retrieving locally stored tokens
       try {
         const storedTokens = await window.api.retrieveParams("storedTokens");
-        setTokens(storedTokens || []); // Set locally stored tokens
+        setTokens(storedTokens || []); 
         setAlert({
           message: "Using locally stored tokens due to network error.",
           severity: "warning",
@@ -64,7 +63,7 @@ export default function RevokeDialog() {
           open: true,
         });
       } finally {
-        setLoading(false); // Stop loading even if the fallback fails
+        setLoading(false);
       }
     }
   };
@@ -99,7 +98,7 @@ export default function RevokeDialog() {
         severity: "success",
         open: true,
       });
-      fetchStoredTokens(); // Refetch tokens after revocation
+      fetchStoredTokens(); 
     } catch (error) {
       console.error("Failed to revoke token:", error);
       setAlert({
@@ -116,7 +115,6 @@ export default function RevokeDialog() {
         <Typography variant="body2" sx={{ fontWeight: 600, pb: 2 }}>
           {t("revoke")}
         </Typography>
-        {/* Show Skeletons while loading */}
         {loading
           ? Array.from(new Array(3)).map((_, index) => (
               <List key={index}>

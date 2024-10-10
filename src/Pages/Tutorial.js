@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { Box, Typography, Collapse, Button } from "@mui/material";
+import { Box, Typography, Collapse } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { FaChevronLeft, FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import Onboarding3 from "./Onboarding3";
 
 export default function Tutorial() {
@@ -14,24 +13,18 @@ export default function Tutorial() {
   };
 
   return (
-    <Box sx={{ m: 5 }}>
-      <Button sx={{textTransform: "none"}} component={Link} to="/help">
-        <FaChevronLeft /> 
-        <Typography variant="body2">
-        {t("help")}
-        </Typography>
-      </Button>
-
-<Box sx={{mx: 5}}>
+    <Box>
       <Box sx={{ py: 2 }}>
-        <Typography variant="body1" sx={{ fontWeight: 600, mb: 1 }}>
+        <Typography variant="body1" sx={{ fontWeight: 600, mb: 1, color: "#347FC4" }}>
           {t("step1")}
         </Typography>
-        <Typography variant="body2">{t("login")}/{t("signUp")}</Typography>
+        <Typography variant="body2">
+          {t("login")}/{t("signUp")}
+        </Typography>
       </Box>
 
       <Box sx={{ py: 2 }}>
-        <Typography variant="body1" sx={{ fontWeight: 600, mb: 1 }}>
+        <Typography variant="body1" sx={{ fontWeight: 600, mb: 1, color: "#347FC4" }}>
           {t("step2")}
         </Typography>
         <Typography variant="body2">
@@ -45,6 +38,7 @@ export default function Tutorial() {
           sx={{
             fontWeight: 600,
             mb: 1,
+            color: "#347FC4"
           }}
         >
           {t("step3")}
@@ -68,7 +62,7 @@ export default function Tutorial() {
       </Box>
 
       <Box sx={{ py: 2 }}>
-        <Typography variant="body1" sx={{ fontWeight: 600, mb: 1 }}>
+        <Typography variant="body1" sx={{ fontWeight: 600, mb: 1, color: "#347FC4" }}>
           {t("step4")}
         </Typography>
         <Typography variant="body2">
@@ -80,7 +74,6 @@ export default function Tutorial() {
         <Typography variant="body1" sx={{ fontWeight: 600, mb: 1 }}>
           {t("done")}
         </Typography>
-      </Box>
       </Box>
     </Box>
   );

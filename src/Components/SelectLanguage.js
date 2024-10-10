@@ -13,7 +13,7 @@ export default function SimpleDialog({ onClose, open, asPopover, anchorEl }) {
   };
 
   const handleListItemClick = (lang) => {
-    i18n.changeLanguage(lang); 
+    i18n.changeLanguage(lang);
   };
 
   const content = (
@@ -21,17 +21,26 @@ export default function SimpleDialog({ onClose, open, asPopover, anchorEl }) {
       <Typography variant="body2" sx={{ fontWeight: 600 }}>
         {t("selectLanguage")}
       </Typography>
-      <List sx={{ pt: 2, fontSize: "9px" }}>
+      <List sx={{ pt: 2 }}>
         <ListItem button>
-            <ListItemText onClick={() => handleListItemClick("en")}> {t("english")} </ListItemText>
+          <ListItemText onClick={() => handleListItemClick("en")}>
+            {" "}
+            <Typography variant="body2">{t("english")}</Typography>{" "}
+          </ListItemText>
         </ListItem>
 
         <ListItem button>
-            <ListItemText onClick={() => handleListItemClick("fr")}> {t("french")} </ListItemText>
+          <ListItemText onClick={() => handleListItemClick("fr")}>
+            {" "}
+            <Typography variant="body2"> {t("french")}</Typography>{" "}
+          </ListItemText>
         </ListItem>
 
         <ListItem button>
-            <ListItemText onClick={() => handleListItemClick("fa")}> {t("farsi")} </ListItemText>
+          <ListItemText onClick={() => handleListItemClick("fa")}>
+            {" "}
+            <Typography variant="body2"> {t("farsi")}</Typography>{" "}
+          </ListItemText>
         </ListItem>
       </List>
     </Box>
@@ -42,8 +51,6 @@ export default function SimpleDialog({ onClose, open, asPopover, anchorEl }) {
       {content}
     </Popover>
   ) : (
-    <Box>
-      {content}
-    </Box>
+    <Box>{content}</Box>
   );
 }

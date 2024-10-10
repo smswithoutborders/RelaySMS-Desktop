@@ -179,11 +179,11 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
         <Typography variant="body2">{t("saveMultiple")}</Typography>
         {loading ? (
           <Box>
-            <Grid container>
-              <Grid item md={3} sm={3} sx={{mb: 3}}>
+            <Grid container sx={{ py: 2 }}>
+              <Grid item md={3} sm={3} sx={{ mb: 3 }}>
                 <Skeleton
                   variant="circular"
-                  sx={{ width: "30px", height: "30px"}}
+                  sx={{ width: "30px", height: "30px" }}
                 />
               </Grid>
               <Grid item md={8} sm={8}>
@@ -193,7 +193,7 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
               <Grid item md={3} sm={3}>
                 <Skeleton
                   variant="circular"
-                  sx={{ width: "30px", height: "30px"}}
+                  sx={{ width: "30px", height: "30px" }}
                 />
               </Grid>
               <Grid item md={8} sm={8}>
