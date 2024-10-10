@@ -32,7 +32,7 @@ export default function Onboarding3() {
   ];
 
   return (
-    <Box sx={{ px: 5, py: 7 }}>
+    <Box sx={{ px: 5, py: 7, overflow: "none" }}>
       <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
         {t("settingUpGatewayClients")}
       </Typography>
@@ -62,7 +62,7 @@ export default function Onboarding3() {
               mb: 1,
             }}
           >
-            <pre style={{ margin: 0, flex: 1, overflow: "none", fontSize: "12px" }}>{command}</pre>
+            <Typography variant="body2" sx={{ margin: 0, flex: 1, overflow: "none"}}>{command}</Typography>
             <CopyToClipboard text={command} onCopy={() => setCopied(index)}>
               <IconButton aria-label="copy" color="primary">
                 <ContentCopy />
@@ -97,7 +97,7 @@ export default function Onboarding3() {
             mb: 1,
           }}
         >
-          <pre style={{ margin: 0, flex: 1,overflow: "none", fontSize: "12px" }}>{command}</pre>
+          <Typography variant="body2" sx={{ margin: 0, flex: 1, overflow: "none"}}>{command}</Typography>
           <CopyToClipboard
             text={command}
             onCopy={() =>
