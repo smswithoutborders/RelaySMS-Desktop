@@ -26,6 +26,15 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
   };
 
   const handleSend = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(to)) {
+    setAlert({
+      message: "Invalid email address",
+      severity: "error",
+      open: true,
+    });
+    return;
+  }
     const phoneNumber = await window.api.retrieveParams("phone_number");
     const messagebody = `${accountIdentifier}:${to}:${cc}:${bcc}:${subject}:${message}`;
     const timestamp = new Date().toLocaleString();
