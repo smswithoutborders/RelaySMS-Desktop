@@ -165,14 +165,17 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
               <FaPaperPlane style={{ marginLeft: 4 }} />
             </Button>
           </Box>
-          <Input
-            size="small"
-            sx={{ py: 1 }}
-            placeholder="From"
-            value={accountIdentifier}
-            fullWidth
-            disabled
-          />
+          <Box sx={{ py: 1, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" sx={{ mr: 1 }}>
+              From:
+            </Typography>
+            <Input
+              size="small"
+              value={accountIdentifier}
+              fullWidth
+              disabled
+            />
+          </Box>
 
           <Input
             size="small"
