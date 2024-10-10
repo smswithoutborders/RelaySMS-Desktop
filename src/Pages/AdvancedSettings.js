@@ -68,7 +68,7 @@ export default function AdvancedSettings({ open, onClose }) {
               color: "black",
             }}
           >
-            <FaPlus /> Add
+            <FaPlus />{t("add")}
           </Button>
           <Button
             size="small"
@@ -80,7 +80,7 @@ export default function AdvancedSettings({ open, onClose }) {
             }}
             onClick={fetchClients}
           >
-            Refresh
+            {t("refresh")}
             <FaArrowsRotate />
           </Button>
         </Box>
@@ -110,7 +110,7 @@ export default function AdvancedSettings({ open, onClose }) {
             }}
           >
             <Typography variant="body2" sx={{ color: "red" }}>
-              Something went wrong, please refresh.
+            {t("pleaseRefresh")}
             </Typography>
           </Box>
         ) : (
