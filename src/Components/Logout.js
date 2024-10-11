@@ -43,7 +43,7 @@ export default function Logout({ onLogoutSuccess }) {
 
   return (
     logoutOpen && (
-      <Box sx={{ p: 3, backgroundColor: "#FF312E", width: "100%" }}>
+      <Box sx={{ p: 3, backgroundColor: "#FF312E", width: "100%", color: "white" }}>
         <Typography>{t("logout")}</Typography>
         <br />
         <Typography>{t("logouttext")}</Typography>
@@ -53,7 +53,7 @@ export default function Logout({ onLogoutSuccess }) {
             variant="contained"
             item
             sm={4}
-            sx={{ borderRadius: 3 }}
+            sx={{ borderRadius: 3, bgcolor: "white", color: "black" }}
             onClick={handleCloseLogout}
           >
             {t("no")}
@@ -63,7 +63,7 @@ export default function Logout({ onLogoutSuccess }) {
             variant="contained"
             item
             sm={4}
-            sx={{ borderRadius: 3 }}
+            sx={{ borderRadius: 3, bgcolor: "white", color: "black" }}
             onClick={handleLogout}
             color="primary"
           >

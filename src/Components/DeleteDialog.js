@@ -55,7 +55,9 @@ export default function DeleteDialog() {
 
   return (
     deleteDialogOpen && (
-      <Box sx={{ p: 3, backgroundColor: "#FF312E", width: "100%" }}>
+      <Box
+        sx={{ p: 3, backgroundColor: "#FF312E", width: "100%", color: "white" }}
+      >
         <Typography>{t("deleteAccount")}</Typography>
         <br />
         <Typography sx={{ fontWeight: 600 }}>{t("deletetext")}</Typography>
@@ -67,7 +69,7 @@ export default function DeleteDialog() {
             variant="contained"
             item
             sm={4}
-            sx={{ borderRadius: 3 }}
+            sx={{ borderRadius: 3, bgcolor: "white", color: "black" }}
             onClick={handleCloseDeleteDialog}
           >
             {t("no")}
@@ -77,7 +79,7 @@ export default function DeleteDialog() {
             variant="contained"
             item
             sm={4}
-            sx={{ borderRadius: 3 }}
+            sx={{ borderRadius: 3, bgcolor: "white", color: "black" }}
             onClick={handleConfirmDelete}
             color="primary"
           >

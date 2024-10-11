@@ -11,6 +11,7 @@ import {
   ListItemAvatar,
   Skeleton,
   Grid,
+  Avatar,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -211,12 +212,14 @@ export default function AddAccounts({ open, onClose, asPopover, anchorEl }) {
                   sx={{ display: "flex", alignItems: "center" }}
                 >
                   <ListItemAvatar>
+                  <Avatar sx={{ bgcolor: "white" }}>
                     <Box
                       component="img"
                       src={token.icon_svg}
                       alt={token.name}
                       sx={{ width: "30px", height: "30px", marginRight: 0 }}
                     />
+                    </Avatar>
                   </ListItemAvatar>
                   <ListItemText>
                     <Typography variant="body2">{token.name}</Typography>

@@ -11,6 +11,7 @@ import {
   ListItemAvatar,
   Skeleton,
   Grid,
+  Avatar,
 } from "@mui/material";
 import GmailCompose from "../Components/ComposeGmail";
 import TwitterCompose from "../Components/ComposeTwitter";
@@ -185,17 +186,19 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
                     sx={{ display: "flex", alignItems: "center" }}
                   >
                     <ListItemAvatar>
-                      <Box
-                        component="img"
-                        src={
-                          platform === "gmail"
-                            ? "gmail.svg"
-                            : platform === "twitter"
-                            ? "twitter.svg"
-                            : "telegram.svg"
-                        }
-                        sx={{ width: "30px", height: "30px", marginRight: 2 }}
-                      />
+                      <Avatar sx={{ bgcolor: "white" }}>
+                        <Box
+                          component="img"
+                          src={
+                            platform === "gmail"
+                              ? "gmail.svg"
+                              : platform === "twitter"
+                              ? "twitter.svg"
+                              : "telegram.svg"
+                          }
+                          sx={{ width: "30px", height: "30px", marginRight: 0 }}
+                        />
+                      </Avatar>
                     </ListItemAvatar>
                     <ListItemText>
                       <Typography

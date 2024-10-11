@@ -7,7 +7,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 import Landing from "./Pages/Home";
 import OnboardingContainer from "./OnboardingCon";
-import "./i18n";
+import "./i18n"; 
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -44,9 +44,9 @@ function App() {
           },
           background: {
             default: prefersDarkMode ? "#1E1E1E" : "#fafafa",
-            paper: prefersDarkMode ? "#0E0D0D" : "#98C1D9",
-            custom: prefersDarkMode ? "#232226" : "#fff",
-            side: prefersDarkMode ? "#171614" : "#E0E2DB",
+            paper: prefersDarkMode ? "#0E0D0D" : "#fff",
+            custom: prefersDarkMode ? "#232226" : "#E0E2DB",
+            side: prefersDarkMode ? "#171614" : "#fff",
           },
           text: {
             primary: prefersDarkMode ? "#fff" : "#000",

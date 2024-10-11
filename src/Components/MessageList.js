@@ -90,7 +90,7 @@ export default function MessageList({
               onContextMenu={(event) => handleContextMenu(event, message)}
             >
               <ListItemAvatar>
-                <Avatar sx={{ bgcolor: "transparent" }}>
+                <Avatar sx={{ bgcolor: "white" }}>
                   {platformInfo.logo ? (
                     <img src={platformInfo.logo} alt={platformInfo.name} style={{ width: '80%' }} />
                   ) : (

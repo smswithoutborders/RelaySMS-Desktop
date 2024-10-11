@@ -10,13 +10,14 @@ import {
   Alert,
   Paper,
   Skeleton,
+  Avatar,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
 export default function RevokeDialog() {
   const { t } = useTranslation();
   const [tokens, setTokens] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({
     message: "",
     severity: "",
@@ -45,11 +46,11 @@ export default function RevokeDialog() {
       const response = await window.api.listEntityStoredTokens(longLT);
       setTokens(response.stored_tokens);
       console.log("response:", response);
-      setLoading(false); 
+      setLoading(false);
     } catch (error) {
       try {
         const storedTokens = await window.api.retrieveParams("storedTokens");
-        setTokens(storedTokens || []); 
+        setTokens(storedTokens || []);
         setAlert({
           message: "Using locally stored tokens due to network error.",
           severity: "warning",
@@ -98,7 +99,7 @@ export default function RevokeDialog() {
         severity: "success",
         open: true,
       });
-      fetchStoredTokens(); 
+      fetchStoredTokens();
     } catch (error) {
       console.error("Failed to revoke token:", error);
       setAlert({
@@ -110,8 +111,8 @@ export default function RevokeDialog() {
   };
 
   return (
-    <Box sx={{ p:3 }}>
-      <List component={Paper} sx={{ p:3 }}>
+    <Box sx={{ p: 3 }}>
+      <List component={Paper} sx={{ p: 3 }}>
         <Typography variant="body2" sx={{ fontWeight: 600, pb: 2 }}>
           {t("revoke")}
         </Typography>
@@ -139,15 +140,19 @@ export default function RevokeDialog() {
                   }
                 >
                   <ListItemAvatar>
-                    <Box
-                      component="img"
-                      src={
-                        token.platform === "gmail"
-                          ? "gmail.svg"
-                          : "x-twitter.svg"
-                      }
-                      sx={{ width: "40px", height: "40px", marginRight: 2 }}
-                    />
+                    <Avatar sx={{ bgcolor: "white" }}>
+                      <Box
+                        component="img"
+                        src={
+                          token.platform === "gmail"
+                            ? "gmail.svg"
+                            : token.platform === "twitter"
+                              ? "twitter.svg"
+                              : "telegram.svg"
+                        }
+                        sx={{ width: "30px", height: "30px", marginRight: 0 }}
+                      />
+                    </Avatar>
                   </ListItemAvatar>
                   <ListItemText>
                     <Typography variant="body2">
