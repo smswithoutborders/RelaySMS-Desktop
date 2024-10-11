@@ -111,5 +111,6 @@
   "step4": "Step 4",
   "add": "Add",
   "refresh": "Refresh",
-  "pleaseRefresh": "Something went wrong, please refresh."
+  "pleaseRefresh": "Something went wrong, please refresh.",
+  "sendTo": "Send To"
 }

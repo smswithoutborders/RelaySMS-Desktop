@@ -4,27 +4,67 @@ import { useTranslation } from "react-i18next";
 import { FaPaperPlane } from "react-icons/fa";
 import { MuiTelInput } from "mui-tel-input";
 
-export default function TelegramCompose({ open, onClose }) {
+export default function TelegramCompose({ open, onClose, accountIdentifier }) {
   const { t } = useTranslation();
   const [message, setMessage] = useState("");
-  const [phoneNumber, setNumber] = useState("");
+  const [reciever, setReciever] = useState("");
   const [alert, setAlert] = useState({ message: "", severity: "" });
+  const [loading, setLoading] = useState(false);
 
   const handleAlertClose = () => {
     setAlert({ ...alert, open: false });
   };
 
   const handleSend = async () => {
-    const text = `${message}`;
-    const number = `${phoneNumber}`;
+    const number = await window.api.retrieveParams("selectedMSISDN");
+    const messagebody = `${accountIdentifier}:${reciever}:${message}`;
+    const timestamp = new Date().toLocaleString();
+
+    setLoading(true);
     try {
+      const [client_pub_key_pair, server_pub_key] = await Promise.all([
+        window.api.retrieveParams("client_publish_key_pair"),
+        window.api.retrieveParams("serverPublishPubKey"),
+      ]);
+
+      const sharedSecret = await window.api.publishSharedSecret({
+        client_publish_secret_key: client_pub_key_pair.secretKey,
+        server_publish_pub_key: server_pub_key,
+      });
+
+      const encryptedText = await window.api.encryptMessage({
+        content: messagebody,
+        secretKey: sharedSecret,
+        phoneNumber: number,
+        publicKey: server_pub_key,
+      });
+
+      const incomingPayload = await window.api.createPayload({
+        encryptedContent: encryptedText,
+        pl: "T",
+      });
+      const text = incomingPayload;
       await window.api.sendSMS({ text, number });
-      console.log("SMS sent successfully");
+      const platform = "telegram";
+      const newMessage = {
+        from: accountIdentifier,
+        message,
+        timestamp,
+        platform,
+      };
+      let storedMessages = await window.api.retrieveParams("messages");
+      if (!storedMessages) storedMessages = [];
+      storedMessages.push(newMessage);
+      await window.api.storeParams("messages", storedMessages);
+
       setAlert({
         message: "SMS sent successfully",
         severity: "success",
         open: true,
       });
+      setMessage("");
+      setLoading(false);
+      onClose();
     } catch (error) {
       setAlert({
         message: error.message,
@@ -32,6 +72,7 @@ export default function TelegramCompose({ open, onClose }) {
         open: true,
       });
       console.error("Error sending SMS:", error);
+      setLoading(false);
     }
   };
 
@@ -60,33 +101,37 @@ export default function TelegramCompose({ open, onClose }) {
             maxWidth: "450px",
             width: "100%",
             overflow: "hidden",
+
           },
         }}
         anchor="bottom"
         open={open}
         onClose={onClose}
       >
-        <Box sx={{ p: 5, bgcolor: "background.custom" }}>
+        <Box sx={{ p: 5, bgcolor: "background.custom", pb: 15 }}>
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <Button
               variant="contained"
-              sx={{ textTransform: "none" }}
+              sx={{ textTransform: "none", borderRadius: 7 }}
               onClick={handleSend}
+              disabled={loading}
             >
-              {t("send")} <FaPaperPlane />
+              {loading ? "Sending..." : t("send")} <FaPaperPlane style={{marginLeft: 4}}/>
             </Button>
           </Box>
           <Box>
+            <label>{t("sendTo")}:</label>
             <MuiTelInput
               fullWidth
               variant="standard"
-              value={phoneNumber.replace(/\s+/g, "")}
-              onChange={(e) => setNumber(e.target.value)}
+              value={reciever}
+              onChange={(value) => setReciever(value.replace(/\s+/g, ""))}
               placeholder={t("enterPhoneNumber")}
               defaultCountry="CM"
               sx={{ mb: 4 }}
             />
           </Box>
+
           <Box>
             <Input
               variant="filled"
@@ -96,7 +141,6 @@ export default function TelegramCompose({ open, onClose }) {
               onChange={(e) => setMessage(e.target.value)}
               multiline
               rows={2}
-              margin="normal"
             />
           </Box>
         </Box>

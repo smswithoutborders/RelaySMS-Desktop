@@ -14,12 +14,33 @@ export default function TwitterCompose({ open, onClose, accountIdentifier }) {
 
   const handleSend = async () => {
     const number = await window.api.retrieveParams("selectedMSISDN");
-    const sender = `${accountIdentifier}`;
-    const text = `${sender}/n${message}`;
+    const messagebody = `${accountIdentifier}:${message}`;
     const timestamp = new Date().toLocaleString();
 
     setLoading(true);
     try {
+      const [client_pub_key_pair, server_pub_key] = await Promise.all([
+        window.api.retrieveParams("client_publish_key_pair"),
+        window.api.retrieveParams("serverPublishPubKey"),
+      ]);
+
+      const sharedSecret = await window.api.publishSharedSecret({
+        client_publish_secret_key: client_pub_key_pair.secretKey,
+        server_publish_pub_key: server_pub_key,
+      });
+
+      const encryptedText = await window.api.encryptMessage({
+        content: messagebody,
+        secretKey: sharedSecret,
+        phoneNumber: number,
+        publicKey: server_pub_key,
+      });
+
+      const incomingPayload = await window.api.createPayload({
+        encryptedContent: encryptedText,
+        pl: "t",
+      });
+      const text = incomingPayload;
       await window.api.sendSMS({ text, number });
       const platform = "twitter";
       const newMessage = {
@@ -92,7 +113,7 @@ export default function TwitterCompose({ open, onClose, accountIdentifier }) {
               variant="contained"
               sx={{ borderRadius: 5, px: 3, textTransform: "none" }}
             >
-              {loading ? "Loading..." : t("post")}
+              {loading ? "Sending..." : t("post")}
             </Button>
           </Box>
           <Box>

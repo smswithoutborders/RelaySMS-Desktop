@@ -27,7 +27,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
   const [popoverAnchor, setPopoverAnchor] = useState(null);
   const [selectedPlatform, setSelectedPlatform] = useState("");
   const [selectedToken, setSelectedToken] = useState(null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   const handleAlertClose = () => {
     setAlert({ ...alert, open: false });
@@ -79,7 +79,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
         });
       }
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -105,7 +105,8 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
     setPopoverAnchor(null);
   };
 
-  const handleTelegramClick = () => {
+  const handleTelegramClick = (token) => {
+    setSelectedToken(token.account_identifier);
     setTelegramOpen(true);
     setComposeOpen(false);
     setTwitterOpen(false);
@@ -166,7 +167,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
                 {loading ? (
                   <Box>
                     <Grid container>
-                      <Grid item md={3} sm={3} sx={{mb: 3}}>
+                      <Grid item md={3} sm={3} sx={{ mb: 3 }}>
                         <Skeleton
                           variant="circular"
                           sx={{ width: "30px", height: "30px" }}
@@ -236,7 +237,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
                     } else if (selectedPlatform === "twitter") {
                       handleTwitterClick(token);
                     } else if (selectedPlatform === "telegram") {
-                      handleTelegramClick();
+                      handleTelegramClick(token);
                     }
                   }}
                   sx={{ display: "flex", alignItems: "center" }}
@@ -262,7 +263,11 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
         onClose={handleCloseTwitter}
         accountIdentifier={selectedToken}
       />
-      <TelegramCompose open={telegramOpen} onClose={handleCloseTelegram} />
+      <TelegramCompose
+        open={telegramOpen}
+        onClose={handleCloseTelegram}
+        accountIdentifier={selectedToken}
+      />
     </>
   );
 
