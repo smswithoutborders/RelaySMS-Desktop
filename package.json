@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "main": "./public/electron.js",
-  "author": "RelaySMS <developers@smswithoutborders.com>",
+  "author": "SMSWithoutBorders <developers@smswithoutborders.com>",
   "description": "Relay SMS Desktop App",
   "homepage": "./",
   "category": "Communication",
@@ -133,17 +133,16 @@
       "target": "deb",
       "category": "Communication",
       "icon": "./public/icon.png"
-    }
-  },
-  "extraResources": [
-    {
-      "from": "resources/python",
-      "to": "resources/python",
-      "filter": ["**/*"]
-    }
-],
-"asarUnpack": [
-    "resources/python/venv"
-]
-
+    },
+    "asar": true,
+    "extraResources": [
+      {
+        "from": "resources/python/",
+        "to": "resources/python/",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
+  }
 }

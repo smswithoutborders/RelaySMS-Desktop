@@ -527,7 +527,7 @@ ipcMain.handle("send-sms", async (event, { text, number }) => {
 
 function encryptMessage({ content, phoneNumber, secretKey, publicKey }) {
   return new Promise((resolve, reject) => {
-    const pythonDir = path.join(__dirname, "../resources/python");
+    const pythonDir = path.join(__dirname, "/resources/python");
     const venvActivate = path.join(pythonDir, "venv/bin/activate");
     const cliPath = path.join(pythonDir, "py_double_ratchet_cli/cli.py");
     console.log("You got here, hurray!");
@@ -738,7 +738,7 @@ app.on("web-contents-created", (event, contents) => {
   });
 });
 
-const pythonDir = path.join(__dirname, "../resources/python");
+const pythonDir = path.join(__dirname, "/resources/python");
 const venvDir = path.join(pythonDir, "venv");
 const setupFlagFile = path.join(pythonDir, "setup_done.flag");
 const cliRepoDir = path.join(pythonDir, "py_double_ratchet_cli");

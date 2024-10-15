@@ -35,7 +35,6 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
     });
     return;
   }
-    const phoneNumber = await window.api.retrieveParams("phone_number");
     const messagebody = `${accountIdentifier}:${to}:${cc}:${bcc}:${subject}:${message}`;
     const timestamp = new Date().toLocaleString();
 
@@ -66,7 +65,7 @@ export default function GmailCompose({ open, onClose, accountIdentifier }) {
       const encryptedText = await window.api.encryptMessage({
         content: messagebody,
         secretKey: sharedSecret,
-        phoneNumber: phoneNumber,
+        phoneNumber: number,
         publicKey: server_pub_key,
       });
 
