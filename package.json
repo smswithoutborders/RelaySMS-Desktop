@@ -133,16 +133,6 @@
       "target": "deb",
       "category": "Communication",
       "icon": "./public/icon.png"
-    },
-    "asar": true,
-    "extraResources": [
-      {
-        "from": "resources/python/",
-        "to": "resources/python/",
-        "filter": [
-          "**/*"
-        ]
-      }
-    ]
+    }
   }
 }

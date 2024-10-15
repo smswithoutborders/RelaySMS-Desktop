@@ -12,6 +12,7 @@ const url = require("url");
 const axios = require("axios");
 const { execSync, execFile } = require("child_process");
 const fs = require("fs-extra");
+const os = require('os');
 
 const {
   decryptLongLivedToken,
@@ -525,11 +526,18 @@ ipcMain.handle("send-sms", async (event, { text, number }) => {
   }
 });
 
+// Get the home directory
+const homeDir = os.homedir();
+
+// Construct the base directory path
+const baseDir = path.join(homeDir, ".local", "share", "relaysms");
+
+console.log(baseDir);
+
 function encryptMessage({ content, phoneNumber, secretKey, publicKey }) {
   return new Promise((resolve, reject) => {
-    const pythonDir = path.join(__dirname, "/resources/python");
-    const venvActivate = path.join(pythonDir, "venv/bin/activate");
-    const cliPath = path.join(pythonDir, "py_double_ratchet_cli/cli.py");
+    const venvActivate = path.join(baseDir, "venv/bin/activate");
+    const cliPath = path.join(baseDir, "py_double_ratchet_cli/cli.py");
     console.log("You got here, hurray!");
     // Command to run the CLI
     const command = `source ${venvActivate} && python3 ${cliPath} -c "${content}" -p "${phoneNumber}" -s "${secretKey}" -k "${publicKey}"`;
@@ -738,10 +746,9 @@ app.on("web-contents-created", (event, contents) => {
   });
 });
 
-const pythonDir = path.join(__dirname, "/resources/python");
-const venvDir = path.join(pythonDir, "venv");
-const setupFlagFile = path.join(pythonDir, "setup_done.flag");
-const cliRepoDir = path.join(pythonDir, "py_double_ratchet_cli");
+const venvDir = path.join(baseDir, "venv");
+const setupFlagFile = path.join(baseDir, "setup_done.flag");
+const cliRepoDir = path.join(baseDir, "py_double_ratchet_cli");
 // Function to perform setup
 function setupPythonEnvironment() {
   if (fs.existsSync(setupFlagFile)) {
@@ -752,7 +759,7 @@ function setupPythonEnvironment() {
   console.log("Setting up Python environment...");
 
   // Ensure Python directory exists
-  fs.mkdirSync(pythonDir, { recursive: true });
+  fs.mkdirSync(baseDir, { recursive: true });
 
   // Clone the repository if it doesn't exist
   if (!fs.existsSync(cliRepoDir)) {
