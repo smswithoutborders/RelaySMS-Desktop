@@ -66,9 +66,9 @@ export default function Onboarding() {
                 handleOpenExternalLink("https://smswithoutborders.com/privacy-policy")
               }
               variant="body1"
-              sx={{ borderRadius: 5, px: 2 }}
+              sx={{ borderRadius: 5, px: 2, color: "#347FC4" }}
             >
-              {t("acceptPrivacyPolicy", "termsandconditions")}
+              {t("acceptPrivacyPolicy")}  {t("termsandconditions")}
             </Typography>
           </Grid>
           <Grid

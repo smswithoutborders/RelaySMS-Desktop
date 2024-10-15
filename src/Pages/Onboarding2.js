@@ -76,9 +76,10 @@ export default function Onboarding2() {
           handleCloseLogin();
           handleOpenReset();
         }}
+        asDialog={true}
       />
-      <Signup onClose={handleCloseSignup} open={openSignupDialog} />
-      <ResetPassword onClose={handleCloseReset} open={openResetDialog} />
+      <Signup onClose={handleCloseSignup} open={openSignupDialog} asDialog={true}/>
+      <ResetPassword onClose={handleCloseReset} open={openResetDialog} asDialog={true}/>
     </Box>
   );
 }
