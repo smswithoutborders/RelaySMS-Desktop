@@ -422,8 +422,8 @@ export default function Landing() {
       <Grid container>
         <Grid
           item
-          sm={1}
-          md={1}
+          sm={0.5}
+          md={0.5}
           lg={0.5}
           sx={{
             backgroundColor: "background.side",
