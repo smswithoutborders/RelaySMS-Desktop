@@ -80,7 +80,7 @@ export default function MessageList({
             />
           </ListItem>
         )}
-        {messages.map((message, index) => {
+        {messages.slice().reverse().map((message, index) => {  // Reverse the order of messages
           const platformInfo = getPlatformInfo(message.platform);
           return (
             <ListItem
@@ -134,7 +134,7 @@ export default function MessageList({
           );
         })}
       </List>
-
+  
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem onClick={handleDeleteMessage}>
           <FaTrash style={{ marginRight: 8 }} />
@@ -143,4 +143,5 @@ export default function MessageList({
       </Menu>
     </Box>
   );
+  
 }
