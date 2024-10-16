@@ -2,6 +2,11 @@ const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
 
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
+
+const publisherURL = process.env.SMSWITHOUTBORDERS_PUBLISHER_URL;
+
 const PROTO_PATH = path.join(__dirname, "publisher.proto");
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
@@ -13,7 +18,7 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 const publisher_proto =
   grpc.loadPackageDefinition(packageDefinition).publisher.v1;
 
-const target = "staging.smswithoutborders.com:9060";
+const target = publisherURL;
 const credentials = grpc.credentials.createFromSecureContext();
 const client = new publisher_proto.Publisher(target, credentials);
 
