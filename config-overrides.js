@@ -22,7 +22,7 @@ module.exports = function override(config) {
   };
 
   config.module.rules.push({
-    test: /\.(png|ico|icns)(ttf|otf|eot|svg|woff(2)?)$/,
+    test: /\.(png|ico|icns)$/,
     use: [
       {
         loader: "file-loader",

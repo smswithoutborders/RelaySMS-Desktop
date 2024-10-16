@@ -9,6 +9,8 @@ import {
   Typography,
   Menu,
   MenuItem,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { FaTrash } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
@@ -21,6 +23,7 @@ export default function MessageList({
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const handleContextMenu = (event, message) => {
     event.preventDefault();
@@ -42,8 +45,13 @@ export default function MessageList({
       );
       await window.api.storeParams("messages", updatedMessages);
       refreshMessages(updatedMessages);
+      setSnackbarOpen(true);
     }
     handleClose();
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   const getPlatformInfo = (platform) => {
@@ -51,17 +59,17 @@ export default function MessageList({
       case "gmail":
         return {
           name: "Gmail",
-          logo: 'gmail.svg',
+          logo: "gmail.svg",
         };
       case "twitter":
         return {
           name: "Twitter",
-          logo: 'twitter.svg',
+          logo: "twitter.svg",
         };
       case "telegram":
         return {
           name: "Telegram",
-          logo: 'telegram.svg',
+          logo: "telegram.svg",
         };
       default:
         return { name: "Unknown", logo: null };
@@ -80,68 +88,96 @@ export default function MessageList({
             />
           </ListItem>
         )}
-        {messages.slice().reverse().map((message, index) => {  // Reverse the order of messages
-          const platformInfo = getPlatformInfo(message.platform);
-          return (
-            <ListItem
-              button
-              key={index}
-              onClick={() => onMessageSelect(message)}
-              onContextMenu={(event) => handleContextMenu(event, message)}
-            >
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: "white" }}>
-                  {platformInfo.logo ? (
-                    <img src={platformInfo.logo} alt={platformInfo.name} style={{ width: '80%' }} />
-                  ) : (
-                    <Typography variant="body2">{platformInfo.name}</Typography>
-                  )}
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                sx={{ fontSize: "9px" }}
-                primary={
-                  <React.Fragment>
-                    <Typography
-                      sx={{ display: "inline", fontSize: "15px" }}
-                      component="span"
-                      variant="body2"
-                      color="text.primary"
-                    >
-                      {`${message.from}`}
-                    </Typography>
-                  </React.Fragment>
-                }
-                secondary={
-                  <React.Fragment>
-                    <Typography
-                      sx={{ display: "inline", fontSize: "13px" }}
-                      component="span"
-                      variant="body2"
-                      color="text.primary"
-                    >
-                      {`${message.message.slice(0, 30)}...`}
-                    </Typography>
-                    <br />
-                    <Typography component="span"
-                      variant="body2" sx={{ display: "inline", fontSize: "10px" }}>
-                      {`${message.timestamp}`}
-                    </Typography>
-                  </React.Fragment>
-                }
-              />
-            </ListItem>
-          );
-        })}
+        {messages
+          .slice()
+          .reverse()
+          .map((message, index) => {
+            const platformInfo = getPlatformInfo(message.platform);
+            return (
+              <ListItem
+                button
+                key={index}
+                onClick={() => onMessageSelect(message)}
+                onContextMenu={(event) => handleContextMenu(event, message)}
+              >
+                <ListItemAvatar>
+                  <Avatar sx={{ bgcolor: "white" }}>
+                    {platformInfo.logo ? (
+                      <img
+                        src={platformInfo.logo}
+                        alt={platformInfo.name}
+                        style={{ width: "80%" }}
+                      />
+                    ) : (
+                      <Typography variant="body2">
+                        {platformInfo.name}
+                      </Typography>
+                    )}
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  sx={{ fontSize: "9px" }}
+                  primary={
+                    <React.Fragment>
+                      <Typography
+                        sx={{ display: "inline", fontSize: "15px" }}
+                        component="span"
+                        variant="body2"
+                        color="text.primary"
+                      >
+                        {`${message.from}`}
+                      </Typography>
+                    </React.Fragment>
+                  }
+                  secondary={
+                    <React.Fragment>
+                      <Typography
+                        sx={{ display: "inline", fontSize: "13px" }}
+                        component="span"
+                        variant="body2"
+                        color="text.primary"
+                      >
+                        {`${message.message.slice(0, 30)}...`}
+                      </Typography>
+                      <br />
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        sx={{ display: "inline", fontSize: "10px" }}
+                      >
+                        {`${message.timestamp}`}
+                      </Typography>
+                    </React.Fragment>
+                  }
+                />
+              </ListItem>
+            );
+          })}
       </List>
-  
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+
+      <Menu
+        transformOrigin={{ horizontal: "left", vertical: "top" }}
+        anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+      >
         <MenuItem onClick={handleDeleteMessage}>
-          <FaTrash style={{ marginRight: 8 }} />
+          <FaTrash style={{ marginRight: 8, size: 11 }} />
           {t("deleteMessage")}
         </MenuItem>
       </Menu>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+          {t("messageDeletedSuccessfully")}
+        </Alert>
+      </Snackbar>
     </Box>
   );
-  
 }

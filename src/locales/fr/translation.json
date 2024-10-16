@@ -112,5 +112,6 @@
   "step4": "Étape 4",
   "add": "Ajouter",
   "refresh": "Rafraîchir",
-  "pleaseRefresh": "Quelque chose s'est mal passé, veuillez actualiser."
+  "pleaseRefresh": "Quelque chose s'est mal passé, veuillez actualiser.",
+   "messageDeletedSuccessfully": "Message supprimé avec succès"
 }
