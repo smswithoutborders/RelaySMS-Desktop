@@ -637,7 +637,7 @@ async function createWindow() {
 
   console.log("Creating main window...");
   mainWindow = new BrowserWindow({
-    width: 1200,
+    width: 1300,
     height: 800,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -749,8 +749,25 @@ app.on("web-contents-created", (event, contents) => {
 const venvDir = path.join(baseDir, "venv");
 const setupFlagFile = path.join(baseDir, "setup_done.flag");
 const cliRepoDir = path.join(baseDir, "py_double_ratchet_cli");
+
+
+// Function to check if Python is installed
+function isPythonInstalled() {
+  try {
+    execSync('python3 --version', { stdio: 'ignore' });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 // Function to perform setup
 function setupPythonEnvironment() {
+  if (!isPythonInstalled()) {
+    console.error('Python 3 is not installed. Please install Python 3 to continue.');
+    return;
+  }
+
   if (fs.existsSync(setupFlagFile)) {
     console.log("Python environment setup has already been completed.");
     return;

@@ -535,7 +535,7 @@ export default function Landing() {
         </Grid>
         <Divider orientation="vertical" />
 
-        <Grid item sm={7.7} md={7.7} xl={7.7} sx={{overflowY: "auto", height: "100vh"}}>
+        <Grid item sm={7.7} md={7.7} lg={7.7} sx={{overflowY: "auto", height: "100vh"}}>
           <Box
             sx={{
               py: 3,
