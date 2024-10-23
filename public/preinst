@@ -1,0 +1,46 @@
+#!/bin/bash
+
+LOG_FILE="/tmp/preinst_install_log.txt"
+
+# Log function
+log() {
+    echo "$1" | tee -a $LOG_FILE
+}
+
+# Check if Python 3 is installed
+if ! command -v python3 &> /dev/null; then
+    log "Error: Python 3 is required but not installed."
+    exit 1
+fi
+
+# Check if Git is installed
+if ! command -v git &> /dev/null; then
+    log "Error: Git is required but not installed."
+    exit 1
+fi
+
+# Check if curl is installed
+if ! command -v curl &> /dev/null; then
+    log "curl not found. Installing curl..."
+    
+    # Attempt to install curl based on the OS
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        sudo apt-get update
+        sudo apt-get install -y curl || { log "Failed to install curl."; exit 1; }
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        brew install curl || { log "Failed to install curl."; exit 1; }
+    elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" ]]; then
+        choco install curl || { log "Failed to install curl."; exit 1; }
+    else
+        log "Unsupported OS for curl installation."
+        exit 1
+    fi
+    
+    log "curl installed successfully."
+else
+    log "curl is already installed."
+fi
+
+# Continue installation
+log "All checks passed. Continuing installation."
+exit 0
