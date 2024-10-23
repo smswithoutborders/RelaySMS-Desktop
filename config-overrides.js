@@ -49,7 +49,6 @@ module.exports = function override(config) {
     }),
   ]);
 
-  // Add TerserPlugin for minification
   config.optimization = {
     minimize: true,
     minimizer: [

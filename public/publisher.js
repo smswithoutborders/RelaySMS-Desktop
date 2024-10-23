@@ -2,10 +2,7 @@ const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
 
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
-
-const publisherURL = process.env.SMSWITHOUTBORDERS_PUBLISHER_URL;
+const publisherURL = process.env.SMSWITHOUTBORDERS_PUBLISHER_URL || 'publisher.staging.smswithoutborders.com:443';
 
 const PROTO_PATH = path.join(__dirname, "publisher.proto");
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {

@@ -2,7 +2,6 @@
 const {
   app,
   BrowserWindow,
-  //protocol,
   ipcMain,
   Menu,
   shell,
@@ -10,7 +9,7 @@ const {
 const path = require("path");
 const url = require("url");
 const axios = require("axios");
-const { execSync, execFile } = require("child_process");
+const { execSync, execFile, exec } = require("child_process");
 const fs = require("fs-extra");
 const os = require('os');
 
@@ -194,7 +193,6 @@ ipcMain.handle(
 ipcMain.handle(
   "list-entity-stored-tokens",
   async (event, { long_lived_token }) => {
-    console.log("main llt:", long_lived_token);
     return new Promise((resolve, reject) => {
       vault.listEntityStoredTokens(
         {
@@ -455,7 +453,6 @@ ipcMain.handle(
         server_device_id_pub_key,
         long_lived_token_cipher
       );
-      console.log("Decrypted Token:", decryptedToken);
       return decryptedToken;
     } catch (err) {
       console.error("Error:", err.message);
@@ -489,7 +486,6 @@ ipcMain.handle("send-sms", async (event, { text, number }) => {
       "and number:",
       number
     );
-
     // Check system state
     const stateResponse = await axios.get("http://localhost:6868/system/state");
     console.log("System state response:", stateResponse.data);
@@ -502,7 +498,7 @@ ipcMain.handle("send-sms", async (event, { text, number }) => {
       const modems = modemsResponse.data;
 
       if (modems.length > 0) {
-        const modemIndex = modems[0].index; // Assuming using the first modem found
+        const modemIndex = modems[0].index; 
         console.log("Using modem index:", modemIndex);
 
         // Send SMS
@@ -526,10 +522,8 @@ ipcMain.handle("send-sms", async (event, { text, number }) => {
   }
 });
 
-// Get the home directory
 const homeDir = os.homedir();
 
-// Construct the base directory path
 const baseDir = path.join(homeDir, ".local", "share", "relaysms");
 
 console.log(baseDir);
@@ -538,8 +532,9 @@ function encryptMessage({ content, phoneNumber, secretKey, publicKey }) {
   return new Promise((resolve, reject) => {
     const venvActivate = path.join(baseDir, "venv/bin/activate");
     const cliPath = path.join(baseDir, "py_double_ratchet_cli/cli.py");
-    console.log("You got here, hurray!");
-    // Command to run the CLI
+    console.log ("venvActivate", venvActivate)
+    console.log ("cliPath", cliPath)
+
     const command = `source ${venvActivate} && python3 ${cliPath} -c "${content}" -p "${phoneNumber}" -s "${secretKey}" -k "${publicKey}"`;
 
     execFile("bash", ["-c", command], (error, stdout, stderr) => {
@@ -555,7 +550,6 @@ function encryptMessage({ content, phoneNumber, secretKey, publicKey }) {
 ipcMain.handle(
   "encrypt-message",
   async (event, { content, phoneNumber, secretKey, publicKey }) => {
-    console.log(">>>1");
     try {
       const result = await encryptMessage({
         content: content,
@@ -563,7 +557,6 @@ ipcMain.handle(
         secretKey: secretKey,
         publicKey: publicKey,
       });
-      console.log(">>>2");
       return result;
     } catch (error) {
       throw new Error(`Encryption failed: ${error}`);
@@ -574,20 +567,11 @@ ipcMain.handle(
 ipcMain.handle(
   "publish-shared-secret",
   async (event, { client_publish_secret_key, server_publish_pub_key }) => {
-    console.log(
-      "publish-shared-client_publish_secret_key:",
-      client_publish_secret_key
-    );
-    console.log(
-      "publish-server_publish_pub_key-secret:",
-      server_publish_pub_key
-    );
     try {
       const result = await publishSharedSecret(
         client_publish_secret_key,
         server_publish_pub_key
       );
-      console.log("publish-shared-secret:", result);
       return result;
     } catch (err) {
       console.error("Error:", err.message);
@@ -616,8 +600,6 @@ ipcMain.handle("logout", async () => {
 
 
 ipcMain.handle("create-payload", async (event, { encryptedContent, pl }) => {
-  console.log("encryptedContent:", encryptedContent);
-  console.log("pl:", pl);
   try {
     const result = createPayload(encryptedContent, pl);
     console.log("payload:", result);
@@ -635,7 +617,6 @@ ipcMain.handle('open-external-link', (event, url) => {
 async function createWindow() {
   await loadModules();
 
-  console.log("Creating main window...");
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -749,54 +730,119 @@ app.on("web-contents-created", (event, contents) => {
 const venvDir = path.join(baseDir, "venv");
 const setupFlagFile = path.join(baseDir, "setup_done.flag");
 const cliRepoDir = path.join(baseDir, "py_double_ratchet_cli");
+const logFile = "/tmp/postinstall_log.txt";
 
 
-// Function to check if Python is installed
+exec('sudo apt update && sudo apt install libsqlcipher-dev build-essential git cmake libsqlite3-dev', (error, stdout, stderr) => {
+  if (error) {
+      console.error(`Error installing dependency: ${error}`);
+      return;
+  }
+  console.log(`stdout: ${stdout}`);
+  console.error(`stderr: ${stderr}`);
+});
+
+// Log function
+function log(message) {
+    fs.appendFileSync(logFile, message + "\n");
+}
+
+// Check if Python is installed
 function isPythonInstalled() {
   try {
     execSync('python3 --version', { stdio: 'ignore' });
     return true;
   } catch (error) {
+    console.error('Python 3 is not installed. Please install Python 3 to continue.');
+    log('Python 3 is not installed. Please install Python 3 to continue.')
     return false;
   }
 }
 
-// Function to perform setup
+// Check if Git is installed
+function isGitInstalled() {
+  try {
+    execSync('git --version', { stdio: 'ignore' });
+    return true;
+  } catch (error) {
+   log('Git is not installed, falling back to curl for CLI installation.');
+    return false;
+  }
+}
+
+// Download repository using curl if Git is not available
+function downloadCLIWithCurl() {
+  try {
+    log('Downloading CLI using curl...');
+    const zipPath = path.join(baseDir, "py_double_ratchet_cli.zip");
+    execSync(`curl -L https://github.com/smswithoutborders/py_double_ratchet_cli/main.zip -o ${zipPath}`);
+    
+    // Unzip the downloaded file
+    execSync(`unzip ${zipPath} -d ${baseDir}`);
+    // Rename the extracted folder to match the expected directory name
+    fs.renameSync(path.join(baseDir, "py_double_ratchet_cli-main"), cliRepoDir);
+    
+    log('CLI downloaded and extracted successfully.');
+  } catch (error) {
+    log('Failed to download CLI with curl:', error);
+    throw new Error('CLI installation failed.');
+  }
+}
+
+// Perform setup
 function setupPythonEnvironment() {
   if (!isPythonInstalled()) {
-    console.error('Python 3 is not installed. Please install Python 3 to continue.');
     return;
   }
 
   if (fs.existsSync(setupFlagFile)) {
-    console.log("Python environment setup has already been completed.");
+    log("Python environment setup has already been completed.");
     return;
   }
 
-  console.log("Setting up Python environment...");
+  log("Setting up Python environment...");
 
   // Ensure Python directory exists
   fs.mkdirSync(baseDir, { recursive: true });
 
-  // Clone the repository if it doesn't exist
-  if (!fs.existsSync(cliRepoDir)) {
-    execSync(
-      `git clone https://github.com/smswithoutborders/py_double_ratchet_cli.git ${cliRepoDir}`,
-      { stdio: "inherit" }
-    );
+  // Clone the repository or download with curl
+  try {
+    if (!fs.existsSync(cliRepoDir)) {
+      if (isGitInstalled()) {
+        execSync(
+          `git clone https://github.com/smswithoutborders/py_double_ratchet_cli.git ${cliRepoDir}`,
+          { stdio: "inherit" }
+        );
+      } else {
+        downloadCLIWithCurl(); // Use curl to download CLI
+      }
+    }
+  } catch (error) {
+    log("Error during repository setup:", error);
+    return;
   }
 
   // Create a virtual environment
-  execSync(`python3 -m venv ${venvDir}`, { stdio: "inherit" });
+  try {
+    execSync(`python3 -m venv ${venvDir}`, { stdio: "inherit" });
+  } catch (error) {
+    log("Failed to create virtual environment:", error);
+    return;
+  }
 
   // Install requirements
-  execSync(
-    `. ${path.join(venvDir, "bin/activate")} && pip install -r ${path.join(
-      cliRepoDir,
-      "requirements.txt"
-    )}`,
-    { stdio: "inherit" }
-  );
+  try {
+    execSync(
+      `. ${path.join(venvDir, "bin/activate")} && pip install -r ${path.join(
+        cliRepoDir,
+        "requirements.txt"
+      )}`,
+      { stdio: "inherit" }
+    );
+  } catch (error) {
+    log("Failed to install Python dependencies:", error);
+    return;
+  }
 
   // Create a flag file to indicate setup is done
   fs.writeFileSync(setupFlagFile, "Python environment setup completed.");
@@ -804,3 +850,5 @@ function setupPythonEnvironment() {
 
 // Run the setup function
 setupPythonEnvironment();
+
+

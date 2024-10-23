@@ -2,10 +2,8 @@ const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
 
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` });
-
-const vaultURL = process.env.SMSWITHOUTBORDERS_VAULT_URL;
+const vaultURL = process.env.SMSWITHOUTBORDERS_VAULT_URL || 'vault.staging.smswithoutborders.com:443';
+console.log("vaultURL", vaultURL)
 
 const PROTO_PATH = path.join(__dirname, "vault.proto");
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {

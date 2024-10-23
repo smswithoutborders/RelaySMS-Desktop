@@ -114,9 +114,7 @@
     "files": [
       "./dist/**/*",
       "./src/**/*",
-      "./public/**/*",
-      "./public/*",
-      "./build/*"
+      "./public/**/*"    
     ],
     "directories": {
       "buildResources": "public"

@@ -4,7 +4,6 @@ console.log("Preload script loaded");
 
 contextBridge.exposeInMainWorld("api", {
   storeParams: async (key, value) => {
-    console.log("store-params hurray you got here");
     await ipcRenderer.invoke("store-params", { key, value });
   },
   retrieveParams: async (key) => {
@@ -32,12 +31,6 @@ contextBridge.exposeInMainWorld("api", {
     ownership_proof_response
   ) => {
     try {
-      console.log("Creating entity with the following details:");
-      console.log("Phone Number:", phoneNumber);
-      console.log("Country Code:", country_code);
-      console.log("Client Device ID Pub Key:", client_device_id_pub_key);
-      console.log("Client Publish Pub Key:", client_publish_pub_key);
-
       const response = await ipcRenderer.invoke("create-entity", {
         phoneNumber,
         password,
@@ -49,7 +42,7 @@ contextBridge.exposeInMainWorld("api", {
       console.log("Create entity response:", response);
       return response;
     } catch (error) {
-      console.error("gRPC call error:", error);
+      console.error(error);
       throw error;
     }
   },
@@ -62,8 +55,6 @@ contextBridge.exposeInMainWorld("api", {
     ownership_proof_response
   ) => {
     try {
-      console.log("Authenticating entity with the following details:");
-      console.log("Phone Number:", phoneNumber);
       const response = await ipcRenderer.invoke("authenticate-entity", {
         phoneNumber,
         password,
@@ -73,7 +64,7 @@ contextBridge.exposeInMainWorld("api", {
       });
       return response;
     } catch (error) {
-      console.error("gRPC call error:", error);
+      console.error(error);
       throw error;
     }
   },
@@ -86,7 +77,6 @@ contextBridge.exposeInMainWorld("api", {
     ownership_proof_response
   ) => {
     try {
-      console.log("Phone Number:", phoneNumber);
       const response = await ipcRenderer.invoke("reset-password", {
         phoneNumber,
         new_password,
@@ -96,7 +86,7 @@ contextBridge.exposeInMainWorld("api", {
       });
       return response;
     } catch (error) {
-      console.error("gRPC call error:", error);
+      console.error(error);
       throw error;
     }
   },
@@ -114,7 +104,7 @@ contextBridge.exposeInMainWorld("api", {
       });
       return response;
     } catch (error) {
-      console.error("gRPC call error:", error);
+      console.error(error);
       throw error;
     }
   },
@@ -127,10 +117,6 @@ contextBridge.exposeInMainWorld("api", {
     redirect_url
   ) => {
     try {
-      console.log("platform:", platform);
-      console.log("state:", state);
-      console.log("code_verifier", code_verifier);
-      console.log("autogenerate_code_verifier", autogenerate_code_verifier);
       const response = await ipcRenderer.invoke(
         "get-oauth2-authorization-url",
         {
@@ -144,7 +130,7 @@ contextBridge.exposeInMainWorld("api", {
       console.log("response:", response);
       return response;
     } catch (error) {
-      console.error("gRPC call error:", error);
+      console.error(error);
       throw error;
     }
   },
@@ -157,10 +143,6 @@ contextBridge.exposeInMainWorld("api", {
     redirect_url
   ) => {
     try {
-      console.log("platform:", platform);
-      console.log("long_lived_token:", long_lived_token);
-      console.log("authorization_code", authorization_code);
-      console.log("code_verifier", code_verifier);
       const response = await ipcRenderer.invoke(
         "exchange-oauth2-code-and-store",
         {
@@ -174,7 +156,7 @@ contextBridge.exposeInMainWorld("api", {
       console.log("response:", response);
       return response;
     } catch (error) {
-      console.error("gRPC call error:", error);
+      console.error(error);
       throw error;
     }
   },
@@ -185,9 +167,6 @@ contextBridge.exposeInMainWorld("api", {
     account_identifier
   ) => {
     try {
-      console.log("platform:", platform);
-      console.log("long_lived_token:", long_lived_token);
-      console.log("account_identifier", account_identifier);
       const response = await ipcRenderer.invoke(
         "revoke-and-delete-oauth2-token",
         {
@@ -199,15 +178,13 @@ contextBridge.exposeInMainWorld("api", {
       console.log("response:", response);
       return response;
     } catch (error) {
-      console.error("gRPC call error:", error);
+      console.error(error);
       throw error;
     }
   },
 
   getPNBACode: async (phone_number, platform) => {
     try {
-      console.log("platform:", platform);
-      console.log("phone_number:", phone_number);
       const response = await ipcRenderer.invoke("get-pnba-code", {
         phone_number,
         platform,
@@ -215,7 +192,7 @@ contextBridge.exposeInMainWorld("api", {
       console.log("response:", response);
       return response;
     } catch (error) {
-      console.error("gRPC call error:", error);
+      console.error(error);
       throw error;
     }
   },
@@ -228,10 +205,6 @@ contextBridge.exposeInMainWorld("api", {
     platform
   ) => {
     try {
-      console.log("phone_number:", phone_number);
-      console.log("authorization_code:", authorization_code);
-      console.log("long_lived_token:", long_lived_token);
-      console.log("platform:", platform);
       const response = await ipcRenderer.invoke(
         "exchange-pnba-code-and-store",
         {
@@ -245,35 +218,33 @@ contextBridge.exposeInMainWorld("api", {
       console.log("response:", response);
       return response;
     } catch (error) {
-      console.error("gRPC call error:", error);
+      console.error(error);
       throw error;
     }
   },
 
   listEntityStoredTokens: async (long_lived_token) => {
     try {
-      console.log("long_lived_token:", long_lived_token);
       const response = await ipcRenderer.invoke("list-entity-stored-tokens", {
         long_lived_token,
       });
       console.log("response:", response);
       return response;
     } catch (error) {
-      console.error("gRPC call error:", error);
+      console.error(error);
       throw error;
     }
   },
 
   deleteEntity: async (long_lived_token) => {
     try {
-      console.log("long_lived_token:", long_lived_token);
       const response = await ipcRenderer.invoke("delete-entity", {
         long_lived_token,
       });
       console.log("response:", response);
       return response;
     } catch (error) {
-      console.error("gRPC call error:", error);
+      console.error(error);
       throw error;
     }
   },
@@ -343,9 +314,6 @@ contextBridge.exposeInMainWorld("api", {
     long_lived_token_cipher,
   }) => {
     return new Promise((resolve, reject) => {
-      console.log("client_device_id_secret_key:", client_device_id_secret_key);
-      console.log("server_device_id_pub_key:", server_device_id_pub_key);
-      console.log("long_lived_token_cipher:", long_lived_token_cipher);
       ipcRenderer
         .invoke("get-long-lived-token", {
           client_device_id_secret_key,
@@ -353,7 +321,6 @@ contextBridge.exposeInMainWorld("api", {
           long_lived_token_cipher,
         })
         .then((decryptedToken) => {
-          console.log("Decrypted Token:", decryptedToken);
           resolve(decryptedToken);
         })
         .catch((err) => {
@@ -380,11 +347,6 @@ contextBridge.exposeInMainWorld("api", {
   },
   encryptMessage: ({ content, phoneNumber, secretKey, publicKey }) => {
     return new Promise((resolve, reject) => {
-      console.log("content:", content);
-      console.log("phoneNumber:", phoneNumber);
-      console.log("secretKey:", secretKey);
-      console.log("publicKey:", publicKey);
-
       ipcRenderer
         .invoke("encrypt-message", {
           content,
@@ -393,7 +355,6 @@ contextBridge.exposeInMainWorld("api", {
           publicKey,
         })
         .then((result) => {
-          console.log(">>>>encrypting", result);
           resolve(result);
         })
         .catch((err) => {
@@ -408,16 +369,12 @@ contextBridge.exposeInMainWorld("api", {
     server_publish_pub_key,
   }) => {
     return new Promise((resolve, reject) => {
-      console.log(">>>client_publish_secret_key:", client_publish_secret_key);
-      console.log(">>>server_publish_pub_key:", server_publish_pub_key);
-
       ipcRenderer
         .invoke("publish-shared-secret", {
           client_publish_secret_key,
           server_publish_pub_key,
         })
         .then((result) => {
-          console.log(">>>>3:", result);
           resolve(result);
         })
         .catch((err) => {
@@ -429,16 +386,12 @@ contextBridge.exposeInMainWorld("api", {
 
   createPayload: ({ encryptedContent, pl }) => {
     return new Promise((resolve, reject) => {
-      console.log("encryptedContent:", encryptedContent);
-      console.log("pl:", pl);
-
       ipcRenderer
         .invoke("create-payload", {
           encryptedContent,
           pl,
         })
         .then((result) => {
-          console.log(">>>>pay", result);
           resolve(result);
         })
         .catch((err) => {
