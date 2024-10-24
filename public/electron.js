@@ -516,20 +516,15 @@ ipcMain.handle("send-sms", async (event, { text, number }) => {
   }
 });
 
-const homeDir = os.homedir();
-
-const baseDir = path.join(homeDir, ".local", "share", "relaysms");
-
-console.log(baseDir);
-
 function encryptMessage({ content, phoneNumber, secretKey, publicKey }) {
   return new Promise((resolve, reject) => {
-    const pythonPath = path.join(baseDir, "venv", "bin", "python3");
-    const cliPath = path.join(baseDir, "py_double_ratchet_cli/cli.py");
-    console.log("pythonPath", pythonPath);
+    const homeDir = os.homedir();
+    const baseDir = path.join(homeDir, ".local", "share", "relaysms");
+    console.log(baseDir);
+    const cliPath = path.join(baseDir, "py_double_ratchet_cli");
     console.log("cliPath", cliPath);
 
-    const command = `${pythonPath} ${cliPath} -c "${content}" -p "${phoneNumber}" -s "${secretKey}" -k "${publicKey}"`;
+    const command = `${cliPath}/venv/bin/python3 ${cliPath}/cli.py -c "${content}" -p "${phoneNumber}" -s "${secretKey}" -k "${publicKey}"`;
 
     execFile("bash", ["-c", command], (error, stdout, stderr) => {
       if (error) {
@@ -719,120 +714,3 @@ app.on("web-contents-created", (event, contents) => {
     }
   });
 });
-
-  exec('sudo apt-get install -y curl', (err, stdout, stderr) => {
-    if (err) {
-      console.error(`Error installing curl on Linux: ${err.message}`);
-      return;
-    }
-    log(stdout);
-  });
-
-const venvDir = path.join(baseDir, "venv");
-const setupFlagFile = path.join(baseDir, "setup_done.flag");
-const cliRepoDir = path.join(baseDir, "py_double_ratchet_cli");
-const logFile = "/tmp/postinstall_log.txt";
-
-// Log function
-function log(message) {
-  fs.appendFileSync(logFile, message + "\n");
-}
-
-// Check if Python is installed
-function isPythonInstalled() {
-  try {
-    execSync("python3 --version", { stdio: "ignore" });
-    return true;
-  } catch (error) {
-    console.error(
-      "Python 3 is not installed. Please install Python 3 to continue."
-    );
-    log("Python 3 is not installed. Please install Python 3 to continue.");
-    return false;
-  }
-}
-
-// Check if Git is installed
-function isGitInstalled() {
-  try {
-    execSync("git --version", { stdio: "ignore" });
-    return true;
-  } catch (error) {
-    log("Git is not installed, falling back to curl for CLI installation.");
-    return false;
-  }
-}
-
-// Download repository using curl if Git is not available
-function downloadCLIWithCurl() {
-  try {
-    log("Downloading CLI using curl...");
-    const zipPath = path.join(baseDir, "py_double_ratchet_cli.zip");
-    execSync(
-      `curl -L https://github.com/smswithoutborders/py_double_ratchet_cli/main.zip -o ${zipPath}`
-    );
-
-    // Unzip the downloaded file
-    execSync(`unzip ${zipPath} -d ${baseDir}`);
-    // Rename the extracted folder to match the expected directory name
-    fs.renameSync(path.join(baseDir, "py_double_ratchet_cli-main"), cliRepoDir);
-
-    log("CLI downloaded and extracted successfully.");
-  } catch (error) {
-    log("Failed to download CLI with curl:", error);
-    throw new Error("CLI installation failed.");
-  }
-}
-
-// Perform setup
-function setupPythonEnvironment() {
-  if (!isPythonInstalled()) {
-    return;
-  }
-
-  if (fs.existsSync(setupFlagFile)) {
-    log("Python environment setup has already been completed.");
-    return;
-  }
-
-  log("Setting up Python environment...");
-
-  // Ensure Python directory exists
-  fs.mkdirSync(baseDir, { recursive: true });
-
-  // Clone the repository or download with curl
-  try {
-    if (!fs.existsSync(cliRepoDir)) {
-      if (isGitInstalled()) {
-        execSync(
-          `git clone https://github.com/smswithoutborders/py_double_ratchet_cli.git ${cliRepoDir}`,
-          { stdio: "inherit" }
-        );
-      } else {
-        downloadCLIWithCurl(); // Use curl to download CLI
-      }
-    }
-  } catch (error) {
-    log("Error during repository setup:", error);
-    return;
-  }
-
-  try {
-    execSync(
-      `python3 -m venv ${venvDir} && ${venvDir}/bin/python3 -m pip install -r ${path.join(
-        cliRepoDir,
-        "requirements.txt"
-      )}`,
-      { stdio: "inherit" }
-    );
-  } catch (error) {
-    log("Failed to Setup Virtual Environment:", error);
-    return;
-  }
-
-  // Create a flag file to indicate setup is done
-  fs.writeFileSync(setupFlagFile, "Python environment setup completed.");
-}
-
-// Run the setup function
-setupPythonEnvironment();
