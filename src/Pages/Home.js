@@ -217,6 +217,10 @@ export default function Landing() {
     setOpenDialog("tutorial");
   };
 
+  const handleLogoutSuccess = () => {
+    setFileExists(false); 
+  };  
+
   const renderComponentInLargeGrid = () => {
     if (!fileExists) {
       return (
@@ -336,6 +340,7 @@ export default function Landing() {
             <Compose
               open={currentComponent === "Compose"}
               onClose={() => setCurrentComponent(null)}
+              onLogoutSuccess={handleLogoutSuccess} 
             />
           );
         case "SecuritySettings":

@@ -12,13 +12,19 @@ import {
   Skeleton,
   Grid,
   Avatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import GmailCompose from "../Components/ComposeGmail";
 import TwitterCompose from "../Components/ComposeTwitter";
 import TelegramCompose from "../Components/ComposeTelegram";
 import { useTranslation } from "react-i18next";
 
-export default function Compose({ open, onClose, asPopover, anchorEl }) {
+export default function Compose({ open, onClose, asPopover, anchorEl, onLogoutSuccess}) {
   const { t } = useTranslation();
   const [composeOpen, setComposeOpen] = useState(false);
   const [twitterOpen, setTwitterOpen] = useState(false);
@@ -29,10 +35,13 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
   const [selectedPlatform, setSelectedPlatform] = useState("");
   const [selectedToken, setSelectedToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const handleAlertClose = () => {
     setAlert({ ...alert, open: false });
   };
+
+
 
   const fetchStoredTokens = async () => {
     try {
@@ -51,6 +60,7 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
       });
 
       const response = await window.api.listEntityStoredTokens(llt);
+
       setTokens(response.stored_tokens);
       setAlert({
         message: "Token fetched successfully",
@@ -61,26 +71,43 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
       await window.api.storeParams("decryptedllt", llt);
       await window.api.storeParams("storedTokens", response.stored_tokens);
     } catch (error) {
-      console.error("Failed to fetch stored tokens:", error);
+      console.error("Error fetching tokens from server:", error);
+
+      if (
+        error.message &&
+        error.message.includes("The long-lived token is invalid")
+      ) {
+        setAlert({
+          message: "Your session has expired. Please log in again.",
+          severity: "error",
+          open: true,
+        });
+        setSessionExpired(true);
+        return; 
+      }
 
       try {
         const storedTokens = await window.api.retrieveParams("storedTokens");
-        setTokens(storedTokens || []);
-        setAlert({
-          message: "Using locally stored tokens due to an error.",
-          severity: "warning",
-          open: true,
-        });
+        if (storedTokens && storedTokens.length > 0) {
+          setTokens(storedTokens);
+          setAlert({
+            message: "Using locally stored tokens due to a server error.",
+            severity: "warning",
+            open: true,
+          });
+        } else {
+          throw new Error("No locally stored tokens available.");
+        }
       } catch (localError) {
-        console.error("Failed to retrieve stored tokens locally:", localError);
+        console.error("Failed to retrieve locally stored tokens:", localError);
         setAlert({
-          message: error.message,
+          message: "Failed to fetch tokens. Please try again later.",
           severity: "error",
           open: true,
         });
       }
     } finally {
-      setLoading(false);
+      setLoading(false); 
     }
   };
 
@@ -139,6 +166,31 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
     (token) => token.platform === selectedPlatform
   );
 
+  const handleLogout = async () => {
+    try {
+      await window.api.logout(); 
+      setAlert({
+        message: "Logged out successfully",
+        severity: "success",
+        open: true,
+      });
+      onLogoutSuccess(); 
+      setSessionExpired(false); 
+  
+      setTimeout(() => {
+        onClose(); 
+      }, 2000); 
+    } catch (error) {
+      console.error("Failed to logout:", error);
+      setAlert({
+        message: "Logout failed. Please try again.",
+        severity: "error",
+        open: true,
+      });
+    }
+  };
+  
+
   const content = (
     <>
       <Snackbar
@@ -154,6 +206,30 @@ export default function Compose({ open, onClose, asPopover, anchorEl }) {
           {alert.message}
         </Alert>
       </Snackbar>
+      {/*  */}
+      {sessionExpired && (
+      <Dialog
+         open={open}
+         onClose={() => {}} 
+         disableEscapeKeyDown 
+         disablePortal={true} 
+         disableScrollLock={true} 
+         BackdropProps={{
+           style: { pointerEvents: "none" }, 
+         }}
+      >
+        <DialogTitle>{t("sessionExpiredTitle")}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{t("sessionExpiredBody")}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleLogout} color="primary">
+            {t("OK")}
+          </Button>
+        </DialogActions>
+      </Dialog>
+      )}
+      {/*  */}
       <Box sx={{ py: 2, px: 2 }}>
         <Typography variant="body2" sx={{ fontWeight: 600 }}>
           {t("compose")}

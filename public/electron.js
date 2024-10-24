@@ -3,7 +3,7 @@ const { app, BrowserWindow, ipcMain, Menu, shell } = require("electron");
 const path = require("path");
 const url = require("url");
 const axios = require("axios");
-const { execSync, execFile, exec } = require("child_process");
+const { execFile } = require("child_process");
 const fs = require("fs-extra");
 const os = require("os");
 
