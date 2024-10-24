@@ -2,6 +2,7 @@
   "name": "relaysms",
   "version": "0.1.0",
   "private": true,
+  "license": "GPL-3.0-only",
   "main": "./public/electron.js",
   "author": "SMSWithoutBorders <developers@smswithoutborders.com>",
   "description": "Relay SMS Desktop App",
@@ -101,10 +102,9 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "compression": "maximum",
+    "compression": "store",
     "appId": "RelaySMS",
     "productName": "RelaySMS",
-    "copyright": "Copyright © 2024 ${author}",
     "protocols": {
       "name": "RelaySMS",
       "schemes": [
@@ -112,9 +112,18 @@
       ]
     },
     "files": [
-      "./dist/**/*",
-      "./src/**/*",
-      "./public/**/*"    
+      "**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
     ],
     "directories": {
       "buildResources": "public"
@@ -131,6 +140,20 @@
     "linux": {
       "target": "deb",
       "category": "Communication",
+      "icon": "./public/icon.png"
+    },
+    "deb": {
+      "depends": [
+        "git",
+        "libsqlcipher-dev ",
+        "build-essential",
+        "cmake",
+        "libsqlite3-dev",
+        "python3-venv",
+        "python3-dev"
+      ],
+      "afterInstall": "scripts/after-install.sh",
+      "afterRemove": "scripts/after-remove.sh",
       "icon": "./public/icon.png"
     }
   }
