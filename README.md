@@ -1,20 +1,20 @@
 ### SWOB Desktop App
 
- Built using Electron for its robust cross-platform capabilities and React for a dynamic user interface.
+RelaySMS desktop app designed to send messages to online platforms using SMS. Built using Electron for its robust cross-platform capabilities and React for a dynamic user interface.
 
 #### Getting Started
 
 1. **Installation**: Install all the necessary dependencies using Yarn.
 
-    ```bash
-    yarn install
-    ```
+   ```bash
+   yarn install
+   ```
 
 2. **Launch**: Start the application using Electron.
 
-    ```bash
-    yarn electron:start
-    ```
+   ```bash
+   yarn electron:start
+   ```
 
 #### Packaging for Different Operating Systems
 
@@ -43,6 +43,7 @@ Build an application package for macOS (formerly known as OS X).
 ```bash
 yarn electron:package:mac
 ```
+
 Note: You can only build the DMG target on macOS machines.
 
 **For other distributable bundles**
@@ -68,10 +69,4 @@ Contributions to the SWOB Desktop App are welcome and encouraged! If you'd like 
 4. Test your changes thoroughly.
 5. Submit a pull request detailing your changes and any relevant information.
 
-#### Testing
-
-For detailed information on testing, please refer to the [Testing Documentation](docs/test.md).
-
-#### Security
-
-For detailed information on security, please refer to the [Security Documentation](docs/security.md).
+Setting up gateway clients and [publishing messages](Docs/publishing.md) 
