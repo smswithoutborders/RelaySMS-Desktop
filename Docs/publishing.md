@@ -49,11 +49,11 @@ Once set up, you can now publish messages through the gateway client.
 
 #### Erros to lookout for
 
-- No active modems found
-  TThe system cannot locate or read your modem. Ensure the modem is properly plugged in, with a functional SIM card installed.
+- No active modems found:
+  The system cannot locate or read your modem. Ensure the modem is properly plugged in, with a functional SIM card installed.
 
-- Please select a Gateway Client
+- Please select a Gateway Client:
   You must select a number to route messages through. Go to the cell tower icon in the app and choose a gateway client (number) near your location to reduce SMS costs.
 
-- error 500
+- error 500:
   This is a general error. Try sending the message again, and it should resolve itself.
