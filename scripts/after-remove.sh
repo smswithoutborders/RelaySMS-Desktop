@@ -10,6 +10,14 @@ fi
 USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
 RELAYSMS_METADATA_PATH="$USER_HOME/.local/share/relaysms"
 RELAYSMS_CONFIG_PATH="$USER_HOME/.config/relaysms"
+GATEWAY_CLIENT_PATH="$USER_HOME/.local/share/relaysms/RelaySMS-GatewayClient-Linux"
+
+if [ -d "$GATEWAY_CLIENT_PATH" ]; then
+    echo "Removing gateway client setup..."
+    (cd "$GATEWAY_CLIENT_PATH" && make fuckit) || {
+        echo "Error: Failed to stop gateway client."
+    }
+fi
 
 rm -rf "$RELAYSMS_METADATA_PATH"
 rm -rf "$RELAYSMS_CONFIG_PATH"
