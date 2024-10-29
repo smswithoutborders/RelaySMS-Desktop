@@ -53,6 +53,14 @@ export default function AdvancedSettings({ open, onClose }) {
   const handleSelectMSISDN = (msisdn) => {
     setSelectedMSISDN(msisdn);
     window.api.storeParams("selectedMSISDN", msisdn);
+
+    // Clear active state of other clients
+    setGatewayClients((prevClients) =>
+      prevClients.map((client) => ({
+        ...client,
+        active: client.msisdn === msisdn,
+      }))
+    );
   };
 
   return (
@@ -110,7 +118,7 @@ export default function AdvancedSettings({ open, onClose }) {
             }}
           >
             <Typography variant="body2" sx={{ color: "red" }}>
-            {t("pleaseRefresh")}
+              {t("pleaseRefresh")}
             </Typography>
           </Box>
         ) : (
@@ -124,9 +132,7 @@ export default function AdvancedSettings({ open, onClose }) {
                 secondaryAction={
                   <Switch
                     edge="end"
-                    checked={
-                      selectedMSISDN === client.msisdn || client.active || false
-                    }
+                    checked={selectedMSISDN === client.msisdn}
                     onChange={() => handleToggle(index)}
                   />
                 }
