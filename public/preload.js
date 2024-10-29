@@ -338,6 +338,8 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
   sendSMS: async ({ text, number }) => {
+    console.log("Text", text);
+    console.log("Number", number);
     try {
       return await ipcRenderer.invoke("send-sms", { text, number });
     } catch (error) {
@@ -345,6 +347,32 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
+  recieveSMS: async () => {
+    try {
+      return await ipcRenderer.invoke("fetch-messages");
+    } catch (error) {
+      console.error("Error receiving SMS:", error);
+      throw error;
+    }
+  },
+
+  startMessagePolling: () => {
+    const intervalId = setInterval(async () => {
+      try {
+        const messages = await ipcRenderer.invoke("fetch-messages");
+        messages.forEach((message) => {
+          console.log("Logged message:", message);
+          window.api.storeParams("messages", message);
+        });
+      } catch (error) {
+        console.error("Error polling for messages:", error);
+      }
+    }, 5000); 
+
+    return intervalId; 
+  },
+
+  
   encryptMessage: ({ content, phoneNumber, secretKey, publicKey }) => {
     return new Promise((resolve, reject) => {
       ipcRenderer

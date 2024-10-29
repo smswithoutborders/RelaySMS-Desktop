@@ -40,6 +40,7 @@ import Logout from "../Components/Logout";
 import NewPassword from "../Components/NewPassword";
 import Help from "./Help";
 import Tutorial from "./Tutorial";
+import Bridges from "../Components/Bridges";
 
 const CustomTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} sx={{ mt: 3 }} />
@@ -190,6 +191,14 @@ export default function Landing() {
     await checkFileForToken();
   };
 
+  const handleContinueWithoutAccount = () => {
+    setOpenDialog("bridges");
+  };  
+
+  const closeContinueWithoutAccount = async () => {
+    setOpenDialog("");
+  };
+
   const handleOpenReset = () => {
     setOpenDialog("reset");
   };
@@ -220,6 +229,8 @@ export default function Landing() {
   const handleLogoutSuccess = () => {
     setFileExists(false); 
   };  
+
+  
 
   const renderComponentInLargeGrid = () => {
     if (!fileExists) {
@@ -255,6 +266,12 @@ export default function Landing() {
             <Signup
               open={openDialog === "signup"}
               onClose={closeSignupDialogHandler}
+            />
+          )}
+          {openDialog === "bridges" && (
+            <Bridges
+              open={openDialog === "bridges"}
+              onClose={closeContinueWithoutAccount}
             />
           )}
         </Box>
@@ -298,12 +315,8 @@ export default function Landing() {
     if (!fileExists) {
       return (
         <Box sx={{ p: 2 }}>
-          <Typography sx={{ fontWeight: 600 }} variant="body2" gutterBottom>
-            {t("notLoggedIn")}
-          </Typography>
-          <Typography sx={{ py: 2 }} variant="body2" gutterBottom>
-            {t("needToLogIn")}
-          </Typography>
+        
+          
           <Button
             size="small"
             variant="contained"
@@ -319,6 +332,14 @@ export default function Landing() {
             sx={{ borderRadius: 5, textTransform: "none" }}
           >
             {t("signUp")}
+          </Button>
+          <Button
+            size="small"
+            variant="contained"
+            onClick={handleContinueWithoutAccount}
+            sx={{ borderRadius: 5, textTransform: "none", mt: 3 }}
+          >
+            {t("continueWithoutAccount")}
           </Button>
         </Box>
       );

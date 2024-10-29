@@ -598,6 +598,35 @@ ipcMain.handle("create-payload", async (event, { encryptedContent, pl }) => {
   }
 });
 
+ipcMain.handle("fetch-messages", async () => {
+  try {
+    const stateResponse = await axios.get("http://localhost:6868/system/state");
+    if (stateResponse.data && stateResponse.data.inbound === "active") {
+      const modemsResponse = await axios.get("http://localhost:6868/modems");
+      const modems = modemsResponse.data;
+
+      if (modems.length > 0) {
+        const modemIndex = modems[0].index;
+        const messagesResponse = await axios.get(
+          `http://localhost:6868/modems/${modemIndex}/messages`
+        );
+        
+        console.log("Received messages:", messagesResponse.data);
+        return messagesResponse.data;
+      } else {
+        console.error("No active modems found");
+        return [];
+      }
+    } else {
+      console.error("System not active for inbound messages");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    throw error;
+  }
+});
+
 ipcMain.handle("open-external-link", (event, url) => {
   shell.openExternal(url);
 });

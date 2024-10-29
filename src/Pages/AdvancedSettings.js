@@ -54,7 +54,6 @@ export default function AdvancedSettings({ open, onClose }) {
     setSelectedMSISDN(msisdn);
     window.api.storeParams("selectedMSISDN", msisdn);
 
-    // Clear active state of other clients
     setGatewayClients((prevClients) =>
       prevClients.map((client) => ({
         ...client,

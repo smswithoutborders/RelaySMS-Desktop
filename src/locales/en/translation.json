@@ -115,5 +115,9 @@
   "sendTo": "Send To",
   "messageDeletedSuccessfully": "Message deleted successfully",
   "sessionExpiredTitle": "Oop! 😰 session expired",
-  "sessionExpiredBody": "Your session has expired, please login again."
+  "sessionExpiredBody": "Your session has expired, please login again.",
+  "continueWithoutAccount": "Continue Without An Account",
+  "continueWithoutAccountSub": "RelaySMS provides flexibility(Relay Bridges), letting you publish messages without having an account.",
+  "continueWithoutAccountmore": "Learn more about Relay Bridges",
+  "getAuthCode": "Get Authentification Code"
 }
