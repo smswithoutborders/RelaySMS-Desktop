@@ -17,7 +17,7 @@ function App() {
   useEffect(() => {
     const firstTimeUser = localStorage.getItem("firstTimeUser");
     if (firstTimeUser) {
-      setIsFirstTime(false); 
+      setIsFirstTime(true); 
     }
   }, []);
 
@@ -44,7 +44,7 @@ function App() {
           },
           background: {
             default: prefersDarkMode ? "#1E1E1E" : "#fafafa",
-            paper: prefersDarkMode ? "#0E0D0D" : "#fff",
+            paper: prefersDarkMode ? "#000" : "#fff",
             custom: prefersDarkMode ? "#232226" : "#E0E2DB",
             side: prefersDarkMode ? "#171614" : "#fff",
           },

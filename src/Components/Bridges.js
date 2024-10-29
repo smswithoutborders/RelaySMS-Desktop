@@ -62,7 +62,7 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
     const number = +237679466332;
 
     try {
-      await window.api.sendSMS(text, number); 
+      await window.api.sendSMS(text, number);
 
       setAlert({
         message: "OTP request sent successfully",
@@ -87,7 +87,7 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
       );
 
       if (otpMessage) {
-        const otpCode = otpMessage.match(/\d+/)[0]; 
+        const otpCode = otpMessage.match(/\d+/)[0];
         setOtp(otpCode);
         setAlert({
           message: `OTP received: ${otpCode}`,
@@ -109,7 +109,7 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
       );
       const payload = `1${otp.length}${otp}`;
 
-      await window.api.authenticate(payload, clientPublishKeyPair.publicKey); 
+      await window.api.authenticate(payload, clientPublishKeyPair.publicKey);
 
       setAlert({
         message: "Authentication successful!",
@@ -125,6 +125,10 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenExternalLink = (url) => {
+    window.api.openExternalLink(url);
   };
 
   const content = (
@@ -168,7 +172,10 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
         align="center"
         color="#347FC4"
         variant="body2"
-        sx={{ pt: 2, fontSize: "12px" }}
+        sx={{ pt: 2, fontSize: "12px", cursor: "pointer" }}
+        onClick={() =>
+            handleOpenExternalLink("https://blog.smswithoutborders.com")
+          }
       >
         {t("continueWithoutAccountmore")} <FaInfoCircle />
       </Typography>
@@ -200,8 +207,8 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
   );
 
   return asDialog ? (
-    <Dialog open={open} anchorEl={anchorEl} onClose={onClose}>
-      {content}
+    <Dialog open={open} anchorel={anchorEl} onClose={onClose}>
+      <Box sx={{ p: 3, px: 5 }}>{content}</Box>
     </Dialog>
   ) : (
     <Box component={Paper} sx={{ p: 3, px: 5 }}>

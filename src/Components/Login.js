@@ -321,7 +321,7 @@ function Login({ onClose, open, onForgotPassword, anchorEl, asDialog }) {
   );
 
   return asDialog ? (
-    <Dialog open={open} anchorEl={anchorEl} onClose={onClose}>
+    <Dialog open={open} anchorel={anchorEl} onClose={onClose}>
       {content}
     </Dialog>
   ) : (

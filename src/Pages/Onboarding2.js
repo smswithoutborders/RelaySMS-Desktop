@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import Login from "../Components/Login";
 import Signup from "../Components/Signup";
 import ResetPassword from "../Components/ResetPassword";
+import Bridges from "../Components/Bridges";
 
 export default function Onboarding2() {
   const { t } = useTranslation();
@@ -11,9 +12,14 @@ export default function Onboarding2() {
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
   const [openResetDialog, setOpenResetDialog] = useState(false);
   const [openSignupDialog, setOpenSignupDialog] = useState(false);
+  const [openBridesDialog, setOpenBridesDialog] = useState(false);
 
   const handleOpenLogin = () => {
     setOpenLoginDialog(true);
+  };
+
+  const handleOpenBridges = () => {
+    setOpenBridesDialog(true);
   };
 
   const handleOpenReset = () => {
@@ -34,6 +40,10 @@ export default function Onboarding2() {
 
   const handleCloseSignup = () => {
     setOpenSignupDialog(false);
+  };
+
+  const handleCloseBridges = () => {
+    setOpenBridesDialog(false);
   };
 
   return (
@@ -59,9 +69,18 @@ export default function Onboarding2() {
               onClick={handleOpenSignup}
               size="large"
               variant="outlined"
-              sx={{ borderRadius: 5, px: 3, textTransform: "none", ml: 6 }}
+              sx={{ borderRadius: 5, px: 3, textTransform: "none", ml: 3 }}
             >
               {t("signUp")}
+            </Button>
+            <br/>
+            <Button
+              onClick={handleOpenBridges}
+              size="large"
+              variant="outlined"
+              sx={{ borderRadius: 5, px: 3, textTransform: "none", mt: 2 }}
+            >
+              {t("continueWithoutAccount")}
             </Button>
           </Box>
         </Grid>
@@ -78,8 +97,21 @@ export default function Onboarding2() {
         }}
         asDialog={true}
       />
-      <Signup onClose={handleCloseSignup} open={openSignupDialog} asDialog={true}/>
-      <ResetPassword onClose={handleCloseReset} open={openResetDialog} asDialog={true}/>
+      <Signup
+        onClose={handleCloseSignup}
+        open={openSignupDialog}
+        asDialog={true}
+      />
+      <ResetPassword
+        onClose={handleCloseReset}
+        open={openResetDialog}
+        asDialog={true}
+      />
+      <Bridges
+        onClose={handleCloseBridges}
+        open={openBridesDialog}
+        asDialog={true}
+      />
     </Box>
   );
 }
