@@ -11,6 +11,7 @@ const {
   decryptLongLivedToken,
   publishSharedSecret,
   createPayload,
+  bridgePayload,
 } = require("../src/Cryptography.js");
 
 const vault = require("./vault.js");
@@ -568,6 +569,7 @@ ipcMain.handle(
     }
   }
 );
+
 ipcMain.handle("logout", async () => {
   try {
     if (fs.existsSync(storage.path)) {
@@ -598,6 +600,18 @@ ipcMain.handle("create-payload", async (event, { encryptedContent, pl }) => {
   }
 });
 
+ipcMain.handle("bridge-payload", async (event, { contentSwitch, pub_key }) => {
+  console.log("contentSwitch", contentSwitch)
+  try {
+    const result = bridgePayload(contentSwitch, pub_key);
+    console.log("payload:", result);
+    return result;
+  } catch (err) {
+    console.error("Error:", err.message);
+    throw err;
+  }
+});
+
 ipcMain.handle("fetch-messages", async () => {
   try {
     const stateResponse = await axios.get("http://localhost:6868/system/state");
@@ -608,7 +622,7 @@ ipcMain.handle("fetch-messages", async () => {
       if (modems.length > 0) {
         const modemIndex = modems[0].index;
         const messagesResponse = await axios.get(
-          `http://localhost:6868/modems/${modemIndex}/messages`
+          `http://localhost:6868/modems/${modemIndex}/sms`
         );
         
         console.log("Received messages:", messagesResponse.data);

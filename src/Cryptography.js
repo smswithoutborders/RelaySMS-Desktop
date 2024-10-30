@@ -58,7 +58,6 @@ async function publishSharedSecret(
   client_publish_secret_key,
   server_publish_pub_key
 ) {
-
   // Decode the keys from Base64
   const clientSecretKeyDecoded = nacl.util.decodeBase64(
     client_publish_secret_key
@@ -74,12 +73,12 @@ async function publishSharedSecret(
 
   try {
     const derivedKey = await deriveSharedSecretKey(publish_shared_secret);
-        
+
     // Encode the derived key using Buffer
     const shared_secret_buffer = Buffer.from(derivedKey);
 
-    // Convert to Base64 
-    const shared_secret = shared_secret_buffer.toString("base64"); 
+    // Convert to Base64
+    const shared_secret = shared_secret_buffer.toString("base64");
 
     console.log(">>Crypto shared secret:", shared_secret);
 
@@ -107,8 +106,25 @@ function createPayload(encryptedContent, pl, deviceID = "") {
   return payload.toString("base64");
 }
 
+function bridgePayload(contentSwitch, pub_key, bridgeConst = 0) {
+  const contentSwitchBuffer = Buffer.from([contentSwitch, bridgeConst]);
+
+  const pubKeyBuffer = nacl.util.decodeBase64(pub_key);
+
+  const lengthBuffer = Buffer.alloc(4);
+  lengthBuffer.writeInt32LE(pub_key.length);
+
+  const payload = Buffer.concat([
+    contentSwitchBuffer,
+    lengthBuffer,
+    pubKeyBuffer,
+  ]);
+  return payload.toString("base64");
+}
+
 module.exports = {
   decryptLongLivedToken,
   publishSharedSecret,
   createPayload,
+  bridgePayload,
 };

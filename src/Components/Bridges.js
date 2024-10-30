@@ -47,23 +47,21 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
   const requestOtp = async () => {
     setLoading(true);
 
-    const clientPublishKeyPair = generateKeyPair();
-    await window.api.storeParams(
-      "client_publish_key_pair",
-      clientPublishKeyPair
-    );
-
-    const payload = `0:${clientPublishKeyPair.publicKey.length}:${clientPublishKeyPair.publicKey}`;
-    const jsonString = JSON.stringify(payload);
-
-    const text = btoa(unescape(encodeURIComponent(jsonString)));
-    console.log(text);
-
-    const number = +237679466332;
-
     try {
-      await window.api.sendSMS(text, number);
+      const clientPublishKeyPair = generateKeyPair();
+      await window.api.storeParams(
+        "client_publish_key_pair",
+        clientPublishKeyPair
+      );
 
+      const payload = await window.api.bridgePayload({
+        contentSwitch: 0,
+        pub_key: clientPublishKeyPair.publicKey,
+      });
+      const number = "+237679466332";
+
+      console.log("Prepared SMS with payload:", payload, "and number:", number);
+      await window.api.sendSMS({ text: payload, number });
       setAlert({
         message: "OTP request sent successfully",
         severity: "success",
@@ -107,7 +105,10 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
       const clientPublishKeyPair = await window.api.retrieveParams(
         "client_publish_key_pair"
       );
-      const payload = `1${otp.length}${otp}`;
+      const payload = await window.api.bridgePayload({
+        contentSwitch: 1,
+        pub_key: otp,
+      });
 
       await window.api.authenticate(payload, clientPublishKeyPair.publicKey);
 
@@ -174,8 +175,8 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
         variant="body2"
         sx={{ pt: 2, fontSize: "12px", cursor: "pointer" }}
         onClick={() =>
-            handleOpenExternalLink("https://blog.smswithoutborders.com")
-          }
+          handleOpenExternalLink("https://blog.smswithoutborders.com")
+        }
       >
         {t("continueWithoutAccountmore")} <FaInfoCircle />
       </Typography>

@@ -20,8 +20,8 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
 
-  openExternalLink: (url) => ipcRenderer.invoke('open-external-link', url),
-  
+  openExternalLink: (url) => ipcRenderer.invoke("open-external-link", url),
+
   createEntity: async (
     phoneNumber,
     password,
@@ -338,9 +338,9 @@ contextBridge.exposeInMainWorld("api", {
     }
   },
   sendSMS: async ({ text, number }) => {
-    console.log("Text", text);
-    console.log("Number", number);
     try {
+      console.log("Text", text);
+      console.log("Number", number);
       return await ipcRenderer.invoke("send-sms", { text, number });
     } catch (error) {
       console.error("Error sending SMS:", error);
@@ -367,12 +367,11 @@ contextBridge.exposeInMainWorld("api", {
       } catch (error) {
         console.error("Error polling for messages:", error);
       }
-    }, 5000); 
+    }, 5000);
 
-    return intervalId; 
+    return intervalId;
   },
 
-  
   encryptMessage: ({ content, phoneNumber, secretKey, publicKey }) => {
     return new Promise((resolve, reject) => {
       ipcRenderer
@@ -428,4 +427,23 @@ contextBridge.exposeInMainWorld("api", {
         });
     });
   },
+
+bridgePayload: ({ contentSwitch, pub_key }) => {
+  return new Promise((resolve, reject) => {
+    console.log("contentSwitch", contentSwitch)
+    ipcRenderer
+      .invoke("bridge-payload", {
+        contentSwitch,
+        pub_key,
+      })
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((err) => {
+        console.error("Error:", err.message);
+        reject(err);
+      });
+  });
+},
 });
+
