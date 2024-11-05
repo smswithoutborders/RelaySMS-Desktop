@@ -119,5 +119,7 @@
   "continueWithoutAccount": "Continue Without An Account",
   "continueWithoutAccountSub": "RelaySMS provides flexibility(Relay Bridges), letting you publish messages without having an account.",
   "continueWithoutAccountmore": "Learn more about Relay Bridges",
-  "getAuthCode": "Get Authentification Code"
+  "getAuthCode": "Get Authentification Code",
+  "enterOTP": "Enter  Code",
+  "inputAuthPhrase": "Input Authentication Phrase"
 }

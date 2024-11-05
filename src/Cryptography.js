@@ -106,20 +106,32 @@ function createPayload(encryptedContent, pl, deviceID = "") {
   return payload.toString("base64");
 }
 
-function bridgePayload(contentSwitch, pub_key, bridgeConst = 0) {
+function bridgePayload(contentSwitch, data, bridgeConst = 0) {
   const contentSwitchBuffer = Buffer.from([contentSwitch, bridgeConst]);
 
-  const pubKeyBuffer = nacl.util.decodeBase64(pub_key);
+  const dataKeyBuffer = nacl.util.decodeBase64(data);
 
   const lengthBuffer = Buffer.alloc(4);
-  lengthBuffer.writeInt32LE(pub_key.length);
+  lengthBuffer.writeInt32LE(data.length);
 
   const payload = Buffer.concat([
     contentSwitchBuffer,
     lengthBuffer,
-    pubKeyBuffer,
+    dataKeyBuffer,
   ]);
   return payload.toString("base64");
+}
+
+function extractPublicKeyFromAuthPhrase(authPhrase) {
+  const decodedPhrase = nacl.util.decodeBase64(authPhrase);
+
+  const pubKeyLength = decodedPhrase[0];
+
+  const otpExpLength = decodedPhrase[1];
+
+  const publicKey = decodedPhrase.slice(2, 2 + pubKeyLength);
+console.log("publicKey:", publicKey)
+  return nacl.util.encodeBase64(publicKey);
 }
 
 module.exports = {
@@ -127,4 +139,5 @@ module.exports = {
   publishSharedSecret,
   createPayload,
   bridgePayload,
+  extractPublicKeyFromAuthPhrase
 };

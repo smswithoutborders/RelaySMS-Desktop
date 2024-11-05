@@ -8,6 +8,7 @@ import {
   Alert,
   Snackbar,
   Paper,
+  Grid,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -32,12 +33,15 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
     open: false,
   });
   const [otpOpen, setOtpOpen] = useState(false);
-  const [otp, setOtp] = useState("");
+  const [otp, setOtp] = useState(Array(6).fill(""));
+  const [authPhrase, setAuthPhrase] = useState("");
   const navigate = useNavigate();
 
   const handleClose = () => {
     onClose();
     setOtpOpen(false);
+    setOtp(Array(6).fill(""));
+    setAuthPhrase("");
   };
 
   const handleAlertClose = () => {
@@ -56,7 +60,7 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
 
       const payload = await window.api.bridgePayload({
         contentSwitch: 0,
-        pub_key: clientPublishKeyPair.publicKey,
+        data: clientPublishKeyPair.publicKey,
       });
       const number = "+237679466332";
 
@@ -79,35 +83,69 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
 
   const retrieveMessages = async () => {
     try {
-      const messages = await window.api.recieveSMS();
+      const messages = await window.api.fetchMessages();
+
+      if (!Array.isArray(messages)) {
+        console.error("Expected messages to be an array, but got:", messages);
+        return;
+      }
+
       const otpMessage = messages.find((msg) =>
-        msg.includes("Your RelaySMS code is")
+        msg.text.includes("Your RelaySMS code is")
       );
 
       if (otpMessage) {
-        const otpCode = otpMessage.match(/\d+/)[0];
-        setOtp(otpCode);
-        setAlert({
-          message: `OTP received: ${otpCode}`,
-          severity: "info",
-          open: true,
-        });
+        const otpCode = otpMessage.text.match(/\d+/)[0];
+        setOtp(otpCode.split(""));
+        
+        const authPhraseMatch = otpMessage.text.match(
+          /Paste this in the app:\s*(.*)/
+        );
+        const authPhrase = authPhraseMatch ? authPhraseMatch[1] : null;
+
+        if (authPhrase) {
+          await window.api.storeParams("authPhrase", authPhrase); 
+          console.log("Auth phrase saved:", authPhrase);
+          setAuthPhrase(authPhrase);
+          setAlert({
+            message: `OTP received: ${otpCode}, Auth Phrase: ${authPhrase}`,
+            severity: "info",
+            open: true,
+          });
+        } else {
+          console.log("No auth phrase found in message.");
+        }
+      } else {
+        console.log("No OTP message found in received messages.");
       }
     } catch (error) {
       console.error("Failed to retrieve messages:", error);
     }
   };
 
+  const handleOtpChange = (e, index) => {
+    const { value } = e.target;
+    if (/^\d$/.test(value) || value === "") {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+      if (value && index < otp.length - 1) {
+        document.getElementById(`otp-${index + 1}`).focus();
+      }
+    }
+  };
+
   const handleOtpSubmit = async () => {
     setLoading(true);
+    const enteredOtp = otp.join("");
 
     try {
-      const clientPublishKeyPair = await window.api.retrieveParams(
+      const clientPublishKeyPair = await window.api.fetchMessages(
         "client_publish_key_pair"
       );
       const payload = await window.api.bridgePayload({
         contentSwitch: 1,
-        pub_key: otp,
+        data: enteredOtp,
       });
 
       await window.api.authenticate(payload, clientPublishKeyPair.publicKey);
@@ -181,18 +219,48 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
         {t("continueWithoutAccountmore")} <FaInfoCircle />
       </Typography>
 
-      <Dialog open={otpOpen} onClose={() => setOtpOpen(false)}>
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+      <Dialog open={otpOpen} onClose={handleClose}>
+        <Box sx={{ p: 3, py: 3 }}>
+          <Typography
+            variant="body1"
+            align="center"
+            sx={{ mb: 2, fontWeight: 60 }}
+          >
             {t("enterOTP")}
           </Typography>
-          <TextField
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            label="OTP Code"
-            fullWidth
-            sx={{ mb: 2 }}
-          />
+          <Box mt={2} mb={2}>
+            <Grid container spacing={1}>
+              {otp.map((digit, index) => (
+                <Grid item xs={2} key={index}>
+                  <TextField
+                    id={`otp-${index}`}
+                    type="text"
+                    value={digit}
+                    onChange={(e) => handleOtpChange(e, index)}
+                    inputProps={{
+                      maxLength: 1,
+                      style: { textAlign: "center" },
+                    }}
+                    variant="outlined"
+                  />
+                </Grid>
+              ))}
+            </Grid>
+            <Box sx={{ mt: 2 }}>
+              <Typography
+                variant="body1"
+                align="center"
+                sx={{ mb: 2, fontWeight: 60 }}
+              >
+                {t("inputAuthPhrase")}
+              </Typography>
+              <TextField
+              fullWidth
+                value={authPhrase}
+                onChange={(e) => setAuthPhrase(e.target.value)}
+              ></TextField>
+            </Box>
+          </Box>
           <Button
             variant="contained"
             color="primary"
@@ -200,7 +268,16 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
             disabled={loading}
             onClick={handleOtpSubmit}
           >
-            {loading ? "Verifying..." : t("submitOTP")}
+            {loading ? "Verifying..." : t("submit")}
+          </Button>
+          <Button
+            variant="text"
+            color="secondary"
+            fullWidth
+            onClick={handleClose}
+            sx={{ mt: 1 }}
+          >
+            Cancel
           </Button>
         </Box>
       </Dialog>

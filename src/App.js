@@ -17,7 +17,7 @@ function App() {
   useEffect(() => {
     const firstTimeUser = localStorage.getItem("firstTimeUser");
     if (firstTimeUser) {
-      setIsFirstTime(true); 
+      setIsFirstTime(false); 
     }
   }, []);
 

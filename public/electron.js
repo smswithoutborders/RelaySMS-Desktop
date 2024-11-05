@@ -600,10 +600,9 @@ ipcMain.handle("create-payload", async (event, { encryptedContent, pl }) => {
   }
 });
 
-ipcMain.handle("bridge-payload", async (event, { contentSwitch, pub_key }) => {
-  console.log("contentSwitch", contentSwitch)
+ipcMain.handle("bridge-payload", async (event, { contentSwitch, data }) => {
   try {
-    const result = bridgePayload(contentSwitch, pub_key);
+    const result = bridgePayload(contentSwitch, data);
     console.log("payload:", result);
     return result;
   } catch (err) {
@@ -612,34 +611,49 @@ ipcMain.handle("bridge-payload", async (event, { contentSwitch, pub_key }) => {
   }
 });
 
+
+
 ipcMain.handle("fetch-messages", async () => {
   try {
+    // Check system state
     const stateResponse = await axios.get("http://localhost:6868/system/state");
+    console.log("System state response:", stateResponse.data);
+
     if (stateResponse.data && stateResponse.data.inbound === "active") {
+      // Get modems
       const modemsResponse = await axios.get("http://localhost:6868/modems");
+      console.log("Modems response:", modemsResponse.data);
+
       const modems = modemsResponse.data;
 
       if (modems.length > 0) {
         const modemIndex = modems[0].index;
-        const messagesResponse = await axios.get(
-          `http://localhost:6868/modems/${modemIndex}/sms`
-        );
-        
-        console.log("Received messages:", messagesResponse.data);
-        return messagesResponse.data;
+        console.log("Using modem index:", modemIndex);
+
+        // Fetch received SMS
+        const smsResponse = await axios.get(`http://localhost:6868/modems/${modemIndex}/sms`);
+        console.log("Received SMS response:", smsResponse.data);
+
+        // Log messages individually
+        smsResponse.data.forEach(message => {
+          console.log(`Received message from ${message.number}: "${message.text}" at ${message.timestamp}`);
+        });
+
+        return smsResponse.data;
       } else {
         console.error("No active modems found");
-        return [];
+        throw new Error("No active modems found");
       }
     } else {
-      console.error("System not active for inbound messages");
-      return [];
+      console.error("System not in inbound state");
+      throw new Error("System not in inbound state");
     }
   } catch (error) {
     console.error("Error fetching messages:", error);
     throw error;
   }
 });
+
 
 ipcMain.handle("open-external-link", (event, url) => {
   shell.openExternal(url);

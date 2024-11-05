@@ -347,31 +347,16 @@ contextBridge.exposeInMainWorld("api", {
       throw error;
     }
   },
-  recieveSMS: async () => {
+  fetchMessages: async () => {
     try {
-      return await ipcRenderer.invoke("fetch-messages");
+      const messages = await ipcRenderer.invoke("fetch-messages");
+      console.log("Fetched messages:", messages);
+      return messages;
     } catch (error) {
-      console.error("Error receiving SMS:", error);
+      console.error("Error fetching messages:", error);
       throw error;
     }
   },
-
-  startMessagePolling: () => {
-    const intervalId = setInterval(async () => {
-      try {
-        const messages = await ipcRenderer.invoke("fetch-messages");
-        messages.forEach((message) => {
-          console.log("Logged message:", message);
-          window.api.storeParams("messages", message);
-        });
-      } catch (error) {
-        console.error("Error polling for messages:", error);
-      }
-    }, 5000);
-
-    return intervalId;
-  },
-
   encryptMessage: ({ content, phoneNumber, secretKey, publicKey }) => {
     return new Promise((resolve, reject) => {
       ipcRenderer
@@ -428,13 +413,12 @@ contextBridge.exposeInMainWorld("api", {
     });
   },
 
-bridgePayload: ({ contentSwitch, pub_key }) => {
+bridgePayload: ({ contentSwitch, data }) => {
   return new Promise((resolve, reject) => {
-    console.log("contentSwitch", contentSwitch)
     ipcRenderer
       .invoke("bridge-payload", {
         contentSwitch,
-        pub_key,
+        data,
       })
       .then((result) => {
         resolve(result);
