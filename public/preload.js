@@ -421,6 +421,7 @@ bridgePayload: ({ contentSwitch, data }) => {
         data,
       })
       .then((result) => {
+        console.log("bridgePayload:", result)
         resolve(result);
       })
       .catch((err) => {

@@ -107,18 +107,39 @@ function createPayload(encryptedContent, pl, deviceID = "") {
 }
 
 function bridgePayload(contentSwitch, data, bridgeConst = 0) {
-  const contentSwitchBuffer = Buffer.from([contentSwitch, bridgeConst]);
+  console.log("bridgeConst", bridgeConst);
+  console.log("contentSwitch", contentSwitch);
 
-  const dataKeyBuffer = nacl.util.decodeBase64(data);
+  const contentSwitchBuffer = Buffer.from([bridgeConst, contentSwitch]);
+  let payload;
 
-  const lengthBuffer = Buffer.alloc(4);
-  lengthBuffer.writeInt32LE(data.length);
+  switch (contentSwitch) {
+    case 0:
+      const publicKeyBuffer = nacl.util.decodeBase64(data);
+      const lenPublicKeyBuffer = Buffer.alloc(4);
+      lenPublicKeyBuffer.writeInt32LE(publicKeyBuffer.length);
 
-  const payload = Buffer.concat([
-    contentSwitchBuffer,
-    lengthBuffer,
-    dataKeyBuffer,
-  ]);
+      payload = Buffer.concat([
+        contentSwitchBuffer,
+        lenPublicKeyBuffer,
+        publicKeyBuffer,
+      ]);
+      break;
+    case 1:
+      const authCodeBuffer = Buffer.from(data);
+      const lenAuthCodeBuffer = Buffer.alloc(4);
+      lenAuthCodeBuffer.writeInt32LE(authCodeBuffer.length);
+
+      payload = Buffer.concat([
+        contentSwitchBuffer,
+        lenAuthCodeBuffer,
+        authCodeBuffer,
+      ]);
+      break;
+    default:
+      throw new Error(`Invalid content switch: ${contentSwitch}`);
+  }
+
   return payload.toString("base64");
 }
 
@@ -130,7 +151,7 @@ function extractPublicKeyFromAuthPhrase(authPhrase) {
   const otpExpLength = decodedPhrase[1];
 
   const publicKey = decodedPhrase.slice(2, 2 + pubKeyLength);
-console.log("publicKey:", publicKey)
+  console.log("publicKey:", publicKey);
   return nacl.util.encodeBase64(publicKey);
 }
 
@@ -139,5 +160,5 @@ module.exports = {
   publishSharedSecret,
   createPayload,
   bridgePayload,
-  extractPublicKeyFromAuthPhrase
+  extractPublicKeyFromAuthPhrase,
 };

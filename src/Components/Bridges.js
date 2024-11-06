@@ -84,27 +84,32 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
   const retrieveMessages = async () => {
     try {
       const messages = await window.api.fetchMessages();
-
+  
       if (!Array.isArray(messages)) {
         console.error("Expected messages to be an array, but got:", messages);
         return;
       }
-
-      const otpMessage = messages.find((msg) =>
-        msg.text.includes("Your RelaySMS code is")
+  
+      const trustedNumber = process.env.TWILIO_NUMBER || "+237676597224";
+      const otpMessage = messages.find(
+        (msg) =>
+          msg.text.includes("Your RelaySMS code is") &&
+          msg.number === trustedNumber 
       );
-
+  
       if (otpMessage) {
         const otpCode = otpMessage.text.match(/\d+/)[0];
-        setOtp(otpCode.split(""));
-        
+        const otpArray = otpCode.split("");
+  
+        setOtp(otpArray);
+  
         const authPhraseMatch = otpMessage.text.match(
           /Paste this in the app:\s*(.*)/
         );
         const authPhrase = authPhraseMatch ? authPhraseMatch[1] : null;
-
+  
         if (authPhrase) {
-          await window.api.storeParams("authPhrase", authPhrase); 
+          await window.api.storeParams("authPhrase", authPhrase);
           console.log("Auth phrase saved:", authPhrase);
           setAuthPhrase(authPhrase);
           setAlert({
@@ -116,12 +121,14 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
           console.log("No auth phrase found in message.");
         }
       } else {
-        console.log("No OTP message found in received messages.");
+        console.log("No OTP message found or message is not from trusted number.");
       }
     } catch (error) {
       console.error("Failed to retrieve messages:", error);
     }
   };
+  
+  
 
   const handleOtpChange = (e, index) => {
     const { value } = e.target;
@@ -140,15 +147,13 @@ function Bridges({ onClose, open, asDialog, anchorEl }) {
     const enteredOtp = otp.join("");
 
     try {
-      const clientPublishKeyPair = await window.api.fetchMessages(
-        "client_publish_key_pair"
-      );
       const payload = await window.api.bridgePayload({
         contentSwitch: 1,
         data: enteredOtp,
       });
+       const number = "+237679466332";
 
-      await window.api.authenticate(payload, clientPublishKeyPair.publicKey);
+       await window.api.sendSMS({ text: payload, number });
 
       setAlert({
         message: "Authentication successful!",
