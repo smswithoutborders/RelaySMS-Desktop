@@ -67,6 +67,8 @@
   "english": "English",
   "french": "French",
   "Farsi": "فارسی",
+  "spanish": "اسپانیایی",
+  "turkish": "ترکی",
   "compose": "ساختن",
   "changeLanguage": "تغییر زبان",
   "more": "بیشتر",
@@ -113,5 +115,5 @@
   "add": "اضافه کنید",
   "refresh": "تازه کردن",
   "pleaseRefresh": "مشکلی پیش آمد، لطفاً بازخوانی کنید.",
-   "messageDeletedSuccessfully": "پیام با موفقیت حذف شد"
+  "messageDeletedSuccessfully": "پیام با موفقیت حذف شد"
 }

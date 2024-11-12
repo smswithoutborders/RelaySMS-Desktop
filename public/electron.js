@@ -615,12 +615,10 @@ ipcMain.handle("bridge-payload", async (event, { contentSwitch, data }) => {
 
 ipcMain.handle("fetch-messages", async () => {
   try {
-    // Check system state
     const stateResponse = await axios.get("http://localhost:6868/system/state");
     console.log("System state response:", stateResponse.data);
 
     if (stateResponse.data && stateResponse.data.inbound === "active") {
-      // Get modems
       const modemsResponse = await axios.get("http://localhost:6868/modems");
       console.log("Modems response:", modemsResponse.data);
 
@@ -630,11 +628,9 @@ ipcMain.handle("fetch-messages", async () => {
         const modemIndex = modems[0].index;
         console.log("Using modem index:", modemIndex);
 
-        // Fetch received SMS
         const smsResponse = await axios.get(`http://localhost:6868/modems/${modemIndex}/sms`);
         console.log("Received SMS response:", smsResponse.data);
 
-        // Log messages individually
         smsResponse.data.forEach(message => {
           console.log(`Received message from ${message.number}: "${message.text}" at ${message.timestamp}`);
         });
@@ -642,11 +638,9 @@ ipcMain.handle("fetch-messages", async () => {
         return smsResponse.data;
       } else {
         console.error("No active modems found");
-        throw new Error("No active modems found");
       }
     } else {
       console.error("System not in inbound state");
-      throw new Error("System not in inbound state");
     }
   } catch (error) {
     console.error("Error fetching messages:", error);
@@ -664,7 +658,7 @@ async function createWindow() {
 
   mainWindow = new BrowserWindow({
     width: 1200,
-    height: 800,
+    height: 700,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,

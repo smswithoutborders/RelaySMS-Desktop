@@ -3,6 +3,8 @@ import { initReactI18next } from "react-i18next";
 import enTranslation from "./locales/en/translation.json";
 import frTranslation from "./locales/fr/translation.json";
 import faTranslation from "./locales/fa/translation.json";
+import esTranslation from "./locales/es/translation.json";
+import trTranslation from "./locales/tr/translation.json";
 
 const localStorageKey = "appLanguage";
 
@@ -15,6 +17,12 @@ const resources = {
   },
   fa: {
     translation: faTranslation,
+  },
+  es: {
+    translation: esTranslation,
+  },
+  tr: {
+    translation: trTranslation,
   },
 };
 

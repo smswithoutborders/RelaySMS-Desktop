@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Typography,
   Box,
@@ -12,6 +12,8 @@ import {
   Input,
   InputAdornment,
   styled,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import {
@@ -41,6 +43,7 @@ import NewPassword from "../Components/NewPassword";
 import Help from "./Help";
 import Tutorial from "./Tutorial";
 import Bridges from "../Components/Bridges";
+import SMSMessages from "../Components/SMSMessages";
 
 const CustomTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} sx={{ mt: 3 }} />
@@ -62,6 +65,24 @@ export default function Landing() {
   const [searchQuery, setSearchQuery] = useState("");
   const [fileExists, setFileExists] = useState(false);
   const [openDialog, setOpenDialog] = useState("");
+  const [tabValue, setTabValue] = useState(0);
+  const [smsRefreshKey, setSmsRefreshKey] = useState(0);
+
+  const loadMessages = useCallback(async () => {
+    const storedMessages = await window.api.retrieveParams("messages");
+    setMessages(storedMessages || []);
+  }, []);
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+
+    if (newValue === 1) {
+      setSmsRefreshKey((prevKey) => prevKey + 1);
+      return;
+    }
+
+    loadMessages();
+  };
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -74,14 +95,7 @@ export default function Landing() {
       message.message?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const loadMessages = async () => {
-    const storedMessages = (await window.api.retrieveParams("messages")) || [];
-    setMessages(storedMessages);
-  };
-
   useEffect(() => {
-    loadMessages();
-
     const isFirstTime = localStorage.getItem("firstTimeUser");
     if (!isFirstTime) {
       setRunTutorial(true);
@@ -96,7 +110,7 @@ export default function Landing() {
 
   useEffect(() => {
     checkFileForToken();
-  }, []);
+  }, [smsRefreshKey]);
 
   const steps = [
     {
@@ -149,7 +163,6 @@ export default function Landing() {
   const handleHome = async () => {
     setOpenDialog("");
     setCurrentComponent("Messages");
-    await loadMessages();
   };
 
   const handleComposeClick = () => {
@@ -193,7 +206,7 @@ export default function Landing() {
 
   const handleContinueWithoutAccount = () => {
     setOpenDialog("bridges");
-  };  
+  };
 
   const closeContinueWithoutAccount = async () => {
     setOpenDialog("");
@@ -227,10 +240,25 @@ export default function Landing() {
   };
 
   const handleLogoutSuccess = () => {
-    setFileExists(false); 
-  };  
+    setFileExists(false);
+  };
 
-  
+  const renderTabContent = () => {
+    if (tabValue === 0) {
+      return (
+        <MessageList
+          messages={filteredMessages}
+          onMessageSelect={handleMessageClick}
+          refreshMessages={refreshMessages}
+        />
+      );
+    } else if (tabValue === 1) {
+      return (
+        <SMSMessages refreshMessages={refreshMessages} key={smsRefreshKey} />
+      );
+    }
+    return null;
+  };
 
   const renderComponentInLargeGrid = () => {
     if (!fileExists) {
@@ -315,8 +343,6 @@ export default function Landing() {
     if (!fileExists) {
       return (
         <Box sx={{ p: 2 }}>
-        
-          
           <Button
             size="small"
             variant="contained"
@@ -361,7 +387,7 @@ export default function Landing() {
             <Compose
               open={currentComponent === "Compose"}
               onClose={() => setCurrentComponent(null)}
-              onLogoutSuccess={handleLogoutSuccess} 
+              onLogoutSuccess={handleLogoutSuccess}
             />
           );
         case "SecuritySettings":
@@ -387,13 +413,28 @@ export default function Landing() {
             <>
               <Box
                 sx={{
-                  mt: 2,
+                  mt: 1,
                   mx: 2,
                 }}
               >
-                <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  {t("messages")}
-                </Typography>
+                <Tabs value={tabValue} onChange={handleTabChange} centered>
+                  <Tab
+                    sx={{
+                      textTransform: "none",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                    }}
+                    label={t("relay")}
+                  />
+                  <Tab
+                    sx={{
+                      textTransform: "none",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                    }}
+                    label={t("SMSmessages")}
+                  />
+                </Tabs>
                 <FormControl sx={{ width: "100%" }} variant="standard">
                   <InputLabel sx={{ fontSize: "13px" }}>
                     {t("search")}
@@ -417,11 +458,7 @@ export default function Landing() {
                   />
                 </FormControl>
               </Box>
-              <MessageList
-                messages={filteredMessages}
-                onMessageSelect={handleMessageClick}
-                refreshMessages={refreshMessages}
-              />
+              <Box>{renderTabContent()}</Box>
             </>
           );
         default:
@@ -561,7 +598,13 @@ export default function Landing() {
         </Grid>
         <Divider orientation="vertical" />
 
-        <Grid item sm={7.7} md={7.7} lg={7.7} sx={{overflowY: "auto", height: "100vh"}}>
+        <Grid
+          item
+          sm={7.7}
+          md={7.7}
+          lg={7.7}
+          sx={{ overflowY: "auto", height: "100vh" }}
+        >
           <Box
             sx={{
               py: 3,

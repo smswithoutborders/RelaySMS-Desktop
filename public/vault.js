@@ -3,7 +3,6 @@ const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
 
 const vaultURL = process.env.SMSWITHOUTBORDERS_VAULT_URL || 'vault.staging.smswithoutborders.com:443';
-console.log("vaultURL", vaultURL)
 
 const PROTO_PATH = path.join(__dirname, "vault.proto");
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {

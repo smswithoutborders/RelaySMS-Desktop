@@ -42,6 +42,20 @@ export default function SimpleDialog({ onClose, open, asPopover, anchorEl }) {
             <Typography variant="body2"> {t("farsi")}</Typography>{" "}
           </ListItemText>
         </ListItem>
+
+        <ListItem button>
+          <ListItemText onClick={() => handleListItemClick("es")}>
+            {" "}
+            <Typography variant="body2"> {t("spanish")}</Typography>{" "}
+          </ListItemText>
+        </ListItem>
+
+        <ListItem button>
+          <ListItemText onClick={() => handleListItemClick("tr")}>
+            {" "}
+            <Typography variant="body2"> {t("turkish")}</Typography>{" "}
+          </ListItemText>
+        </ListItem>
       </List>
     </Box>
   );

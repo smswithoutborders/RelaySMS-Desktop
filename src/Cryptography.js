@@ -148,7 +148,7 @@ function extractPublicKeyFromAuthPhrase(authPhrase) {
 
   const pubKeyLength = decodedPhrase[0];
 
-  const otpExpLength = decodedPhrase[1];
+ // const otpExpLength = decodedPhrase[1];
 
   const publicKey = decodedPhrase.slice(2, 2 + pubKeyLength);
   console.log("publicKey:", publicKey);

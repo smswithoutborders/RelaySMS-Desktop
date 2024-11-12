@@ -19,13 +19,24 @@ export default function SMSMessages({ onMessageSelect, refreshMessages }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [alert, setAlert] = useState({ message: "", severity: "" });
+
+
+  const handleAlertClose = () => {
+    setAlert({ ...alert, open: false });
+  };
 
   useEffect(() => {
     const getMessages = async () => {
       try {
-        const fetchedMessages = await window.api.fetchMessages()
+        const fetchedMessages = (await window.api.fetchMessages()) || [];
         setMessages(fetchedMessages);
       } catch (err) {
+        setAlert({
+          message: "No active modem found",
+          severity: "error",
+          open: true,
+        });
         console.error("Error fetching messages:", err);
       }
     };
@@ -60,7 +71,20 @@ export default function SMSMessages({ onMessageSelect, refreshMessages }) {
   };
 
   return (
-    <Box sx={{ flex: 1, overflow: "auto", p: 2 }}>
+    <Box sx={{ flex: 1, overflow: "auto" }}>
+        <Snackbar
+        open={alert.open}
+        autoHideDuration={6000}
+        onClose={handleAlertClose}
+      >
+        <Alert
+          onClose={handleAlertClose}
+          severity={alert.severity}
+          sx={{ width: "100%" }}
+        >
+          {alert.message}
+        </Alert>
+      </Snackbar>
       <List>
         {messages.length === 0 ? (
           <ListItem>
