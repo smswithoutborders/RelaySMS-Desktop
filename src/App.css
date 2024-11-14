@@ -1,0 +1,19 @@
+:root {
+  --background-default: #fafafa;
+  --background-dark: #1E1E1E;
+  --text-primary-light: #000;
+  --text-primary-dark: #fff;
+}
+
+body {
+  background-color: var(--background-default);
+  color: var(--text-primary-light);
+  margin: 0;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode {
+  background-color: var(--background-dark);
+  color: var(--text-primary-dark);
+}

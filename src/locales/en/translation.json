@@ -1,0 +1,42 @@
+{
+  "english": "English",
+  "french": "French",
+  "farsi": "Farsi",
+  "spanish": "Spanish",
+  "turkish": "Turkish",
+  "platforms": {
+    "gmail": "Gmail",
+    "twitter": "X (Twitter)",
+    "telegram": "Telegram",
+    "mail": "Mail"
+  },
+  "meniItems": {
+    "settings": "Settings",
+    "compose": "Compose",
+    "messages": "Messages",
+    "gatewayClients": "Gateway Clients",
+    "selectLanguage": "Select Language",
+    "addAccount": "Add Account",
+    "help": "Help"
+  },
+  "login": "Login",
+  "signup": "Sign Up",
+  "logout": "Log out",
+  "forgotPassword": "Forgot Password",
+  "oldPassword": "Old Password",
+  "conformPassword": "Confirm Password",
+  "resetPassword": "Reset Password",
+  "repeatPassword": "Repeat Password",
+  "password": "Password",
+  "send": "Send",
+  "deleteAccount": "Delete Account",
+  "newPassword": "Creat6e New Password",
+  "vault": "Vault",
+  "compose": {
+    "to": "To",
+    "from": "From",
+    "subject": "Subject",
+    "whatsHappening": "What's Happening?"
+  },
+  "search": "Search"
+}
