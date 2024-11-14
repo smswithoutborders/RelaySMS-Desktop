@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  List,
-  ListItem,
-  ListItemText,
-  Switch,
-  Typography,
-} from "@mui/material";
+import { List, ListItem, ListItemText, Switch } from "@mui/material";
 
 function GatewayClientList({ items, onSelect }) {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -51,7 +45,7 @@ function GatewayClientList({ items, onSelect }) {
               </React.Fragment>
             }
             primaryTypographyProps={{
-              sx: { fontWeight: 'bold', color: 'text.primary' },
+              sx: { fontWeight: "bold", color: "text.primary" },
             }}
           />
           <Switch

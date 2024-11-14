@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { Search } from "@mui/icons-material";
 
-function MessageList({ messages = [], onMessageClick }) {
+function MessageList({ messages = [], onClick }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredMessages = messages.filter(
@@ -31,14 +31,10 @@ function MessageList({ messages = [], onMessageClick }) {
           size="small"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          id="standard-adornment-password"
+          id="search-icon"
           endAdornment={
             <InputAdornment position="end">
-              <IconButton
-                aria-label="toggle password visibility"
-                onClick={searchTerm}
-                onMouseDown={searchTerm}
-              >
+              <IconButton aria-label="search icon">
                 <Search size="13px" />
               </IconButton>
             </InputAdornment>
@@ -52,16 +48,15 @@ function MessageList({ messages = [], onMessageClick }) {
               key={index}
               alignItems="flex-start"
               button
-              onClick={() => onMessageClick && onMessageClick(message)}
+              onClick={() => onClick && onClick(message)}
             >
               <ListItemAvatar>
-                <Avatar sx={{bgcolor: "white"}}>
+                <Avatar sx={{ bgcolor: "white" }}>
                   <img
                     src={message.avatar}
                     alt={message.title}
                     style={{ width: "80%" }}
                   />
-                 
                 </Avatar>
               </ListItemAvatar>
               <ListItemText
@@ -76,7 +71,11 @@ function MessageList({ messages = [], onMessageClick }) {
                 }
                 secondary={
                   <>
-                    <Typography variant="body2" color="text.secondary" component="span">
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      component="span"
+                    >
                       {message.text.slice(0, 50)}...
                     </Typography>
                     <Typography
@@ -96,7 +95,7 @@ function MessageList({ messages = [], onMessageClick }) {
             </ListItem>
           ))
         ) : (
-          <Typography variant="body1" color="text.secondary" sx={{pt: 3}}>
+          <Typography variant="body1" color="text.secondary" sx={{ pt: 3 }}>
             No message to display
           </Typography>
         )}
