@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { LayoutContext } from "../Contexts/LayoutContext";
+import BaseLayout from "./BaseLayout";
 import NavigationPanel from "../Components/NavigationPanel";
 import ControlPanel from "../Components/ControlPanel";
 import ServiceList from "../Components/ServiceList";
@@ -9,19 +10,18 @@ import {
   handlePlatformComposeSelect,
   handleGatewayClientSelect,
   handlePlatformSettingsSelect,
+  handleAddAccountSelect,
 } from "../handlers/platformHandlers";
 import {
   Settings,
   Edit,
   Add,
   CellTower,
-  Language,
   HelpOutline,
   Message,
 } from "@mui/icons-material";
 import { Snackbar, Alert } from "@mui/material";
-import ItemsList from "../Components/ItemsList";
-import CustomDialog from "../Components/CustomDialog";
+import DialogView from "../Views/DialogView";
 
 function PlatformLayout() {
   const { setNavigationPanel, setControlPanel, setDisplayPanel } =
@@ -31,14 +31,6 @@ function PlatformLayout() {
     message: "",
     severity: "info",
   });
-
-  const languages = [
-    { name: "English" },
-    { name: "French" },
-    { name: "Persian" },
-    { name: "Spanish" },
-    { name: "Turkish" },
-  ];
 
   const messages = [
     {
@@ -63,7 +55,7 @@ function PlatformLayout() {
 
   const handleLogoutClick = () => {
     setDisplayPanel(
-      <CustomDialog
+      <DialogView
         open={true}
         title="Log Out"
         description="Are you sure you want to log out?"
@@ -82,7 +74,7 @@ function PlatformLayout() {
 
   const handleDeleteAccountClick = () => {
     setDisplayPanel(
-      <CustomDialog
+      <DialogView
         open={true}
         title="Delete Account"
         description="Are you sure you want to delete your account? This action cannot be undone."
@@ -133,12 +125,12 @@ function PlatformLayout() {
     {
       text: "Add Accounts",
       icon: <Add />,
-      action: () => {
-        setDisplayPanel(null);
-        setControlPanel(
-          <ControlPanel title="Add Accounts" element={<ServiceList />} />
-        );
-      },
+      action: () =>
+        handleAddAccountSelect({
+          setControlPanel,
+          setDisplayPanel,
+          setAlert,
+        }),
     },
     {
       text: "Gateway Clients",
@@ -193,6 +185,7 @@ function PlatformLayout() {
           {alert.message}
         </Alert>
       </Snackbar>
+      <BaseLayout />
     </>
   );
 }

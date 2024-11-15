@@ -24,10 +24,11 @@ function NavigationPanel({ items = [] }) {
       variant="permanent"
       sx={{
         width: isExpanded ? 240 : 72,
+        transition: "width 0.5s ease",
         flexShrink: 0,
         "& .MuiDrawer-paper": {
           width: isExpanded ? 240 : 72,
-          transition: "width 0.3s",
+          transition: "width 0.5s ease",
           overflowX: "hidden",
         },
       }}
@@ -39,13 +40,14 @@ function NavigationPanel({ items = [] }) {
           sx={{
             display: "flex",
             justifyContent: isExpanded ? "flex-end" : "center",
-            padding: "10px",
+            transition: "justify-content 0.5s ease",
           }}
         >
           <IconButton>
             {isExpanded ? <ChevronLeft /> : <ChevronRight />}
           </IconButton>
         </ListItem>
+
         <Divider />
 
         {items.length > 0
@@ -59,30 +61,24 @@ function NavigationPanel({ items = [] }) {
                   button
                   onClick={item.action}
                   sx={{
-                    display: "flex",
-                    justifyContent: isExpanded ? "flex-start" : "center",
                     padding: "10px 20px",
+                    cursor: "pointer",
                   }}
                 >
                   {item.icon ? (
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 0,
-                        pr: isExpanded ? 2 : 0,
-                      }}
-                    >
-                      {item.icon}
-                    </ListItemIcon>
+                    <ListItemIcon>{item.icon}</ListItemIcon>
                   ) : (
                     <Skeleton variant="circular" width={24} height={24} />
                   )}
-                  {isExpanded ? (
-                    item.text ? (
-                      <ListItemText primary={item.text} />
-                    ) : (
-                      <Skeleton variant="text" width="60%" />
-                    )
-                  ) : null}
+                  <ListItemText
+                    primary={item.text}
+                    sx={{
+                      opacity: isExpanded ? 1 : 0,
+                      transition: "opacity 0.5s ease, visibility 0.5s ease",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                  />
                 </ListItem>
               </Tooltip>
             ))
@@ -90,13 +86,18 @@ function NavigationPanel({ items = [] }) {
               <ListItem
                 key={index}
                 sx={{
-                  display: "flex",
-                  justifyContent: isExpanded ? "flex-start" : "center",
                   padding: "10px 20px",
+                  cursor: "pointer",
                 }}
               >
                 <Skeleton variant="circular" width={24} height={24} />
-                {isExpanded && <Skeleton variant="text" width="60%" />}
+                <ListItemText
+                  primary=""
+                  sx={{
+                    opacity: isExpanded ? 1 : 0,
+                    transition: "opacity 0.5s ease, visibility 0.5s ease",
+                  }}
+                />
               </ListItem>
             ))}
       </List>

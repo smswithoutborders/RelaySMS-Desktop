@@ -2,7 +2,7 @@ import React from "react";
 import { Paper, IconButton, Typography, Box } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-function ComposeView({ formComponent, onClose }) {
+function ComposeView({ children, onClose }) {
   return (
     <Paper
       elevation={3}
@@ -28,7 +28,7 @@ function ComposeView({ formComponent, onClose }) {
           <CloseIcon />
         </IconButton>
       </Box>
-      <Box>{formComponent}</Box>
+      <Box>{children}</Box>
     </Paper>
   );
 }

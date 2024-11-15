@@ -11,7 +11,6 @@ function ComposeForm({ fields, onSubmit }) {
 
   const [errors, setErrors] = useState({});
 
-  // Handle field changes
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -20,9 +19,7 @@ function ComposeForm({ fields, onSubmit }) {
     }));
   };
 
-  // Handle form submit
   const handleSubmit = () => {
-    // Validate required fields
     const validationErrors = {};
     fields.forEach((field) => {
       if (field.required && !formData[field.name]) {
@@ -34,7 +31,7 @@ function ComposeForm({ fields, onSubmit }) {
       setErrors(validationErrors);
     } else {
       setErrors({});
-      onSubmit(formData); // Call the callback passed as prop
+      onSubmit(formData);
     }
   };
 
@@ -49,9 +46,9 @@ function ComposeForm({ fields, onSubmit }) {
       }}
     >
       {fields.map((field) => (
-        <Box key={field.name} >
+        <Box key={field.name}>
           <TextField
-          variant="standard"
+            variant="standard"
             label={field.label}
             name={field.name}
             value={formData[field.name]}

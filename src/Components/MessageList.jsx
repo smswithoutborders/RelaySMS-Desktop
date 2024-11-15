@@ -49,6 +49,7 @@ function MessageList({ messages = [], onClick }) {
               alignItems="flex-start"
               button
               onClick={() => onClick && onClick(message)}
+              sx={{ cursor: "pointer" }}
             >
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: "white" }}>

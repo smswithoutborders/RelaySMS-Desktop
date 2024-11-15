@@ -7,18 +7,35 @@ function BaseLayout() {
     useContext(LayoutContext);
 
   return (
-    <Grid container sx={{ m: 0 }}>
+    <Grid
+      container
+      sx={{
+        m: 0,
+        height: "100vh",
+        flexDirection: "row",
+        flexWrap: "nowrap",
+      }}
+    >
       {navigationPanel}
-      <Grid container sx={{ flexGrow: 1 }}>
+      <Grid
+        container
+        sx={{
+          flexGrow: 1,
+          flexDirection: "row",
+          flexWrap: "nowrap",
+          transition: "flex 0.3s ease",
+        }}
+      >
         <Grid
           item
           sx={{
             p: 2,
-            height: "100vh",
+            height: "100%",
+            flex: "1 1 30%",
             maxWidth: 350,
             minWidth: 300,
-            width: "30%",
             bgcolor: "background.paper",
+            transition: "flex 0.3s ease",
           }}
         >
           {controlPanel}
@@ -28,9 +45,11 @@ function BaseLayout() {
           item
           sx={{
             p: 2,
-            mx:"auto",
+            px: 10,
+            height: "100%",
+            flex: "1 1 70%",
             bgcolor: "background.default",
-            width: "70%",
+            transition: "flex 0.3s ease",
           }}
         >
           {displayPanel}

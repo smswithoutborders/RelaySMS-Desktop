@@ -5,7 +5,30 @@ import GatewayClientList from "../Components/GatewayClientList";
 import ItemsList from "../Components/ItemsList";
 import ComposeView from "../Views/ComposeView";
 import ComposeForm from "../Forms/ComposeForm";
+import PasswordForm from "../Forms/PasswordForm";
 import fetchPlatforms from "../controllers/platformControllers";
+import DialogView from "../Views/DialogView";
+import SettingView from "../Views/SettingView";
+
+const languages = [
+  { name: "English" },
+  { name: "French" },
+  { name: "Persian" },
+  { name: "Spanish" },
+  { name: "Turkish" },
+];
+
+const logout = {
+  title: "Are you sure you want to log out?",
+  description: "This action cannot be undone.",
+  color: "",
+};
+
+const deleteAccount = {
+  title: "Are you sure you want to delete your account? ",
+  description: "This action cannot be undone.",
+  color: "error",
+};
 
 export const handlePlatformMessageClick = (setDisplayPanel, message) => {
   setDisplayPanel(
@@ -66,18 +89,23 @@ export const handlePlatformComposeClick = ({ setDisplayPanel, platform }) => {
     <DisplayPanel
       header={`Compose ${platform.name}`}
       body={
-        <ComposeView
-          formComponent={
-            <ComposeForm fields={fields} onSubmit={handleFormSubmit} />
-          }
-          onClose={() => setDisplayPanel(null)}
-        />
+        <ComposeView onClose={() => setDisplayPanel(null)}>
+          <ComposeForm fields={fields} onSubmit={handleFormSubmit} />
+        </ComposeView>
       }
     />
   );
 };
 
 export const handlePlatformComposeSelect = async ({
+  setControlPanel,
+  setDisplayPanel,
+  setAlert,
+}) => {
+  setDisplayPanel(null);
+};
+
+export const handleAddAccountSelect = async ({
   setControlPanel,
   setDisplayPanel,
   setAlert,
@@ -165,23 +193,117 @@ export const handlePlatformSettingsSelect = ({
   const settings = [
     {
       name: "Language",
-      action: () => setDisplayPanel(<DisplayPanel body={"Change Language"} />),
+      action: () =>
+        setDisplayPanel(
+          <DisplayPanel body={<ItemsList items={languages} />} />
+        ),
     },
     {
       name: "Revoke Platforms",
       action: () => setDisplayPanel(<DisplayPanel body={"Revoke Platforms"} />),
     },
     {
-      name: "Reset Password",
-      action: () => setDisplayPanel(<DisplayPanel body={"Reset Password"} />),
+      name: "Change Password",
+      action: () =>
+        setDisplayPanel(
+          <DisplayPanel
+            header={"Change Password"}
+            body={
+              <SettingView>
+                <PasswordForm
+                  fields={[
+                    {
+                      name: "currentPassword",
+                      label: "Current Password",
+                      required: true,
+                      type: "password",
+                    },
+                    {
+                      name: "newPassword",
+                      label: "New Password",
+                      required: true,
+                      type: "password",
+                    },
+                    {
+                      name: "confirmPassword",
+                      label: "Confirm New Password",
+                      required: true,
+                      type: "password",
+                    },
+                  ]}
+                  activity="change"
+                  onSubmit={(data) =>
+                    console.log("Password form submitted:", data)
+                  }
+                />
+              </SettingView>
+            }
+          />
+        ),
     },
     {
       name: "Log out",
-      action: () => setDisplayPanel(<DisplayPanel body={"Log out"} />),
+      action: () =>
+        setDisplayPanel(
+          <DisplayPanel
+            body={
+              <DialogView
+                open={true}
+                title={logout.title}
+                description={logout.description}
+                cancelText="cancel"
+                confirmText="logout"
+                onClose={() => setDisplayPanel(null)}
+                onConfirm={() => {
+                  alert("Logged out successfully");
+                  setDisplayPanel(null);
+                }}
+              />
+            }
+          />
+        ),
     },
     {
       name: "Delete Account",
-      action: () => setDisplayPanel(<DisplayPanel body={"Delete Account"} />),
+      action: () =>
+        setDisplayPanel(
+          <DisplayPanel
+            header={"Delete Account"}
+            body={
+              <SettingView>
+                <PasswordForm
+                  fields={[
+                    {
+                      name: "currentPassword",
+                      label: "Current Password",
+                      required: true,
+                      type: "password",
+                    },
+                  ]}
+                  submitButtonText="Delete Account"
+                  submitButtonColor="error"
+                  onSubmit={(data) => {
+                    setDisplayPanel(
+                      <DialogView
+                        open={true}
+                        title={deleteAccount.title}
+                        description={deleteAccount.description}
+                        cancelText="cancel"
+                        confirmText="yes, delete account"
+                        onClose={() => setDisplayPanel(null)}
+                        onConfirm={() => {
+                          alert("Delete Account successfully");
+                          console.log("Password form submitted:", data);
+                          setDisplayPanel(null);
+                        }}
+                      />
+                    );
+                  }}
+                />
+              </SettingView>
+            }
+          />
+        ),
     },
   ];
 
