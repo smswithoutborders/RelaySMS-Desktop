@@ -1,7 +1,6 @@
-const capitalizeFirstLetter = (str) =>
-  str.charAt(0).toUpperCase() + str.slice(1);
+import { extractRpcErrorMessage, capitalizeFirstLetter } from "../lib/utils";
 
-const fetchPlatforms = async ({ name, shortcode } = {}) => {
+export const fetchPlatforms = async ({ name, shortcode } = {}) => {
   try {
     const response = await fetch("/platforms_resources/platforms.json");
     const platformsData = await response.json();
@@ -30,4 +29,21 @@ const fetchPlatforms = async ({ name, shortcode } = {}) => {
   }
 };
 
-export default fetchPlatforms;
+export const createEntity = async () => {
+  const request = {
+    country_code: "US",
+    phone_number: "+11111234567890",
+    password: "password123",
+    client_publish_pub_key: "pubKey1",
+    client_device_id_pub_key: "pubKey2",
+    ownership_proof_response: "ownershipProof",
+  };
+
+  try {
+    const response = await window.api.invoke("CreateEntity", request);
+    console.log("CreateEntity Response:", response);
+  } catch (error) {
+    console.error("Error message:", extractRpcErrorMessage(error.message));
+    console.error("Error:", error);
+  }
+};

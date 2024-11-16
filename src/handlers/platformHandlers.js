@@ -6,7 +6,10 @@ import ItemsList from "../Components/ItemsList";
 import ComposeView from "../Views/ComposeView";
 import ComposeForm from "../Forms/ComposeForm";
 import PasswordForm from "../Forms/PasswordForm";
-import fetchPlatforms from "../controllers/platformControllers";
+import {
+  fetchPlatforms,
+  createEntity,
+} from "../controllers/platformControllers";
 import DialogView from "../Views/DialogView";
 import SettingView from "../Views/SettingView";
 
@@ -103,6 +106,7 @@ export const handlePlatformComposeSelect = async ({
   setAlert,
 }) => {
   setDisplayPanel(null);
+  await createEntity();
 };
 
 export const handleAddAccountSelect = async ({
