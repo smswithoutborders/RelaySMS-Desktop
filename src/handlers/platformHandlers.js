@@ -1,17 +1,18 @@
-import DisplayPanel from "../Components/DisplayPanel";
-import ControlPanel from "../Components/ControlPanel";
-import ServiceList from "../Components/ServiceList";
-import GatewayClientList from "../Components/GatewayClientList";
-import ItemsList from "../Components/ItemsList";
-import ComposeView from "../Views/ComposeView";
-import ComposeForm from "../Forms/ComposeForm";
-import PasswordForm from "../Forms/PasswordForm";
+import {
+  DisplayPanel,
+  ControlPanel,
+  ServiceList,
+  GatewayClientList,
+  MessageList,
+  ItemsList,
+} from "../Components";
+import { ComposeForm, PasswordForm } from "../Forms";
+import { DialogView, SettingView, ComposeView } from "../Views";
 import {
   fetchPlatforms,
   createEntity,
 } from "../controllers/platformControllers";
-import DialogView from "../Views/DialogView";
-import SettingView from "../Views/SettingView";
+import { MessageController } from "../controllers/messageController";
 
 const languages = [
   { name: "English" },
@@ -184,6 +185,38 @@ export const handleGatewayClientSelect = ({
         <GatewayClientList
           items={gatewayClients}
           onSelect={(client) => handleGatewayClientToggle({ client, setAlert })}
+        />
+      }
+    />
+  );
+};
+
+export const handleMessagesSelect = ({
+  setControlPanel,
+  setDisplayPanel,
+  setAlert,
+}) => {
+  const messageController = new MessageController("platformMessages");
+
+  messageController.createMessage({
+    avatar: "./gmail.png",
+    title: "System Update",
+    text: "Your system update was successful.",
+    date: "2024-11-13",
+  });
+
+  const messages = messageController.getMessagesList();
+
+  setDisplayPanel(null);
+  setControlPanel(
+    <ControlPanel
+      title="Messages"
+      element={
+        <MessageList
+          messages={messages}
+          onClick={(message) =>
+            handlePlatformMessageClick(setDisplayPanel, message)
+          }
         />
       }
     />

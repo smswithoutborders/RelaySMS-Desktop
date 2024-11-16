@@ -1,17 +1,16 @@
 import React from "react";
-import { List, ListItem, ListItemText } from "@mui/material";
+import { List, ListItemText, ListItemButton } from "@mui/material";
 
 const ItemsList = ({ items }) => (
   <List>
     {items.map((item, index) => (
-      <ListItem
-        button
+      <ListItemButton
         key={index}
         onClick={item.action}
         sx={{ cursor: "pointer" }}
       >
         <ListItemText primary={item.name} />
-      </ListItem>
+      </ListItemButton>
     ))}
   </List>
 );

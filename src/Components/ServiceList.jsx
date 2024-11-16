@@ -7,6 +7,7 @@ import {
   Avatar,
   Typography,
   Skeleton,
+  ListItemButton,
 } from "@mui/material";
 
 function ServiceList({ serviceType, services, onClick, loading }) {
@@ -39,9 +40,8 @@ function ServiceList({ serviceType, services, onClick, loading }) {
   return (
     <List>
       {services.map((service, index) => (
-        <ListItem
+        <ListItemButton
           key={index}
-          button
           onClick={() => onClick && onClick(service)}
           style={{ cursor: "pointer" }}
         >
@@ -59,7 +59,7 @@ function ServiceList({ serviceType, services, onClick, loading }) {
             )}
           </ListItemAvatar>
           <ListItemText primary={service.name} />
-        </ListItem>
+        </ListItemButton>
       ))}
     </List>
   );

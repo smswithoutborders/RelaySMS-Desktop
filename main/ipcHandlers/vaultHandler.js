@@ -1,6 +1,7 @@
 const { ipcMain } = require("electron");
 const path = require("path");
 const ProtoBufHandler = require("../protoBufHandler");
+const logger = require("../../Logger");
 
 function setupVaultHandlers() {
   const protoHandler = new ProtoBufHandler(
@@ -24,6 +25,7 @@ function setupVaultHandlers() {
         const response = await entityMethods[methodName](args);
         return response;
       } catch (error) {
+        logger.error(`Error in method '${methodName}'`, error);
         throw error;
       }
     });

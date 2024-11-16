@@ -1,16 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
-import { LayoutContext } from "../Contexts/LayoutContext";
+import React, { useEffect, useState } from "react";
+import { useLayout } from "../Contexts/LayoutContext";
 import BaseLayout from "./BaseLayout";
 import NavigationPanel from "../Components/NavigationPanel";
 import ControlPanel from "../Components/ControlPanel";
-import ServiceList from "../Components/ServiceList";
-import MessageList from "../Components/MessageList";
 import {
-  handlePlatformMessageClick,
   handlePlatformComposeSelect,
   handleGatewayClientSelect,
   handlePlatformSettingsSelect,
   handleAddAccountSelect,
+  handleMessagesSelect,
 } from "../handlers/platformHandlers";
 import {
   Settings,
@@ -24,34 +22,13 @@ import { Snackbar, Alert } from "@mui/material";
 import DialogView from "../Views/DialogView";
 
 function PlatformLayout() {
-  const { setNavigationPanel, setControlPanel, setDisplayPanel } =
-    useContext(LayoutContext);
+  const { setNavigationPanel, setControlPanel, setDisplayPanel } = useLayout();
+
   const [alert, setAlert] = useState({
     open: false,
     message: "",
     severity: "info",
   });
-
-  const messages = [
-    {
-      avatar: "./gmail.png",
-      title: "System Update",
-      text: "Your system update was successful.",
-      date: "2024-11-13",
-    },
-    {
-      avatar: "./gmail.png",
-      title: "Meeting Reminder",
-      text: "Don't forget the meeting at 3 PM.",
-      date: "2024-11-12",
-    },
-    {
-      avatar: "./gmail.png",
-      title: "Welcome Message",
-      text: "Welcome to the platform! Let us know if you need help.",
-      date: "2024-11-10",
-    },
-  ];
 
   const handleLogoutClick = () => {
     setDisplayPanel(
@@ -95,22 +72,12 @@ function PlatformLayout() {
     {
       text: "Messages",
       icon: <Message />,
-      action: () => {
-        setDisplayPanel(null);
-        setControlPanel(
-          <ControlPanel
-            title="Messages"
-            element={
-              <MessageList
-                messages={messages}
-                onClick={(message) =>
-                  handlePlatformMessageClick(setDisplayPanel, message)
-                }
-              />
-            }
-          />
-        );
-      },
+      action: () =>
+        handleMessagesSelect({
+          setControlPanel,
+          setDisplayPanel,
+          setAlert,
+        }),
     },
     {
       text: "Compose",

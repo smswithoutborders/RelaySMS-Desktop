@@ -1,10 +1,8 @@
-import React, { useContext } from "react";
 import { Grid2 as Grid } from "@mui/material";
-import { LayoutContext } from "../Contexts/LayoutContext";
+import { useLayout } from "../Contexts/LayoutContext";
 
 function BaseLayout() {
-  const { navigationPanel, controlPanel, displayPanel } =
-    useContext(LayoutContext);
+  const { navigationPanel, controlPanel, displayPanel } = useLayout();
 
   return (
     <Grid
@@ -27,7 +25,6 @@ function BaseLayout() {
         }}
       >
         <Grid
-          item
           sx={{
             p: 2,
             height: "100%",
@@ -42,7 +39,6 @@ function BaseLayout() {
         </Grid>
 
         <Grid
-          item
           sx={{
             p: 2,
             px: 10,

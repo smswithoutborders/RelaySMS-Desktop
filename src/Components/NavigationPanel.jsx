@@ -9,6 +9,7 @@ import {
   IconButton,
   Tooltip,
   Skeleton,
+  ListItemButton,
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 
@@ -34,8 +35,7 @@ function NavigationPanel({ items = [] }) {
       }}
     >
       <List>
-        <ListItem
-          button
+        <ListItemButton
           onClick={handleToggle}
           sx={{
             display: "flex",
@@ -46,7 +46,7 @@ function NavigationPanel({ items = [] }) {
           <IconButton>
             {isExpanded ? <ChevronLeft /> : <ChevronRight />}
           </IconButton>
-        </ListItem>
+        </ListItemButton>
 
         <Divider />
 
@@ -57,8 +57,7 @@ function NavigationPanel({ items = [] }) {
                 placement="right"
                 key={index}
               >
-                <ListItem
-                  button
+                <ListItemButton
                   onClick={item.action}
                   sx={{
                     padding: "10px 20px",
@@ -79,7 +78,7 @@ function NavigationPanel({ items = [] }) {
                       textOverflow: "ellipsis",
                     }}
                   />
-                </ListItem>
+                </ListItemButton>
               </Tooltip>
             ))
           : Array.from({ length: 3 }).map((_, index) => (

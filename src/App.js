@@ -1,14 +1,23 @@
 import React, { useEffect } from "react";
 import "./App.css";
-import { Routes, Route, HashRouter } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  HashRouter,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
 
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import { LayoutProvider } from "./Contexts/LayoutContext";
-import PlatformLayout from "./Layouts/PlatformLayout";
+import {
+  AuthenticationProvider,
+  useAuth,
+} from "./Contexts/AuthenticationContext";
 import { CssBaseline } from "@mui/material";
-import LoginLayout from "./Layouts/LoginLayout";
+import { PlatformLayout, LoginLayout } from "./Layouts";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -47,16 +56,41 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <LayoutProvider>
-        <HashRouter>
-          <Routes>
-            <Route path="/" element={<PlatformLayout />} />
-            <Route path="/login" element={<LoginLayout />} />
-          </Routes>
-        </HashRouter>
-      </LayoutProvider>
+      <AuthenticationProvider>
+        <LayoutProvider>
+          <HashRouter>
+            <NavigationHandler />
+            <AppRoutes />
+          </HashRouter>
+        </LayoutProvider>
+      </AuthenticationProvider>
     </ThemeProvider>
   );
+}
+
+function AppRoutes() {
+  const { isAuthenticated } = useAuth();
+
+  return (
+    <Routes>
+      <Route path="/" element={<PlatformLayout />} />
+      <Route path="/login" element={<LoginLayout />} />
+      <Route path="*" element={<Navigate to="/" replace={true} />} />
+    </Routes>
+  );
+}
+
+function NavigationHandler() {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate("/login", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  return null;
 }
 
 export default App;

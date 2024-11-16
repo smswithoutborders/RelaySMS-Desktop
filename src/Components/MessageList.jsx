@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Avatar,
   List,
-  ListItem,
   ListItemAvatar,
   ListItemText,
   Typography,
@@ -11,8 +10,10 @@ import {
   InputAdornment,
   IconButton,
   Input,
+  ListItemButton,
 } from "@mui/material";
 import { Search } from "@mui/icons-material";
+import { formatDistanceToNow } from "date-fns";
 
 function MessageList({ messages = [], onClick }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,10 +45,9 @@ function MessageList({ messages = [], onClick }) {
       <List>
         {filteredMessages.length > 0 ? (
           filteredMessages.map((message, index) => (
-            <ListItem
+            <ListItemButton
               key={index}
               alignItems="flex-start"
-              button
               onClick={() => onClick && onClick(message)}
               sx={{ cursor: "pointer" }}
             >
@@ -88,12 +88,14 @@ function MessageList({ messages = [], onClick }) {
                         marginTop: 4,
                       }}
                     >
-                      {new Date(message.date).toLocaleDateString()}
+                      {formatDistanceToNow(new Date(message.date), {
+                        addSuffix: true,
+                      })}
                     </Typography>
                   </>
                 }
               />
-            </ListItem>
+            </ListItemButton>
           ))
         ) : (
           <Typography variant="body1" color="text.secondary" sx={{ pt: 3 }}>
