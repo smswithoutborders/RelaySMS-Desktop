@@ -1,9 +1,18 @@
-import { Box, Button, Grid, TextField, Typography, Link } from "@mui/material";
+import { CheckBox } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Grid,
+  TextField,
+  Typography,
+  Link,
+  FormControlLabel,
+} from "@mui/material";
 import { MuiTelInput } from "mui-tel-input";
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 
-function LoginForm() {
+function SignupPage() {
   return (
     <Box
       sx={{
@@ -27,13 +36,13 @@ function LoginForm() {
               variant="h3"
               sx={{ fontWeight: 600, py: 2, textAlign: "center" }}
             >
-              Login
+              Sign Up
             </Typography>
-            <Typography variant="h6" sx={{ py: 5, textAlign: "center" }}>
-              Do not have an account?{" "}
+            <Typography variant="h6" sx={{ py: 3, textAlign: "center" }}>
+              Already have an account?{" "}
               <Link
                 component={RouterLink}
-                to="/signup"
+                to="/login"
                 sx={{
                   color: "background.more",
                   textDecoration: "none",
@@ -41,7 +50,7 @@ function LoginForm() {
                   "&:hover": { textDecoration: "underline" },
                 }}
               >
-                Sign Up
+                Login
               </Link>
             </Typography>
             <MuiTelInput
@@ -56,18 +65,25 @@ function LoginForm() {
               variant="standard"
               sx={{ mt: 8 }}
             />
-            <Typography
-              variant="h6"
-              sx={{ pt: 5, color: "background.more" }}
-            >
-              Forgot Password?
-            </Typography>
+            <TextField
+              fullWidth
+              label="Repeat Password"
+              variant="standard"
+              sx={{ mt: 8 }}
+            />
+
+            <FormControlLabel
+              control={<CheckBox name="acceptPolicy" />}
+              label={<span>Accept Privacy Policy</span>}
+              sx={{ my: 4 }}
+            />
+
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                mt: 7,
+                mt: 5,
               }}
             >
               <Button
@@ -79,10 +95,10 @@ function LoginForm() {
                   borderRadius: 7,
                   px: 15,
                   py: 2,
-                  textTransform: "none"
+                  textTransform: "none",
                 }}
               >
-                Login
+                Sign Up
               </Button>
             </Box>
             <Box
@@ -90,7 +106,7 @@ function LoginForm() {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                mt: 15,
+                mt: 10,
               }}
             >
               <Typography variant="h6" sx={{ textDecoration: "underline" }}>
@@ -131,7 +147,7 @@ function LoginForm() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                borderRadius: 7
+                borderRadius: 7,
               }}
             />
           </Box>
@@ -141,4 +157,4 @@ function LoginForm() {
   );
 }
 
-export default LoginForm;
+export default SignupPage;

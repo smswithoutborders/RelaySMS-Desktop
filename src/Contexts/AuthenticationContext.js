@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
+import { Navigate } from "react-router-dom";
 
 const AuthenticationContext = createContext();
 
@@ -25,16 +26,30 @@ export const AuthenticationProvider = ({ children }) => {
   };
 
   const isAuthenticated = () => {
-    return !!localStorage.getItem("userData");
+    return !!userData;
   };
 
   const logout = (onLogoutCallback) => {
     clearUserSession(onLogoutCallback);
   };
 
+  const AuthRequired = ({ children }) => {
+    return isAuthenticated() ? (
+      children
+    ) : (
+      <Navigate to="/login" replace={true} />
+    );
+  };
+
   return (
     <AuthenticationContext.Provider
-      value={{ userData, setUserSession, isAuthenticated, logout }}
+      value={{
+        userData,
+        setUserSession,
+        isAuthenticated,
+        logout,
+        AuthRequired,
+      }}
     >
       {children}
     </AuthenticationContext.Provider>

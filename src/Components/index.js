@@ -5,3 +5,4 @@ export { default as GatewayClientList } from "./GatewayClientList";
 export { default as ItemsList } from "./ItemsList";
 export { default as MessageList } from "./MessageList";
 export { default as ServiceList } from "./ServiceList";
+export { default as OTPDialog } from "./OTPDialog";

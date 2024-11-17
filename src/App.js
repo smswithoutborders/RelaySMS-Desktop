@@ -18,9 +18,7 @@ import {
 } from "./Contexts/AuthenticationContext";
 import { CssBaseline } from "@mui/material";
 import { PlatformLayout } from "./Layouts";
-import LoginForm from "./Pages/LoginForm";
-import SignupForm from "./Pages/SignupForm";
-import BridgeAuth from "./Pages/BridgAuth";
+import { AuthPage, SignupPage, BridgeAuthPage } from "./Pages";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -63,7 +61,6 @@ function App() {
       <AuthenticationProvider>
         <LayoutProvider>
           <HashRouter>
-            <NavigationHandler />
             <AppRoutes />
           </HashRouter>
         </LayoutProvider>
@@ -73,30 +70,24 @@ function App() {
 }
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuth();
+  const { AuthRequired } = useAuth();
 
   return (
     <Routes>
-      <Route path="/" element={<PlatformLayout />} />
-      <Route path="/login" element={<LoginForm />} />
-      <Route path="/signup" element={<SignupForm />} />
-      <Route path="/bridge-auth" element={<BridgeAuth />} />
+      <Route
+        path="/"
+        element={
+          <AuthRequired>
+            <PlatformLayout />
+          </AuthRequired>
+        }
+      />
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/bridge-auth" element={<BridgeAuthPage />} />
       <Route path="*" element={<Navigate to="/" replace={true} />} />
     </Routes>
   );
-}
-
-function NavigationHandler() {
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      navigate("/login", { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
-
-  return null;
 }
 
 export default App;
