@@ -10,7 +10,7 @@ import {
   Snackbar,
   Alert as MuiAlert,
 } from "@mui/material";
-import { MuiTelInput } from "mui-tel-input";
+import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
 import { Link as RouterLink } from "react-router-dom";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -18,9 +18,11 @@ import { OTPDialog } from "../Components";
 
 function AuthPage() {
   const [phone, setPhone] = useState("");
+  const [phoneInfo, setPhoneInfo] = useState({});
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
+  const [phoneErrorMessage, setPhoneErrorMessage] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const [alert, setAlert] = useState({
     open: false,
@@ -29,14 +31,43 @@ function AuthPage() {
   });
   const [otpDialogOpen, setOtpDialogOpen] = useState(false);
 
-  const handlePhoneChange = (value) => {
+  const handlePhoneChange = (value, info) => {
+    info.countryCode = info.countryCode
+      ? info.countryCode
+      : phoneInfo.countryCode;
     setPhone(value);
-    if (phoneError) setPhoneError(false);
+    setPhoneInfo(info);
+    setPhoneError(false);
+    setPhoneErrorMessage("");
   };
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
-    if (passwordError) setPasswordError(false);
+    setPasswordError(false);
+  };
+
+  const validatePhoneNumber = () => {
+    if (!phone || !phoneInfo.nationalNumber) {
+      setPhoneErrorMessage("Phone number is required");
+      return false;
+    }
+
+    if (!matchIsValidTel(phone)) {
+      if (!phoneInfo.countryCode) {
+        setPhoneErrorMessage(
+          "Please select a country and enter your phone number."
+        );
+      } else {
+        const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+        const countryName = regionNames.of(phoneInfo.countryCode);
+        setPhoneErrorMessage(
+          `Please enter a valid phone number for ${countryName}.`
+        );
+      }
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = (event) => {
@@ -45,8 +76,10 @@ function AuthPage() {
     setPhoneError(false);
     setPasswordError(false);
 
-    if (!phone || !password) {
-      if (!phone) setPhoneError(true);
+    const isPhoneValid = validatePhoneNumber();
+
+    if (!isPhoneValid || !password) {
+      if (!isPhoneValid) setPhoneError(true);
       if (!password) setPasswordError(true);
       return;
     }
@@ -164,7 +197,7 @@ function AuthPage() {
           focusOnSelectCountry
           required
           error={phoneError}
-          helperText={phoneError ? "Phone number is required" : ""}
+          helperText={phoneError ? phoneErrorMessage : ""}
           sx={{
             py: 2,
             "& .MuiInput-root": {

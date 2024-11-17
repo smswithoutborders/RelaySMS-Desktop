@@ -1,12 +1,6 @@
 import React, { useEffect } from "react";
 import "./App.css";
-import {
-  Routes,
-  Route,
-  HashRouter,
-  Navigate,
-  useNavigate,
-} from "react-router-dom";
+import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
