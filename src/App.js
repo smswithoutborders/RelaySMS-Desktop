@@ -17,7 +17,10 @@ import {
   useAuth,
 } from "./Contexts/AuthenticationContext";
 import { CssBaseline } from "@mui/material";
-import { PlatformLayout, LoginLayout } from "./Layouts";
+import { PlatformLayout } from "./Layouts";
+import LoginForm from "./Pages/LoginForm";
+import SignupForm from "./Pages/SignupForm";
+import BridgeAuth from "./Pages/BridgAuth";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -43,6 +46,7 @@ function App() {
             paper: prefersDarkMode ? "#000" : "#fff",
             custom: prefersDarkMode ? "#232226" : "#E0E2DB",
             side: prefersDarkMode ? "#171614" : "#fff",
+            more: prefersDarkMode ? "#0C4B94" : "#0C4B94",
           },
           text: {
             primary: prefersDarkMode ? "#fff" : "#000",
@@ -74,7 +78,9 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<PlatformLayout />} />
-      <Route path="/login" element={<LoginLayout />} />
+      <Route path="/login" element={<LoginForm />} />
+      <Route path="/signup" element={<SignupForm />} />
+      <Route path="/bridge-auth" element={<BridgeAuth />} />
       <Route path="*" element={<Navigate to="/" replace={true} />} />
     </Routes>
   );
