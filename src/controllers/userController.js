@@ -1,24 +1,45 @@
 export default class UserController {
-  constructor(key = "userData") {
-    this.key = key;
+  constructor(table = "userData") {
+    this.table = table;
   }
 
-  getUserData() {
-    const storedData = localStorage.getItem(this.key);
-    return storedData ? JSON.parse(storedData) : null;
+  async _performDBOperation(operation, ...args) {
+    try {
+      const result = await operation(...args);
+      return result;
+    } catch (error) {
+      console.error(`Error performing database operation:`, error);
+      return null;
+    }
   }
 
-  setUserData(newData) {
-    const token = newData.token || this.generateToken();
-    const updatedData = { ...newData, token };
-    localStorage.setItem(this.key, JSON.stringify(updatedData));
+  getAllData() {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-get-all", this.table)
+    );
   }
 
-  clearUserData() {
-    localStorage.removeItem(this.key);
+  getData(path) {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-get", this.table, path)
+    );
   }
 
-  generateToken() {
-    return Math.random().toString(36).substring(2);
+  setData(path, value) {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-set", this.table, path, value)
+    );
+  }
+
+  deleteData(path) {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-delete", this.table, path)
+    );
+  }
+
+  deleteTable() {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-delete-table", this.table)
+    );
   }
 }

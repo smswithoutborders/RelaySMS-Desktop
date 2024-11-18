@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { UserController } from "../controllers";
 
@@ -9,18 +9,20 @@ export const useAuth = () => useContext(AuthenticationContext);
 export const AuthenticationProvider = ({ children }) => {
   const userController = new UserController();
 
-  const [userData, setUserData] = useState(userController.getUserData());
-  console.log(userData)
+  const [userData, setUserData] = useState(null);
 
-  const setUserSession = (newUserData) => {
-    const currentUserData = userController.getUserData();
-    const updatedData = { ...currentUserData, ...newUserData };
-    userController.setUserData(updatedData);
-    setUserData(updatedData);
-  };
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const data = await userController.getAllData();
+      console.log(">>>>>>", data);
+      setUserData(data.length === 0 ? null : data[0]);
+    };
 
-  const clearUserSession = (onLogoutCallback) => {
-    userController.clearUserData();
+    fetchUserData();
+  }, []);
+
+  const clearUserSession = async (onLogoutCallback) => {
+    await userController.deleteTable();
     setUserData(null);
     if (onLogoutCallback) onLogoutCallback();
   };
@@ -45,7 +47,6 @@ export const AuthenticationProvider = ({ children }) => {
     <AuthenticationContext.Provider
       value={{
         userData,
-        setUserSession,
         isAuthenticated,
         logout,
         AuthRequired,

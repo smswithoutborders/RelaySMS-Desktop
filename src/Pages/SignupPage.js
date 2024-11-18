@@ -10,6 +10,7 @@ import {
   Snackbar,
   Alert as MuiAlert,
   Checkbox,
+  CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
@@ -45,6 +46,24 @@ function SignupPage() {
   });
   const [otpDialogOpen, setOtpDialogOpen] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [otpSettings, setOtpSettings] = useState({
+    nextAttemptTimestamp: null,
+    phoneNumber: null,
+  });
+  const [loading, setLoading] = useState(false);
+
+  const fetchOtpSettings = async () => {
+    try {
+      const [nextAttemptTimestamp, phoneNumber] = await Promise.all([
+        settingsController.getData("preferences.otp.nextAttemptTimestamp"),
+        settingsController.getData("preferences.otp.phoneNumber"),
+      ]);
+
+      setOtpSettings({ nextAttemptTimestamp, phoneNumber });
+    } catch (error) {
+      console.error("Error fetching OTP settings:", error);
+    }
+  };
 
   const handlePhoneChange = (value, info) => {
     const cleanedValue = value.replace(/\s+/g, "");
@@ -131,37 +150,38 @@ function SignupPage() {
       return;
     }
 
-    const counterTimestamp = settingsController.getSetting(
-      "preferences.otp.nextAttemptTimestamp"
-    );
-    const counterPhoneNumber = settingsController.getSetting(
-      "preferences.otp.phoneNumber"
-    );
-    const now = Math.floor(Date.now() / 1000);
-    if (
-      counterTimestamp &&
-      counterTimestamp > now &&
-      counterPhoneNumber === phone
-    ) {
-      const timeLeft = formatDistanceToNow(counterTimestamp * 1000, {
-        includeSeconds: true,
-      });
-      setAlert({
-        open: true,
-        type: "info",
-        message: `You can request a new OTP in ${timeLeft}. Please wait before trying again.`,
-      });
-      setOtpDialogOpen(true);
-      return;
-    }
-
-    const entityData = {
-      country_code: phoneInfo.countryCode,
-      phone_number: phone,
-      password: passwordData.password,
-    };
+    setLoading(true);
 
     try {
+      fetchOtpSettings();
+
+      const now = Math.floor(Date.now() / 1000);
+      if (
+        otpSettings.nextAttemptTimestamp &&
+        otpSettings.nextAttemptTimestamp > now &&
+        otpSettings.phoneNumber === phone
+      ) {
+        const timeLeft = formatDistanceToNow(
+          otpSettings.nextAttemptTimestamp * 1000,
+          {
+            includeSeconds: true,
+          }
+        );
+        setAlert({
+          open: true,
+          type: "info",
+          message: `You can request a new OTP in ${timeLeft}. Please wait before trying again.`,
+        });
+        setOtpDialogOpen(true);
+        return;
+      }
+
+      const entityData = {
+        country_code: phoneInfo.countryCode,
+        phone_number: phone,
+        password: passwordData.password,
+      };
+
       const { err, res } = await createEntity(entityData);
       if (err) {
         setAlert({
@@ -178,6 +198,7 @@ function SignupPage() {
           type: "success",
           message: res.message,
         });
+        fetchOtpSettings();
         setOtpDialogOpen(true);
       }
     } catch (error) {
@@ -186,6 +207,8 @@ function SignupPage() {
         type: "error",
         message: "An unexpected error occurred. Please try again later.",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -197,14 +220,16 @@ function SignupPage() {
   };
 
   const handleOtpSubmit = async (otp) => {
-    const entityData = {
-      country_code: phoneInfo.countryCode,
-      phone_number: phone,
-      password: passwordData.password,
-      ownership_proof_response: otp,
-    };
+    setLoading(true);
 
     try {
+      const entityData = {
+        country_code: phoneInfo.countryCode,
+        phone_number: phone,
+        password: passwordData.password,
+        ownership_proof_response: otp,
+      };
+
       const { err, res } = await createEntity(entityData);
       if (err) {
         setAlert({
@@ -232,6 +257,8 @@ function SignupPage() {
         type: "error",
         message: "An unexpected error occurred. Please try again later.",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -295,6 +322,7 @@ function SignupPage() {
           required
           error={phoneError}
           helperText={phoneError ? phoneErrorMessage : ""}
+          disabled={loading}
           sx={{
             py: 2,
             "& .MuiInput-root": {
@@ -317,6 +345,7 @@ function SignupPage() {
           error={passwordData.passwordError}
           helperText={passwordData.passwordError ? "Password is required" : ""}
           sx={{ mt: 8 }}
+          disabled={loading}
           slotProps={{
             input: {
               endAdornment: (
@@ -345,6 +374,7 @@ function SignupPage() {
             passwordData.confirmPasswordError ? "Passwords must match." : ""
           }
           sx={{ mt: 8 }}
+          disabled={loading}
           slotProps={{
             input: {
               endAdornment: (
@@ -368,6 +398,7 @@ function SignupPage() {
             checked={agreedToTerms}
             onChange={handleTermsChange}
             color="primary"
+            disabled={loading}
           />
           <Typography variant="body2">
             I agree to the{" "}
@@ -400,9 +431,9 @@ function SignupPage() {
             },
           }}
           onClick={handleSubmit}
-          disabled={!agreedToTerms}
+          disabled={!agreedToTerms || loading}
         >
-          Sign Up
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Sign Up"}
         </Button>
 
         <Box sx={{ mt: 3 }}>
@@ -443,10 +474,9 @@ function SignupPage() {
             severity: "info",
           });
         }}
-        counterTimestamp={settingsController.getSetting(
-          "preferences.otp.nextAttemptTimestamp"
-        )}
+        counterTimestamp={otpSettings.nextAttemptTimestamp}
         alert={alert}
+        loading={loading}
       />
     </Grid>
   );

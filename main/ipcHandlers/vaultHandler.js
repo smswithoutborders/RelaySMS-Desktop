@@ -12,20 +12,25 @@ function setupVaultHandlers() {
     }
   );
 
-  protoHandler.connectToServer(
+  const vaultUrl =
     process.env.SMSWITHOUTBORDERS_VAULT_URL ||
-      "vault.staging.smswithoutborders.com:443",
-    true
-  );
+    "vault.staging.smswithoutborders.com:443";
+  protoHandler.connectToServer(vaultUrl, true);
 
   const entityMethods = protoHandler.getMethods();
   Object.keys(entityMethods).forEach((methodName) => {
     ipcMain.handle(`${methodName}`, async (event, args) => {
       try {
+        logger.info(`Connected to Vault server at: ${vaultUrl}`);
+        logger.info(`Invoking gRPC method: ${methodName}`, { args });
         const response = await entityMethods[methodName](args);
         return response;
       } catch (error) {
-        logger.error(`Error in method '${methodName}'`, error);
+        logger.error(`Error in gRPC method '${methodName}'`, {
+          args,
+          error: error.message,
+          stack: error.stack,
+        });
         throw error;
       }
     });

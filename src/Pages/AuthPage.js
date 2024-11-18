@@ -9,14 +9,21 @@ import {
   IconButton,
   Snackbar,
   Alert as MuiAlert,
+  CircularProgress,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
 import { Link as RouterLink } from "react-router-dom";
+import { formatDistanceToNow } from "date-fns";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { OTPDialog } from "../Components";
+import { SettingsController, authenticateEntity } from "../controllers";
 
 function AuthPage() {
+  const navigate = useNavigate();
+  const settingsController = new SettingsController();
+
   const [phone, setPhone] = useState("");
   const [phoneInfo, setPhoneInfo] = useState({});
   const [password, setPassword] = useState("");
@@ -30,6 +37,24 @@ function AuthPage() {
     message: "",
   });
   const [otpDialogOpen, setOtpDialogOpen] = useState(false);
+  const [otpSettings, setOtpSettings] = useState({
+    nextAttemptTimestamp: null,
+    phoneNumber: null,
+  });
+  const [loading, setLoading] = useState(false);
+
+  const fetchOtpSettings = async () => {
+    try {
+      const [nextAttemptTimestamp, phoneNumber] = await Promise.all([
+        settingsController.getData("preferences.otp.nextAttemptTimestamp"),
+        settingsController.getData("preferences.otp.phoneNumber"),
+      ]);
+
+      setOtpSettings({ nextAttemptTimestamp, phoneNumber });
+    } catch (error) {
+      console.error("Error fetching OTP settings:", error);
+    }
+  };
 
   const handlePhoneChange = (value, info) => {
     info.countryCode = info.countryCode
@@ -70,7 +95,7 @@ function AuthPage() {
     return true;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     setPhoneError(false);
@@ -84,52 +109,111 @@ function AuthPage() {
       return;
     }
 
-    console.log("Phone:", phone, "Password:", password);
+    setLoading(true);
 
-    setTimeout(() => {
-      const success = true;
-      if (success) {
+    try {
+      fetchOtpSettings();
+
+      const now = Math.floor(Date.now() / 1000);
+      if (
+        otpSettings.nextAttemptTimestamp &&
+        otpSettings.nextAttemptTimestamp > now &&
+        otpSettings.phoneNumber === phone
+      ) {
+        const timeLeft = formatDistanceToNow(
+          otpSettings.nextAttemptTimestamp * 1000,
+          {
+            includeSeconds: true,
+          }
+        );
         setAlert({
           open: true,
-          type: "success",
-          message: "Login successful! Please enter the OTP.",
+          type: "info",
+          message: `You can request a new OTP in ${timeLeft}. Please wait before trying again.`,
         });
         setOtpDialogOpen(true);
-      } else {
+        return;
+      }
+
+      const entityData = {
+        phone_number: phone,
+        password: password,
+      };
+
+      const { err, res } = await authenticateEntity(entityData);
+      if (err) {
         setAlert({
           open: true,
           type: "error",
-          message: "Invalid credentials, please try again.",
+          message: err,
         });
+        return;
       }
-    }, 1000);
+
+      if (res.requires_ownership_proof) {
+        setAlert({
+          open: true,
+          type: "success",
+          message: res.message,
+        });
+        fetchOtpSettings();
+        setOtpDialogOpen(true);
+      }
+    } catch (error) {
+      setAlert({
+        open: true,
+        type: "error",
+        message: "An unexpected error occurred. Please try again later.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevState) => !prevState);
   };
 
-  const handleOtpSubmit = (otp) => {
-    console.log("OTP Submitted:", otp);
+  const handleOtpSubmit = async (otp) => {
+    setLoading(true);
 
-    setTimeout(() => {
-      const otpSuccess = otp === "123456";
-      if (otpSuccess) {
-        setAlert({
-          open: true,
-          type: "success",
-          message: "OTP verified successfully!",
-        });
-        setOtpDialogOpen(false);
-      } else {
+    try {
+      const entityData = {
+        phone_number: phone,
+        password: password,
+        ownership_proof_response: otp,
+      };
+
+      const { err, res } = await authenticateEntity(entityData);
+      if (err) {
         setAlert({
           open: true,
           type: "error",
-          message: "Invalid OTP, please try again.",
+          message: err,
         });
-        setOtpDialogOpen(true);
+        return;
       }
-    }, 1000);
+
+      if (res.long_lived_token) {
+        setAlert({
+          open: true,
+          type: "success",
+          message: res.message,
+        });
+        setOtpDialogOpen(false);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+    } catch (error) {
+      setAlert({
+        open: true,
+        type: "error",
+        message: "An unexpected error occurred. Please try again later.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -192,6 +276,7 @@ function AuthPage() {
           required
           error={phoneError}
           helperText={phoneError ? phoneErrorMessage : ""}
+          disabled={loading}
           sx={{
             py: 2,
             "& .MuiInput-root": {
@@ -213,6 +298,7 @@ function AuthPage() {
           error={passwordError}
           helperText={passwordError ? "Password is required" : ""}
           sx={{ mt: 8 }}
+          disabled={loading}
           slotProps={{
             input: {
               endAdornment: (
@@ -262,8 +348,9 @@ function AuthPage() {
             },
           }}
           onClick={handleSubmit}
+          disabled={loading}
         >
-          Login
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
         </Button>
 
         <Box sx={{ mt: 3 }}>
@@ -304,8 +391,9 @@ function AuthPage() {
             severity: "info",
           });
         }}
-        counterTimestamp={Math.floor(Date.now() / 1000) + 30}
+        counterTimestamp={otpSettings.nextAttemptTimestamp}
         alert={alert}
+        loading={loading}
       />
     </Grid>
   );

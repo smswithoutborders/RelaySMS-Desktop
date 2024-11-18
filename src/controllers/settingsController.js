@@ -1,74 +1,45 @@
 export default class SettingsController {
-  constructor(key = "appSettings") {
-    this.key = key;
-    this.settings = this.getSettings();
+  constructor(table = "appSettings") {
+    this.table = table;
   }
 
-  getSettings() {
-    const storedSettings = localStorage.getItem(this.key);
-    return storedSettings ? JSON.parse(storedSettings) : {};
-  }
-
-  saveSettings() {
-    localStorage.setItem(this.key, JSON.stringify(this.settings));
-  }
-
-  setSetting(path, value) {
-    const keys = path.split(".");
-    let current = this.settings;
-
-    keys.forEach((key, index) => {
-      if (index === keys.length - 1) {
-        current[key] = value;
-      } else {
-        current[key] = current[key] || {};
-        current = current[key];
-      }
-    });
-
-    this.saveSettings();
-  }
-
-  getSetting(path) {
-    const keys = path.split(".");
-    let current = this.settings;
-
-    for (const key of keys) {
-      if (current[key] === undefined) {
-        console.error(`Setting '${path}' does not exist.`);
-        return null;
-      }
-      current = current[key];
+  async _performDBOperation(operation, ...args) {
+    try {
+      const result = await operation(...args);
+      return result;
+    } catch (error) {
+      console.error(`Error performing database operation:`, error);
+      return null;
     }
-
-    return current;
   }
 
-  deleteSetting(path) {
-    const keys = path.split(".");
-    let current = this.settings;
-
-    keys.forEach((key, index) => {
-      if (index === keys.length - 1) {
-        delete current[key];
-      } else {
-        if (!current[key]) {
-          console.error(`Setting '${path}' does not exist.`);
-          return;
-        }
-        current = current[key];
-      }
-    });
-
-    this.saveSettings();
+  getAllData() {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-get-all", this.table)
+    );
   }
 
-  getAllSettings() {
-    return this.settings;
+  getData(path) {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-get", this.table, path)
+    );
   }
 
-  clearSettings() {
-    localStorage.removeItem(this.key);
-    this.settings = {};
+  setData(path, value) {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-set", this.table, path, value)
+    );
+  }
+
+  deleteData(path) {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-delete", this.table, path)
+    );
+  }
+
+  deleteTable() {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-delete-table", this.table)
+    );
   }
 }

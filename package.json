@@ -60,9 +60,11 @@
     "eject": "react-scripts eject",
     "preelectron-pack": "yarn build",
     "electron:start": "concurrently -k \"cross-env BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electronmon .\"",
-    "electron:package:mac": "yarn build && electron-builder --mac",
-    "electron:package:win": "yarn build && electron-builder --win",
-    "electron:package:linux": "yarn build && electron-builder --linux"
+    "rebuild": "electron-rebuild",
+    "postinstall": "electron-rebuild",
+    "electron:package:mac": "yarn rebuild && yarn build && electron-builder --mac",
+    "electron:package:win": "yarn rebuild && yarn build && electron-builder --win",
+    "electron:package:linux": "yarn rebuild && yarn build && electron-builder --linux"
   },
   "eslintConfig": {
     "extends": [

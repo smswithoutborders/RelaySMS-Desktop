@@ -4,7 +4,7 @@ const path = require("path");
 
 const logFilePath = path.join(app.getPath("logs"), "app.log");
 
-const maxLogSize = 5 * 1024 * 1024; // 5 MB
+const maxLogSize = 5 * 1024 * 1024;
 
 const rotateLogs = () => {
   if (
@@ -27,21 +27,30 @@ const originalError = console.error;
 const logger = {
   info: (...args) => {
     const timestamp = new Date().toISOString();
-    const message = `[${timestamp}] [INFO] ${args.join(" ")}\n`;
+    const formattedArgs = args.map((arg) =>
+      typeof arg === "object" ? JSON.stringify(arg, null, 2) : arg
+    );
+    const message = `[${timestamp}] [INFO] ${formattedArgs.join(" ")}\n`;
     logFile.write(message);
-    originalLog(...args);
+    originalLog(...formattedArgs);
   },
   warn: (...args) => {
     const timestamp = new Date().toISOString();
-    const message = `[${timestamp}] [WARN] ${args.join(" ")}\n`;
+    const formattedArgs = args.map((arg) =>
+      typeof arg === "object" ? JSON.stringify(arg, null, 2) : arg
+    );
+    const message = `[${timestamp}] [WARN] ${formattedArgs.join(" ")}\n`;
     logFile.write(message);
-    originalLog(...args);
+    originalLog(...formattedArgs);
   },
   error: (...args) => {
     const timestamp = new Date().toISOString();
-    const message = `[${timestamp}] [ERROR] ${args.join(" ")}\n`;
+    const formattedArgs = args.map((arg) =>
+      typeof arg === "object" ? JSON.stringify(arg, null, 2) : arg
+    );
+    const message = `[${timestamp}] [ERROR] ${formattedArgs.join(" ")}\n`;
     logFile.write(message);
-    originalError(...args);
+    originalError(...formattedArgs);
   },
 };
 

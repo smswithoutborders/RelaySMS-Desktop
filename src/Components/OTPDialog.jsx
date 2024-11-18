@@ -9,6 +9,7 @@ import {
   Box,
   Grid2 as Grid,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 
 function OTPDialog({
@@ -18,6 +19,7 @@ function OTPDialog({
   onResend,
   counterTimestamp,
   alert,
+  loading,
 }) {
   const [otp, setOtp] = useState(Array(6).fill(""));
   const [counter, setCounter] = useState(0);
@@ -120,6 +122,7 @@ function OTPDialog({
                   }}
                   variant="outlined"
                   autoComplete="off"
+                  disabled={loading}
                 />
               </Grid>
             ))}
@@ -140,8 +143,13 @@ function OTPDialog({
               color="primary"
               variant="contained"
               fullWidth
+              disabled={loading}
             >
-              Resend OTP
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Resend OTP"
+              )}
             </Button>
           )}
         </Box>
@@ -153,6 +161,7 @@ function OTPDialog({
           color="error"
           variant="contained"
           fullWidth
+          disabled={loading}
           sx={{ mr: 1 }}
         >
           Cancel
@@ -162,9 +171,9 @@ function OTPDialog({
           color="primary"
           variant="contained"
           fullWidth
-          disabled={otp.join("").length < 6}
+          disabled={otp.join("").length < 6 || loading}
         >
-          Submit
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"}
         </Button>
       </DialogActions>
     </Dialog>
