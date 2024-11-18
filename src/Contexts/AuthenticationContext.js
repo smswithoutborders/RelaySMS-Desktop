@@ -14,7 +14,6 @@ export const AuthenticationProvider = ({ children }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       const data = await userController.getAllData();
-      console.log(">>>>>>", data);
       setUserData(data.length === 0 ? null : data[0]);
     };
 

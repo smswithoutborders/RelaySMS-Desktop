@@ -11,7 +11,6 @@ import {
   Alert as MuiAlert,
   CircularProgress,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
 import { Link as RouterLink } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
@@ -21,7 +20,6 @@ import { OTPDialog } from "../Components";
 import { SettingsController, authenticateEntity } from "../controllers";
 
 function AuthPage() {
-  const navigate = useNavigate();
   const settingsController = new SettingsController();
 
   const [phone, setPhone] = useState("");
@@ -57,10 +55,11 @@ function AuthPage() {
   };
 
   const handlePhoneChange = (value, info) => {
+    const cleanedValue = value.replace(/\s+/g, "");
     info.countryCode = info.countryCode
       ? info.countryCode
       : phoneInfo.countryCode;
-    setPhone(value);
+    setPhone(cleanedValue);
     setPhoneInfo(info);
     setPhoneError(false);
     setPhoneErrorMessage("");
@@ -201,9 +200,7 @@ function AuthPage() {
           message: res.message,
         });
         setOtpDialogOpen(false);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        await window.api.invoke("reload-window");
       }
     } catch (error) {
       setAlert({
@@ -321,7 +318,7 @@ function AuthPage() {
         >
           <Link
             component={RouterLink}
-            to="/forgot-password"
+            to="/reset-password"
             sx={{
               textDecoration: "none",
               color: "background.more",

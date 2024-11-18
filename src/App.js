@@ -12,7 +12,12 @@ import {
 } from "./Contexts/AuthenticationContext";
 import { CssBaseline } from "@mui/material";
 import { PlatformLayout } from "./Layouts";
-import { AuthPage, SignupPage, BridgeAuthPage } from "./Pages";
+import {
+  AuthPage,
+  SignupPage,
+  BridgeAuthPage,
+  ResetPasswordPage,
+} from "./Pages";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -89,6 +94,16 @@ function AppRoutes() {
             <Navigate to="/" replace={true} />
           ) : (
             <SignupPage />
+          )
+        }
+      />
+      <Route
+        path="/reset-password"
+        element={
+          isAuthenticated() ? (
+            <Navigate to="/" replace={true} />
+          ) : (
+            <ResetPasswordPage />
           )
         }
       />

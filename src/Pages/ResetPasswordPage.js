@@ -9,7 +9,6 @@ import {
   IconButton,
   Snackbar,
   Alert as MuiAlert,
-  Checkbox,
   CircularProgress,
 } from "@mui/material";
 import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
@@ -18,9 +17,9 @@ import { formatDistanceToNow } from "date-fns";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { OTPDialog } from "../Components";
-import { SettingsController, createEntity } from "../controllers";
+import { SettingsController, resetPassword } from "../controllers";
 
-function SignupPage() {
+function ResetPasswordPage() {
   const settingsController = new SettingsController();
 
   const [phone, setPhone] = useState("");
@@ -43,7 +42,6 @@ function SignupPage() {
     message: "",
   });
   const [otpDialogOpen, setOtpDialogOpen] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [otpSettings, setOtpSettings] = useState({
     nextAttemptTimestamp: null,
     phoneNumber: null,
@@ -83,10 +81,6 @@ function SignupPage() {
       confirmPasswordError:
         name === "confirmPassword" ? false : prevState.confirmPasswordError,
     }));
-  };
-
-  const handleTermsChange = (event) => {
-    setAgreedToTerms(event.target.checked);
   };
 
   const validatePhoneNumber = () => {
@@ -143,7 +137,7 @@ function SignupPage() {
     const isPhoneValid = validatePhoneNumber();
     const isPasswordValid = validatePassword();
 
-    if (!isPhoneValid || !isPasswordValid || !agreedToTerms) {
+    if (!isPhoneValid || !isPasswordValid) {
       if (!isPhoneValid) setPhoneError(true);
       return;
     }
@@ -175,12 +169,11 @@ function SignupPage() {
       }
 
       const entityData = {
-        country_code: phoneInfo.countryCode,
         phone_number: phone,
-        password: passwordData.password,
+        new_password: passwordData.password,
       };
 
-      const { err, res } = await createEntity(entityData);
+      const { err, res } = await resetPassword(entityData);
       if (err) {
         setAlert({
           open: true,
@@ -222,13 +215,12 @@ function SignupPage() {
 
     try {
       const entityData = {
-        country_code: phoneInfo.countryCode,
         phone_number: phone,
-        password: passwordData.password,
+        new_password: passwordData.password,
         ownership_proof_response: otp,
       };
 
-      const { err, res } = await createEntity(entityData);
+      const { err, res } = await resetPassword(entityData);
       if (err) {
         setAlert({
           open: true,
@@ -275,10 +267,10 @@ function SignupPage() {
         }}
       >
         <Typography variant="h3" sx={{ fontWeight: 600, mb: 8 }}>
-          Sign Up
+          Reset Password
         </Typography>
         <Typography variant="h6" sx={{ py: 5 }}>
-          Have an account?{" "}
+          Remember your password?{" "}
           <Link
             component={RouterLink}
             to="/login"
@@ -331,7 +323,7 @@ function SignupPage() {
 
         <TextField
           fullWidth
-          label="Password"
+          label="New Password"
           variant="standard"
           name="password"
           value={passwordData.password}
@@ -358,7 +350,7 @@ function SignupPage() {
 
         <TextField
           fullWidth
-          label="Confirm Password"
+          label="Confirm New Password"
           variant="standard"
           name="confirmPassword"
           value={passwordData.confirmPassword}
@@ -389,29 +381,6 @@ function SignupPage() {
           }}
         />
 
-        <Box display="flex" alignItems="center" sx={{ mt: 4 }}>
-          <Checkbox
-            checked={agreedToTerms}
-            onChange={handleTermsChange}
-            color="primary"
-            disabled={loading}
-          />
-          <Typography variant="body2">
-            I agree to the{" "}
-            <Link
-              to="/terms"
-              component={RouterLink}
-              sx={{
-                textDecoration: "none",
-                fontWeight: "bold",
-                "&:hover": { textDecoration: "underline" },
-              }}
-            >
-              Terms and Conditions
-            </Link>
-          </Typography>
-        </Box>
-
         <Button
           variant="contained"
           size="large"
@@ -427,9 +396,13 @@ function SignupPage() {
             },
           }}
           onClick={handleSubmit}
-          disabled={!agreedToTerms || loading}
+          disabled={loading}
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : "Sign Up"}
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Reset Password"
+          )}
         </Button>
 
         <Box sx={{ mt: 3 }}>
@@ -478,4 +451,4 @@ function SignupPage() {
   );
 }
 
-export default SignupPage;
+export default ResetPasswordPage;

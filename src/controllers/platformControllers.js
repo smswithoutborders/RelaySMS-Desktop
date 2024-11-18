@@ -162,3 +162,68 @@ export const authenticateEntity = async ({
     return { err: extractedError, res: null };
   }
 };
+
+export const resetPassword = async ({
+  phone_number,
+  new_password,
+  ownership_proof_response,
+}) => {
+  const clientPublishKeypair = generateKeyPair();
+  const clientDeviceIDKeypair = generateKeyPair();
+
+  const request = {
+    phone_number,
+    new_password,
+    client_publish_pub_key: clientPublishKeypair.publicKey,
+    client_device_id_pub_key: clientDeviceIDKeypair.publicKey,
+    ownership_proof_response,
+  };
+
+  try {
+    const response = await window.api.invoke("ResetPassword", request);
+    console.log("ResetPassword Response:", response);
+
+    const userController = new UserController();
+    const settingsController = new SettingsController();
+
+    const operations = [];
+
+    if (response.long_lived_token) {
+      operations.push(
+        userController.setData("keypairs", {
+          publish: {
+            client: clientPublishKeypair,
+            server: { publicKey: response.server_publish_pub_key },
+          },
+          deviceID: {
+            client: clientDeviceIDKeypair,
+            server: { publicKey: response.server_device_id_pub_key },
+          },
+        }),
+        userController.setData("longLivedToken", response.long_lived_token),
+        settingsController.deleteData("preferences.otp.nextAttemptTimestamp"),
+        settingsController.deleteData("preferences.otp.phoneNumber")
+      );
+    }
+
+    if (response.requires_ownership_proof) {
+      operations.push(
+        settingsController.setData("preferences.otp.phoneNumber", phone_number),
+        settingsController.setData(
+          "preferences.otp.nextAttemptTimestamp",
+          response.next_attempt_timestamp
+        )
+      );
+    }
+
+    await Promise.all(operations);
+
+    return { err: null, res: response };
+  } catch (error) {
+    const extractedError =
+      extractRpcErrorMessage(error.message) ||
+      "Oops, something went wrong. Please try again later.";
+    console.error(extractedError);
+    return { err: extractedError, res: null };
+  }
+};
