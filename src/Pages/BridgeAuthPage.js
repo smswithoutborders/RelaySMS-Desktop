@@ -12,13 +12,7 @@ import { Link as RouterLink } from "react-router-dom";
 
 function BridgeAuthPage() {
   return (
-    <Grid
-      container
-      height="100vh"
-      justifyContent="center"
-      alignItems="center"
-      columnSpacing={4}
-    >
+    <Grid container height="100vh" justifyContent="center" alignItems="center">
       <Grid
         size={8}
         display="flex"

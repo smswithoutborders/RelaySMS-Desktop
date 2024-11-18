@@ -64,7 +64,7 @@ function App() {
 }
 
 function AppRoutes() {
-  const { AuthRequired } = useAuth();
+  const { isAuthenticated, AuthRequired } = useAuth();
 
   return (
     <Routes>
@@ -76,8 +76,22 @@ function AppRoutes() {
           </AuthRequired>
         }
       />
-      <Route path="/login" element={<AuthPage />} />
-      <Route path="/signup" element={<SignupPage />} />
+      <Route
+        path="/login"
+        element={
+          isAuthenticated() ? <Navigate to="/" replace={true} /> : <AuthPage />
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          isAuthenticated() ? (
+            <Navigate to="/" replace={true} />
+          ) : (
+            <SignupPage />
+          )
+        }
+      />
       <Route path="/bridge-auth" element={<BridgeAuthPage />} />
       <Route path="*" element={<Navigate to="/" replace={true} />} />
     </Routes>

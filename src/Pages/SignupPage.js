@@ -11,13 +11,19 @@ import {
   Alert as MuiAlert,
   Checkbox,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
 import { Link as RouterLink } from "react-router-dom";
+import { formatDistanceToNow } from "date-fns";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { OTPDialog } from "../Components";
+import { SettingsController, createEntity } from "../controllers";
 
 function SignupPage() {
+  const navigate = useNavigate();
+  const settingsController = new SettingsController();
+
   const [phone, setPhone] = useState("");
   const [phoneInfo, setPhoneInfo] = useState({});
   const [passwordData, setPasswordData] = useState({
@@ -41,10 +47,11 @@ function SignupPage() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handlePhoneChange = (value, info) => {
+    const cleanedValue = value.replace(/\s+/g, "");
     info.countryCode = info.countryCode
       ? info.countryCode
       : phoneInfo.countryCode;
-    setPhone(value);
+    setPhone(cleanedValue);
     setPhoneInfo(info);
     setPhoneError(false);
     setPhoneErrorMessage("");
@@ -111,7 +118,7 @@ function SignupPage() {
     return true;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     setPhoneError(false);
@@ -124,32 +131,62 @@ function SignupPage() {
       return;
     }
 
-    console.log(
-      "Phone:",
-      phone,
-      "Password:",
-      passwordData.password,
-      "Country Code",
-      phoneInfo.countryCode
+    const counterTimestamp = settingsController.getSetting(
+      "preferences.otp.nextAttemptTimestamp"
     );
+    const counterPhoneNumber = settingsController.getSetting(
+      "preferences.otp.phoneNumber"
+    );
+    const now = Math.floor(Date.now() / 1000);
+    if (
+      counterTimestamp &&
+      counterTimestamp > now &&
+      counterPhoneNumber === phone
+    ) {
+      const timeLeft = formatDistanceToNow(counterTimestamp * 1000, {
+        includeSeconds: true,
+      });
+      setAlert({
+        open: true,
+        type: "info",
+        message: `You can request a new OTP in ${timeLeft}. Please wait before trying again.`,
+      });
+      setOtpDialogOpen(true);
+      return;
+    }
 
-    setTimeout(() => {
-      const success = true;
-      if (success) {
-        setAlert({
-          open: true,
-          type: "success",
-          message: "Login successful! Please enter the OTP.",
-        });
-        setOtpDialogOpen(true);
-      } else {
+    const entityData = {
+      country_code: phoneInfo.countryCode,
+      phone_number: phone,
+      password: passwordData.password,
+    };
+
+    try {
+      const { err, res } = await createEntity(entityData);
+      if (err) {
         setAlert({
           open: true,
           type: "error",
-          message: "Invalid credentials, please try again.",
+          message: err,
         });
+        return;
       }
-    }, 1000);
+
+      if (res.requires_ownership_proof) {
+        setAlert({
+          open: true,
+          type: "success",
+          message: res.message,
+        });
+        setOtpDialogOpen(true);
+      }
+    } catch (error) {
+      setAlert({
+        open: true,
+        type: "error",
+        message: "An unexpected error occurred. Please try again later.",
+      });
+    }
   };
 
   const togglePasswordVisibility = (field) => {
@@ -159,37 +196,47 @@ function SignupPage() {
     }));
   };
 
-  const handleOtpSubmit = (otp) => {
-    console.log("OTP Submitted:", otp);
+  const handleOtpSubmit = async (otp) => {
+    const entityData = {
+      country_code: phoneInfo.countryCode,
+      phone_number: phone,
+      password: passwordData.password,
+      ownership_proof_response: otp,
+    };
 
-    setTimeout(() => {
-      const otpSuccess = otp === "123456";
-      if (otpSuccess) {
-        setAlert({
-          open: true,
-          type: "success",
-          message: "OTP verified successfully!",
-        });
-        setOtpDialogOpen(false);
-      } else {
+    try {
+      const { err, res } = await createEntity(entityData);
+      if (err) {
         setAlert({
           open: true,
           type: "error",
-          message: "Invalid OTP, please try again.",
+          message: err,
         });
-        setOtpDialogOpen(true);
+        return;
       }
-    }, 1000);
+
+      if (res.long_lived_token) {
+        setAlert({
+          open: true,
+          type: "success",
+          message: res.message,
+        });
+        setOtpDialogOpen(false);
+        setTimeout(() => {
+          navigate("/#/", { replace: true });
+        }, 1000);
+      }
+    } catch (error) {
+      setAlert({
+        open: true,
+        type: "error",
+        message: "An unexpected error occurred. Please try again later.",
+      });
+    }
   };
 
   return (
-    <Grid
-      container
-      height="100vh"
-      justifyContent="center"
-      alignItems="center"
-      columnSpacing={4}
-    >
+    <Grid container height="100vh" justifyContent="center" alignItems="center">
       <Grid
         size={8}
         display="flex"
@@ -396,7 +443,9 @@ function SignupPage() {
             severity: "info",
           });
         }}
-        counterTimestamp={Math.floor(Date.now() / 1000) + 30}
+        counterTimestamp={settingsController.getSetting(
+          "preferences.otp.nextAttemptTimestamp"
+        )}
         alert={alert}
       />
     </Grid>

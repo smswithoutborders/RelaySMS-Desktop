@@ -12,7 +12,7 @@ import {
   fetchPlatforms,
   createEntity,
 } from "../controllers/platformControllers";
-import { MessageController } from "../controllers/messageController";
+import { MessageController } from "../controllers";
 
 const languages = [
   { name: "English" },

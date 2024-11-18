@@ -1,26 +1,26 @@
 import React, { createContext, useContext, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { UserController } from "../controllers";
 
 const AuthenticationContext = createContext();
 
 export const useAuth = () => useContext(AuthenticationContext);
 
 export const AuthenticationProvider = ({ children }) => {
-  const [userData, setUserData] = useState(
-    JSON.parse(localStorage.getItem("userData")) || null
-  );
+  const userController = new UserController();
 
-  const generateToken = () => Math.random().toString(36).substring(2);
+  const [userData, setUserData] = useState(userController.getUserData());
+  console.log(userData)
 
-  const setUserSession = (newData) => {
-    const token = userData?.token || generateToken();
-    const updatedData = { ...userData, ...newData, token };
-    localStorage.setItem("userData", JSON.stringify(updatedData));
+  const setUserSession = (newUserData) => {
+    const currentUserData = userController.getUserData();
+    const updatedData = { ...currentUserData, ...newUserData };
+    userController.setUserData(updatedData);
     setUserData(updatedData);
   };
 
   const clearUserSession = (onLogoutCallback) => {
-    localStorage.removeItem("userData");
+    userController.clearUserData();
     setUserData(null);
     if (onLogoutCallback) onLogoutCallback();
   };

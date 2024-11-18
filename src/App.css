@@ -11,9 +11,29 @@ body {
   margin: 0;
   font-family: "Roboto", "Helvetica", "Arial", sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+  scrollbar-width: thin;
 }
 
 body.dark-mode {
   background-color: var(--background-dark);
   color: var(--text-primary-dark);
+}
+
+::-webkit-scrollbar {
+  width: 8px; 
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent; 
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #5555554d; 
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #adadad6e; 
+  cursor: pointer;
 }
