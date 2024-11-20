@@ -11,7 +11,7 @@ import {
   useAuth,
 } from "./Contexts/AuthenticationContext";
 import { CssBaseline } from "@mui/material";
-import { PlatformLayout, BridgeLayout } from "./Layouts";
+import { PlatformLayout, BridgeLayout, DekuLayout } from "./Layouts";
 import {
   AuthPage,
   SignupPage,
@@ -108,6 +108,7 @@ function AppRoutes() {
         }
       />
       <Route path="/bridge-auth" element={<BridgeAuthPage />} />
+      <Route path="/deku" element={<DekuLayout />} />
       <Route path="*" element={<Navigate to="/" replace={true} />} />
     </Routes>
   );

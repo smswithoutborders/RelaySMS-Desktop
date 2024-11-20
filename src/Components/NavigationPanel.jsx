@@ -13,9 +13,8 @@ import {
   Box,
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-import { Link } from "react-router-dom";
 
-function NavigationPanel({ items = [] }) {
+function NavigationPanel({ items = [], app }) {
   const [isExpanded, setIsExpanded] = useState(true);
 
   useEffect(() => {
@@ -112,23 +111,27 @@ function NavigationPanel({ items = [] }) {
             ))}
       </List>
 
-      <List
-        sx={{
-          marginTop: "auto", 
-        }}
-      >
-        <Link to="/deku" style={{ textDecoration: "none", color: "inherit" }}>
+      {app && (
+        <List sx={{ mt: "auto" }}>
           <ListItemButton
+            onClick={app.action}
+            size="small"
             sx={{
-              padding: "10px 20px",
               cursor: "pointer",
-              bgcolor: "background.more",
-              borderRadius: 20
+              bgcolor: "background.primary",
+              mb: 2,
             }}
           >
-            <ListItemIcon> <Box component="img" src="Deku.png" style={{width: "35px"}} alt="Deku" /> </ListItemIcon>
+            <ListItemIcon>
+              <Box
+                component="img"
+                src={app.icon || ""}
+                style={{ width: "35px" }}
+                alt={app.text || ""}
+              />
+            </ListItemIcon>
             <ListItemText
-              primary="Deku"
+              primary={app.text || ""}
               sx={{
                 opacity: isExpanded ? 1 : 0,
                 transition: "opacity 0.5s ease, visibility 0.5s ease",
@@ -137,8 +140,8 @@ function NavigationPanel({ items = [] }) {
               }}
             />
           </ListItemButton>
-        </Link>
-      </List>
+        </List>
+      )}
     </Drawer>
   );
 }

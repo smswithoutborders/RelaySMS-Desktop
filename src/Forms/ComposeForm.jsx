@@ -1,16 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button, Box, MenuItem } from "@mui/material";
 
 function ComposeForm({ fields, onSubmit }) {
-  const [formData, setFormData] = useState(
-    fields.reduce((acc, field) => {
-      acc[field.name] = field.defaultValue || "";
-      console.log(acc)
-      return acc;
-    }, {})
-  );
-
+  const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const initialData = fields.reduce((acc, field) => {
+      acc[field.name] = field.defaultValue || "";
+      return acc;
+    }, {});
+    setFormData(initialData);
+  }, [fields]);
 
   const handleFieldChange = (e) => {
     const { name, value } = e.target;
@@ -53,7 +54,7 @@ function ComposeForm({ fields, onSubmit }) {
             variant="standard"
             label={field.label}
             name={field.name}
-            value={formData[field.name]}
+            value={formData[field.name] || ""}
             onChange={handleFieldChange}
             fullWidth
             required={field.required}

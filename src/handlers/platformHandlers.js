@@ -68,6 +68,7 @@ export const handlePlatformComposeClick = ({ setDisplayPanel, platform }) => {
             label: data,
             value: data,
           })),
+          defaultValue: platform.identifiers[0] || "",
         },
         { name: "to", label: "To", required: true, type: "email" },
         { name: "cc", label: "Cc", required: false },
@@ -87,6 +88,7 @@ export const handlePlatformComposeClick = ({ setDisplayPanel, platform }) => {
             label: data,
             value: data,
           })),
+          defaultValue: platform.identifiers[0] || "",
         },
         {
           name: "status",
