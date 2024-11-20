@@ -106,11 +106,11 @@ function PlatformLayout() {
     setNavigationPanel(
       <NavigationPanel
         items={navItems}
-        app={{
-          action: () => navigate("/deku"),
-          icon: "Deku.png",
-          text: "Deku",
-        }}
+        // app={{
+        //   action: () => navigate("/deku"),
+        //   icon: "Deku.png",
+        //   text: "Deku",
+        // }}
       />
     );
 
@@ -147,7 +147,7 @@ function PlatformLayout() {
       }
     };
 
-    fetchTokens();
+    // fetchTokens();
   }, []);
 
   return (

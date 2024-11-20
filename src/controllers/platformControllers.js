@@ -30,6 +30,44 @@ export const fetchPlatforms = async ({ name, shortcode } = {}) => {
   }
 };
 
+export const fetchGatewayClients = async () => {
+  const settingsController = new SettingsController();
+
+  try {
+    const response = await fetch(
+      "https://gatewayserver.smswithoutborders.com/v3/clients",
+      {
+        timeout: 8000,
+      }
+    );
+    const gatewayClients = await response.json();
+    const currentGatewayClients =
+      (await settingsController.getData("gatewayclients")) || [];
+    const updatedGatewayClients = gatewayClients.map((client) => {
+      const currentClient = currentGatewayClients.find(
+        (existingClient) => existingClient.msisdn === client.msisdn
+      );
+      return {
+        ...client,
+        active: currentClient ? currentClient.active : false,
+        default:
+          client.country && client.country.toLowerCase() === "usa"
+            ? true
+            : false,
+      };
+    });
+    await settingsController.setData("gatewayclients", updatedGatewayClients);
+    return updatedGatewayClients;
+  } catch (error) {
+    console.error("Error fetching gateway clients:", error);
+
+    const storedGatewayClients = await settingsController.getData(
+      "gatewayclients"
+    );
+    return storedGatewayClients || [];
+  }
+};
+
 const generateKeyPair = async () => {
   const response = await window.api.invoke("generate-keypair");
   return response;
@@ -239,9 +277,9 @@ export const resetPassword = async ({
 };
 
 export const listEntityStoredTokens = async () => {
-  try {
-    const userController = new UserController();
+  const userController = new UserController();
 
+  try {
     const hasInternet = await window.api.invoke("check-internet");
     if (!hasInternet) {
       const storedTokens = (await userController.getData("storedTokens")) || [];
@@ -280,8 +318,6 @@ export const listEntityStoredTokens = async () => {
       },
     };
   } catch (error) {
-    const userController = new UserController();
-
     const storedTokens = (await userController.getData("storedTokens")) || [];
     const extractedError =
       extractRpcErrorMessage(error.message) ||

@@ -11,8 +11,9 @@ import { DialogView, SettingView, ComposeView } from "../Views";
 import {
   fetchPlatforms,
   listEntityStoredTokens,
+  fetchGatewayClients,
 } from "../controllers/platformControllers";
-import { MessageController } from "../controllers";
+import { MessageController, SettingsController } from "../controllers";
 
 const languages = [
   { name: "English" },
@@ -38,14 +39,6 @@ export const handlePlatformMessageClick = (setDisplayPanel, message) => {
   setDisplayPanel(
     <DisplayPanel header={message.title} body={<div>{message.text}</div>} />
   );
-};
-
-export const handleGatewayClientToggle = ({ client, setAlert }) => {
-  setAlert({
-    open: true,
-    message: client.key,
-    severity: "info",
-  });
 };
 
 export const handlePlatformComposeClick = ({ setDisplayPanel, platform }) => {
@@ -195,7 +188,6 @@ export const handleAddAccountSelect = async ({
   setDisplayPanel(null);
   try {
     const fetchedPlatforms = await fetchPlatforms();
-    console.log(fetchedPlatforms);
     setControlPanel(
       <ControlPanel
         title="Compose"
@@ -219,43 +211,19 @@ export const handleAddAccountSelect = async ({
   }
 };
 
-export const handleGatewayClientSelect = ({
+export const handleGatewayClientSelect = async ({
   setControlPanel,
   setDisplayPanel,
   setAlert,
 }) => {
-  const gatewayClients = [
-    {
-      key: "+123456789",
-      name: "Orange",
-      country: "Nigeria",
-      default: false,
-      active: false,
-    },
-    {
-      key: "+098765432",
-      name: "MTN Cameroon",
-      country: "Cameroon",
-      default: false,
-      active: false,
-    },
-    {
-      key: "+012345678",
-      name: "Twilio",
-      country: "USA",
-      default: true,
-      active: false,
-    },
-    {
-      key: "+908070605",
-      name: "MTN",
-      country: "Senegal",
-      default: false,
-      active: false,
-    },
-  ];
-
   setDisplayPanel(null);
+  setControlPanel(
+    <ControlPanel
+      title="Gateway Clients"
+      element={<GatewayClientList items={[]} loading={true} />}
+    />
+  );
+  const gatewayClients = await fetchGatewayClients();
   setControlPanel(
     <ControlPanel
       title="Gateway Clients"
@@ -267,6 +235,27 @@ export const handleGatewayClientSelect = ({
       }
     />
   );
+};
+
+export const handleGatewayClientToggle = async ({ client, setAlert }) => {
+  const settingsController = new SettingsController();
+
+  const currentGatewayClients =
+    (await settingsController.getData("gatewayclients")) || [];
+
+  const updatedGatewayClients = currentGatewayClients.map((existingClient) =>
+    existingClient.msisdn === client.msisdn
+      ? client
+      : { ...existingClient, active: false }
+  );
+
+  await settingsController.setData("gatewayclients", updatedGatewayClients);
+
+  setAlert({
+    open: true,
+    message: `Gateway client ${client.msisdn} is now active.`,
+    severity: "success",
+  });
 };
 
 export const handleMessagesSelect = ({
