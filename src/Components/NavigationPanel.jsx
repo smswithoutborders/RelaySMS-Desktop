@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   List,
   ListItem,
@@ -10,11 +10,22 @@ import {
   Tooltip,
   Skeleton,
   ListItemButton,
+  Box,
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { Link } from "react-router-dom";
 
 function NavigationPanel({ items = [] }) {
   const [isExpanded, setIsExpanded] = useState(true);
+
+  useEffect(() => {
+    if (items.length > 0) {
+      const defaultItem = items.find((item) => item.default);
+      if (defaultItem && defaultItem.action) {
+        defaultItem.action();
+      }
+    }
+  }, [items]);
 
   const handleToggle = () => {
     setIsExpanded(!isExpanded);
@@ -99,6 +110,34 @@ function NavigationPanel({ items = [] }) {
                 />
               </ListItem>
             ))}
+      </List>
+
+      <List
+        sx={{
+          marginTop: "auto", 
+        }}
+      >
+        <Link to="/deku" style={{ textDecoration: "none", color: "inherit" }}>
+          <ListItemButton
+            sx={{
+              padding: "10px 20px",
+              cursor: "pointer",
+              bgcolor: "background.more",
+              borderRadius: 20
+            }}
+          >
+            <ListItemIcon> <Box component="img" src="Deku.png" style={{width: "35px"}} alt="Deku" /> </ListItemIcon>
+            <ListItemText
+              primary="Deku"
+              sx={{
+                opacity: isExpanded ? 1 : 0,
+                transition: "opacity 0.5s ease, visibility 0.5s ease",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
+              }}
+            />
+          </ListItemButton>
+        </Link>
       </List>
     </Drawer>
   );

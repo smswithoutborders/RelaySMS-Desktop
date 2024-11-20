@@ -1,5 +1,4 @@
 import { extractRpcErrorMessage, capitalizeFirstLetter } from "../lib/utils";
-import { generateKeyPair } from "../lib/crypto";
 import { UserController, SettingsController } from "./";
 
 export const fetchPlatforms = async ({ name, shortcode } = {}) => {
@@ -31,14 +30,21 @@ export const fetchPlatforms = async ({ name, shortcode } = {}) => {
   }
 };
 
+const generateKeyPair = async () => {
+  const response = await window.api.invoke("generate-keypair");
+  return response;
+};
+
 export const createEntity = async ({
   country_code,
   phone_number,
   password,
   ownership_proof_response,
 }) => {
-  const clientPublishKeypair = generateKeyPair();
-  const clientDeviceIDKeypair = generateKeyPair();
+  const [clientPublishKeypair, clientDeviceIDKeypair] = await Promise.all([
+    generateKeyPair(),
+    generateKeyPair(),
+  ]);
 
   const request = {
     country_code,
@@ -103,8 +109,10 @@ export const authenticateEntity = async ({
   password,
   ownership_proof_response,
 }) => {
-  const clientPublishKeypair = generateKeyPair();
-  const clientDeviceIDKeypair = generateKeyPair();
+  const [clientPublishKeypair, clientDeviceIDKeypair] = await Promise.all([
+    generateKeyPair(),
+    generateKeyPair(),
+  ]);
 
   const request = {
     phone_number,
@@ -168,8 +176,10 @@ export const resetPassword = async ({
   new_password,
   ownership_proof_response,
 }) => {
-  const clientPublishKeypair = generateKeyPair();
-  const clientDeviceIDKeypair = generateKeyPair();
+  const [clientPublishKeypair, clientDeviceIDKeypair] = await Promise.all([
+    generateKeyPair(),
+    generateKeyPair(),
+  ]);
 
   const request = {
     phone_number,
@@ -225,5 +235,65 @@ export const resetPassword = async ({
       "Oops, something went wrong. Please try again later.";
     console.error(extractedError);
     return { err: extractedError, res: null };
+  }
+};
+
+export const listEntityStoredTokens = async () => {
+  try {
+    const userController = new UserController();
+
+    const hasInternet = await window.api.invoke("check-internet");
+    if (!hasInternet) {
+      const storedTokens = (await userController.getData("storedTokens")) || [];
+      return {
+        err: null,
+        res: {
+          warn: "You're offline. Using stored tokens for now. Don't worry, it's all good!",
+          storedTokens,
+        },
+      };
+    }
+
+    const [deviceIDKeypairs, longLivedTokenCipher] = await Promise.all([
+      userController.getData("keypairs.deviceID"),
+      userController.getData("longLivedToken"),
+    ]);
+
+    const longLivedToken = await window.api.invoke("decrypt-long-lived-token", {
+      client_device_id_private_key: deviceIDKeypairs.client.privateKey,
+      server_device_id_public_key: deviceIDKeypairs.server.publicKey,
+      long_lived_token_cipher: longLivedTokenCipher,
+    });
+
+    const { stored_tokens: storedTokens = [], ...response } =
+      await window.api.invoke("ListEntityStoredTokens", {
+        long_lived_token: longLivedToken,
+      });
+
+    await userController.setData("storedTokens", storedTokens);
+
+    return {
+      err: null,
+      res: {
+        ...response,
+        storedTokens,
+      },
+    };
+  } catch (error) {
+    const userController = new UserController();
+
+    const storedTokens = (await userController.getData("storedTokens")) || [];
+    const extractedError =
+      extractRpcErrorMessage(error.message) ||
+      (error.message.includes("read ECONNRESET")
+        ? "The connection was reset while communicating with the server. Please check your network connection and try again."
+        : "Oops, something went wrong. Please try again later.");
+
+    return {
+      err: extractedError,
+      res: {
+        storedTokens,
+      },
+    };
   }
 };

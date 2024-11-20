@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { TextField, Button, Box } from "@mui/material";
+import { TextField, Button, Box, MenuItem } from "@mui/material";
 
 function ComposeForm({ fields, onSubmit }) {
   const [formData, setFormData] = useState(
     fields.reduce((acc, field) => {
       acc[field.name] = field.defaultValue || "";
+      console.log(acc)
       return acc;
     }, {})
   );
@@ -48,6 +49,7 @@ function ComposeForm({ fields, onSubmit }) {
       {fields.map((field) => (
         <Box key={field.name}>
           <TextField
+            select={field.type === "select"}
             variant="standard"
             label={field.label}
             name={field.name}
@@ -60,7 +62,14 @@ function ComposeForm({ fields, onSubmit }) {
             type={field.type || "text"}
             multiline={field.multiline}
             rows={field.rows || 1}
-          />
+          >
+            {field.type === "select" &&
+              field.options.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+          </TextField>
         </Box>
       ))}
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>

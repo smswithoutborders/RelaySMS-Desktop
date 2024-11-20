@@ -31,7 +31,7 @@ function ServiceList({ serviceType, services, onClick, loading }) {
 
   if (!services || services.length === 0) {
     return (
-      <Typography variant="body1" color="textSecondary" align="center">
+      <Typography variant="body1" color="text.secondary" sx={{ pt: 3 }}>
         No {serviceType}s available
       </Typography>
     );

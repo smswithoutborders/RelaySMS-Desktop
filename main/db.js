@@ -61,28 +61,30 @@ class DB {
     try {
       const [key, jsonPath] = this._splitPath(path);
       let query;
+      let result;
 
       if (jsonPath === null) {
         query = `
           SELECT value FROM ${this._sanitizeIdentifier(table)}
           WHERE key = ?
         `;
+        logger.info(`Executing query: ${query} with params: [${key}, ${key}]`);
+        const stmt = db.prepare(query);
+        result = stmt.get(key)?.value;
       } else {
         query = `
           SELECT json_extract(value, ?) AS result
           FROM ${this._sanitizeIdentifier(table)}
           WHERE key = ?
         `;
+        logger.info(
+          `Executing query: ${query} with params: [${`$.${jsonPath}`}, ${key}]`
+        );
+        const stmt = db.prepare(query);
+        result = stmt.get(`$.${jsonPath}`, key)?.result;
       }
 
-      logger.info(
-        `Executing query: ${query} with params: [${
-          jsonPath === null ? key : `$.${jsonPath}`
-        }, ${key}]`
-      );
-      const stmt = db.prepare(query);
-      const result = stmt.get(jsonPath === null ? key : `$.${jsonPath}`, key);
-      return result ? result.result : null;
+      return result ? JSON.parse(result) : null;
     } catch (error) {
       logger.error(
         `Error fetching data from table '${table}' with path '${path}':`,

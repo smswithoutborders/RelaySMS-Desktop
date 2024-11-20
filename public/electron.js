@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, shell, ipcMain } = require("electron");
 const path = require("path");
 const url = require("url");
+const axios = require("axios");
 const { registerIpcHandlers } = require("../main/ipcHandlers");
 
 let mainWindow;
@@ -22,6 +23,7 @@ if (!gotTheLock) {
 } else {
   app.whenReady().then(() => {
     createWindow();
+    mainWindow.maximize();
   });
 }
 
@@ -34,9 +36,18 @@ async function createWindow() {
 
   registerIpcHandlers();
 
+  ipcMain.handle("check-internet", async () => {
+    try {
+      await axios.get("https://1.1.1.1", {
+        timeout: 6000,
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  });
+
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 700,
     webPreferences: {
       preload: path.join(__dirname, "../main/preload.js"),
       nodeIntegration: false,

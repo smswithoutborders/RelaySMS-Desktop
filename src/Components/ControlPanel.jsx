@@ -3,9 +3,16 @@ import { Box, Typography } from "@mui/material";
 
 function ControlPanel({ title, element }) {
   return (
-    <Box>
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Typography
-        sx={{ color: "text.primary", fontWeight: 700, mb: 3 }}
+        sx={{
+          color: "text.primary",
+          fontWeight: 700,
+          position: "sticky",
+          top: 0,
+          bgcolor: "background.paper",
+          zIndex: 1,
+        }}
         variant="body1"
         component="div"
         gutterBottom
@@ -13,7 +20,15 @@ function ControlPanel({ title, element }) {
         {title}
       </Typography>
 
-      <Box sx={{ color: "text.secondary" }}>{element}</Box>
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflowY: "auto",
+          color: "text.secondary",
+        }}
+      >
+        {element}
+      </Box>
     </Box>
   );
 }

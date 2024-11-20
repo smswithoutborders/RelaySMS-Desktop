@@ -11,7 +11,7 @@ import {
   useAuth,
 } from "./Contexts/AuthenticationContext";
 import { CssBaseline } from "@mui/material";
-import { PlatformLayout } from "./Layouts";
+import { PlatformLayout, BridgeLayout } from "./Layouts";
 import {
   AuthPage,
   SignupPage,

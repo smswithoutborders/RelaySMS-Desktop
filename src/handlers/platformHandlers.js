@@ -10,7 +10,7 @@ import { ComposeForm, PasswordForm } from "../Forms";
 import { DialogView, SettingView, ComposeView } from "../Views";
 import {
   fetchPlatforms,
-  createEntity,
+  listEntityStoredTokens,
 } from "../controllers/platformControllers";
 import { MessageController } from "../controllers";
 
@@ -51,42 +51,66 @@ export const handleGatewayClientToggle = ({ client, setAlert }) => {
 export const handlePlatformComposeClick = ({ setDisplayPanel, platform }) => {
   const handleFormSubmit = (data) => {
     console.table(data);
-    alert(`Form submitted with data: ${JSON.stringify(data)}`);
     setDisplayPanel(null);
   };
 
-  let fields = [];
+  let fields;
 
-  if (platform.name === "Gmail") {
-    fields = [
-      { name: "from", label: "From", required: true, type: "email" },
-      { name: "to", label: "To", required: true, type: "email" },
-      { name: "cc", label: "Cc", required: false },
-      { name: "bcc", label: "BCC", required: false },
-      { name: "subject", label: "Subject", required: true },
-      { name: "body", label: "", required: true, multiline: true, rows: 10 },
-    ];
-  } else if (platform.name === "Twitter") {
-    fields = [
-      {
-        name: "status",
-        label: "What is happening?",
-        required: true,
-        multiline: true,
-        rows: 8,
-      },
-    ];
-  } else if (platform.name === "Telegram") {
-    fields = [
-      { name: "to", label: "To (Phone Number)", required: true, type: "tel" },
-      {
-        name: "message",
-        label: "Message",
-        required: true,
-        multiline: true,
-        rows: 8,
-      },
-    ];
+  switch (platform.name) {
+    case "Gmail":
+      fields = [
+        {
+          name: "from",
+          label: "From",
+          required: true,
+          type: "select",
+          options: platform.identifiers.map((data) => ({
+            label: data,
+            value: data,
+          })),
+        },
+        { name: "to", label: "To", required: true, type: "email" },
+        { name: "cc", label: "Cc", required: false },
+        { name: "bcc", label: "BCC", required: false },
+        { name: "subject", label: "Subject", required: true },
+        { name: "body", label: "", required: true, multiline: true, rows: 10 },
+      ];
+      break;
+    case "Twitter":
+      fields = [
+        {
+          name: "sender",
+          label: "Handle",
+          required: true,
+          type: "select",
+          options: platform.identifiers.map((data) => ({
+            label: data,
+            value: data,
+          })),
+        },
+        {
+          name: "status",
+          label: "What is happening?",
+          required: true,
+          multiline: true,
+          rows: 8,
+        },
+      ];
+      break;
+    case "Telegram":
+      fields = [
+        { name: "to", label: "To (Phone Number)", required: true, type: "tel" },
+        {
+          name: "message",
+          label: "Message",
+          required: true,
+          multiline: true,
+          rows: 8,
+        },
+      ];
+      break;
+    default:
+      fields = [];
   }
 
   setDisplayPanel(
@@ -107,7 +131,58 @@ export const handlePlatformComposeSelect = async ({
   setAlert,
 }) => {
   setDisplayPanel(null);
-  await createEntity();
+  setControlPanel(
+    <ControlPanel
+      title="Compose"
+      element={<ServiceList serviceType="Platform" loading={true} />}
+    />
+  );
+
+  const [availablePlatforms] = await Promise.all([fetchPlatforms()]);
+
+  const storedTokens = [
+    {
+      account_identifier: "example@gmail.com",
+      platform: "gmail",
+    },
+    {
+      account_identifier: "example2@gmail.com",
+      platform: "gmail",
+    },
+    {
+      account_identifier: "my_x_handle",
+      platform: "twitter",
+    },
+  ];
+
+  const tokenMap = storedTokens.reduce((acc, token) => {
+    const platformKey = token.platform.toLowerCase();
+    if (!acc[platformKey]) acc[platformKey] = [];
+    acc[platformKey].push(token.account_identifier);
+    return acc;
+  }, {});
+
+  const filteredPlatforms = availablePlatforms
+    .filter((platform) => tokenMap[platform.name.toLowerCase()])
+    .map((platform) => ({
+      ...platform,
+      identifiers: tokenMap[platform.name.toLowerCase()] || [],
+    }));
+
+  setControlPanel(
+    <ControlPanel
+      title="Compose"
+      element={
+        <ServiceList
+          serviceType="Platform"
+          services={filteredPlatforms}
+          onClick={(platform) =>
+            handlePlatformComposeClick({ setDisplayPanel, platform })
+          }
+        />
+      }
+    />
+  );
 };
 
 export const handleAddAccountSelect = async ({
@@ -118,6 +193,7 @@ export const handleAddAccountSelect = async ({
   setDisplayPanel(null);
   try {
     const fetchedPlatforms = await fetchPlatforms();
+    console.log(fetchedPlatforms);
     setControlPanel(
       <ControlPanel
         title="Compose"
