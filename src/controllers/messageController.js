@@ -1,50 +1,45 @@
 export default class MessageController {
-  constructor(key) {
-    this.key = key;
-    this.messages = this.getMessages();
+  constructor(table = "messages") {
+    this.table = table;
   }
 
-  getMessages() {
-    const storedMessages = localStorage.getItem(this.key);
-    return storedMessages ? JSON.parse(storedMessages) : [];
-  }
-
-  saveMessages(messages) {
-    localStorage.setItem(this.key, JSON.stringify(messages));
-  }
-  createMessage(newMessage) {
-    const date = new Date().toISOString();
-    const newMessageWithIndex = {
-      ...newMessage,
-      index: this.messages.length,
-      date,
-    };
-    this.messages = [...this.messages, newMessageWithIndex];
-    this.saveMessages(this.messages);
-  }
-
-  updateMessage(index, updatedMessage) {
-    if (index >= 0 && index < this.messages.length) {
-      const date = new Date().toISOString();
-      this.messages = this.messages.map((message, i) =>
-        i === index ? { ...message, ...updatedMessage, date } : message
-      );
-      this.saveMessages(this.messages);
-    } else {
-      console.error("Message index out of bounds.");
+  async _performDBOperation(operation, ...args) {
+    try {
+      const result = await operation(...args);
+      return result;
+    } catch (error) {
+      console.error(`Error performing database operation:`, error);
+      return null;
     }
   }
 
-  deleteMessage(index) {
-    if (index >= 0 && index < this.messages.length) {
-      this.messages = this.messages.filter((_, i) => i !== index);
-      this.saveMessages(this.messages);
-    } else {
-      console.error("Message index out of bounds.");
-    }
+  getAllData() {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-get-all", this.table)
+    );
   }
 
-  getMessagesList() {
-    return this.messages;
+  getData(path) {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-get", this.table, path)
+    );
+  }
+
+  setData(path, value) {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-set", this.table, path, value)
+    );
+  }
+
+  deleteData(path) {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-delete", this.table, path)
+    );
+  }
+
+  deleteTable() {
+    return this._performDBOperation(() =>
+      window.api.invoke("db-delete-table", this.table)
+    );
   }
 }

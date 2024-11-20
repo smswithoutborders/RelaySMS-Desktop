@@ -35,14 +35,24 @@ const deleteAccount = {
   color: "error",
 };
 
-export const handlePlatformMessageClick = (setDisplayPanel, message) => {
-  setDisplayPanel(
-    <DisplayPanel header={message.title} body={<div>{message.text}</div>} />
-  );
-};
-
 export const handlePlatformComposeClick = ({ setDisplayPanel, platform }) => {
-  const handleFormSubmit = (data) => {
+  const messageController = new MessageController();
+
+  const handleFormSubmit = async (data) => {
+    const existingMessages =
+      (await messageController.getData("relaysms")) || [];
+    const newMessage = {
+      raw: data,
+      avatar: platform.avatar,
+      id: existingMessages.length + 1,
+      text: data.body,
+      title: `${data.from} | ${data.body.slice(0, 50)}...`,
+      date: new Date().toISOString(),
+    };
+    console.log(newMessage);
+    const updatedMessages = [...existingMessages, newMessage];
+    await messageController.setData("relaysms", updatedMessages);
+
     console.table(data);
     setDisplayPanel(null);
   };
@@ -73,7 +83,7 @@ export const handlePlatformComposeClick = ({ setDisplayPanel, platform }) => {
     case "Twitter":
       fields = [
         {
-          name: "sender",
+          name: "from",
           label: "Handle",
           required: true,
           type: "select",
@@ -84,7 +94,7 @@ export const handlePlatformComposeClick = ({ setDisplayPanel, platform }) => {
           defaultValue: platform.identifiers[0] || "",
         },
         {
-          name: "status",
+          name: "body",
           label: "What is happening?",
           required: true,
           multiline: true,
@@ -94,9 +104,20 @@ export const handlePlatformComposeClick = ({ setDisplayPanel, platform }) => {
       break;
     case "Telegram":
       fields = [
+        {
+          name: "from",
+          label: "From",
+          required: true,
+          type: "select",
+          options: platform.identifiers.map((data) => ({
+            label: data,
+            value: data,
+          })),
+          defaultValue: platform.identifiers[0] || "",
+        },
         { name: "to", label: "To (Phone Number)", required: true, type: "tel" },
         {
-          name: "message",
+          name: "body",
           label: "Message",
           required: true,
           multiline: true,
@@ -258,23 +279,22 @@ export const handleGatewayClientToggle = async ({ client, setAlert }) => {
   });
 };
 
-export const handleMessagesSelect = ({
+export const handleMessagesSelect = async ({
   setControlPanel,
   setDisplayPanel,
   setAlert,
 }) => {
-  const messageController = new MessageController("platformMessages");
-
-  messageController.createMessage({
-    avatar: "./gmail.png",
-    title: "System Update",
-    text: "Your system update was successful.",
-    date: "2024-11-13",
-  });
-
-  const messages = messageController.getMessagesList();
-
   setDisplayPanel(null);
+  setControlPanel(
+    <ControlPanel
+      title="Messages"
+      element={<MessageList messages={[]} loading={true} />}
+    />
+  );
+
+  const messageController = new MessageController();
+  const messages = (await messageController.getData("relaysms")) || [];
+
   setControlPanel(
     <ControlPanel
       title="Messages"
@@ -287,6 +307,12 @@ export const handleMessagesSelect = ({
         />
       }
     />
+  );
+};
+
+export const handlePlatformMessageClick = (setDisplayPanel, message) => {
+  setDisplayPanel(
+    <DisplayPanel header={message.title} body={<div>{message.text}</div>} />
   );
 };
 

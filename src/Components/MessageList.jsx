@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Avatar,
   List,
@@ -12,18 +12,35 @@ import {
   Input,
   ListItemButton,
   Box,
+  Skeleton,
 } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import { formatDistanceToNow } from "date-fns";
 
-function MessageList({ messages = [], onClick }) {
+function MessageList({ messages = [], onClick, loading }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [visibleCount, setVisibleCount] = useState(20);
 
   const filteredMessages = messages.filter(
     (message) =>
       message.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       message.text.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const loadMoreMessages = useCallback(() => {
+    setVisibleCount((prev) => Math.min(prev + 10, filteredMessages.length));
+  }, [filteredMessages.length]);
+
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollHeight - scrollTop - clientHeight < 50) {
+      loadMoreMessages();
+    }
+  };
+
+  useEffect(() => {
+    setVisibleCount(20);
+  }, [searchTerm]);
 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -59,10 +76,21 @@ function MessageList({ messages = [], onClick }) {
           overflowY: "auto",
           mt: 1,
         }}
+        onScroll={handleScroll}
       >
         <List>
-          {filteredMessages.length > 0 ? (
-            filteredMessages.map((message, index) => (
+          {loading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <Box key={index} sx={{ display: "flex", p: 2 }}>
+                <Skeleton variant="circular" width={40} height={40} />
+                <Box sx={{ flexGrow: 1, pl: 2 }}>
+                  <Skeleton width="60%" height={20} />
+                  <Skeleton width="80%" height={15} />
+                </Box>
+              </Box>
+            ))
+          ) : filteredMessages.length > 0 ? (
+            filteredMessages.slice(0, visibleCount).map((message, index) => (
               <ListItemButton
                 key={index}
                 alignItems="flex-start"
