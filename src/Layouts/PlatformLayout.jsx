@@ -103,16 +103,7 @@ function PlatformLayout() {
   ];
 
   useEffect(() => {
-    setNavigationPanel(
-      <NavigationPanel
-        items={navItems}
-        // app={{
-        //   action: () => navigate("/deku"),
-        //   icon: "Deku.png",
-        //   text: "Deku",
-        // }}
-      />
-    );
+    setNavigationPanel(<NavigationPanel items={navItems} />);
 
     const fetchTokens = async () => {
       setAlert({
@@ -147,7 +138,7 @@ function PlatformLayout() {
       }
     };
 
-    // fetchTokens();
+    fetchTokens();
   }, []);
 
   return (

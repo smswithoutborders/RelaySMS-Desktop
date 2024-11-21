@@ -57,7 +57,6 @@ export const createEntity = async ({
 
   try {
     const response = await window.api.invoke("CreateEntity", request);
-    console.log("CreateEntity Response:", response);
 
     const userController = new UserController();
     const settingsController = new SettingsController();
@@ -124,7 +123,6 @@ export const authenticateEntity = async ({
 
   try {
     const response = await window.api.invoke("AuthenticateEntity", request);
-    console.log("AuthenticateEntity Response:", response);
 
     const userController = new UserController();
     const settingsController = new SettingsController();
@@ -191,7 +189,6 @@ export const resetPassword = async ({
 
   try {
     const response = await window.api.invoke("ResetPassword", request);
-    console.log("ResetPassword Response:", response);
 
     const userController = new UserController();
     const settingsController = new SettingsController();
@@ -293,5 +290,49 @@ export const listEntityStoredTokens = async () => {
         storedTokens,
       },
     };
+  }
+};
+
+export const encryptPayload = async (content) => {
+  const userController = new UserController();
+
+  try {
+    const publishDKeypairs = await userController.getData("keypairs.publish");
+
+    const publishSecretKey = await window.api.invoke("derive-secret-key", {
+      clientPublishPrivateKey: publishDKeypairs.client.privateKey,
+      serverPublishPublicKey: publishDKeypairs.server.publicKey,
+    });
+
+    const encryptedPayload = await window.api.invoke("encrypt-payload", {
+      content,
+      identifier: publishDKeypairs.client.publicKey,
+      publishSecretKey,
+      serverPublishPublicKey: publishDKeypairs.server.publicKey,
+    });
+
+    return encryptedPayload;
+  } catch (error) {
+    console.error("Failed to encrypt payload:", error);
+    throw error;
+  }
+};
+
+export const createTransmissionPayload = async ({
+  contentCiphertext,
+  platformShortCode,
+  deviceID = "",
+}) => {
+  try {
+    const payload = await window.api.invoke("create-transmission-payload", {
+      contentCiphertext,
+      platformShortCode,
+      deviceID,
+    });
+
+    return payload;
+  } catch (error) {
+    console.error(`Failed to create transmission payload: ${error}`);
+    throw error;
   }
 };

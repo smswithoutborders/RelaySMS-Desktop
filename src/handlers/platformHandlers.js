@@ -9,10 +9,13 @@ import {
 import { ComposeForm, PasswordForm } from "../Forms";
 import { DialogView, SettingView, ComposeView } from "../Views";
 import {
+  fetchGatewayClients,
+  sendSms,
+  encryptPayload,
   fetchPlatforms,
   listEntityStoredTokens,
-} from "../controllers/platformControllers";
-import { fetchGatewayClients, sendSms } from "../controllers";
+  createTransmissionPayload,
+} from "../controllers";
 import { MessageController, SettingsController } from "../controllers";
 
 const languages = [
@@ -61,9 +64,39 @@ export const handlePlatformComposeClick = ({
         return;
       }
 
+      let structuredContent;
+
+      switch (platform.service_type) {
+        case "email":
+          structuredContent = `${data.from}:${data.to}:${data.cc}:${data.bcc}:${data.subject}:${data.body}`;
+          break;
+
+        case "text":
+          structuredContent = `${data.from}:${data.body}`;
+          break;
+
+        case "message":
+          structuredContent = `${data.from}:${data.to}:${data.body}`;
+          break;
+
+        default:
+          setAlert({
+            open: true,
+            severity: "error",
+            message: `Unsupported service type: ${platform.service_type}`,
+          });
+          break;
+      }
+
+      const contentCiphertext = await encryptPayload(structuredContent);
+      const transmissionPayload = await createTransmissionPayload({
+        contentCiphertext,
+        platformShortCode: platform.shortcode,
+      });
+
       const smsPayload = {
-        number: "+237672849485",
-        text: data.body,
+        number: activeGatewayClient.msisdn,
+        text: transmissionPayload,
       };
 
       const { err, res } = await sendSms({ smsPayload });
@@ -81,6 +114,7 @@ export const handlePlatformComposeClick = ({
         (await messageController.getData("relaysms")) || [];
       const newMessage = {
         raw: data,
+        platform: platform,
         avatar: platform.avatar,
         id: existingMessages.length + 1,
         text: data.body,
@@ -206,24 +240,12 @@ export const handlePlatformComposeSelect = async ({
     />
   );
 
-  const [availablePlatforms] = await Promise.all([fetchPlatforms()]);
+  const [availablePlatforms, storedTokens] = await Promise.all([
+    fetchPlatforms(),
+    listEntityStoredTokens(),
+  ]);
 
-  const storedTokens = [
-    {
-      account_identifier: "example@gmail.com",
-      platform: "gmail",
-    },
-    {
-      account_identifier: "example2@gmail.com",
-      platform: "gmail",
-    },
-    {
-      account_identifier: "my_x_handle",
-      platform: "twitter",
-    },
-  ];
-
-  const tokenMap = storedTokens.reduce((acc, token) => {
+  const tokenMap = storedTokens.res.storedTokens.reduce((acc, token) => {
     const platformKey = token.platform.toLowerCase();
     if (!acc[platformKey]) acc[platformKey] = [];
     acc[platformKey].push(token.account_identifier);

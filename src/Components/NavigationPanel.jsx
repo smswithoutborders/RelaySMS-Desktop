@@ -11,10 +11,11 @@ import {
   Skeleton,
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function NavigationPanel({ items = [], app }) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     if (items.length > 0) {
@@ -28,6 +29,8 @@ function NavigationPanel({ items = [], app }) {
   const handleToggle = () => {
     setIsExpanded(!isExpanded);
   };
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <Box
@@ -43,39 +46,58 @@ function NavigationPanel({ items = [], app }) {
         sx={{
           width: 72,
           mx: "auto",
-        
           flexDirection: "column",
           mt: 2,
           padding: 1,
           zIndex: 1,
         }}
       >
-        <Tooltip title="Home" placement="right">
+        <Tooltip title="Relay" placement="right">
           <Link to="/">
-          <ListItemButton>
-            <ListItemIcon>
-              <Box
-                component="img"
-                src="logo.png"
-                alt="Relay"
-                sx={{ width: "33px", bgcolor: "#eaeaea", p: 0.5, borderRadius: 1 }}
-              />
-            </ListItemIcon>
-          </ListItemButton>
+            <ListItemButton>
+              <ListItemIcon>
+                <Box
+                  component="img"
+                  src="logo.png"
+                  alt="Relay"
+                  sx={{
+                    border: isActive("/") ? "2px solid blue" : "none",
+                    boxShadow: isActive("/")
+                      ? "0 0 8px 2px rgba(0, 0, 255, 0.6)"
+                      : "none",
+                    transition: "box-shadow 0.3s ease, border 0.3s ease",
+                    width: "33px",
+                    bgcolor: "#eaeaea",
+                    p: 0.5,
+                    borderRadius: 1,
+                  }}
+                />
+              </ListItemIcon>
+            </ListItemButton>
           </Link>
         </Tooltip>
-        <Tooltip title="Settings" placement="right">
-        <Link to="/deku">
-          <ListItemButton>
-            <ListItemIcon>
-              <Box
-                component="img"
-                src="Deku.png"
-                alt="Deku"
-                sx={{ width: "33px", bgcolor: "#eaeaea", p: 0.5, borderRadius: 1 }}
-              />
-            </ListItemIcon>
-          </ListItemButton>
+        <Tooltip title="Deku" placement="right">
+          <Link to="/deku">
+            <ListItemButton>
+              <ListItemIcon>
+                <Box
+                  component="img"
+                  src="Deku.png"
+                  alt="Deku"
+                  sx={{
+                    border: isActive("/deku") ? "2px solid blue" : "none",
+                    boxShadow: isActive("/deku")
+                      ? "0 0 8px 2px rgba(0, 0, 255, 0.6)"
+                      : "none",
+                    transition: "box-shadow 0.3s ease, border 0.3s ease",
+                    width: "33px",
+                    bgcolor: "#eaeaea",
+                    p: 0.5,
+                    borderRadius: 1,
+                  }}
+                />
+              </ListItemIcon>
+            </ListItemButton>
           </Link>
         </Tooltip>
       </Box>
@@ -86,7 +108,6 @@ function NavigationPanel({ items = [], app }) {
         sx={{
           flexShrink: 0,
           width: isExpanded ? 240 : 72,
-
           transition: "width 0.5s ease",
           "& .MuiDrawer-paper": {
             width: isExpanded ? 240 : 72,
