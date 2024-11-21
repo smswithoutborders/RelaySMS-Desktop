@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Button, Box, MenuItem } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Box,
+  MenuItem,
+  CircularProgress,
+} from "@mui/material";
 
 function ComposeForm({ fields, onSubmit }) {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const initialData = fields.reduce((acc, field) => {
@@ -21,7 +28,7 @@ function ComposeForm({ fields, onSubmit }) {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const validationErrors = {};
     fields.forEach((field) => {
       if (field.required && !formData[field.name]) {
@@ -33,7 +40,8 @@ function ComposeForm({ fields, onSubmit }) {
       setErrors(validationErrors);
     } else {
       setErrors({});
-      onSubmit(formData);
+      setLoading(true);
+      await onSubmit(formData, setLoading);
     }
   };
 
@@ -63,6 +71,7 @@ function ComposeForm({ fields, onSubmit }) {
             type={field.type || "text"}
             multiline={field.multiline}
             rows={field.rows || 1}
+            disabled={loading}
           >
             {field.type === "select" &&
               field.options.map((option) => (
@@ -79,8 +88,13 @@ function ComposeForm({ fields, onSubmit }) {
           color="primary"
           onClick={handleSubmit}
           sx={{ marginTop: "20px" }}
+          disabled={loading}
         >
-          Send
+          {loading ? (
+            <CircularProgress size={24} sx={{ color: "white" }} />
+          ) : (
+            "Send"
+          )}
         </Button>
       </Box>
     </Box>

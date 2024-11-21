@@ -11,8 +11,8 @@ import { DialogView, SettingView, ComposeView } from "../Views";
 import {
   fetchPlatforms,
   listEntityStoredTokens,
-  fetchGatewayClients,
 } from "../controllers/platformControllers";
+import { fetchGatewayClients, sendSms } from "../controllers";
 import { MessageController, SettingsController } from "../controllers";
 
 const languages = [
@@ -35,26 +35,78 @@ const deleteAccount = {
   color: "error",
 };
 
-export const handlePlatformComposeClick = ({ setDisplayPanel, platform }) => {
+export const handlePlatformComposeClick = ({
+  setDisplayPanel,
+  setAlert,
+  platform,
+}) => {
   const messageController = new MessageController();
 
-  const handleFormSubmit = async (data) => {
-    const existingMessages =
-      (await messageController.getData("relaysms")) || [];
-    const newMessage = {
-      raw: data,
-      avatar: platform.avatar,
-      id: existingMessages.length + 1,
-      text: data.body,
-      title: `${data.from} | ${data.body.slice(0, 50)}...`,
-      date: new Date().toISOString(),
-    };
-    console.log(newMessage);
-    const updatedMessages = [...existingMessages, newMessage];
-    await messageController.setData("relaysms", updatedMessages);
+  const handleFormSubmit = async (data, setLoading) => {
+    try {
+      setLoading(true);
+      const gatewayClients = await fetchGatewayClients();
 
-    console.table(data);
-    setDisplayPanel(null);
+      const activeGatewayClient = gatewayClients.find(
+        (client) => client.active === true
+      );
+
+      if (!activeGatewayClient) {
+        setAlert({
+          open: true,
+          severity: "error",
+          message:
+            "No active gateway client selected. Please select one and try again.",
+        });
+        return;
+      }
+
+      const smsPayload = {
+        number: "+237672849485",
+        text: data.body,
+      };
+
+      const { err, res } = await sendSms({ smsPayload });
+
+      if (err) {
+        setAlert({
+          open: true,
+          severity: "error",
+          message: `Failed to send SMS: ${err}`,
+        });
+        return;
+      }
+
+      const existingMessages =
+        (await messageController.getData("relaysms")) || [];
+      const newMessage = {
+        raw: data,
+        avatar: platform.avatar,
+        id: existingMessages.length + 1,
+        text: data.body,
+        title: `${data.from} | ${data.body.slice(0, 50)}...`,
+        date: new Date().toISOString(),
+      };
+
+      const updatedMessages = [...existingMessages, newMessage];
+      await messageController.setData("relaysms", updatedMessages);
+
+      setAlert({
+        open: true,
+        severity: "success",
+        message: "SMS sent successfully!",
+      });
+      setDisplayPanel(null);
+    } catch (error) {
+      console.error("Error during form submission:", error);
+      setAlert({
+        open: true,
+        severity: "error",
+        message: "An unexpected error occurred. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   let fields;
@@ -193,7 +245,7 @@ export const handlePlatformComposeSelect = async ({
           serviceType="Platform"
           services={filteredPlatforms}
           onClick={(platform) =>
-            handlePlatformComposeClick({ setDisplayPanel, platform })
+            handlePlatformComposeClick({ setDisplayPanel, setAlert, platform })
           }
         />
       }
@@ -211,7 +263,7 @@ export const handleAddAccountSelect = async ({
     const fetchedPlatforms = await fetchPlatforms();
     setControlPanel(
       <ControlPanel
-        title="Compose"
+        title="Add Account"
         element={
           <ServiceList
             serviceType="Platform"

@@ -30,44 +30,6 @@ export const fetchPlatforms = async ({ name, shortcode } = {}) => {
   }
 };
 
-export const fetchGatewayClients = async () => {
-  const settingsController = new SettingsController();
-
-  try {
-    const response = await fetch(
-      "https://gatewayserver.smswithoutborders.com/v3/clients",
-      {
-        timeout: 8000,
-      }
-    );
-    const gatewayClients = await response.json();
-    const currentGatewayClients =
-      (await settingsController.getData("gatewayclients")) || [];
-    const updatedGatewayClients = gatewayClients.map((client) => {
-      const currentClient = currentGatewayClients.find(
-        (existingClient) => existingClient.msisdn === client.msisdn
-      );
-      return {
-        ...client,
-        active: currentClient ? currentClient.active : false,
-        default:
-          client.country && client.country.toLowerCase() === "usa"
-            ? true
-            : false,
-      };
-    });
-    await settingsController.setData("gatewayclients", updatedGatewayClients);
-    return updatedGatewayClients;
-  } catch (error) {
-    console.error("Error fetching gateway clients:", error);
-
-    const storedGatewayClients = await settingsController.getData(
-      "gatewayclients"
-    );
-    return storedGatewayClients || [];
-  }
-};
-
 const generateKeyPair = async () => {
   const response = await window.api.invoke("generate-keypair");
   return response;
