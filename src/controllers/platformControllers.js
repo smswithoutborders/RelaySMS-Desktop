@@ -3,7 +3,7 @@ import { UserController, SettingsController } from "./";
 
 export const fetchPlatforms = async ({ name, shortcode } = {}) => {
   try {
-    const response = await fetch("/platforms_resources/platforms.json");
+    const response = await fetch("platforms_resources/platforms.json");
     const platformsData = await response.json();
 
     const filteredPlatforms = platformsData.filter((platform) => {
@@ -334,5 +334,60 @@ export const createTransmissionPayload = async ({
   } catch (error) {
     console.error(`Failed to create transmission payload: ${error}`);
     throw error;
+  }
+};
+
+export const addOAuth2Token = async ({ platform }) => {
+  const userController = new UserController();
+
+  const redirectUrl = `https://oauth.afkanerd.com/platforms/${platform.toLowerCase()}/protocols/oauth2/redirect_codes/`;
+
+  try {
+    const { authorization_url, code_verifier } = await window.api.invoke(
+      "GetOAuth2AuthorizationUrl",
+      {
+        platform,
+        state: "",
+        code_verifier: "",
+        autogenerate_code_verifier: true,
+        redirect_url: redirectUrl,
+      }
+    );
+
+    await window.api.invoke("open-oauth-screen", {
+      authorizationUrl: authorization_url,
+    });
+
+    const authorizationCode = await window.api.once("authorization-code");
+
+    console.log("authorizationCode", authorizationCode);
+
+    const [deviceIDKeypairs, longLivedTokenCipher] = await Promise.all([
+      userController.getData("keypairs.deviceID"),
+      userController.getData("longLivedToken"),
+    ]);
+
+    const longLivedToken = await window.api.invoke("decrypt-long-lived-token", {
+      client_device_id_private_key: deviceIDKeypairs.client.privateKey,
+      server_device_id_public_key: deviceIDKeypairs.server.publicKey,
+      long_lived_token_cipher: longLivedTokenCipher,
+    });
+
+    const response = await window.api.invoke("ExchangeOAuth2CodeAndStore", {
+      long_lived_token: longLivedToken,
+      platform,
+      authorization_code: authorizationCode,
+      code_verifier,
+      redirect_url: redirectUrl,
+    });
+
+    return { err: null, res: response };
+  } catch (error) {
+    console.error("OAuth2 Token Error:", error);
+
+    const extractedError =
+      extractRpcErrorMessage(error.message) ||
+      "Oops, something went wrong. Please try again later.";
+    return { err: extractedError, res: null };
   }
 };

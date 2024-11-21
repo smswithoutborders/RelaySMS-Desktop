@@ -21,6 +21,22 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 } else {
+  app.on("second-instance", (event, commandLine, _) => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+    const deepLinkUrl = commandLine.find((arg) => arg.startsWith("apps://"));
+    if (deepLinkUrl) {
+      const parsed = url.parse(deepLinkUrl, true);
+      if (parsed.query.code) {
+        mainWindow.webContents.send("authorization-code", parsed.query.code);
+      } else {
+        console.error("Authorization code not found");
+      }
+    }
+  });
+
   app.whenReady().then(() => {
     createWindow();
     mainWindow.maximize();
@@ -35,6 +51,14 @@ async function createWindow() {
   });
 
   registerIpcHandlers();
+
+  ipcMain.handle("open-oauth-screen", async (event, { authorizationUrl }) => {
+    shell.openExternal(authorizationUrl);
+  });
+
+  ipcMain.handle("open-external-link", (event, { url }) => {
+    shell.openExternal(url);
+  });
 
   ipcMain.handle("check-internet", async () => {
     try {

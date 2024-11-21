@@ -7,6 +7,7 @@ export {
   listEntityStoredTokens,
   encryptPayload,
   createTransmissionPayload,
+  addOAuth2Token,
 } from "./platformControllers";
 export { default as SettingsController } from "./settingsController";
 export { default as UserController } from "./userController";

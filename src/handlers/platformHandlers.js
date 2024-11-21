@@ -15,6 +15,7 @@ import {
   fetchPlatforms,
   listEntityStoredTokens,
   createTransmissionPayload,
+  addOAuth2Token,
 } from "../controllers";
 import { MessageController, SettingsController } from "../controllers";
 
@@ -157,7 +158,7 @@ export const handlePlatformComposeClick = ({
             label: data,
             value: data,
           })),
-          defaultValue: platform.identifiers[0] || "",
+          defaultValue: platform.identifiers?.[0] || "",
         },
         { name: "to", label: "To", required: true, type: "email" },
         { name: "cc", label: "Cc", required: false },
@@ -177,7 +178,7 @@ export const handlePlatformComposeClick = ({
             label: data,
             value: data,
           })),
-          defaultValue: platform.identifiers[0] || "",
+          defaultValue: platform.identifiers?.[0] || "",
         },
         {
           name: "body",
@@ -199,7 +200,7 @@ export const handlePlatformComposeClick = ({
             label: data,
             value: data,
           })),
-          defaultValue: platform.identifiers[0] || "",
+          defaultValue: platform.identifiers?.[0] || "",
         },
         { name: "to", label: "To (Phone Number)", required: true, type: "tel" },
         {
@@ -275,33 +276,104 @@ export const handlePlatformComposeSelect = async ({
   );
 };
 
-export const handleAddAccountSelect = async ({
+export const handlePlatformClick = async ({
+  platform,
+  identifier,
+  setAlert,
+  setControlPanel,
+  setDisplayPanel,
+}) => {
+  if (platform.protocol_type === "oauth2") {
+    if (!identifier) {
+      const { err, res } = await addOAuth2Token({
+        platform: platform.name.toLowerCase(),
+      });
+
+      if (err || !res.success) {
+        setAlert({
+          open: true,
+          severity: "error",
+          message: `Failed to add ${platform.name} token: ${
+            err || res.message
+          }`,
+        });
+        return;
+      }
+
+      await handlePlatformSelect({
+        setControlPanel,
+        setDisplayPanel,
+        setAlert,
+      });
+      setAlert({
+        open: true,
+        severity: "success",
+        message: `${platform.name} token added successfully!`,
+      });
+    }
+  }
+};
+
+export const handlePlatformSelect = async ({
   setControlPanel,
   setDisplayPanel,
   setAlert,
 }) => {
   setDisplayPanel(null);
+  setControlPanel(
+    <ControlPanel
+      title="Platforms"
+      element={<ServiceList serviceType="Platform" loading={true} />}
+    />
+  );
+
   try {
-    const fetchedPlatforms = await fetchPlatforms();
+    const [availablePlatforms, storedTokens] = await Promise.all([
+      fetchPlatforms(),
+      listEntityStoredTokens(),
+    ]);
+
+    const tokenMap = storedTokens.res.storedTokens.reduce((acc, token) => {
+      const platformKey = token.platform.toLowerCase();
+      if (!acc[platformKey]) acc[platformKey] = [];
+      acc[platformKey].push(token.account_identifier);
+      return acc;
+    }, {});
+
+    const filteredPlatforms = availablePlatforms
+      .filter((platform) => tokenMap[platform.name.toLowerCase()])
+      .map((platform) => ({
+        ...platform,
+        identifiers: tokenMap[platform.name.toLowerCase()] || [],
+      }));
+
     setControlPanel(
       <ControlPanel
-        title="Add Account"
+        title="Platforms"
         element={
           <ServiceList
             serviceType="Platform"
-            services={fetchedPlatforms}
-            onClick={(platform) =>
-              handlePlatformComposeClick({ setDisplayPanel, platform })
+            services={availablePlatforms}
+            lists={filteredPlatforms}
+            adornmentIcon={true}
+            onClick={(platform, identifier) =>
+              handlePlatformClick({
+                platform,
+                identifier,
+                setAlert,
+                setControlPanel,
+                setDisplayPanel,
+              })
             }
           />
         }
       />
     );
-  } catch (err) {
+  } catch (error) {
     setAlert({
       open: true,
-      message: `Error fetching platforms: ${err}`,
       severity: "error",
+      message: "Failed to load platforms. Please try again later.",
     });
   }
 };

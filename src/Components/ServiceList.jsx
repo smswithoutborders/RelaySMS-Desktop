@@ -8,9 +8,21 @@ import {
   Typography,
   Skeleton,
   ListItemButton,
+  Box,
+  IconButton,
+  Divider,
+  Button,
 } from "@mui/material";
+import { Add, Delete } from "@mui/icons-material";
 
-function ServiceList({ serviceType, services, onClick, loading }) {
+function ServiceList({
+  serviceType,
+  services,
+  onClick,
+  loading,
+  lists,
+  adornmentIcon,
+}) {
   if (loading) {
     return (
       <List>
@@ -39,28 +51,91 @@ function ServiceList({ serviceType, services, onClick, loading }) {
 
   return (
     <List>
-      {services.map((service, index) => (
-        <ListItemButton
-          key={index}
-          onClick={() => onClick && onClick(service)}
-          style={{ cursor: "pointer" }}
-        >
-          <ListItemAvatar>
-            {service.avatar ? (
-              <Avatar sx={{ bgcolor: "white" }}>
-                <img
-                  src={service.avatar}
-                  alt={service.name}
-                  style={{ width: "80%" }}
-                />
-              </Avatar>
-            ) : (
-              service.icon
-            )}
-          </ListItemAvatar>
-          <ListItemText primary={service.name} />
-        </ListItemButton>
-      ))}
+      {services.map((service, index) => {
+        const matchingList = lists?.find((list) => list.name === service.name);
+
+        const handleClick = (e) => {
+          if (adornmentIcon) return;
+          onClick && onClick(service);
+        };
+
+        return (
+          <Box key={index} sx={{ mb: 2 }}>
+            <ListItem
+              secondaryAction={
+                adornmentIcon && (
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onClick && onClick(service);
+                    }}
+                    startIcon={<Add />}
+                  >
+                    Add
+                  </Button>
+                )
+              }
+              disablePadding
+            >
+              <ListItemButton onClick={handleClick}>
+                <ListItemAvatar>
+                  {service.avatar ? (
+                    <Avatar sx={{ bgcolor: "white" }}>
+                      <img
+                        src={service.avatar}
+                        alt={service.name}
+                        style={{ width: "80%" }}
+                      />
+                    </Avatar>
+                  ) : (
+                    service.icon
+                  )}
+                </ListItemAvatar>
+                <ListItemText primary={service.name} />
+              </ListItemButton>
+            </ListItem>
+
+            {matchingList?.identifiers?.length > 0 &&
+              matchingList.identifiers.map((identifier, idx) => (
+                <React.Fragment key={idx}>
+                  <ListItem
+                    sx={{ pl: 1 }}
+                    secondaryAction={
+                      adornmentIcon && (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="error"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onClick && onClick(service, identifier);
+                          }}
+                          startIcon={<Delete />}
+                        >
+                          Revoke
+                        </Button>
+                      )
+                    }
+                  >
+                    <ListItemButton>
+                      <ListItemText
+                        primary={
+                          <Typography variant="body2" color="text.secondary">
+                            {identifier}
+                          </Typography>
+                        }
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                </React.Fragment>
+              ))}
+            <Divider />
+          </Box>
+        );
+      })}
     </List>
   );
 }

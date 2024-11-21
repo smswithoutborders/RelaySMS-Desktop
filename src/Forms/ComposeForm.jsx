@@ -62,7 +62,7 @@ function ComposeForm({ fields, onSubmit }) {
             variant="standard"
             label={field.label}
             name={field.name}
-            value={formData[field.name] || ""}
+            value={field.defaultValue || ""}
             onChange={handleFieldChange}
             fullWidth
             required={field.required}

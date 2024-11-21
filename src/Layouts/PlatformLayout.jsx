@@ -7,14 +7,14 @@ import {
   handlePlatformComposeSelect,
   handleGatewayClientSelect,
   handlePlatformSettingsSelect,
-  handleAddAccountSelect,
+  handlePlatformSelect,
   handleMessagesSelect,
 } from "../handlers/platformHandlers";
 import { listEntityStoredTokens } from "../controllers/platformControllers";
 import {
   Settings,
   Edit,
-  Add,
+  Wallet,
   CellTower,
   HelpOutline,
   Message,
@@ -59,10 +59,10 @@ function PlatformLayout() {
         }),
     },
     {
-      text: "Add Accounts",
-      icon: <Add />,
+      text: "Platforms",
+      icon: <Wallet />,
       action: () =>
-        handleAddAccountSelect({
+        handlePlatformSelect({
           setControlPanel,
           setDisplayPanel,
           setAlert,
