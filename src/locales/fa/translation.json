@@ -1,0 +1,46 @@
+{
+    "relaysms": "RelaySMS",
+    "deku": "Deku SMS",
+    "language": {
+      "english": "انگلیسی",
+      "french": "فرانسوی",
+      "farsi": "فارسی",
+      "spanish": "اسپانیایی",
+      "turkish": "ترکی"
+    },
+    "platforms": {
+      "gmail": "Gmail",
+      "twitter": "X (Twitter)",
+      "telegram": "تلگرا",
+      "mail": "ایمیل"
+    },
+    "settings": "تنظیمات",
+    "gatewayClients": "کلاینت‌های درگاه",
+    "selectLanguage": "انتخاب زبان",
+    "addAccount": "افزودن حساب",
+    "accounts": "حساب‌ها",
+    "help": "راهنما",
+    "messages": "پیام‌ها",
+    "login": "ورود",
+    "signup": "ثبت‌نام",
+    "logout": "خروج",
+    "forgotPassword": "فراموشی رمز عبور",
+    "oldPassword": "رمز عبور قبلی",
+    "conformPassword": "تأیید رمز عبور",
+    "resetPassword": "بازنشانی رمز عبور",
+    "repeatPassword": "تکرار رمز عبور",
+    "password": "رمز عبور",
+    "send": "ارسال",
+    "deleteAccount": "حذف حساب",
+    "newPassword": "ایجاد رمز عبور جدید",
+    "vault": "صندوق",
+    "compose": "نوشتن",
+    "to": "به",
+    "from": "از",
+    "subject": "موضوع",
+    "whatsHappening": "چه خبر؟",
+    "search": "جستجوی پیام‌ها",
+    "revokePlatforms": "لغو دسترسی پلتفرم‌ها",
+    "changePassword": "تغییر رمز عبور"
+  }
+  

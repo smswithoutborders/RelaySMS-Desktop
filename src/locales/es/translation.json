@@ -1,0 +1,46 @@
+{
+    "relaysms": "RelaySMS",
+    "deku": "Deku SMS",
+    "language": {
+      "english": "Inglés",
+      "french": "Francés",
+      "farsi": "Persa",
+      "spanish": "Español",
+      "turkish": "Turco"
+    },
+    "platforms": {
+      "gmail": "Gmail",
+      "twitter": "X (Twitter)",
+      "telegram": "Telegram",
+      "mail": "Correo"
+    },
+    "settings": "Configuración",
+    "gatewayClients": "Clientes del Gateway",
+    "selectLanguage": "Seleccionar idioma",
+    "addAccount": "Agregar cuenta",
+    "accounts": "Cuentas",
+    "help": "Ayuda",
+    "messages": "Mensajes",
+    "login": "Iniciar sesión",
+    "signup": "Registrarse",
+    "logout": "Cerrar sesión",
+    "forgotPassword": "Olvidé mi contraseña",
+    "oldPassword": "Contraseña anterior",
+    "conformPassword": "Confirmar contraseña",
+    "resetPassword": "Restablecer contraseña",
+    "repeatPassword": "Repetir contraseña",
+    "password": "Contraseña",
+    "send": "Enviar",
+    "deleteAccount": "Eliminar cuenta",
+    "newPassword": "Crear nueva contraseña",
+    "vault": "Bóveda",
+    "compose": "Redactar",
+    "to": "Para",
+    "from": "De",
+    "subject": "Asunto",
+    "whatsHappening": "¿Qué está pasando?",
+    "search": "Buscar mensajes",
+    "revokePlatforms": "Revocar plataformas",
+    "changePassword": "Cambiar contraseña"
+  }
+  

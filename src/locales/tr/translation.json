@@ -1,0 +1,46 @@
+{
+    "relaysms": "RelaySMS",
+    "deku": "Deku SMS",
+    "language": {
+      "english": "İngilizce",
+      "french": "Fransızca",
+      "farsi": "Farsça",
+      "spanish": "İspanyolca",
+      "turkish": "Türkçe"
+    },
+    "platforms": {
+      "gmail": "Gmail",
+      "twitter": "X (Twitter)",
+      "telegram": "Telegram",
+      "mail": "E-posta"
+    },
+    "settings": "Ayarlar",
+    "gatewayClients": "Geçit İstemcileri",
+    "selectLanguage": "Dil Seç",
+    "addAccount": "Hesap Ekle",
+    "accounts": "Hesaplar",
+    "help": "Yardım",
+    "messages": "Mesajlar",
+    "login": "Giriş Yap",
+    "signup": "Kayıt Ol",
+    "logout": "Çıkış Yap",
+    "forgotPassword": "Şifremi Unuttum",
+    "oldPassword": "Eski Şifre",
+    "conformPassword": "Şifreyi Onayla",
+    "resetPassword": "Şifreyi Sıfırla",
+    "repeatPassword": "Şifreyi Tekrarla",
+    "password": "Şifre",
+    "send": "Gönder",
+    "deleteAccount": "Hesabı Sil",
+    "newPassword": "Yeni Şifre Oluştur",
+    "vault": "Cihaz",
+    "compose": "Yeni Mesaj",
+    "to": "Kime",
+    "from": "Kimden",
+    "subject": "Konu",
+    "whatsHappening": "Ne Oluyor?",
+    "search": "Mesajları Ara",
+    "revokePlatforms": "Platformları İptal Et",
+    "changePassword": "Şifreyi Değiştir"
+  }
+  

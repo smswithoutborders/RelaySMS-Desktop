@@ -1,70 +1,162 @@
-# Getting Started with Create React App
+# RelaySMS - Desktop
+--------
+Connecting the world, one SMS at a time.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Contents
 
-## Available Scripts
+*   [About](#about)
+*   [Encryption and Security](#encryption-and-security)
+*   [Token Storage and Vault](#token-storage-and-vault)
+*   [Getting Started](#getting-started)
+    *   [Prerequisites](#prerequisites)
+    *   [Installation](#installation)
+*   [Build Instructions](#build-instructions)
+    *   [Building from Source](#building-from-source)
+*   [Contribution Guidelines](#contribution-guidelines)
+*   [Publishing Payload](#publishing-payload)
+*   [Platform Specific Publications](#platform-specific-publications)
+*   [Resources and Further Reading](#resources-and-further-reading)
+*   [Contact](#contact)
 
-In the project directory, you can run:
+## <a name="about"></a> About
 
-### `yarn start`
+RelaySMS (also known as swob, short for SMSWithoutBorders) is a tool that lets you send secure online messages via SMS without needing an internet connection. RelaySMS allows you to stay connected even when offline by securely storing OAuth2 tokens for services like Gmail, Twitter, and Telegram in encrypted online Vaults.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+**Gateway Clients**
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+RelaySMS utilizes gateway clients (identified by their MSISDN) to route SMS messages. You can manage these gateway clients within the app, allowing you to add new clients or switch between existing ones. To learn more about gateway clients and how they work, refer to the following resources:
 
-### `yarn test`
+*   [Contributing: Gateway Client](https://docs.smswithoutborders.com/docs/contributing/gateway-client)
+*   [Gateway Clients Guide](https://docs.smswithoutborders.com/docs/Gateway%20Clients%20Guide/GatewayClientsGuide)
+*   [API V3: Get Gateway Clients](https://github.com/smswithoutborders/SMSWithoutBorders-Gateway-Server/blob/main/docs/api_v3.md#get-gateway-clients)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## <a name="encryption-and-security"></a> Encryption and Security
 
-### `yarn build`
+RelaySMS employs robust encryption methods to protect your data and ensure secure communication. For a detailed explanation of the cryptographic methods used in the vault, please refer to the [security documentation](https://github.com/smswithoutborders/SMSwithoutborders-BE/blob/main/docs/security.md#cryptographic-methods-used-in-the-vault).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+*   **AES (Advanced Encryption Standard):**  Encrypts and decrypts data at rest in the vault.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+*   **Fernet Encryption:** Fernet encryption with a 32-byte key is used for encrypting and decrypting identity tokens used by the vault.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+*   **HMAC (Hash-based Message Authentication Code):** Generates and verifies HMACs for unique values in the vault.
 
-### `yarn eject`
+*   **Double Ratchet Algorithm:** The [Double Ratchet algorithm](https://github.com/smswithoutborders/py_double_ratchet_cli) is used to provide end-to-end encryption with perfect forward secrecy for secure messaging.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+These cryptographic methods work together to provide a layered security approach, safeguarding your data and communications within the RelaySMS ecosystem.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## <a name="token-storage-and-vault"></a> Token Storage and Vault
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+RelaySMS utilizes a secure vault to store OAuth2 tokens for various services. These tokens allow you to access your accounts and send messages through these services without repeatedly entering your credentials.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+**Here's how the vault works:**
 
-## Learn More
+1.  **Token Encryption:** When you grant RelaySMS access to a platform (e.g., Gmail), the app receives an OAuth2 token. This token is immediately encrypted using AES-256 with a unique key.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+2.  **Vault Storage:** The encrypted token is then stored in the RelaySMS vault. The vault itself is protected by various security measures, including access controls and encryption. You can learn more about the vault specifications in the [documentation](https://github.com/smswithoutborders/SMSwithoutborders-BE/blob/main/docs/specifications.md).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+3.  **Token Retrieval:** When you need to send a message through a service/platform, RelaySMS retrieves the encrypted token from the vault. It then decrypts the token and uses it to authenticate with the platform (e.g Gmail).
 
-### Code Splitting
+This secure token storage and retrieval process ensures that your sensitive credentials are never stored in plain text and are protected from unauthorized access.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## <a name="getting-started"></a> Getting Started
 
-### Analyzing the Bundle Size
+### <a name="prerequisites"></a> Prerequisites
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+*   Linux System
+*   An active modem
+*   Git
+*   Basic understanding of Electron JS and Node
 
-### Making a Progressive Web App
+### <a name="installation"></a> Installation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+You can install RelaySMS directly from the following sources:
 
-### Advanced Configuration
+*   **GitHub tags:** [release](https://github.com/smswithoutborders/RelaySMS-Desktop/releases)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## <a name="build-instructions"></a> Build Instructions
 
-### Deployment
+### <a name="building-from-source"></a> Building from Source
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/smswithoutborders/RelaySMS-Desktop.git
+    ```
+2. Open the project in Visual Studio.
+3. Install dependencies  
+```
+yarn install
+```
+4. Bundle .deb files for linux  
+```
+yarn electron:package:linux
+```
 
-### `yarn build` fails to minify
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## <a name="contribution-guidelines"></a> Contribution Guidelines
+We welcome contributions from the community! Here's how you can get involved:
+1.  Clone the repository.
+2.  Create a new branch from the `dev` branch for your feature or bug fix.
+3.  Make your changes and commit them with descriptive messages.
+4.  Push your changes and submit a pull request to the `dev` branch
+
+Please ensure your code follows our coding style guidelines and includes appropriate tests.
+
+## <a name="publishing-payload"></a> Publishing Payload
+
+RelaySMS uses a specific payload structure for publishing messages. Refer to the code snippet below for details on packing and unpacking the payload:
+```python
+import struct
+import base64
+
+platform_letter = b'g'
+encrypted_content=b'...'
+device_id=b'...'
+
+payload = struct.pack("<i", len(encrypted_content)) + pl + encrypted_content + device_id
+incoming_payload = base64.b64encode(payload)
+
+# unpacking in Python
+payload = base64.b64decode(incoming_payload)
+len_enc_content = struct.unpack("<i", payload[:4])[0]
+platform_letter = chr(payload[4])
+encrypted_content = payload[5 : 5 + len_enc_content]
+device_id = payload[5 + len_enc_content :]
+
+# getting header from published messages
+encrypted_payload = base64.b64decode(encrypted_content)
+len_header = struct.unpack("<i", encrypted_payload[0:4])[0]
+header = encrypted_payload[4: 4 + len_header]
+content_ciphertext = encrypted_payload[4 + len_header:]
+```
+
+## <a name="platform-specific-publications"></a> Platform Specific Publications (Encrypted Content)
+
+RelaySMS supports publishing encrypted content to various platforms with specific formatting:
+```python3
+""" Email (Gmail etc)
+"""
+# to:cc:bcc:subject:body
+
+""" Messages (Telegram etc)
+"""
+# to:body
+
+""" Text (X; Twitter etc)
+"""
+# body
+```
+
+## <a name="resources-and-further-reading"></a> Resources and Further Reading
+
+*   **Official Documentation:** [https://docs.smswithoutborders.com/](https://docs.smswithoutborders.com/)
+*   **Blog:** [https://blog.smswithoutborders.com/](https://blog.smswithoutborders.com/)
+*   **GitHub Repository (Backend):** [https://github.com/smswithoutborders/SMSwithoutborders-BE](https://github.com/smswithoutborders/SMSwithoutborders-BE)
+
+## <a name="contact"></a> Contact
+
+*   **Website:** [https://relay.smswithoutborders.com/](https://relay.smswithoutborders.com/)
+*   **Email:** [developers@smswithoutborders.com](mailto:developers@smswithoutborders.com)
+*   **X(Formerly Twitter):** [@RelaySMS](https://x.com/relaysms)
+
+We appreciate your interest in RelaySMS. Don't forget star this repo :)
+
