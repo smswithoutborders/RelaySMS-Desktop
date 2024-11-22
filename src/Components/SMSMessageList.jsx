@@ -39,13 +39,19 @@ function SMSMessageList({ messages = [], onClick, loading }) {
     messages: groupedMessages[title],
   }));
 
-  const filteredMessages = groupedMessageArray.filter(
-    (group) =>
-      group.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      group.messages.some((message) =>
-        message.text.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-  );
+  const filteredMessages = groupedMessageArray
+    .filter(
+      (group) =>
+        group.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        group.messages.some((message) =>
+          message.text.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    )
+    .sort((a, b) => {
+      const latestA = new Date(a.messages[0].date);
+      const latestB = new Date(b.messages[0].date);
+      return latestB - latestA;
+    });
 
   const loadMoreMessages = useCallback(() => {
     setVisibleCount((prev) => Math.min(prev + 10, filteredMessages.length));

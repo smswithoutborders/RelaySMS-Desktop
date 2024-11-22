@@ -68,7 +68,8 @@ function BaseLayout() {
           sx={{
             p: 2,
             px: 10,
-            maxWidth: 1000,
+            maxWidth: 1050,
+            mx: "auto",
             height: "100%",
             flex: "1 1 70%",
             bgcolor: "background.default",

@@ -3,15 +3,19 @@ import {
   Box,
   Typography,
   Divider,
-  Avatar,
   ListItem,
-  ListItemAvatar,
   ListItemText,
 } from "@mui/material";
 import { format } from "date-fns";
 
 function SMSMessageView({ selectedGroup }) {
   const formatMessageDate = (date) => format(new Date(date), "dd MMM yyyy");
+
+  const sortedMessages = selectedGroup
+    ? [...selectedGroup.messages].sort(
+        (a, b) => new Date(a.date) - new Date(b.date)
+      )
+    : [];
 
   return (
     <Box
@@ -26,10 +30,10 @@ function SMSMessageView({ selectedGroup }) {
       {selectedGroup ? (
         <>
           <Box sx={{ flexGrow: 1, paddingX: 1 }}>
-            {selectedGroup.messages.map((message, idx) => {
+            {sortedMessages.map((message, idx) => {
               const showDivider =
                 idx === 0 ||
-                formatMessageDate(selectedGroup.messages[idx - 1].date) !==
+                formatMessageDate(sortedMessages[idx - 1].date) !==
                   formatMessageDate(message.date);
 
               return (
