@@ -21,6 +21,7 @@ import {
 } from "@mui/icons-material";
 import { Snackbar, Alert, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { FaRegComments } from "react-icons/fa6";
 
 function PlatformLayout() {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ function PlatformLayout() {
     {
       default: true,
       text: "Messages",
-      icon: <Message />,
+      icon: <FaRegComments size="23px"/>,
       action: () =>
         handleMessagesSelect({
           setControlPanel,

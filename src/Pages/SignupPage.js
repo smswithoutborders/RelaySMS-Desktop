@@ -453,9 +453,9 @@ function SignupPage() {
         }}
       >
         <img
-          src="https://img.freepik.com/premium-vector/qr-code-isolated-white-background-universal-product-scan-code-doodle-style-vector-icon-design-element-hand-drawn_186802-2493.jpg?ga=GA1.2.2006603533.1697742214&semt=sph"
-          alt="QR Code"
-          style={{ width: "100%", height: "auto", maxWidth: "300px" }}
+          src="login.png"
+          alt="login illustration"
+          style={{ width: "100%", height: "auto" }}
         />
       </Grid>
 

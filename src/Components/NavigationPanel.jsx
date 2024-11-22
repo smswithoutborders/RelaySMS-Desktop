@@ -61,7 +61,7 @@ function NavigationPanel({ items = [], app }) {
                   src="logo.png"
                   alt="Relay"
                   sx={{
-                    border: isActive("/") ? "2px solid blue" : "none",
+                    border: isActive("/") ? "2px solid #0C4B94" : "none",
                     boxShadow: isActive("/")
                       ? "0 0 8px 2px rgba(0, 0, 255, 0.6)"
                       : "none",
@@ -85,7 +85,7 @@ function NavigationPanel({ items = [], app }) {
                   src="Deku.png"
                   alt="Deku"
                   sx={{
-                    border: isActive("/deku") ? "2px solid blue" : "none",
+                    border: isActive("/deku") ? "2px solid #0C4B94" : "none",
                     boxShadow: isActive("/deku")
                       ? "0 0 8px 2px rgba(0, 0, 255, 0.6)"
                       : "none",
