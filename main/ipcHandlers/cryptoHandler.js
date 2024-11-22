@@ -6,6 +6,7 @@ const {
   encryptPayload,
   deriveSecretKey,
   createTransmissionPayload,
+  clearRatchetState,
 } = require("../crypto");
 
 function setupCryptoHandlers() {
@@ -91,27 +92,41 @@ function setupCryptoHandlers() {
       }
     }
   );
-}
 
-ipcMain.handle(
-  "create-transmission-payload",
-  async (event, { contentCiphertext, platformShortCode, deviceID }) => {
+  ipcMain.handle(
+    "create-transmission-payload",
+    async (event, { contentCiphertext, platformShortCode, deviceID }) => {
+      try {
+        const payload = createTransmissionPayload({
+          contentCiphertext,
+          platformShortCode,
+          deviceID,
+        });
+        return payload;
+      } catch (error) {
+        console.error(
+          "Error in create-transmission-payload handler:",
+          error.message
+        );
+        throw error;
+      }
+    }
+  );
+
+  ipcMain.handle("clear-ratchet-state", async () => {
     try {
-      const payload = createTransmissionPayload({
-        contentCiphertext,
-        platformShortCode,
-        deviceID,
-      });
-      return payload;
-    } catch (error) {
-      console.error(
-        "Error in create-transmission-payload handler:",
-        error.message
+      const userDataDir = app.getPath("userData");
+      const deletedCount = clearRatchetState(userDataDir);
+
+      logger.info(
+        `Cleared ratchet state. Deleted ${deletedCount} database file(s).`
       );
+    } catch (error) {
+      logger.error("Error in clear-ratchet-state handler:", error.message);
       throw error;
     }
-  }
-);
+  });
+}
 
 module.exports = {
   setupCryptoHandlers,

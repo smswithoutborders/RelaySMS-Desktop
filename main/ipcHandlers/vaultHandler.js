@@ -3,6 +3,16 @@ const path = require("path");
 const ProtoBufHandler = require("../protoBufHandler");
 const logger = require("../../Logger");
 
+function sanitizeArgs(args) {
+  const sanitizedArgs = { ...args };
+
+  if (sanitizedArgs.password) sanitizedArgs.password = "***REDACTED***";
+  if (sanitizedArgs.long_lived_token)
+    sanitizedArgs.long_lived_token = "***REDACTED***";
+
+  return sanitizedArgs;
+}
+
 function setupVaultHandlers() {
   const protoHandler = new ProtoBufHandler(
     path.resolve(__dirname, "../../protos/v1/vault.proto"),
@@ -21,15 +31,16 @@ function setupVaultHandlers() {
   Object.keys(entityMethods).forEach((methodName) => {
     ipcMain.handle(`${methodName}`, async (event, args) => {
       try {
+        const sanitizedArgs = sanitizeArgs(args);
         logger.info(`Connected to Vault server at: ${vaultUrl}`);
-        logger.info(`Invoking gRPC method: ${methodName}`, { args });
+        logger.info(`Invoking gRPC method: ${methodName}`, { sanitizedArgs });
         const response = await entityMethods[methodName](args);
         return response;
       } catch (error) {
+        const sanitizedArgs = sanitizeArgs(args);
         logger.error(`Error in gRPC method '${methodName}'`, {
-          args,
+          sanitizedArgs,
           error: error.message,
-          stack: error.stack,
         });
         throw error;
       }

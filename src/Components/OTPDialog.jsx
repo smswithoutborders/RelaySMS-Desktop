@@ -7,8 +7,8 @@ import {
   TextField,
   Typography,
   Box,
-  Grid,
-  Alert,
+  Grid2 as Grid,
+  Alert as MuiAlert,
   CircularProgress,
 } from "@mui/material";
 
@@ -18,18 +18,23 @@ function OTPDialog({
   onSubmit,
   onResend,
   counterTimestamp,
-  alert,
-  loading,
-  type = "number", 
-  otpLength = 6, 
+  type = "number",
+  otpLength = 6,
   subText,
   rows,
   multiline,
-  fullWidth
+  fullWidth,
 }) {
-  const [otp, setOtp] = useState(type === "number" ? Array(otpLength).fill("") : "");
-
+  const [otp, setOtp] = useState(
+    type === "number" ? Array(otpLength).fill("") : ""
+  );
   const [counter, setCounter] = useState(0);
+  const [alert, setAlert] = useState({
+    message: "",
+    severity: "info",
+    onClose: null,
+  });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -61,7 +66,7 @@ function OTPDialog({
         setOtp(value);
       }
     }
-    if (alert?.onClose) alert.onClose();
+    setAlert({ ...alert, message: "" });
   };
 
   const handleKeyDown = (event, index) => {
@@ -72,11 +77,22 @@ function OTPDialog({
     }
   };
 
-  const handleOtpSubmit = () => {
+  const handleOtpSubmit = async () => {
     const otpValue = type === "number" ? otp.join("") : otp;
     if (otpValue.length === otpLength) {
-      onSubmit(otpValue);
-      setOtp(type === "number" ? Array(otpLength).fill("") : "");
+      setLoading(true);
+      try {
+        await onSubmit(setAlert, otpValue);
+      } finally {
+        setLoading(false);
+        setOtp(type === "number" ? Array(otpLength).fill("") : "");
+      }
+    } else {
+      setAlert({
+        message: "Please enter a valid OTP.",
+        severity: "error",
+        onClose: null,
+      });
     }
   };
 
@@ -110,17 +126,17 @@ function OTPDialog({
           textAlign="center"
           mt={2}
         >
-         {subText}
+          {subText}
         </Typography>
 
         {alert?.message && (
           <Box mt={2}>
-            <Alert
-              severity={alert.type || "info"}
+            <MuiAlert
+              severity={alert.severity || "info"}
               onClose={alert.onClose || undefined}
             >
               {alert.message}
-            </Alert>
+            </MuiAlert>
           </Box>
         )}
 
@@ -128,7 +144,7 @@ function OTPDialog({
           {type === "number" ? (
             <Grid container spacing={1}>
               {otp.map((digit, index) => (
-                <Grid item xs={12 / otpLength} key={index}>
+                <Grid item size={12 / otpLength} key={index}>
                   <TextField
                     id={`otp-${index}`}
                     type="text"
@@ -155,9 +171,11 @@ function OTPDialog({
               value={otp}
               onChange={(e) => handleOtpChange(e)}
               placeholder={`Enter OTP`}
-              inputProps={{
-                maxLength: otpLength,
-                style: { textAlign: "center" },
+              slotProps={{
+                input: {
+                  maxLength: otpLength,
+                  style: { textAlign: "center" },
+                },
               }}
               variant="outlined"
               autoComplete="off"
@@ -173,22 +191,27 @@ function OTPDialog({
             Didn't receive the OTP?
           </Typography>
           {counter > 0 ? (
-            <Typography variant="body2" color="textSecondary">
-              Resend OTP in {counter} seconds
-            </Typography>
+            <Box mt={2}>
+              <MuiAlert
+                severity="info"
+                variant="outlined"
+              >
+                Resend OTP in {counter} seconds
+              </MuiAlert>
+            </Box>
           ) : (
             <Button
+              size="small"
               onClick={handleResend}
               color="primary"
               variant="contained"
               fullWidth
               disabled={loading}
+              startIcon={
+                loading ? <CircularProgress size={24} color="inherit" /> : null
+              }
             >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Resend OTP"
-              )}
+              {loading ? "Resending OTP..." : "Resend OTP"}
             </Button>
           )}
         </Box>
@@ -211,11 +234,15 @@ function OTPDialog({
           variant="contained"
           fullWidth
           disabled={
-            (type === "number" ? otp.join("").length < otpLength : otp.length < otpLength) ||
-            loading
+            (type === "number"
+              ? otp.join("").length < otpLength
+              : otp.length < otpLength) || loading
+          }
+          startIcon={
+            loading ? <CircularProgress size={24} color="inherit" /> : null
           }
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"}
+          {loading ? "Submitting..." : "Submit"}
         </Button>
       </DialogActions>
     </Dialog>

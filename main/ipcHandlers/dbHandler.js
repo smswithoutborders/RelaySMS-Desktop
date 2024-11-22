@@ -10,7 +10,7 @@ function setupDBHandlers() {
       const result = db.getAll(table);
       return result;
     } catch (error) {
-      logger.error("Error in db-get-all handler:", error);
+      logger.error("Error in db-get-all handler:", error.message);
       throw error;
     } finally {
       db.close();
@@ -22,7 +22,7 @@ function setupDBHandlers() {
       const result = db.get(table, path);
       return result;
     } catch (error) {
-      logger.error("Error in db-get handler:", error);
+      logger.error("Error in db-get handler:", error.message);
       throw error;
     } finally {
       db.close();
@@ -34,7 +34,7 @@ function setupDBHandlers() {
       db.set(table, path, value);
       return { success: true };
     } catch (error) {
-      logger.error("Error in db-set handler:", error);
+      logger.error("Error in db-set handler:", error.message);
       throw error;
     } finally {
       db.close();
@@ -46,7 +46,7 @@ function setupDBHandlers() {
       db.delete(table, path);
       return { success: true };
     } catch (error) {
-      logger.error("Error in db-delete handler:", error);
+      logger.error("Error in db-delete handler:", error.message);
       throw error;
     } finally {
       db.close();
@@ -58,7 +58,7 @@ function setupDBHandlers() {
       db.deleteTable(table);
       return { success: true };
     } catch (error) {
-      logger.error("Error in db-delete-table handler:", error);
+      logger.error("Error in db-delete-table handler:", error.message);
       throw error;
     } finally {
       db.close();

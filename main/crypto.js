@@ -1,10 +1,11 @@
+const fs = require("fs");
+const path = require("path");
+const { execFile } = require("child_process");
+const util = require("util");
+const crypto = require("crypto");
 const nacl = require("tweetnacl");
 nacl.util = require("tweetnacl-util");
 const fernet = require("fernet");
-const util = require("util");
-const crypto = require("crypto");
-const path = require("path");
-const { execFile } = require("child_process");
 
 const generateKeyPair = () => {
   try {
@@ -110,6 +111,21 @@ const encryptPayload = ({
   });
 };
 
+const clearRatchetState = (userDataDir) => {
+  try {
+    const cliPath = path.join(userDataDir, "py_double_ratchet_cli");
+    const files = fs.readdirSync(cliPath);
+
+    files.forEach((file) => {
+      if (file.endsWith(".db")) {
+        fs.unlinkSync(path.join(cliPath, file));
+      }
+    });
+  } catch (err) {
+    throw err;
+  }
+};
+
 async function deriveSecretKey(
   clientPublishPrivateKey,
   serverPublishPublicKey
@@ -164,4 +180,5 @@ module.exports = {
   encryptPayload,
   deriveSecretKey,
   createTransmissionPayload,
+  clearRatchetState,
 };

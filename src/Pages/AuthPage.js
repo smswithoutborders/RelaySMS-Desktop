@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -47,12 +47,15 @@ function AuthPage() {
         settingsController.getData("preferences.otp.nextAttemptTimestamp"),
         settingsController.getData("preferences.otp.phoneNumber"),
       ]);
-
       setOtpSettings({ nextAttemptTimestamp, phoneNumber });
     } catch (error) {
       console.error("Error fetching OTP settings:", error);
     }
   };
+
+  useEffect(() => {
+    fetchOtpSettings();
+  }, []);
 
   const handlePhoneChange = (value, info) => {
     const cleanedValue = value.replace(/\s+/g, "");
@@ -111,24 +114,23 @@ function AuthPage() {
     setLoading(true);
 
     try {
-      fetchOtpSettings();
-
+      const [nextAttemptTimestamp, phoneNumber] = await Promise.all([
+        settingsController.getData("preferences.otp.nextAttemptTimestamp"),
+        settingsController.getData("preferences.otp.phoneNumber"),
+      ]);
       const now = Math.floor(Date.now() / 1000);
       if (
-        otpSettings.nextAttemptTimestamp &&
-        otpSettings.nextAttemptTimestamp > now &&
-        otpSettings.phoneNumber === phone
+        nextAttemptTimestamp &&
+        nextAttemptTimestamp > now &&
+        phoneNumber === phone
       ) {
-        const timeLeft = formatDistanceToNow(
-          otpSettings.nextAttemptTimestamp * 1000,
-          {
-            includeSeconds: true,
-          }
-        );
+        const timeLeft = formatDistanceToNow(nextAttemptTimestamp * 1000, {
+          includeSeconds: true,
+        });
         setAlert({
           open: true,
           type: "info",
-          message: `You can request a new OTP in ${timeLeft}. Please wait before trying again.`,
+          message: `You can request a new OTP in ${timeLeft}. If you already have the OTP, please enter it in the box below.`,
         });
         setOtpDialogOpen(true);
         return;
@@ -155,7 +157,7 @@ function AuthPage() {
           type: "success",
           message: res.message,
         });
-        fetchOtpSettings();
+        await fetchOtpSettings();
         setOtpDialogOpen(true);
       }
     } catch (error) {
@@ -173,9 +175,7 @@ function AuthPage() {
     setShowPassword((prevState) => !prevState);
   };
 
-  const handleOtpSubmit = async (otp) => {
-    setLoading(true);
-
+  const handleOtpSubmit = async (setOtpAlert, otp) => {
     try {
       const entityData = {
         phone_number: phone,
@@ -185,31 +185,26 @@ function AuthPage() {
 
       const { err, res } = await authenticateEntity(entityData);
       if (err) {
-        setAlert({
-          open: true,
-          type: "error",
+        setOtpAlert({
+          severity: "error",
           message: err,
         });
         return;
       }
 
       if (res.long_lived_token) {
-        setAlert({
-          open: true,
-          type: "success",
+        setOtpAlert({
+          severity: "success",
           message: res.message,
         });
         setOtpDialogOpen(false);
         await window.api.invoke("reload-window");
       }
     } catch (error) {
-      setAlert({
-        open: true,
-        type: "error",
+      setOtpAlert({
+        severity: "error",
         message: "An unexpected error occurred. Please try again later.",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -378,7 +373,6 @@ function AuthPage() {
       </Grid>
 
       <OTPDialog
-      type="large"
         open={otpDialogOpen}
         onClose={() => setOtpDialogOpen(false)}
         onSubmit={handleOtpSubmit}
@@ -390,8 +384,6 @@ function AuthPage() {
           });
         }}
         counterTimestamp={otpSettings.nextAttemptTimestamp}
-        alert={alert}
-        loading={loading}
       />
     </Grid>
   );

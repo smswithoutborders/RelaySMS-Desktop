@@ -17,8 +17,10 @@ import {
   createTransmissionPayload,
   addOAuth2Token,
   deleteOAuth2Token,
+  UserController,
+  MessageController,
+  SettingsController,
 } from "../controllers";
-import { MessageController, SettingsController } from "../controllers";
 
 const languages = [
   { name: "English" },
@@ -27,12 +29,6 @@ const languages = [
   { name: "Spanish" },
   { name: "Turkish" },
 ];
-
-const logout = {
-  title: "Are you sure you want to log out?",
-  description: "This action cannot be undone.",
-  color: "",
-};
 
 const deleteAccount = {
   title: "Are you sure you want to delete your account? ",
@@ -534,6 +530,122 @@ export const handlePlatformMessageSelect = async ({
   );
 };
 
+const handleLanguageSelect = ({ setDisplayPanel }) => {
+  setDisplayPanel(<DisplayPanel body={<ItemsList items={languages} />} />);
+};
+
+const handleChangePasswordSelect = ({ setDisplayPanel }) => {
+  setDisplayPanel(
+    <DisplayPanel
+      header={"Change Password"}
+      body={
+        <SettingView>
+          <PasswordForm
+            fields={[
+              {
+                name: "currentPassword",
+                label: "Current Password",
+                required: true,
+                type: "password",
+              },
+              {
+                name: "newPassword",
+                label: "New Password",
+                required: true,
+                type: "password",
+              },
+              {
+                name: "confirmPassword",
+                label: "Confirm New Password",
+                required: true,
+                type: "password",
+              },
+            ]}
+            activity="change"
+            onSubmit={(data) => console.log("Password form submitted:", data)}
+          />
+        </SettingView>
+      }
+    />
+  );
+};
+
+const handleLogoutSelect = ({ setDisplayPanel }) => {
+  const messageController = new MessageController();
+  const userController = new UserController();
+
+  const logout = {
+    title: "Are you sure you want to log out?",
+    description: "This action cannot be undone.",
+    color: "",
+  };
+
+  setDisplayPanel(
+    <DisplayPanel
+      body={
+        <DialogView
+          open={true}
+          title={logout.title}
+          description={logout.description}
+          cancelText="cancel"
+          confirmText="logout"
+          onClose={() => setDisplayPanel(null)}
+          onConfirm={async () => {
+            await Promise.all([
+              await window.api.invoke("clear-ratchet-state"),
+              await messageController.deleteTable(),
+              await userController.deleteTable(),
+            ]);
+
+            await window.api.invoke("reload-window");
+          }}
+        />
+      }
+    />
+  );
+};
+
+const handleDeleteAccountSelect = ({ setDisplayPanel }) => {
+  setDisplayPanel(
+    <DisplayPanel
+      header={"Delete Account"}
+      body={
+        <SettingView>
+          <PasswordForm
+            fields={[
+              {
+                name: "currentPassword",
+                label: "Current Password",
+                required: true,
+                type: "password",
+              },
+            ]}
+            submitButtonText="Delete Account"
+            submitButtonColor="error"
+            onSubmit={(data) => {
+              setDisplayPanel(
+                <DialogView
+                  open={true}
+                  title={deleteAccount.title}
+                  description={deleteAccount.description}
+                  cancelText="cancel"
+                  confirmText="yes, delete account"
+                  onClose={() => setDisplayPanel(null)}
+                  onConfirm={() => {
+                    alert("Delete Account successfully");
+                    console.log("Password form submitted:", data);
+                    setDisplayPanel(null);
+                  }}
+                />
+              );
+            }}
+          />
+        </SettingView>
+      }
+    />
+  );
+};
+
 export const handlePlatformSettingsSelect = ({
   setDisplayPanel,
   setControlPanel,
@@ -541,113 +653,19 @@ export const handlePlatformSettingsSelect = ({
   const settings = [
     {
       name: "Language",
-      action: () =>
-        setDisplayPanel(
-          <DisplayPanel body={<ItemsList items={languages} />} />
-        ),
+      action: () => handleLanguageSelect({ setDisplayPanel }),
     },
     {
       name: "Change Password",
-      action: () =>
-        setDisplayPanel(
-          <DisplayPanel
-            header={"Change Password"}
-            body={
-              <SettingView>
-                <PasswordForm
-                  fields={[
-                    {
-                      name: "currentPassword",
-                      label: "Current Password",
-                      required: true,
-                      type: "password",
-                    },
-                    {
-                      name: "newPassword",
-                      label: "New Password",
-                      required: true,
-                      type: "password",
-                    },
-                    {
-                      name: "confirmPassword",
-                      label: "Confirm New Password",
-                      required: true,
-                      type: "password",
-                    },
-                  ]}
-                  activity="change"
-                  onSubmit={(data) =>
-                    console.log("Password form submitted:", data)
-                  }
-                />
-              </SettingView>
-            }
-          />
-        ),
+      action: () => handleChangePasswordSelect({ setDisplayPanel }),
     },
     {
       name: "Log out",
-      action: () =>
-        setDisplayPanel(
-          <DisplayPanel
-            body={
-              <DialogView
-                open={true}
-                title={logout.title}
-                description={logout.description}
-                cancelText="cancel"
-                confirmText="logout"
-                onClose={() => setDisplayPanel(null)}
-                onConfirm={() => {
-                  alert("Logged out successfully");
-                  setDisplayPanel(null);
-                }}
-              />
-            }
-          />
-        ),
+      action: () => handleLogoutSelect({ setDisplayPanel }),
     },
     {
       name: "Delete Account",
-      action: () =>
-        setDisplayPanel(
-          <DisplayPanel
-            header={"Delete Account"}
-            body={
-              <SettingView>
-                <PasswordForm
-                  fields={[
-                    {
-                      name: "currentPassword",
-                      label: "Current Password",
-                      required: true,
-                      type: "password",
-                    },
-                  ]}
-                  submitButtonText="Delete Account"
-                  submitButtonColor="error"
-                  onSubmit={(data) => {
-                    setDisplayPanel(
-                      <DialogView
-                        open={true}
-                        title={deleteAccount.title}
-                        description={deleteAccount.description}
-                        cancelText="cancel"
-                        confirmText="yes, delete account"
-                        onClose={() => setDisplayPanel(null)}
-                        onConfirm={() => {
-                          alert("Delete Account successfully");
-                          console.log("Password form submitted:", data);
-                          setDisplayPanel(null);
-                        }}
-                      />
-                    );
-                  }}
-                />
-              </SettingView>
-            }
-          />
-        ),
+      action: () => handleDeleteAccountSelect({ setDisplayPanel }),
     },
   ];
 

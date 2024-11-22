@@ -1,7 +1,6 @@
 const Database = require("better-sqlite3");
 const { app } = require("electron");
 const path = require("path");
-const logger = require("../Logger");
 
 class DB {
   constructor(dbName) {
@@ -14,7 +13,6 @@ class DB {
     if (!this.db) {
       this.db = new Database(this.dbPath);
       this.db.pragma("journal_mode = WAL");
-      logger.info(`Database connection established at ${this.dbPath}`);
     }
     return this.db;
   }
@@ -26,12 +24,14 @@ class DB {
         CREATE TABLE IF NOT EXISTS ${this._sanitizeIdentifier(table)} (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           key TEXT UNIQUE,
-          value JSON
+          value TEXT
         )
       `;
       db.exec(query);
     } catch (error) {
-      logger.error(`Error ensuring table '${table}' exists:`, error);
+      throw new Error(
+        `Error ensuring table '${table}' exists: ${error.message}`
+      );
     }
   }
 
@@ -39,150 +39,118 @@ class DB {
     this._createTableIfNotExists(table);
     const db = this._getDBInstance();
     try {
-      const query = `SELECT * FROM ${this._sanitizeIdentifier(table)}`;
-      logger.info(`Executing query: ${query}`);
+      const query = `SELECT key, value FROM ${this._sanitizeIdentifier(table)}`;
       const stmt = db.prepare(query);
       const rows = stmt.all();
-      return rows;
+      return rows.map((row) => ({
+        key: row.key,
+        value: JSON.parse(row.value),
+      }));
     } catch (error) {
-      logger.error(`Error fetching all records from table '${table}':`, error);
-      return [];
+      throw new Error(
+        `Error fetching all records from '${table}': ${error.message}`
+      );
     }
   }
 
   get(table, path) {
-    if (!path) {
-      logger.error("Path cannot be empty.");
-      return null;
-    }
+    if (!path) throw new Error("Path cannot be empty.");
 
     this._createTableIfNotExists(table);
     const db = this._getDBInstance();
     try {
       const [key, jsonPath] = this._splitPath(path);
-      let query;
-      let result;
 
-      if (jsonPath === null) {
-        query = `
-          SELECT value FROM ${this._sanitizeIdentifier(table)}
-          WHERE key = ?
-        `;
-        logger.info(`Executing query: ${query} with params: [${key}, ${key}]`);
-        const stmt = db.prepare(query);
-        result = stmt.get(key)?.value;
-      } else {
-        query = `
+      const query = jsonPath
+        ? `
           SELECT json_extract(value, ?) AS result
           FROM ${this._sanitizeIdentifier(table)}
           WHERE key = ?
+        `
+        : `
+          SELECT value 
+          FROM ${this._sanitizeIdentifier(table)}
+          WHERE key = ?
         `;
-        logger.info(
-          `Executing query: ${query} with params: [${`$.${jsonPath}`}, ${key}]`
-        );
-        const stmt = db.prepare(query);
-        result = stmt.get(`$.${jsonPath}`, key)?.result;
-      }
+
+      const stmt = db.prepare(query);
+      const params = jsonPath ? [`$.${jsonPath}`, key] : [key];
+      const result = stmt.get(...params)?.result || stmt.get(...params)?.value;
 
       return result ? JSON.parse(result) : null;
     } catch (error) {
-      logger.error(
-        `Error fetching data from table '${table}' with path '${path}':`,
-        error
+      throw new Error(
+        `Error fetching data from '${table}' with path '${path}': ${error.message}`
       );
-      return null;
     }
   }
 
   set(table, path, value) {
-    if (!path) {
-      logger.error("Path cannot be empty.");
-      return;
-    }
+    if (!path) throw new Error("Path cannot be empty.");
 
     this._createTableIfNotExists(table);
     const db = this._getDBInstance();
     try {
       const [key, jsonPath] = this._splitPath(path);
-      let query;
+      const serializedValue = JSON.stringify(value);
 
-      if (jsonPath === null) {
-        query = `
+      const query = jsonPath
+        ? `
+          INSERT INTO ${this._sanitizeIdentifier(table)} (key, value)
+          VALUES (?, json_set(json('{}'), ?, ?))
+          ON CONFLICT(key) DO UPDATE SET value = json_set(value, ?, ?)
+        `
+        : `
           INSERT INTO ${this._sanitizeIdentifier(table)} (key, value)
           VALUES (?, ?)
           ON CONFLICT(key) DO UPDATE SET value = ?
         `;
-        logger.info(
-          `Executing query: ${query} with params: [${key}, ${JSON.stringify(
-            value
-          )}, ${JSON.stringify(value)}]`
-        );
-        const stmt = db.prepare(query);
-        stmt.run(key, JSON.stringify(value), JSON.stringify(value));
-      } else {
-        query = `
-          INSERT INTO ${this._sanitizeIdentifier(table)} (key, value)
-          VALUES (?, json_set(json('{}'), ?, json(?)))
-          ON CONFLICT(key) DO UPDATE SET value = json_set(value, ?, json(?))
-        `;
-        logger.info(
-          `Executing query: ${query} with params: [${key}, ${`$.${jsonPath}`}, ${JSON.stringify(
-            value
-          )}]`
-        );
-        const stmt = db.prepare(query);
-        stmt.run(
-          key,
-          `$.${jsonPath}`,
-          JSON.stringify(value),
-          `$.${jsonPath}`,
-          JSON.stringify(value)
-        );
-      }
+
+      const stmt = db.prepare(query);
+      const params = jsonPath
+        ? [
+            key,
+            `$.${jsonPath}`,
+            serializedValue,
+            `$.${jsonPath}`,
+            serializedValue,
+          ]
+        : [key, serializedValue, serializedValue];
+
+      stmt.run(...params);
     } catch (error) {
-      logger.error(
-        `Error inserting/updating data in table '${table}' with path '${path}':`,
-        error
+      throw new Error(
+        `Error inserting/updating data in '${table}' with path '${path}': ${error.message}`
       );
     }
   }
 
   delete(table, path) {
-    if (!path) {
-      logger.error("Path cannot be empty.");
-      return;
-    }
+    if (!path) throw new Error("Path cannot be empty.");
 
     this._createTableIfNotExists(table);
     const db = this._getDBInstance();
     try {
       const [key, jsonPath] = this._splitPath(path);
-      let query;
 
-      if (jsonPath === null) {
-        query = `
-          DELETE FROM ${this._sanitizeIdentifier(table)}
-          WHERE key = ?
-        `;
-      } else {
-        query = `
+      const query = jsonPath
+        ? `
           UPDATE ${this._sanitizeIdentifier(table)}
           SET value = json_remove(value, ?)
           WHERE key = ?
+        `
+        : `
+          DELETE FROM ${this._sanitizeIdentifier(table)}
+          WHERE key = ?
         `;
-      }
 
-      logger.info(
-        `Executing query: ${query} with params: [${
-          jsonPath === null ? key : `$.${jsonPath}`
-        }, ${key}]`
-      );
       const stmt = db.prepare(query);
-      stmt.run(jsonPath === null ? key : `$.${jsonPath}`, key);
+      const params = jsonPath ? [`$.${jsonPath}`, key] : [key];
+
+      stmt.run(...params);
     } catch (error) {
-      logger.error(
-        `Error deleting data in table '${table}' with path '${path}':`,
-        error
+      throw new Error(
+        `Error deleting data in '${table}' with path '${path}': ${error.message}`
       );
     }
   }
@@ -191,36 +159,16 @@ class DB {
     const db = this._getDBInstance();
     try {
       const query = `DROP TABLE IF EXISTS ${this._sanitizeIdentifier(table)}`;
-      logger.info(`Executing query: ${query}`);
       db.exec(query);
     } catch (error) {
-      logger.error(`Error deleting table '${table}':`, error);
+      throw new Error(`Error deleting table '${table}': ${error.message}`);
     }
   }
 
   _splitPath(path) {
-    if (!path || typeof path !== "string") {
-      logger.error("Invalid path format. Path must be a non-empty string.");
-      throw new Error(
-        "Invalid path format. Path must be a non-empty string in the format 'key.jsonPath'."
-      );
-    }
-
     const [key, ...rest] = path.split(".");
-
-    if (!key) {
-      logger.error("Path must contain a valid key.");
-      throw new Error("Invalid path format. Path must include a key.");
-    }
-
-    if (rest.length === 0) {
-      logger.info(
-        `No JSON path specified, inserting value directly into key: '${key}'`
-      );
-      return [key, null];
-    }
-
-    const jsonPath = rest.join(".");
+    if (!key) throw new Error("Path must include a key.");
+    const jsonPath = rest.length > 0 ? rest.join(".") : null;
     return [key, jsonPath];
   }
 
@@ -235,7 +183,6 @@ class DB {
     if (this.db) {
       this.db.close();
       this.db = null;
-      logger.info("Database connection closed.");
     }
   }
 }
