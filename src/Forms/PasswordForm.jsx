@@ -1,5 +1,11 @@
-import React, { useState } from "react";
-import { TextField, Button, Box, IconButton } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import {
+  TextField,
+  Button,
+  Box,
+  IconButton,
+  CircularProgress,
+} from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
@@ -12,12 +18,16 @@ function PasswordForm({
     : "Reset Password",
   submitButtonColor = "primary",
 }) {
-  const [formData, setFormData] = useState(
-    fields.reduce((acc, field) => {
+  const [formData, setFormData] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const initialData = fields.reduce((acc, field) => {
       acc[field.name] = field.defaultValue || "";
       return acc;
-    }, {})
-  );
+    }, {});
+    setFormData(initialData);
+  }, [fields]);
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState({
@@ -63,9 +73,14 @@ function PasswordForm({
     return true;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
-      onSubmit(formData);
+      setLoading(true);
+      try {
+        await onSubmit(formData);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -83,7 +98,7 @@ function PasswordForm({
             label={field.label}
             name={field.name}
             type={showPassword[field.name] ? "text" : "password"}
-            value={formData[field.name]}
+            value={formData[field.name] || ""}
             onChange={handleFieldChange}
             fullWidth
             required={field.required}
@@ -91,6 +106,7 @@ function PasswordForm({
             helperText={errors[field.name]}
             multiline={field.multiline}
             rows={field.rows || 1}
+            disabled={loading}
             slotProps={{
               input: {
                 endAdornment: field.type === "password" && (
@@ -118,6 +134,12 @@ function PasswordForm({
           variant="contained"
           color={submitButtonColor}
           onClick={handleSubmit}
+          disabled={loading}
+          startIcon={
+            loading ? (
+              <CircularProgress size={24} sx={{ color: "white" }} />
+            ) : null
+          }
         >
           {submitButtonText}
         </Button>

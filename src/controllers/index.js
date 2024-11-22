@@ -9,6 +9,7 @@ export {
   createTransmissionPayload,
   addOAuth2Token,
   deleteOAuth2Token,
+  updateEntityPassword,
 } from "./platformControllers";
 export { default as SettingsController } from "./settingsController";
 export { default as UserController } from "./userController";

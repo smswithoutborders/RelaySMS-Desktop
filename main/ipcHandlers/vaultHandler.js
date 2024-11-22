@@ -7,6 +7,9 @@ function sanitizeArgs(args) {
   const sanitizedArgs = { ...args };
 
   if (sanitizedArgs.password) sanitizedArgs.password = "***REDACTED***";
+  if (sanitizedArgs.current_password)
+    sanitizedArgs.current_password = "***REDACTED***";
+  if (sanitizedArgs.new_password) sanitizedArgs.new_password = "***REDACTED***";
   if (sanitizedArgs.long_lived_token)
     sanitizedArgs.long_lived_token = "***REDACTED***";
 

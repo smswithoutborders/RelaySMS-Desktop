@@ -99,7 +99,7 @@ function ComposeForm({ fields, onSubmit }) {
             ) : null
           }
         >
-          {loading ? "Sending..." : "Send"}{" "}
+          {loading ? "Sending..." : "Send"}
         </Button>
       </Box>
     </Box>

@@ -17,15 +17,11 @@ import {
   Wallet,
   CellTower,
   HelpOutline,
-  Message,
 } from "@mui/icons-material";
 import { Snackbar, Alert, CircularProgress } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { FaRegComments } from "react-icons/fa6";
 
 function PlatformLayout() {
-  const navigate = useNavigate();
-
   const [loading, setLoading] = useState(false);
   const { setNavigationPanel, setControlPanel, setDisplayPanel } = useLayout();
 
@@ -86,6 +82,7 @@ function PlatformLayout() {
         handlePlatformSettingsSelect({
           setControlPanel,
           setDisplayPanel,
+          setAlert,
         }),
     },
     {

@@ -14,6 +14,7 @@ import {
   encryptPayload,
   fetchPlatforms,
   listEntityStoredTokens,
+  updateEntityPassword,
   createTransmissionPayload,
   addOAuth2Token,
   deleteOAuth2Token,
@@ -96,7 +97,7 @@ const handlePlatformComposeClick = ({
         text: transmissionPayload,
       };
 
-      const { err, res } = await sendSms({ smsPayload });
+      const { err } = await sendSms({ smsPayload });
 
       if (err) {
         setAlert({
@@ -308,12 +309,10 @@ const handleOAuth2Platform = async ({
 
   setDisplayPanel(
     <DialogView
-      open={true}
-      title={`Revoke Access to ${platform.name}`}
+      title={`Change Revoke Access to ${platform.name}`}
       description={`You are about to revoke access for the identifier "${identifier}". This will permanently remove access to your ${platform.name} account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?`}
       cancelText="Cancel"
       confirmText="Yes, Revoke Access"
-      onClose={() => setDisplayPanel(null)}
       onConfirm={async () => {
         const { err, res } = await deleteOAuth2Token({
           platform: platform.name.toLowerCase(),
@@ -534,7 +533,48 @@ const handleLanguageSelect = ({ setDisplayPanel }) => {
   setDisplayPanel(<DisplayPanel body={<ItemsList items={languages} />} />);
 };
 
-const handleChangePasswordSelect = ({ setDisplayPanel }) => {
+const handleChangePasswordSelect = ({ setDisplayPanel, setAlert }) => {
+  const messageController = new MessageController();
+  const userController = new UserController();
+
+  const changePassword = {
+    title: "Change Password Confirmation",
+    description:
+      "Are you sure you want to change your password? You will need to log in again with your new password. This action cannot be undone.",
+    color: "",
+  };
+
+  const handleFormSubmit = async (data) => {
+    const { err, res } = await updateEntityPassword({
+      ...data,
+    });
+
+    if (err || !res.success) {
+      setAlert({
+        open: true,
+        severity: "error",
+        message: `Failed to Change Password: ${err || res.message}`,
+      });
+      return;
+    }
+
+    setAlert({
+      open: true,
+      severity: "success",
+      message: "Password Changed Successfully.",
+    });
+
+    await Promise.all([
+      await window.api.invoke("clear-ratchet-state"),
+      await messageController.deleteTable(),
+      await userController.deleteTable(),
+    ]);
+
+    setTimeout(async () => {
+      await window.api.invoke("reload-window");
+    }, 2000);
+  };
+
   setDisplayPanel(
     <DisplayPanel
       header={"Change Password"}
@@ -562,7 +602,17 @@ const handleChangePasswordSelect = ({ setDisplayPanel }) => {
               },
             ]}
             activity="change"
-            onSubmit={(data) => console.log("Password form submitted:", data)}
+            onSubmit={(data) => {
+              setDisplayPanel(
+                <DialogView
+                  title={changePassword.title}
+                  description={changePassword.description}
+                  cancelText="cancel"
+                  confirmText="yes, change password"
+                  onConfirm={() => handleFormSubmit(data)}
+                />
+              );
+            }}
           />
         </SettingView>
       }
@@ -575,8 +625,9 @@ const handleLogoutSelect = ({ setDisplayPanel }) => {
   const userController = new UserController();
 
   const logout = {
-    title: "Are you sure you want to log out?",
-    description: "This action cannot be undone.",
+    title: "Confirm Logout",
+    description:
+      "Are you sure you want to log out? You will need to log in again to continue using the app. This action cannot be undone.",
     color: "",
   };
 
@@ -584,12 +635,10 @@ const handleLogoutSelect = ({ setDisplayPanel }) => {
     <DisplayPanel
       body={
         <DialogView
-          open={true}
           title={logout.title}
           description={logout.description}
           cancelText="cancel"
           confirmText="logout"
-          onClose={() => setDisplayPanel(null)}
           onConfirm={async () => {
             await Promise.all([
               await window.api.invoke("clear-ratchet-state"),
@@ -597,7 +646,9 @@ const handleLogoutSelect = ({ setDisplayPanel }) => {
               await userController.deleteTable(),
             ]);
 
-            await window.api.invoke("reload-window");
+            setTimeout(async () => {
+              await window.api.invoke("reload-window");
+            }, 2000);
           }}
         />
       }
@@ -630,7 +681,6 @@ const handleDeleteAccountSelect = ({ setDisplayPanel }) => {
                   description={deleteAccount.description}
                   cancelText="cancel"
                   confirmText="yes, delete account"
-                  onClose={() => setDisplayPanel(null)}
                   onConfirm={() => {
                     alert("Delete Account successfully");
                     console.log("Password form submitted:", data);
@@ -649,6 +699,7 @@ const handleDeleteAccountSelect = ({ setDisplayPanel }) => {
 export const handlePlatformSettingsSelect = ({
   setDisplayPanel,
   setControlPanel,
+  setAlert,
 }) => {
   const settings = [
     {
@@ -657,7 +708,7 @@ export const handlePlatformSettingsSelect = ({
     },
     {
       name: "Change Password",
-      action: () => handleChangePasswordSelect({ setDisplayPanel }),
+      action: () => handleChangePasswordSelect({ setDisplayPanel, setAlert }),
     },
     {
       name: "Log out",

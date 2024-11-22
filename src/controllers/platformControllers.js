@@ -1,5 +1,5 @@
 import { extractRpcErrorMessage, capitalizeFirstLetter } from "../lib/utils";
-import { UserController, SettingsController } from "./";
+import { UserController, SettingsController, MessageController } from "./";
 
 export const fetchPlatforms = async ({ name, shortcode } = {}) => {
   try {
@@ -237,6 +237,7 @@ export const resetPassword = async ({
 
 export const listEntityStoredTokens = async () => {
   const userController = new UserController();
+  const messageController = new MessageController();
 
   try {
     const hasInternet = await window.api.invoke("check-internet");
@@ -281,8 +282,18 @@ export const listEntityStoredTokens = async () => {
     const extractedError =
       extractRpcErrorMessage(error.message) ||
       (error.message.includes("read ECONNRESET")
-        ? "The connection was reset while communicating with the server. Please check your network connection and try again."
+        ? "Please check your network connection and try again."
         : "Oops, something went wrong. Please try again later.");
+
+    if (error.message.includes("16 UNAUTHENTICATED")) {
+      await Promise.all([
+        window.api.invoke("clear-ratchet-state"),
+        messageController.deleteTable(),
+        userController.deleteTable(),
+      ]);
+
+      await window.api.invoke("reload-window");
+    }
 
     return {
       err: extractedError,
@@ -418,6 +429,42 @@ export const deleteOAuth2Token = async ({ platform, identifier }) => {
     const extractedError =
       extractRpcErrorMessage(error.message) ||
       "Oops, something went wrong. Please try again later.";
+    return { err: extractedError, res: null };
+  }
+};
+
+export const updateEntityPassword = async ({
+  currentPassword,
+  newPassword,
+}) => {
+  const userController = new UserController();
+
+  try {
+    const [deviceIDKeypairs, longLivedTokenCipher] = await Promise.all([
+      userController.getData("keypairs.deviceID"),
+      userController.getData("longLivedToken"),
+    ]);
+
+    const longLivedToken = await window.api.invoke("decrypt-long-lived-token", {
+      client_device_id_private_key: deviceIDKeypairs.client.privateKey,
+      server_device_id_public_key: deviceIDKeypairs.server.publicKey,
+      long_lived_token_cipher: longLivedTokenCipher,
+    });
+
+    const response = await window.api.invoke("UpdateEntityPassword", {
+      current_password: currentPassword,
+      long_lived_token: longLivedToken,
+      new_password: newPassword,
+    });
+
+    return { err: null, res: response };
+  } catch (error) {
+    console.error("Failed to update entity password:", error);
+
+    const extractedError =
+      extractRpcErrorMessage(error.message) ||
+      "Oops, something went wrong. Please try again later.";
+    console.error(extractedError);
     return { err: extractedError, res: null };
   }
 };
