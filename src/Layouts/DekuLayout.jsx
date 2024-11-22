@@ -7,7 +7,7 @@ import {
   handleDekuComposeSelect,
   handleModemSelect,
   handleDekuSettingsSelect,
-  handleMessagesSelect,
+  handleSmsMessageSelect,
 } from "../handlers/dekuHandler";
 import {
   Settings,
@@ -17,11 +17,9 @@ import {
   Message,
 } from "@mui/icons-material";
 import { Snackbar, Alert, Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 
 function DekuLayout() {
   const { setNavigationPanel, setControlPanel, setDisplayPanel } = useLayout();
-  const navigate = useNavigate();
 
   const [alert, setAlert] = useState({
     open: false,
@@ -29,21 +27,13 @@ function DekuLayout() {
     severity: "info",
   });
 
-  NavigationPanel.defaultProps = {
-    app: {
-      action: () => console.warn("App action not defined"),
-      icon: "",
-      text: "Unknown App",
-    },
-  };
-
   const navItems = [
     {
       default: true,
       text: "Messages",
       icon: <Message />,
       action: () =>
-        handleMessagesSelect({
+        handleSmsMessageSelect({
           setControlPanel,
           setDisplayPanel,
           setAlert,
@@ -95,16 +85,7 @@ function DekuLayout() {
   ];
 
   useEffect(() => {
-    setNavigationPanel(
-      <NavigationPanel
-        items={navItems}
-        app={{
-          action: () => navigate("/"),
-          icon: "logo.png",
-          text: "Relay",
-        }}
-      />
-    );
+    setNavigationPanel(<NavigationPanel items={navItems} />);
   }, []);
 
   return (

@@ -450,6 +450,27 @@ export const handlePlatformSelect = async ({
   }
 };
 
+const handleGatewayClientToggle = async ({ client, setAlert }) => {
+  const settingsController = new SettingsController();
+
+  const currentGatewayClients =
+    (await settingsController.getData("gatewayclients")) || [];
+
+  const updatedGatewayClients = currentGatewayClients.map((existingClient) =>
+    existingClient.msisdn === client.msisdn
+      ? client
+      : { ...existingClient, active: false }
+  );
+
+  await settingsController.setData("gatewayclients", updatedGatewayClients);
+
+  setAlert({
+    open: true,
+    message: `Gateway client ${client.msisdn} is now active.`,
+    severity: "success",
+  });
+};
+
 export const handleGatewayClientSelect = async ({
   setControlPanel,
   setDisplayPanel,
@@ -476,28 +497,13 @@ export const handleGatewayClientSelect = async ({
   );
 };
 
-export const handleGatewayClientToggle = async ({ client, setAlert }) => {
-  const settingsController = new SettingsController();
-
-  const currentGatewayClients =
-    (await settingsController.getData("gatewayclients")) || [];
-
-  const updatedGatewayClients = currentGatewayClients.map((existingClient) =>
-    existingClient.msisdn === client.msisdn
-      ? client
-      : { ...existingClient, active: false }
+const handlePlatformMessageClick = (setDisplayPanel, message) => {
+  setDisplayPanel(
+    <DisplayPanel header={message.title} body={<div>{message.text}</div>} />
   );
-
-  await settingsController.setData("gatewayclients", updatedGatewayClients);
-
-  setAlert({
-    open: true,
-    message: `Gateway client ${client.msisdn} is now active.`,
-    severity: "success",
-  });
 };
 
-export const handleMessagesSelect = async ({
+export const handlePlatformMessageSelect = async ({
   setControlPanel,
   setDisplayPanel,
   setAlert,
@@ -525,12 +531,6 @@ export const handleMessagesSelect = async ({
         />
       }
     />
-  );
-};
-
-export const handlePlatformMessageClick = (setDisplayPanel, message) => {
-  setDisplayPanel(
-    <DisplayPanel header={message.title} body={<div>{message.text}</div>} />
   );
 };
 

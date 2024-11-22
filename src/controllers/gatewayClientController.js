@@ -115,3 +115,44 @@ export const sendSms = async ({ smsPayload }) => {
     return { err: error.message, res: null };
   }
 };
+
+export const fetchSmsMessages = async () => {
+  try {
+    // Check the system's inbound state
+    const state = await checkState();
+
+    if (!state || state.inbound !== "active") {
+      return {
+        err: "No active gateway client setup found. Please configure the system and try again.",
+        messages: [],
+      };
+    }
+
+    const modems = await fetchModems();
+
+    if (modems.length === 0) {
+      return {
+        err: "No active modems found on the system.",
+        messages: [],
+      };
+    }
+
+    const firstModemIndex = modems[0].index;
+    const response = await fetch(
+      `http://localhost:6868/modems/${firstModemIndex}/sms`,
+      {
+        timeout: 8000,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch SMS messages: ${response.statusText}`);
+    }
+
+    const messages = await response.json();
+    return { err: null, messages };
+  } catch (error) {
+    console.error("Error fetching SMS messages:", error.message);
+    return { err: error.message, messages: [] };
+  }
+};

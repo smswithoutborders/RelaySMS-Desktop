@@ -8,7 +8,7 @@ import {
   handleGatewayClientSelect,
   handlePlatformSettingsSelect,
   handlePlatformSelect,
-  handleMessagesSelect,
+  handlePlatformMessageSelect,
 } from "../handlers/platformHandlers";
 import { listEntityStoredTokens } from "../controllers/platformControllers";
 import {
@@ -39,9 +39,9 @@ function PlatformLayout() {
     {
       default: true,
       text: "Messages",
-      icon: <FaRegComments size="23px"/>,
+      icon: <FaRegComments size="23px" />,
       action: () =>
-        handleMessagesSelect({
+        handlePlatformMessageSelect({
           setControlPanel,
           setDisplayPanel,
           setAlert,
