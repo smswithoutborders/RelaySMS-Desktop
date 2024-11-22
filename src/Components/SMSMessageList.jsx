@@ -1,27 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  Avatar,
-  List,
-  ListItemAvatar,
-  ListItemText,
-  Typography,
-  FormControl,
-  InputLabel,
-  InputAdornment,
-  IconButton,
-  Input,
-  ListItemButton,
-  Box,
-  Skeleton,
-} from "@mui/material";
-import { Search } from "@mui/icons-material";
-import { formatDistanceToNow } from "date-fns";
-
 function SMSMessageList({ messages = [], onClick, loading }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(20);
 
-  const groupedMessages = messages.reduce((groups, message) => {
+  const sortedMessages = [...messages].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
+
+  const groupedMessages = sortedMessages.reduce((groups, message) => {
     const { title } = message;
     if (!groups[title]) {
       groups[title] = [];
