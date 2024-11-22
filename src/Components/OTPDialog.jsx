@@ -7,7 +7,7 @@ import {
   TextField,
   Typography,
   Box,
-  Grid2 as Grid,
+  Grid,
   Alert,
   CircularProgress,
 } from "@mui/material";
@@ -20,8 +20,15 @@ function OTPDialog({
   counterTimestamp,
   alert,
   loading,
+  type = "number", 
+  otpLength = 6, 
+  subText,
+  rows,
+  multiline,
+  fullWidth
 }) {
-  const [otp, setOtp] = useState(Array(6).fill(""));
+  const [otp, setOtp] = useState(type === "number" ? Array(otpLength).fill("") : "");
+
   const [counter, setCounter] = useState(0);
 
   useEffect(() => {
@@ -42,19 +49,23 @@ function OTPDialog({
   const handleOtpChange = (event, index) => {
     const value = event.target.value;
     if (/^[0-9]?$/.test(value)) {
-      const newOtp = [...otp];
-      newOtp[index] = value;
-      setOtp(newOtp);
+      if (type === "number") {
+        const newOtp = [...otp];
+        newOtp[index] = value;
+        setOtp(newOtp);
 
-      if (value && index < 5) {
-        document.getElementById(`otp-${index + 1}`)?.focus();
+        if (value && index < otpLength - 1) {
+          document.getElementById(`otp-${index + 1}`)?.focus();
+        }
+      } else {
+        setOtp(value);
       }
     }
     if (alert?.onClose) alert.onClose();
   };
 
   const handleKeyDown = (event, index) => {
-    if (event.key === "Backspace" && otp[index] === "") {
+    if (type === "number" && event.key === "Backspace" && otp[index] === "") {
       if (index > 0) {
         document.getElementById(`otp-${index - 1}`)?.focus();
       }
@@ -62,10 +73,10 @@ function OTPDialog({
   };
 
   const handleOtpSubmit = () => {
-    const otpValue = otp.join("");
-    if (otpValue.length === 6) {
+    const otpValue = type === "number" ? otp.join("") : otp;
+    if (otpValue.length === otpLength) {
       onSubmit(otpValue);
-      setOtp(Array(6).fill(""));
+      setOtp(type === "number" ? Array(otpLength).fill("") : "");
     }
   };
 
@@ -75,10 +86,10 @@ function OTPDialog({
   };
 
   useEffect(() => {
-    if (open) {
+    if (open && type === "number") {
       document.getElementById("otp-0")?.focus();
     }
-  }, [open]);
+  }, [open, type]);
 
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="otp-dialog-title">
@@ -87,9 +98,19 @@ function OTPDialog({
           id="otp-dialog-title"
           variant="h6"
           gutterBottom
-          textAlign={"center"}
+          textAlign="center"
         >
           Verify Your Identity
+        </Typography>
+
+        <Typography
+          id="otp-dialog-title"
+          variant="body2"
+          gutterBottom
+          textAlign="center"
+          mt={2}
+        >
+         {subText}
         </Typography>
 
         {alert?.message && (
@@ -104,29 +125,47 @@ function OTPDialog({
         )}
 
         <Box mt={2}>
-          <Grid container spacing={1}>
-            {otp.map((digit, index) => (
-              <Grid size={2} key={index}>
-                <TextField
-                  id={`otp-${index}`}
-                  type="text"
-                  value={digit}
-                  onChange={(e) => handleOtpChange(e, index)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  slotProps={{
-                    input: {
-                      maxLength: 1,
-                      style: { textAlign: "center" },
-                      "aria-label": `OTP digit ${index + 1}`,
-                    },
-                  }}
-                  variant="outlined"
-                  autoComplete="off"
-                  disabled={loading}
-                />
-              </Grid>
-            ))}
-          </Grid>
+          {type === "number" ? (
+            <Grid container spacing={1}>
+              {otp.map((digit, index) => (
+                <Grid item xs={12 / otpLength} key={index}>
+                  <TextField
+                    id={`otp-${index}`}
+                    type="text"
+                    value={digit}
+                    onChange={(e) => handleOtpChange(e, index)}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    slotProps={{
+                      input: {
+                        maxLength: 1,
+                        style: { textAlign: "center" },
+                        "aria-label": `OTP digit ${index + 1}`,
+                      },
+                    }}
+                    variant="outlined"
+                    autoComplete="off"
+                    disabled={loading}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <TextField
+              fullWidth={fullWidth}
+              value={otp}
+              onChange={(e) => handleOtpChange(e)}
+              placeholder={`Enter OTP`}
+              inputProps={{
+                maxLength: otpLength,
+                style: { textAlign: "center" },
+              }}
+              variant="outlined"
+              autoComplete="off"
+              disabled={loading}
+              rows={rows}
+              multiline={multiline}
+            />
+          )}
         </Box>
 
         <Box mt={2} textAlign="center">
@@ -171,7 +210,10 @@ function OTPDialog({
           color="primary"
           variant="contained"
           fullWidth
-          disabled={otp.join("").length < 6 || loading}
+          disabled={
+            (type === "number" ? otp.join("").length < otpLength : otp.length < otpLength) ||
+            loading
+          }
         >
           {loading ? <CircularProgress size={24} color="inherit" /> : "Submit"}
         </Button>

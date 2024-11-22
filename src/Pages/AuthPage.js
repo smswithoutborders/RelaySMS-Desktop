@@ -378,6 +378,7 @@ function AuthPage() {
       </Grid>
 
       <OTPDialog
+      type="large"
         open={otpDialogOpen}
         onClose={() => setOtpDialogOpen(false)}
         onSubmit={handleOtpSubmit}
