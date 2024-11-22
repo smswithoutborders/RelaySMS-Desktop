@@ -70,7 +70,7 @@ async function createWindow() {
       return false;
     }
   });
-
+ 
   mainWindow = new BrowserWindow({
     webPreferences: {
       preload: path.join(__dirname, "../main/preload.js"),

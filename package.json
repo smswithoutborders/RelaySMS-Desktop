@@ -143,6 +143,7 @@
       "target": [
         "deb"
       ],
+      "icon": "public/icon.png",
       "category": "Communication"
     },
     "deb": {

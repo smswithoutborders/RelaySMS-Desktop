@@ -64,7 +64,7 @@ function NavigationPanel({ items = [], app }) {
               <ListItemIcon>
                 <Box
                   component="img"
-                  src="logo.png"
+                  src="icon.png"
                   alt="Relay"
                   sx={{
                     border: isActive("/") ? "2px solid #0C4B94" : "none",
