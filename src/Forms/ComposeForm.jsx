@@ -41,7 +41,11 @@ function ComposeForm({ fields, onSubmit }) {
     } else {
       setErrors({});
       setLoading(true);
-      await onSubmit(formData, setLoading);
+      try {
+        await onSubmit(formData);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -62,7 +66,7 @@ function ComposeForm({ fields, onSubmit }) {
             variant="standard"
             label={field.label}
             name={field.name}
-            value={field.defaultValue || ""}
+            value={formData[field.name] || ""}
             onChange={handleFieldChange}
             fullWidth
             required={field.required}
@@ -89,12 +93,13 @@ function ComposeForm({ fields, onSubmit }) {
           onClick={handleSubmit}
           sx={{ marginTop: "20px" }}
           disabled={loading}
+          startIcon={
+            loading ? (
+              <CircularProgress size={24} sx={{ color: "white" }} />
+            ) : null
+          }
         >
-          {loading ? (
-            <CircularProgress size={24} sx={{ color: "white" }} />
-          ) : (
-            "Send"
-          )}
+          {loading ? "Sending..." : "Send"}{" "}
         </Button>
       </Box>
     </Box>

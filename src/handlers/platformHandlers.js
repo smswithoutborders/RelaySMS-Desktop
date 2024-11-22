@@ -16,6 +16,7 @@ import {
   listEntityStoredTokens,
   createTransmissionPayload,
   addOAuth2Token,
+  deleteOAuth2Token,
 } from "../controllers";
 import { MessageController, SettingsController } from "../controllers";
 
@@ -39,16 +40,15 @@ const deleteAccount = {
   color: "error",
 };
 
-export const handlePlatformComposeClick = ({
+const handlePlatformComposeClick = ({
   setDisplayPanel,
   setAlert,
   platform,
 }) => {
   const messageController = new MessageController();
 
-  const handleFormSubmit = async (data, setLoading) => {
+  const handleFormSubmit = async (data) => {
     try {
-      setLoading(true);
       const gatewayClients = await fetchGatewayClients();
 
       const activeGatewayClient = gatewayClients.find(
@@ -106,7 +106,7 @@ export const handlePlatformComposeClick = ({
         setAlert({
           open: true,
           severity: "error",
-          message: `Failed to send SMS: ${err}`,
+          message: err,
         });
         return;
       }
@@ -126,21 +126,20 @@ export const handlePlatformComposeClick = ({
       const updatedMessages = [...existingMessages, newMessage];
       await messageController.setData("relaysms", updatedMessages);
 
+      setDisplayPanel(null);
+
       setAlert({
         open: true,
         severity: "success",
-        message: "SMS sent successfully!",
+        message: "Message sent successfully!",
       });
-      setDisplayPanel(null);
     } catch (error) {
       console.error("Error during form submission:", error);
       setAlert({
         open: true,
         severity: "error",
-        message: "An unexpected error occurred. Please try again.",
+        message: "Oops, something went wrong. Please try again later.",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -276,41 +275,114 @@ export const handlePlatformComposeSelect = async ({
   );
 };
 
-export const handlePlatformClick = async ({
+const handleOAuth2Platform = async ({
   platform,
   identifier,
   setAlert,
   setControlPanel,
   setDisplayPanel,
 }) => {
-  if (platform.protocol_type === "oauth2") {
-    if (!identifier) {
-      const { err, res } = await addOAuth2Token({
-        platform: platform.name.toLowerCase(),
-      });
+  if (!identifier) {
+    const { err, res } = await addOAuth2Token({
+      platform: platform.name.toLowerCase(),
+    });
 
-      if (err || !res.success) {
-        setAlert({
-          open: true,
-          severity: "error",
-          message: `Failed to add ${platform.name} token: ${
-            err || res.message
-          }`,
-        });
-        return;
-      }
-
-      await handlePlatformSelect({
-        setControlPanel,
-        setDisplayPanel,
-        setAlert,
-      });
+    if (err || !res.success) {
       setAlert({
         open: true,
-        severity: "success",
-        message: `${platform.name} token added successfully!`,
+        severity: "error",
+        message: `Failed to add ${platform.name} token: ${err || res.message}`,
+      });
+      return;
+    }
+
+    await handlePlatformSelect({
+      setControlPanel,
+      setDisplayPanel,
+      setAlert,
+    });
+
+    setAlert({
+      open: true,
+      severity: "success",
+      message: `${platform.name} token added successfully!`,
+    });
+    return;
+  }
+
+  setDisplayPanel(
+    <DialogView
+      open={true}
+      title={`Revoke Access to ${platform.name}`}
+      description={`You are about to revoke access for the identifier "${identifier}". This will permanently remove access to your ${platform.name} account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?`}
+      cancelText="Cancel"
+      confirmText="Yes, Revoke Access"
+      onClose={() => setDisplayPanel(null)}
+      onConfirm={async () => {
+        const { err, res } = await deleteOAuth2Token({
+          platform: platform.name.toLowerCase(),
+          identifier,
+        });
+
+        if (err || !res.success) {
+          setAlert({
+            open: true,
+            severity: "error",
+            message: `Failed to remove ${platform.name} token: ${
+              err || res.message
+            }`,
+          });
+          return;
+        }
+
+        await handlePlatformSelect({
+          setControlPanel,
+          setDisplayPanel,
+          setAlert,
+        });
+
+        setAlert({
+          open: true,
+          severity: "success",
+          message: `${platform.name} token removed successfully!`,
+        });
+
+        setDisplayPanel(null);
+      }}
+    />
+  );
+};
+
+const handlePlatformClick = async ({
+  platform,
+  identifier,
+  setAlert,
+  setControlPanel,
+  setDisplayPanel,
+}) => {
+  try {
+    if (platform.protocol_type === "oauth2") {
+      await handleOAuth2Platform({
+        platform,
+        identifier,
+        setAlert,
+        setControlPanel,
+        setDisplayPanel,
+      });
+    } else {
+      setAlert({
+        open: true,
+        severity: "error",
+        message: `Unsupported protocol type: ${platform.protocol_type}`,
       });
     }
+  } catch (error) {
+    console.error(error);
+    setAlert({
+      open: true,
+      severity: "error",
+      message: `An unexpected error occurred while managing ${platform.name} tokens.`,
+    });
   }
 };
 
@@ -473,10 +545,6 @@ export const handlePlatformSettingsSelect = ({
         setDisplayPanel(
           <DisplayPanel body={<ItemsList items={languages} />} />
         ),
-    },
-    {
-      name: "Revoke Platforms",
-      action: () => setDisplayPanel(<DisplayPanel body={"Revoke Platforms"} />),
     },
     {
       name: "Change Password",

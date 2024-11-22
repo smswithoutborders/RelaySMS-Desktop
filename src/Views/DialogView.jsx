@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   Typography,
@@ -8,6 +8,7 @@ import {
   DialogTitle,
   Box,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 
 function DialogView({
@@ -22,6 +23,17 @@ function DialogView({
   confirmColor = "error",
   cancelColor = "primary",
 }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleConfirm = async () => {
+    setLoading(true);
+    try {
+      await onConfirm();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose}>
       <Box sx={{ padding: 3, bgcolor: colorName }}>
@@ -38,15 +50,20 @@ function DialogView({
             onClick={onClose}
             color={cancelColor}
             fullWidth
+            disabled={loading}
           >
             {cancelText}
           </Button>
           <Button
             variant="contained"
-            onClick={onConfirm}
+            onClick={handleConfirm}
             color={confirmColor}
             autoFocus
             fullWidth
+            disabled={loading}
+            startIcon={
+              loading ? <CircularProgress size={20} color="inherit" /> : null
+            }
           >
             {confirmText}
           </Button>

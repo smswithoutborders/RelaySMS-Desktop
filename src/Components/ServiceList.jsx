@@ -9,7 +9,6 @@ import {
   Skeleton,
   ListItemButton,
   Box,
-  IconButton,
   Divider,
   Button,
 } from "@mui/material";
@@ -73,6 +72,7 @@ function ServiceList({
                       onClick && onClick(service);
                     }}
                     startIcon={<Add />}
+                    sx={{ textTransform: "none", fontSize: 9 }}
                   >
                     Add
                   </Button>
@@ -114,6 +114,7 @@ function ServiceList({
                             onClick && onClick(service, identifier);
                           }}
                           startIcon={<Delete />}
+                          sx={{ textTransform: "none", fontSize: 9 }}
                         >
                           Revoke
                         </Button>
@@ -123,7 +124,7 @@ function ServiceList({
                     <ListItemButton>
                       <ListItemText
                         primary={
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography variant="caption" color="text.secondary">
                             {identifier}
                           </Typography>
                         }

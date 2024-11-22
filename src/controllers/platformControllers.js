@@ -360,8 +360,6 @@ export const addOAuth2Token = async ({ platform }) => {
 
     const authorizationCode = await window.api.once("authorization-code");
 
-    console.log("authorizationCode", authorizationCode);
-
     const [deviceIDKeypairs, longLivedTokenCipher] = await Promise.all([
       userController.getData("keypairs.deviceID"),
       userController.getData("longLivedToken"),
@@ -383,7 +381,39 @@ export const addOAuth2Token = async ({ platform }) => {
 
     return { err: null, res: response };
   } catch (error) {
-    console.error("OAuth2 Token Error:", error);
+    console.error("OAuth2 Add Token Error:", error);
+
+    const extractedError =
+      extractRpcErrorMessage(error.message) ||
+      "Oops, something went wrong. Please try again later.";
+    return { err: extractedError, res: null };
+  }
+};
+
+export const deleteOAuth2Token = async ({ platform, identifier }) => {
+  const userController = new UserController();
+
+  try {
+    const [deviceIDKeypairs, longLivedTokenCipher] = await Promise.all([
+      userController.getData("keypairs.deviceID"),
+      userController.getData("longLivedToken"),
+    ]);
+
+    const longLivedToken = await window.api.invoke("decrypt-long-lived-token", {
+      client_device_id_private_key: deviceIDKeypairs.client.privateKey,
+      server_device_id_public_key: deviceIDKeypairs.server.publicKey,
+      long_lived_token_cipher: longLivedTokenCipher,
+    });
+
+    const response = await window.api.invoke("RevokeAndDeleteOAuth2Token", {
+      long_lived_token: longLivedToken,
+      platform,
+      account_identifier: identifier,
+    });
+
+    return { err: null, res: response };
+  } catch (error) {
+    console.error("OAuth2 Delete Token Error:", error);
 
     const extractedError =
       extractRpcErrorMessage(error.message) ||
