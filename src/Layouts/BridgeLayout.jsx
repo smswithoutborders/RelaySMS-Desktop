@@ -9,14 +9,9 @@ import {
   handleBridgeSettingsSelect,
   handleMessagesSelect,
 } from "../handlers/bridgeHandlers";
-import {
-  Settings,
-  Edit,
-  CellTower,
-  HelpOutline,
-  Message,
-} from "@mui/icons-material";
+import { Settings, Edit, CellTower, HelpOutline } from "@mui/icons-material";
 import { Snackbar, Alert } from "@mui/material";
+import { FaRegComments } from "react-icons/fa6";
 
 function BridgeLayout() {
   const { setNavigationPanel, setControlPanel, setDisplayPanel } = useLayout();
@@ -31,7 +26,7 @@ function BridgeLayout() {
     {
       default: true,
       text: "Messages",
-      icon: <Message />,
+      icon: <FaRegComments size="23px"/>,
       action: () =>
         handleMessagesSelect({
           setControlPanel,

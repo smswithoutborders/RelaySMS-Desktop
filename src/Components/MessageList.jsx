@@ -20,6 +20,7 @@ import { formatDistanceToNow } from "date-fns";
 function MessageList({ messages = [], onClick, loading }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(20);
+  const [selectedMessageId, setSelectedMessageId] = useState(null);
 
   const filteredMessages = messages.filter(
     (message) =>
@@ -41,6 +42,11 @@ function MessageList({ messages = [], onClick, loading }) {
   useEffect(() => {
     setVisibleCount(20);
   }, [searchTerm]);
+
+  const handleItemClick = (message) => {
+    setSelectedMessageId(message.id); 
+    if (onClick) onClick(message); 
+  };
 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -94,8 +100,15 @@ function MessageList({ messages = [], onClick, loading }) {
               <ListItemButton
                 key={index}
                 alignItems="flex-start"
-                onClick={() => onClick && onClick(message)}
-                sx={{ cursor: "pointer" }}
+                onClick={() => handleItemClick(message)}
+                sx={{
+                  cursor: "pointer",
+                  backgroundColor:
+                    selectedMessageId === message.id
+                      ? "background.default"
+                      : "transparent", 
+                  "&:hover": { backgroundColor: "", color: "white" },
+                }}
               >
                 <ListItemAvatar>
                   <Avatar sx={{ bgcolor: "white" }} alt={message.title}>

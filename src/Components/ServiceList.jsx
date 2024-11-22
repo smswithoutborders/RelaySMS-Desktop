@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   List,
   ListItem,
@@ -22,6 +22,8 @@ function ServiceList({
   lists,
   adornmentIcon,
 }) {
+  const [activeService, setActiveService] = useState(null);
+
   if (loading) {
     return (
       <List>
@@ -55,6 +57,7 @@ function ServiceList({
 
         const handleClick = (e) => {
           if (adornmentIcon) return;
+          setActiveService(service.name); // Set active service
           onClick && onClick(service);
         };
 
@@ -80,7 +83,15 @@ function ServiceList({
               }
               disablePadding
             >
-              <ListItemButton onClick={handleClick}>
+              <ListItemButton
+                onClick={handleClick}
+                sx={{
+                  backgroundColor:
+                    activeService === service.name ? "background.default" : "inherit",
+                  color: activeService === service.name ? "" : "inherit",
+                  borderRadius: 1,
+                }}
+              >
                 <ListItemAvatar>
                   {service.avatar ? (
                     <Avatar sx={{ bgcolor: "white" }}>

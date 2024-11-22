@@ -20,6 +20,7 @@ import { formatDistanceToNow } from "date-fns";
 function SMSMessageList({ messages = [], onClick, loading }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(20);
+  const [selectedGroup, setSelectedGroup] = useState(null); // Track active item
 
   const sortedMessages = [...messages].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
@@ -120,8 +121,20 @@ function SMSMessageList({ messages = [], onClick, loading }) {
               <Box key={index}>
                 <ListItemButton
                   alignItems="flex-start"
-                  onClick={() => onClick && onClick(group)}
-                  sx={{ cursor: "pointer" }}
+                  onClick={() => {
+                    setSelectedGroup(group.title); 
+                    if (onClick) onClick(group);
+                  }}
+                  sx={{
+                    cursor: "pointer",
+                    bgcolor:
+                      selectedGroup === group.title
+                        ? "background.default"
+                        : "inherit", 
+                    "&:hover": {
+                      bgcolor: "",
+                    },
+                  }}
                 >
                   <ListItemAvatar>
                     <Avatar sx={{ bgcolor: "primary.main" }} alt={group.title}>

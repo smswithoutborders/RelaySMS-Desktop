@@ -15,6 +15,7 @@ import { Link, useLocation } from "react-router-dom";
 
 function NavigationPanel({ items = [], app }) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [activeItem, setActiveItem] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -28,6 +29,11 @@ function NavigationPanel({ items = [], app }) {
 
   const handleToggle = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const handleItemClick = (item) => {
+    setActiveItem(item.text);
+    if (item.action) item.action();
   };
 
   const isActive = (path) => location.pathname === path;
@@ -67,8 +73,7 @@ function NavigationPanel({ items = [], app }) {
                       : "none",
                     transition: "box-shadow 0.3s ease, border 0.3s ease",
                     width: "33px",
-                    bgcolor: "#eaeaea",
-                    p: 0.5,
+                    p: 0.3,
                     borderRadius: 1,
                   }}
                 />
@@ -91,8 +96,7 @@ function NavigationPanel({ items = [], app }) {
                       : "none",
                     transition: "box-shadow 0.3s ease, border 0.3s ease",
                     width: "33px",
-                    bgcolor: "#eaeaea",
-                    p: 0.5,
+                    p: 0.3,
                     borderRadius: 1,
                   }}
                 />
@@ -140,10 +144,15 @@ function NavigationPanel({ items = [], app }) {
                   key={index}
                 >
                   <ListItemButton
-                    onClick={item.action}
+                    onClick={() => handleItemClick(item)}
                     sx={{
                       padding: "10px 20px",
                       cursor: "pointer",
+                      backgroundColor:
+                        activeItem === item.text
+                          ? "background.default"
+                          : "transparent",
+                      transition: "background-color 0.3s ease",
                     }}
                   >
                     {item.icon ? (

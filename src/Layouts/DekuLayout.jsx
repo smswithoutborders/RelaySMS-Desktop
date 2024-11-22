@@ -9,14 +9,9 @@ import {
   handleDekuSettingsSelect,
   handleSmsMessageSelect,
 } from "../handlers/dekuHandler";
-import {
-  Settings,
-  Edit,
-  CellTower,
-  HelpOutline,
-  Message,
-} from "@mui/icons-material";
-import { Snackbar, Alert, Box } from "@mui/material";
+import { Settings, Edit, CellTower, HelpOutline } from "@mui/icons-material";
+import { Snackbar, Alert } from "@mui/material";
+import { FaRegComments } from "react-icons/fa6";
 
 function DekuLayout() {
   const { setNavigationPanel, setControlPanel, setDisplayPanel } = useLayout();
@@ -31,7 +26,7 @@ function DekuLayout() {
     {
       default: true,
       text: "Messages",
-      icon: <Message />,
+      icon: <FaRegComments size="23px"/>,
       action: () =>
         handleSmsMessageSelect({
           setControlPanel,
