@@ -98,12 +98,16 @@ function MessageList({ messages = [], onClick, loading }) {
                 sx={{ cursor: "pointer" }}
               >
                 <ListItemAvatar>
-                  <Avatar sx={{ bgcolor: "white" }}>
-                    <img
-                      src={message.avatar}
-                      alt={message.title}
-                      style={{ width: "80%" }}
-                    />
+                  <Avatar sx={{ bgcolor: "white" }} alt={message.title}>
+                    {message.avatar ? (
+                      <img
+                        src={message.avatar}
+                        alt={message.title}
+                        style={{ width: "80%" }}
+                      />
+                    ) : /^[A-Za-z]$/.test(message.title[0]) ? (
+                      message.title[0]
+                    ) : null}
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText

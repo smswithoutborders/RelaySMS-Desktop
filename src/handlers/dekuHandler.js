@@ -39,6 +39,17 @@ export const handleSmsMessageSelect = async ({
 
   const { err, messages } = await fetchSmsMessages();
 
+  const updatedMessages = messages.map((message) => {
+    return {
+      ...message,
+      title: message.number,
+      date: new Date(
+        message.timestamp.replace(/([+-]\d{2})$/, "$1:00")
+      ).toISOString(),
+      index: message.id,
+    };
+  });
+
   if (err) {
     setAlert({
       open: true,
@@ -52,7 +63,7 @@ export const handleSmsMessageSelect = async ({
       title="SMS Messages"
       element={
         <MessageList
-          messages={messages}
+          messages={updatedMessages}
           onClick={(message) => handleSmsMessageClick(setDisplayPanel, message)}
         />
       }

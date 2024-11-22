@@ -78,10 +78,11 @@ You can install RelaySMS directly from the following sources:
 ### <a name="building-from-source"></a> Building from Source
 
 1.  Clone the repository:
-    ```bash
-    git clone https://github.com/smswithoutborders/RelaySMS-Desktop.git
-    ```
+```
+git clone https://github.com/smswithoutborders/RelaySMS-Desktop.git
+```
 2. Open the project in Visual Studio.
+
 3. Install dependencies  
 ```
 yarn install
