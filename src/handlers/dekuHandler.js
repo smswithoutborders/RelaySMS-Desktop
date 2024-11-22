@@ -2,12 +2,12 @@ import {
   DisplayPanel,
   ControlPanel,
   GatewayClientList,
-  MessageList,
+  SMSMessageList,
   ItemsList,
   ServiceList,
 } from "../Components";
 import { ComposeForm } from "../Forms";
-import { ComposeView } from "../Views";
+import { ComposeView, SMSMessageView } from "../Views";
 import { MessageController, fetchSmsMessages } from "../controllers";
 
 const languages = [
@@ -18,9 +18,12 @@ const languages = [
   { name: "Turkish" },
 ];
 
-const handleSmsMessageClick = (setDisplayPanel, message) => {
+const handleSmsMessageClick = ({ setDisplayPanel, selectedGroup }) => {
   setDisplayPanel(
-    <DisplayPanel header={message.title} body={<div>{message.text}</div>} />
+    <DisplayPanel
+      header={selectedGroup.title}
+      body={<SMSMessageView selectedGroup={selectedGroup} />}
+    />
   );
 };
 
@@ -33,11 +36,19 @@ export const handleSmsMessageSelect = async ({
   setControlPanel(
     <ControlPanel
       title="SMS Messages"
-      element={<MessageList messages={[]} loading={true} />}
+      element={<SMSMessageList messages={[]} loading={true} />}
     />
   );
 
   const { err, messages } = await fetchSmsMessages();
+
+  if (err) {
+    setAlert({
+      open: true,
+      severity: "error",
+      message: err,
+    });
+  }
 
   const updatedMessages = messages.map((message) => {
     return {
@@ -50,21 +61,15 @@ export const handleSmsMessageSelect = async ({
     };
   });
 
-  if (err) {
-    setAlert({
-      open: true,
-      severity: "error",
-      message: err,
-    });
-  }
-
   setControlPanel(
     <ControlPanel
       title="SMS Messages"
       element={
-        <MessageList
+        <SMSMessageList
           messages={updatedMessages}
-          onClick={(message) => handleSmsMessageClick(setDisplayPanel, message)}
+          onClick={(selectedGroup) =>
+            handleSmsMessageClick({ setDisplayPanel, selectedGroup })
+          }
         />
       }
     />

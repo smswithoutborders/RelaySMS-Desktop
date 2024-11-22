@@ -6,3 +6,4 @@ export { default as ItemsList } from "./ItemsList";
 export { default as MessageList } from "./MessageList";
 export { default as ServiceList } from "./ServiceList";
 export { default as OTPDialog } from "./OTPDialog";
+export { default as SMSMessageList } from "./SMSMessageList";
