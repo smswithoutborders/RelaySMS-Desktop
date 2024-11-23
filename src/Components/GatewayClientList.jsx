@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   List,
   ListItem,
@@ -7,29 +7,45 @@ import {
   Skeleton,
   Box,
   Typography,
+  Chip,
+  Tooltip,
 } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 function GatewayClientList({ items, onSelect, loading }) {
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [localItems, setLocalItems] = useState(items);
 
   useEffect(() => {
-    const defaultItem = items.find((item) => item.default);
-    if (defaultItem && selectedItems.length === 0) {
-      setSelectedItems([defaultItem.msisdn]);
+    setLocalItems(items);
+  }, [items]);
+
+  useEffect(() => {
+    const activeItem = localItems.find((item) => item.active);
+    const defaultItem = localItems.find((item) => item.default);
+
+    if (!activeItem && defaultItem) {
+      const updatedItems = localItems.map((item) =>
+        item.msisdn === defaultItem.msisdn
+          ? { ...item, active: true }
+          : { ...item, active: false }
+      );
+      setLocalItems(updatedItems);
       onSelect({ ...defaultItem, active: true });
     }
-  }, [items, selectedItems, onSelect]);
+  }, [localItems, onSelect]);
 
   const handleToggle = (itemKey) => {
-    const updatedSelectedItems = selectedItems.includes(itemKey)
-      ? []
-      : [itemKey];
-    setSelectedItems(updatedSelectedItems);
+    setLocalItems((prevItems) =>
+      prevItems.map((item) =>
+        item.msisdn === itemKey
+          ? { ...item, active: true }
+          : { ...item, active: false }
+      )
+    );
+
     const selectedItem = items.find((item) => item.msisdn === itemKey);
-    onSelect({
-      ...selectedItem,
-      active: updatedSelectedItems.includes(itemKey),
-    });
+
+    onSelect({ ...selectedItem, active: true });
   };
 
   return (
@@ -60,17 +76,34 @@ function GatewayClientList({ items, onSelect, loading }) {
             </Box>
           </ListItem>
         ))
-      ) : items.length === 0 ? (
+      ) : localItems.length === 0 ? (
         <Typography
           sx={{ padding: 2, textAlign: "center", color: "text.secondary" }}
         >
           No gateway client
         </Typography>
       ) : (
-        items.map((item) => (
-          <ListItem key={item.msisdn}>
+        localItems.map((item) => (
+          <ListItem
+            key={item.msisdn}
+            sx={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              position: "relative",
+            }}
+          >
             <ListItemText
-              primary={item.msisdn}
+              primary={
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Typography
+                    sx={{ fontWeight: "bold", color: "text.primary" }}
+                  >
+                    {item.msisdn}
+                  </Typography>
+                </Box>
+              }
               secondary={
                 <React.Fragment>
                   <span>{item.operator_code}</span>
@@ -80,12 +113,31 @@ function GatewayClientList({ items, onSelect, loading }) {
                   <span>{item.country}</span>
                 </React.Fragment>
               }
-              primaryTypographyProps={{
-                sx: { fontWeight: "bold", color: "text.primary" },
-              }}
             />
+            {item.verified && (
+              <Tooltip
+                title="This number is trusted by SMSwithoutborders"
+                arrow
+              >
+                <Chip
+                  label="Verified"
+                  color="success"
+                  variant="outlined"
+                  icon={<CheckCircleIcon />}
+                  size="small"
+                  sx={{
+                    position: "absolute",
+                    bottom: 4,
+                    right: 4,
+                    fontSize: "0.75rem",
+                    padding: "2px 6px",
+                    cursor: "pointer",
+                  }}
+                />
+              </Tooltip>
+            )}
             <Switch
-              checked={selectedItems.includes(item.msisdn) || item.active}
+              checked={item.active || false}
               onChange={() => handleToggle(item.msisdn)}
               name={item.msisdn}
               color="primary"

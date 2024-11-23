@@ -18,7 +18,6 @@ unzip "$TEMP_ZIP" -d "$EXTRACT_DIR"
 
 mv "$EXTRACT_DIR/RelaySMS-Publisher-$BRANCH/resources"/* "$TARGET_DIR/"
 
-# Clean up temporary files
 rm -rf "$TEMP_ZIP" "$EXTRACT_DIR"
 
 echo "Download complete. Resources saved to $TARGET_DIR"

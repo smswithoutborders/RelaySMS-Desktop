@@ -483,7 +483,7 @@ const handleGatewayClientToggle = async ({ client, setAlert }) => {
 
   const updatedGatewayClients = currentGatewayClients.map((existingClient) =>
     existingClient.msisdn === client.msisdn
-      ? client
+      ? { ...client, active: true }
       : { ...existingClient, active: false }
   );
 
