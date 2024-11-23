@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLayout } from "../Contexts/LayoutContext";
 import BaseLayout from "./BaseLayout";
 import NavigationPanel from "../Components/NavigationPanel";
@@ -9,6 +9,7 @@ import {
   handlePlatformSettingsSelect,
   handlePlatformSelect,
   handlePlatformMessageSelect,
+  executeSelect,
 } from "../handlers/platformHandlers";
 import { listEntityStoredTokens } from "../controllers/platformControllers";
 import {
@@ -22,7 +23,7 @@ import { Snackbar, Alert, CircularProgress } from "@mui/material";
 import { FaRegComments } from "react-icons/fa6";
 
 function PlatformLayout() {
-  const [loading, setLoading] = useState(false);
+  const currentActionRef = useRef(null);
   const { setNavigationPanel, setControlPanel, setDisplayPanel } = useLayout();
 
   const [alert, setAlert] = useState({
@@ -36,53 +37,66 @@ function PlatformLayout() {
       default: true,
       text: "Messages",
       icon: <FaRegComments size="23px" />,
-      action: () =>
-        handlePlatformMessageSelect({
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handlePlatformMessageSelect,
           setControlPanel,
           setDisplayPanel,
           setAlert,
+          currentActionRef,
         }),
     },
     {
       text: "Compose",
       icon: <Edit />,
-      action: () =>
-        handlePlatformComposeSelect({
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handlePlatformComposeSelect,
           setControlPanel,
           setDisplayPanel,
           setAlert,
-          setLoading,
-          loading,
+          currentActionRef,
         }),
     },
     {
       text: "Platforms",
       icon: <Wallet />,
-      action: () =>
-        handlePlatformSelect({
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handlePlatformSelect,
           setControlPanel,
           setDisplayPanel,
           setAlert,
+          currentActionRef,
         }),
     },
     {
       text: "Gateway Clients",
       icon: <CellTower />,
-      action: () =>
-        handleGatewayClientSelect({
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handleGatewayClientSelect,
           setControlPanel,
           setDisplayPanel,
           setAlert,
+          currentActionRef,
         }),
     },
     {
       text: "Settings",
       icon: <Settings />,
-      action: () =>
-        handlePlatformSettingsSelect({
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handlePlatformSettingsSelect,
           setControlPanel,
           setDisplayPanel,
           setAlert,
+          currentActionRef,
         }),
     },
     {

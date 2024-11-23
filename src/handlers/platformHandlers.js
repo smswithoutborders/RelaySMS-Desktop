@@ -32,6 +32,35 @@ const languages = [
   { name: "Turkish" },
 ];
 
+export const executeSelect = async ({
+  actionName,
+  selectFunction,
+  setControlPanel,
+  setDisplayPanel,
+  setAlert,
+  currentActionRef,
+}) => {
+  if (currentActionRef.current !== actionName) {
+    currentActionRef.current = actionName;
+  } else {
+    return;
+  }
+
+  setDisplayPanel(null);
+
+  await selectFunction({
+    actionName,
+    currentActionRef,
+    setControlPanel,
+    setDisplayPanel,
+    setAlert,
+  });
+
+  if (currentActionRef.current === actionName) {
+    currentActionRef.current = null;
+  }
+};
+
 const handlePlatformComposeClick = ({
   setDisplayPanel,
   setAlert,
@@ -111,7 +140,7 @@ const handlePlatformComposeClick = ({
         avatar: platform.avatar,
         id: existingMessages.length + 1,
         text: data.body,
-        title: `${data.from} | ${data.body.slice(0, 50)}...`,
+        title: data.from,
         date: new Date().toISOString(),
       };
 
@@ -220,11 +249,12 @@ const handlePlatformComposeClick = ({
 };
 
 export const handlePlatformComposeSelect = async ({
+  actionName,
+  currentActionRef,
   setControlPanel,
   setDisplayPanel,
   setAlert,
 }) => {
-  setDisplayPanel(null);
   setControlPanel(
     <ControlPanel
       title="Compose"
@@ -250,6 +280,8 @@ export const handlePlatformComposeSelect = async ({
       ...platform,
       identifiers: tokenMap[platform.name.toLowerCase()] || [],
     }));
+
+  if (currentActionRef.current !== actionName) return;
 
   setControlPanel(
     <ControlPanel
@@ -331,13 +363,13 @@ const handleOAuth2Platform = async ({
           setAlert,
         });
 
+        setDisplayPanel(null);
+
         setAlert({
           open: true,
           severity: "success",
           message: `${platform.name} token removed successfully!`,
         });
-
-        setDisplayPanel(null);
       }}
     />
   );
@@ -377,11 +409,12 @@ const handlePlatformClick = async ({
 };
 
 export const handlePlatformSelect = async ({
+  actionName,
+  currentActionRef,
   setControlPanel,
   setDisplayPanel,
   setAlert,
 }) => {
-  setDisplayPanel(null);
   setControlPanel(
     <ControlPanel
       title="Platforms"
@@ -408,6 +441,8 @@ export const handlePlatformSelect = async ({
         ...platform,
         identifiers: tokenMap[platform.name.toLowerCase()] || [],
       }));
+
+    if (currentActionRef.current !== actionName) return;
 
     setControlPanel(
       <ControlPanel
@@ -462,18 +497,23 @@ const handleGatewayClientToggle = async ({ client, setAlert }) => {
 };
 
 export const handleGatewayClientSelect = async ({
+  actionName,
+  currentActionRef,
   setControlPanel,
   setDisplayPanel,
   setAlert,
 }) => {
-  setDisplayPanel(null);
   setControlPanel(
     <ControlPanel
       title="Gateway Clients"
       element={<GatewayClientList items={[]} loading={true} />}
     />
   );
+
   const gatewayClients = await fetchGatewayClients();
+
+  if (currentActionRef.current !== actionName) return;
+
   setControlPanel(
     <ControlPanel
       title="Gateway Clients"
@@ -494,11 +534,12 @@ const handlePlatformMessageClick = (setDisplayPanel, message) => {
 };
 
 export const handlePlatformMessageSelect = async ({
+  actionName,
+  currentActionRef,
   setControlPanel,
   setDisplayPanel,
   setAlert,
 }) => {
-  setDisplayPanel(null);
   setControlPanel(
     <ControlPanel
       title="Messages"
@@ -508,6 +549,8 @@ export const handlePlatformMessageSelect = async ({
 
   const messageController = new MessageController();
   const messages = (await messageController.getData("relaysms")) || [];
+
+  if (currentActionRef.current !== actionName) return;
 
   setControlPanel(
     <ControlPanel
@@ -720,12 +763,12 @@ const handleDeleteAccountSelect = ({ setDisplayPanel, setAlert }) => {
 };
 
 export const handlePlatformSettingsSelect = ({
+  actionName,
+  currentActionRef,
   setDisplayPanel,
   setControlPanel,
   setAlert,
 }) => {
-  setDisplayPanel(null);
-
   const settings = [
     {
       name: "Language",
@@ -744,6 +787,8 @@ export const handlePlatformSettingsSelect = ({
       action: () => handleDeleteAccountSelect({ setDisplayPanel, setAlert }),
     },
   ];
+
+  if (currentActionRef.current !== actionName) return;
 
   setControlPanel(
     <ControlPanel title="Settings" element={<ItemsList items={settings} />} />

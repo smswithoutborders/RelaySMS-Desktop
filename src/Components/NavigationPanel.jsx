@@ -22,7 +22,7 @@ function NavigationPanel({ items = [], app }) {
     if (items.length > 0) {
       const defaultItem = items.find((item) => item.default);
       if (defaultItem && defaultItem.action) {
-        defaultItem.action();
+        defaultItem.action(defaultItem.text);
       }
     }
   }, [items]);
@@ -33,7 +33,7 @@ function NavigationPanel({ items = [], app }) {
 
   const handleItemClick = (item) => {
     setActiveItem(item.text);
-    if (item.action) item.action();
+    if (item.action) item.action(item.text);
   };
 
   const isActive = (path) => location.pathname === path;
