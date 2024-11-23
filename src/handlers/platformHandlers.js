@@ -15,6 +15,7 @@ import {
   fetchPlatforms,
   listEntityStoredTokens,
   updateEntityPassword,
+  deleteEntity,
   createTransmissionPayload,
   addOAuth2Token,
   deleteOAuth2Token,
@@ -30,12 +31,6 @@ const languages = [
   { name: "Spanish" },
   { name: "Turkish" },
 ];
-
-const deleteAccount = {
-  title: "Are you sure you want to delete your account? ",
-  description: "This action cannot be undone.",
-  color: "error",
-};
 
 const handlePlatformComposeClick = ({
   setDisplayPanel,
@@ -545,6 +540,8 @@ const handleChangePasswordSelect = ({ setDisplayPanel, setAlert }) => {
   };
 
   const handleFormSubmit = async (data) => {
+    handleChangePasswordSelect({ setDisplayPanel, setAlert });
+
     const { err, res } = await updateEntityPassword({
       ...data,
     });
@@ -572,7 +569,7 @@ const handleChangePasswordSelect = ({ setDisplayPanel, setAlert }) => {
 
     setTimeout(async () => {
       await window.api.invoke("reload-window");
-    }, 2000);
+    }, 1000);
   };
 
   setDisplayPanel(
@@ -605,10 +602,14 @@ const handleChangePasswordSelect = ({ setDisplayPanel, setAlert }) => {
             onSubmit={(data) => {
               setDisplayPanel(
                 <DialogView
+                  open={true}
                   title={changePassword.title}
                   description={changePassword.description}
                   cancelText="cancel"
                   confirmText="yes, change password"
+                  onClose={() =>
+                    handleChangePasswordSelect({ setDisplayPanel, setAlert })
+                  }
                   onConfirm={() => handleFormSubmit(data)}
                 />
               );
@@ -635,10 +636,12 @@ const handleLogoutSelect = ({ setDisplayPanel }) => {
     <DisplayPanel
       body={
         <DialogView
+          open={true}
           title={logout.title}
           description={logout.description}
           cancelText="cancel"
           confirmText="logout"
+          onClose={() => setDisplayPanel(null)}
           onConfirm={async () => {
             await Promise.all([
               await window.api.invoke("clear-ratchet-state"),
@@ -648,7 +651,7 @@ const handleLogoutSelect = ({ setDisplayPanel }) => {
 
             setTimeout(async () => {
               await window.api.invoke("reload-window");
-            }, 2000);
+            }, 1000);
           }}
         />
       }
@@ -656,41 +659,61 @@ const handleLogoutSelect = ({ setDisplayPanel }) => {
   );
 };
 
-const handleDeleteAccountSelect = ({ setDisplayPanel }) => {
+const handleDeleteAccountSelect = ({ setDisplayPanel, setAlert }) => {
+  const messageController = new MessageController();
+  const userController = new UserController();
+
+  const deleteAccount = {
+    title: "Confirm Account Deletion",
+    description:
+      "Are you sure you want to delete your account? All your data will be permanently removed, and this action cannot be undone.",
+    color: "",
+  };
+
+  const handleFormSubmit = async () => {
+    const { err, res } = await deleteEntity();
+
+    if (err || !res.success) {
+      setDisplayPanel(null);
+
+      setAlert({
+        open: true,
+        severity: "error",
+        message: `Failed to Delete Account: ${err || res.message}`,
+      });
+      return;
+    }
+
+    setAlert({
+      open: true,
+      severity: "success",
+      message: "Account Deleted Successfully.",
+    });
+
+    await Promise.all([
+      await window.api.invoke("clear-ratchet-state"),
+      await messageController.deleteTable(),
+      await userController.deleteTable(),
+    ]);
+
+    setTimeout(async () => {
+      await window.api.invoke("reload-window");
+    }, 2000);
+  };
+
   setDisplayPanel(
     <DisplayPanel
       header={"Delete Account"}
       body={
-        <SettingView>
-          <PasswordForm
-            fields={[
-              {
-                name: "currentPassword",
-                label: "Current Password",
-                required: true,
-                type: "password",
-              },
-            ]}
-            submitButtonText="Delete Account"
-            submitButtonColor="error"
-            onSubmit={(data) => {
-              setDisplayPanel(
-                <DialogView
-                  open={true}
-                  title={deleteAccount.title}
-                  description={deleteAccount.description}
-                  cancelText="cancel"
-                  confirmText="yes, delete account"
-                  onConfirm={() => {
-                    alert("Delete Account successfully");
-                    console.log("Password form submitted:", data);
-                    setDisplayPanel(null);
-                  }}
-                />
-              );
-            }}
-          />
-        </SettingView>
+        <DialogView
+          open={true}
+          title={deleteAccount.title}
+          description={deleteAccount.description}
+          cancelText="cancel"
+          confirmText="yes, delete account"
+          onClose={() => setDisplayPanel(null)}
+          onConfirm={async () => handleFormSubmit()}
+        />
       }
     />
   );
@@ -701,6 +724,8 @@ export const handlePlatformSettingsSelect = ({
   setControlPanel,
   setAlert,
 }) => {
+  setDisplayPanel(null);
+
   const settings = [
     {
       name: "Language",
@@ -716,11 +741,10 @@ export const handlePlatformSettingsSelect = ({
     },
     {
       name: "Delete Account",
-      action: () => handleDeleteAccountSelect({ setDisplayPanel }),
+      action: () => handleDeleteAccountSelect({ setDisplayPanel, setAlert }),
     },
   ];
 
-  setDisplayPanel(null);
   setControlPanel(
     <ControlPanel title="Settings" element={<ItemsList items={settings} />} />
   );

@@ -10,6 +10,7 @@ export {
   addOAuth2Token,
   deleteOAuth2Token,
   updateEntityPassword,
+  deleteEntity,
 } from "./platformControllers";
 export { default as SettingsController } from "./settingsController";
 export { default as UserController } from "./userController";

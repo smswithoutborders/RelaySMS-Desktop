@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 
 function DialogView({
+  open,
   onClose,
   title,
   description,
@@ -23,7 +24,6 @@ function DialogView({
   cancelColor = "primary",
 }) {
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(true);
 
   const handleConfirm = async () => {
     setLoading(true);
@@ -31,20 +31,11 @@ function DialogView({
       await onConfirm();
     } finally {
       setLoading(false);
-      setOpen(false);
-    }
-  };
-
-  const handleClose = async () => {
-    try {
-      if (onClose) await onClose();
-    } finally {
-      setOpen(false);
     }
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={onClose}>
       <Box sx={{ padding: 3, bgcolor: colorName }}>
         <DialogTitle sx={{ fontWeight: 600 }}>{title}</DialogTitle>
         <Divider />
@@ -56,7 +47,7 @@ function DialogView({
         <DialogActions>
           <Button
             variant="contained"
-            onClick={handleClose}
+            onClick={onClose}
             color={cancelColor}
             fullWidth
             disabled={loading}

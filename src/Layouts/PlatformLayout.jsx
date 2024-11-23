@@ -143,9 +143,10 @@ function PlatformLayout() {
     <>
       <Snackbar
         open={alert.open}
-        autoHideDuration={6000}
+        autoHideDuration={8000}
         onClose={() => setAlert({ ...alert, open: false })}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        sx={{ maxWidth: 700 }}
       >
         <Alert
           onClose={() => setAlert({ ...alert, open: false })}

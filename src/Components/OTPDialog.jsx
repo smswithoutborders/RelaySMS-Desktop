@@ -144,7 +144,7 @@ function OTPDialog({
           {type === "number" ? (
             <Grid container spacing={1}>
               {otp.map((digit, index) => (
-                <Grid item size={12 / otpLength} key={index}>
+                <Grid size={12 / otpLength} key={index}>
                   <TextField
                     id={`otp-${index}`}
                     type="text"
@@ -192,10 +192,7 @@ function OTPDialog({
           </Typography>
           {counter > 0 ? (
             <Box mt={2}>
-              <MuiAlert
-                severity="info"
-                variant="outlined"
-              >
+              <MuiAlert severity="info" variant="outlined">
                 Resend OTP in {counter} seconds
               </MuiAlert>
             </Box>

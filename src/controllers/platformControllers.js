@@ -468,3 +468,34 @@ export const updateEntityPassword = async ({
     return { err: extractedError, res: null };
   }
 };
+
+export const deleteEntity = async () => {
+  const userController = new UserController();
+
+  try {
+    const [deviceIDKeypairs, longLivedTokenCipher] = await Promise.all([
+      userController.getData("keypairs.deviceID"),
+      userController.getData("longLivedToken"),
+    ]);
+
+    const longLivedToken = await window.api.invoke("decrypt-long-lived-token", {
+      client_device_id_private_key: deviceIDKeypairs.client.privateKey,
+      server_device_id_public_key: deviceIDKeypairs.server.publicKey,
+      long_lived_token_cipher: longLivedTokenCipher,
+    });
+
+    const response = await window.api.invoke("DeleteEntity", {
+      long_lived_token: longLivedToken,
+    });
+
+    return { err: null, res: response };
+  } catch (error) {
+    console.error("Failed to delete entity:", error);
+
+    const extractedError =
+      extractRpcErrorMessage(error.message) ||
+      "Oops, something went wrong. Please try again later.";
+    console.error(extractedError);
+    return { err: extractedError, res: null };
+  }
+};
