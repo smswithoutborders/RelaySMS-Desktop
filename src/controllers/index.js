@@ -20,4 +20,6 @@ export {
   fetchGatewayClients,
   sendSms,
   fetchSmsMessages,
+  fetchLatestMessageWithOtp,
+  fetchModems,
 } from "./gatewayClientController";

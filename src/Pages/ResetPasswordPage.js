@@ -17,7 +17,12 @@ import { formatDistanceToNow } from "date-fns";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { OTPDialog } from "../Components";
-import { SettingsController, resetPassword } from "../controllers";
+import {
+  SettingsController,
+  resetPassword,
+  fetchLatestMessageWithOtp,
+  fetchModems,
+} from "../controllers";
 
 function ResetPasswordPage() {
   const settingsController = new SettingsController();
@@ -47,6 +52,7 @@ function ResetPasswordPage() {
     phoneNumber: null,
   });
   const [loading, setLoading] = useState(false);
+  const [modemsAvailable, setModemsAvailable] = useState(false);
 
   const fetchOtpSettings = async () => {
     try {
@@ -61,6 +67,11 @@ function ResetPasswordPage() {
   };
 
   useEffect(() => {
+    const checkModems = async () => {
+      const modems = await fetchModems();
+      setModemsAvailable(modems.length > 0);
+    };
+    checkModems();
     fetchOtpSettings();
   }, []);
 
@@ -133,7 +144,7 @@ function ResetPasswordPage() {
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    event?.preventDefault();
 
     setPhoneError(false);
 
@@ -431,14 +442,32 @@ function ResetPasswordPage() {
         open={otpDialogOpen}
         onClose={() => setOtpDialogOpen(false)}
         onSubmit={handleOtpSubmit}
-        onResend={() => {
-          console.log("Resend OTP requested");
-          setAlert({
-            message: "A new OTP has been sent to your mobile number.",
-            severity: "info",
-          });
-        }}
+        onResend={handleSubmit}
         counterTimestamp={otpSettings.nextAttemptTimestamp}
+        event={{
+          ...(modemsAvailable && {
+            callback: async () => {
+              const phoneNumbers = ["+1234567890", "+1987654321"];
+              const messagePatterns = [/\b\d{4,6}\b/, /\b\d{3}-\d{3}-\d{3}\b/];
+
+              const { err, message } = await fetchLatestMessageWithOtp({
+                phoneNumbers,
+                messagePatterns,
+              });
+
+              if (err) {
+                setAlert({
+                  open: true,
+                  type: "error",
+                  message: err,
+                });
+                return;
+              }
+              return message.otp;
+            },
+            interval: 10000,
+          }),
+        }}
       />
     </Grid>
   );

@@ -24,6 +24,7 @@ function OTPDialog({
   rows,
   multiline,
   fullWidth,
+  event,
 }) {
   const [otp, setOtp] = useState(
     type === "number" ? Array(otpLength).fill("") : ""
@@ -35,6 +36,7 @@ function OTPDialog({
     onClose: null,
   });
   const [loading, setLoading] = useState(false);
+  const [callbackIntervalCounter, setCallbackIntervalCounter] = useState(0);
 
   useEffect(() => {
     if (open) {
@@ -96,10 +98,61 @@ function OTPDialog({
     }
   };
 
-  const handleResend = () => {
-    setCounter(30);
-    onResend();
+  const handleResend = async () => {
+    setLoading(true);
+    try {
+      await onResend();
+    } finally {
+      setLoading(false);
+      setOtp(type === "number" ? Array(otpLength).fill("") : "");
+    }
   };
+
+  useEffect(() => {
+    if (open && event?.callback) {
+      const fetchOtp = async () => {
+        try {
+          const fetchedOtp = await event.callback();
+
+          if (fetchedOtp) {
+            setOtp(() => {
+              const paddedOtp =
+                type === "number"
+                  ? fetchedOtp
+                      .split("")
+                      .concat(Array(otpLength - fetchedOtp.length).fill(""))
+                  : fetchedOtp;
+              return paddedOtp;
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching OTP:", error);
+        }
+      };
+
+      if (open) {
+        fetchOtp();
+
+        if (event.interval) {
+          setCallbackIntervalCounter(event.interval / 1000);
+
+          const callbackTimer = setInterval(() => {
+            setCallbackIntervalCounter((prev) => {
+              if (prev <= 1) {
+                fetchOtp();
+                return event.interval / 1000;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+
+          return () => {
+            clearInterval(callbackTimer);
+          };
+        }
+      }
+    }
+  }, [open, event]);
 
   useEffect(() => {
     if (open && type === "number") {
@@ -136,6 +189,22 @@ function OTPDialog({
               onClose={alert.onClose || undefined}
             >
               {alert.message}
+            </MuiAlert>
+          </Box>
+        )}
+
+        {event?.interval && callbackIntervalCounter > 0 && (
+          <Box mt={2}>
+            <MuiAlert severity="info" variant="outlined">
+              <CircularProgress size={24} color="inherit" />{" "}
+              <Typography variant="body2" component="span">
+                We're attempting to retrieve your OTP from your SMS inbox...
+              </Typography>
+              <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                We'll check your SMS inbox again in {callbackIntervalCounter}{" "}
+                seconds. If it doesn't auto-fill, please check your phone number
+                or try entering the OTP manually.
+              </Typography>
             </MuiAlert>
           </Box>
         )}

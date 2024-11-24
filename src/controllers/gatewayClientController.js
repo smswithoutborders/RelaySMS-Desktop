@@ -17,7 +17,7 @@ export const fetchGatewayClients = async () => {
 
     // Step 1: If no stored clients exist, load local clients (default data)
     if (storedGatewayClients.length === 0) {
-      const defaultResponse = await fetch("/gateway_clients.json");
+      const defaultResponse = await fetch("gateway_clients.json");
       if (!defaultResponse.ok) {
         throw new Error("Failed to fetch default gateway clients");
       }
@@ -41,7 +41,7 @@ export const fetchGatewayClients = async () => {
     try {
       const response = await fetch(
         "https://gatewayserver.smswithoutborders.com/v3/clients",
-        { timeout: 8000 }
+        { timeout: 6000 }
       );
 
       if (!response.ok) {
@@ -213,5 +213,84 @@ export const fetchSmsMessages = async () => {
   } catch (error) {
     console.error("Error fetching SMS messages:", error.message);
     return { err: error.message, messages: [] };
+  }
+};
+
+export const fetchLatestMessageWithOtp = async ({
+  phoneNumbers,
+  messagePatterns,
+}) => {
+  try {
+    const { err, messages } = await fetchSmsMessages();
+
+    if (err) {
+      return { err, message: null };
+    }
+
+    const matchingMessages = messages.filter((message) => {
+      const matchedPhoneNumbers = phoneNumbers.filter((phone) =>
+        message.number.includes(phone)
+      );
+
+      const matchedOtps = messagePatterns
+        .map((pattern) => message.text.match(pattern))
+        .filter((otpMatch) => otpMatch);
+
+      return matchedPhoneNumbers.length > 0 && matchedOtps.length > 0;
+    });
+
+    if (matchingMessages.length === 0) {
+      return { err: null, message: null };
+    }
+
+    const sortedMessages = matchingMessages.sort(
+      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+    );
+
+    const latestMessage = sortedMessages[0];
+
+    const matchedOtps = messagePatterns
+      .map((pattern) => latestMessage.text.match(pattern))
+      .filter((otpMatch) => otpMatch);
+    const otp = matchedOtps.length > 0 ? matchedOtps[0][0] : null;
+
+    return {
+      err: null,
+      message: {
+        phoneNumbers: phoneNumbers.filter((phone) =>
+          latestMessage.number.includes(phone)
+        ),
+        otp,
+        content: latestMessage.text,
+        timestamp: latestMessage.timestamp,
+        number: latestMessage.number,
+        index: latestMessage.index,
+      },
+    };
+  } catch (error) {
+    console.error("Error processing SMS messages:", error.message);
+    return { err: error.message, message: null };
+  }
+};
+
+export const deleteSmsMessage = async (modemIndex, smsIndex) => {
+  try {
+    const response = await fetch(
+      `http://localhost:6868/modems/${modemIndex}/sms/${smsIndex}`,
+      {
+        method: "DELETE",
+        timeout: 8000,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete SMS message: ${response.statusText}`);
+    }
+
+    const result = await response.text();
+    return { err: null, res: result };
+  } catch (error) {
+    console.error("Error deleting SMS message:", error.message);
+    return { err: error.message, res: null };
   }
 };
