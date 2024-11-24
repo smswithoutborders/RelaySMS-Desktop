@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, shell, ipcMain } = require("electron");
+const { app, BrowserWindow, Menu, shell, ipcMain, Notification } = require("electron");
 const path = require("path");
 const url = require("url");
 const axios = require("axios");
@@ -37,9 +37,16 @@ if (!gotTheLock) {
     }
   });
 
+  const NOTIFICATION_TITLE = 'Basic Notification'
+  const NOTIFICATION_BODY = 'Notification from the Main process'
+  
+  function showNotification () {
+    new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show()
+  }
+
   app.whenReady().then(() => {
     createWindow();
-    mainWindow.maximize();
+    mainWindow.maximize().then(showNotification);
   });
 }
 
@@ -80,6 +87,9 @@ async function createWindow() {
     },
     icon: path.join(__dirname, "icon.png"),
   });
+
+ 
+
 
   const appURL = app.isPackaged
     ? url.format({
