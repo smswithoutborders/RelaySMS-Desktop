@@ -80,7 +80,7 @@ function BridgeLayout() {
   ];
 
   useEffect(() => {
-    setNavigationPanel(<NavigationPanel items={navItems} />);
+    // setNavigationPanel(<NavigationPanel items={navItems} />);
   }, []);
 
   return (

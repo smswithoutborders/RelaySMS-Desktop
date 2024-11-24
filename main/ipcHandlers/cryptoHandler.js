@@ -7,6 +7,7 @@ const {
   deriveSecretKey,
   createTransmissionPayload,
   clearRatchetState,
+  createBridgeTransmissionPayload,
 } = require("../crypto");
 
 function setupCryptoHandlers() {
@@ -104,7 +105,7 @@ function setupCryptoHandlers() {
         });
         return payload;
       } catch (error) {
-        console.error(
+        logger.error(
           "Error in create-transmission-payload handler:",
           error.message
         );
@@ -126,6 +127,39 @@ function setupCryptoHandlers() {
       throw error;
     }
   });
+
+  ipcMain.handle(
+    "create-bridge-transmission-payload",
+    async (
+      event,
+      {
+        contentSwitch,
+        authorizationCode,
+        contentCiphertext,
+        bridgeShortCode,
+        clientPublishPublicKey,
+        deviceID,
+      }
+    ) => {
+      try {
+        const payload = createBridgeTransmissionPayload({
+          contentSwitch,
+          authorizationCode,
+          contentCiphertext,
+          bridgeShortCode,
+          clientPublishPublicKey,
+          deviceID,
+        });
+        return payload;
+      } catch (error) {
+        logger.error(
+          "Error in create-bridge-transmission-payload handler:",
+          error.message
+        );
+        throw error;
+      }
+    }
+  );
 }
 
 module.exports = {

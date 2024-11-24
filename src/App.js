@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 
@@ -10,7 +10,7 @@ import {
   AuthenticationProvider,
   useAuth,
 } from "./Contexts/AuthenticationContext";
-import { CssBaseline } from "@mui/material";
+import { CssBaseline, CircularProgress, Box } from "@mui/material";
 import { PlatformLayout, BridgeLayout, DekuLayout } from "./Layouts";
 import {
   AuthPage,
@@ -23,27 +23,21 @@ function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   useEffect(() => {
-    if (prefersDarkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
+    document.body.classList.toggle("dark-mode", prefersDarkMode);
   }, [prefersDarkMode]);
 
-  const theme = React.useMemo(
+  const theme = useMemo(
     () =>
       createTheme({
         palette: {
           mode: prefersDarkMode ? "dark" : "light",
-          primary: {
-            main: prefersDarkMode ? "#fff" : "#000",
-          },
+          primary: { main: prefersDarkMode ? "#fff" : "#000" },
           background: {
             default: prefersDarkMode ? "#1E1E1E" : "#fafafa",
             paper: prefersDarkMode ? "#000" : "#fff",
             custom: prefersDarkMode ? "#232226" : "#E0E2DB",
             side: prefersDarkMode ? "#171614" : "#fff",
-            more: prefersDarkMode ? "#0C4B94" : "#0C4B94",
+            more: "#0C4B94",
           },
           text: {
             primary: prefersDarkMode ? "#fff" : "#000",
@@ -69,7 +63,33 @@ function App() {
 }
 
 function AppRoutes() {
-  const { isAuthenticated, AuthRequired } = useAuth();
+  const { AuthRequired, hasLongLivedToken, hasBridgeAuthorizationCode } =
+    useAuth();
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          bgcolor: "background.default",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Routes>
@@ -77,31 +97,33 @@ function AppRoutes() {
         path="/"
         element={
           <AuthRequired>
-            <PlatformLayout />
+            {hasLongLivedToken() ? (
+              <PlatformLayout />
+            ) : hasBridgeAuthorizationCode ? (
+              <BridgeLayout />
+            ) : (
+              <Navigate to="/login" replace />
+            )}
           </AuthRequired>
         }
       />
       <Route
         path="/login"
         element={
-          isAuthenticated() ? <Navigate to="/" replace={true} /> : <AuthPage />
+          hasLongLivedToken() ? <Navigate to="/" replace /> : <AuthPage />
         }
       />
       <Route
         path="/signup"
         element={
-          isAuthenticated() ? (
-            <Navigate to="/" replace={true} />
-          ) : (
-            <SignupPage />
-          )
+          hasLongLivedToken() ? <Navigate to="/" replace /> : <SignupPage />
         }
       />
       <Route
         path="/reset-password"
         element={
-          isAuthenticated() ? (
-            <Navigate to="/" replace={true} />
+          hasLongLivedToken() ? (
+            <Navigate to="/" replace />
           ) : (
             <ResetPasswordPage />
           )
@@ -109,7 +131,7 @@ function AppRoutes() {
       />
       <Route path="/bridge-auth" element={<BridgeAuthPage />} />
       <Route path="/deku" element={<DekuLayout />} />
-      <Route path="*" element={<Navigate to="/" replace={true} />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

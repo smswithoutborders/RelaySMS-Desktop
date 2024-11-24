@@ -174,6 +174,47 @@ const createTransmissionPayload = ({
   }
 };
 
+const createBridgeTransmissionPayload = ({
+  contentSwitch,
+  authorizationCode,
+  contentCiphertext,
+  bridgeShortCode,
+  clientPublishPublicKey,
+  deviceID,
+}) => {
+  try {
+    let payload;
+
+    const bridgeIndicator = Buffer.from([0]);
+    const contentSwitchBuffer = Buffer.from([contentSwitch]);
+
+    switch (contentSwitch) {
+      case 0:
+        const clientPublishPublicKeyBuffer = nacl.util.decodeBase64(
+          clientPublishPublicKey
+        );
+        const lenClientPublishPublicKeyBuffer = Buffer.alloc(4);
+        lenClientPublishPublicKeyBuffer.writeInt32LE(
+          clientPublishPublicKeyBuffer.length
+        );
+
+        payload = Buffer.concat([
+          bridgeIndicator,
+          contentSwitchBuffer,
+          lenClientPublishPublicKeyBuffer,
+          clientPublishPublicKeyBuffer,
+        ]);
+        break;
+      default:
+        throw new Error(`Invalid content switch: ${contentSwitch}`);
+    }
+
+    return payload.toString("base64");
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   decryptLongLivedToken,
   generateKeyPair,
@@ -181,4 +222,5 @@ module.exports = {
   deriveSecretKey,
   createTransmissionPayload,
   clearRatchetState,
+  createBridgeTransmissionPayload,
 };

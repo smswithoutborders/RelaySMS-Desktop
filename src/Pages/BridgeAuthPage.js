@@ -1,16 +1,91 @@
+import React, { useState, useEffect } from "react";
 import { Info } from "@mui/icons-material";
 import {
   Button,
   Grid2 as Grid,
   Typography,
   Link,
-  Alert,
+  Alert as MuiAlert,
   Box,
+  CircularProgress,
+  Snackbar,
 } from "@mui/material";
-import React from "react";
 import { Link as RouterLink } from "react-router-dom";
+import { OTPDialog } from "../Components";
+
+import {
+  createBridgeEntity,
+  fetchLatestMessageWithOtp,
+  fetchModems,
+} from "../controllers";
 
 function BridgeAuthPage() {
+  const [otpDialogOpen, setOtpDialogOpen] = useState(false);
+  const [alert, setAlert] = useState({
+    open: false,
+    type: "success",
+    message: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [modemsAvailable, setModemsAvailable] = useState(false);
+
+  useEffect(() => {
+    const checkModems = async () => {
+      const modems = await fetchModems();
+      setModemsAvailable(modems.length > 0);
+    };
+    checkModems();
+  }, []);
+
+  const handleSubmit = async (event) => {
+    event?.preventDefault();
+
+    setLoading(true);
+
+    try {
+      const { err, res } = await createBridgeEntity({});
+      if (err) {
+        setAlert({
+          open: true,
+          type: "error",
+          message: err,
+        });
+        return;
+      }
+      setOtpDialogOpen(true);
+    } catch (error) {
+      console.error(error);
+      setAlert({
+        open: true,
+        type: "error",
+        message: "An unexpected error occurred. Please try again later.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOtpSubmit = async (setOtpAlert, otp) => {
+    try {
+      const { err, res } = await createBridgeEntity({
+        ownership_proof_response: otp,
+      });
+      if (err) {
+        setOtpAlert({
+          severity: "error",
+          message: err,
+        });
+        return;
+      }
+      await window.api.invoke("reload-window");
+    } catch (error) {
+      setOtpAlert({
+        severity: "error",
+        message: "An unexpected error occurred. Please try again later.",
+      });
+    }
+  };
+
   return (
     <Grid container height="100vh" justifyContent="center" alignItems="center">
       <Grid
@@ -35,11 +110,26 @@ function BridgeAuthPage() {
           messages without having an account. Messages remain encrypted and
           secure.
         </Typography>
-        <Alert severity="info" sx={{ mb: 5, maxWidth: "500px" }}>
+        <MuiAlert severity="info" sx={{ mb: 5, maxWidth: "500px" }}>
           When you click the button below, we will send you an authentication
           code. Ensure you have an active modem connected or a valid SIM card in
           your device.
-        </Alert>
+        </MuiAlert>
+
+        <Snackbar
+          open={alert.open}
+          autoHideDuration={4000}
+          onClose={() => setAlert({ ...alert, open: false })}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <MuiAlert
+            severity={alert.type}
+            sx={{ width: "100%", maxWidth: 600, margin: "0 auto" }}
+          >
+            {alert.message}
+          </MuiAlert>
+        </Snackbar>
+
         <Button
           variant="contained"
           size="large"
@@ -54,6 +144,13 @@ function BridgeAuthPage() {
               color: "black",
             },
           }}
+          onClick={handleSubmit}
+          disabled={loading}
+          startIcon={
+            loading ? (
+              <CircularProgress size={24} sx={{ color: "white" }} />
+            ) : null
+          }
         >
           Get Authentication Code
         </Button>
@@ -96,6 +193,39 @@ function BridgeAuthPage() {
           style={{ width: "100%", height: "auto" }}
         />
       </Grid>
+
+      <OTPDialog
+        type="text"
+        fullWidth={true}
+        open={otpDialogOpen}
+        onClose={() => setOtpDialogOpen(false)}
+        onSubmit={handleOtpSubmit}
+        onResend={handleSubmit}
+        event={{
+          ...(modemsAvailable && {
+            callback: async () => {
+              const phoneNumbers = ["+1234567890", "+1987654321"];
+              const messagePatterns = [/\b\d{4,6}\b/, /\b\d{3}-\d{3}-\d{3}\b/];
+
+              const { err, message } = await fetchLatestMessageWithOtp({
+                phoneNumbers,
+                messagePatterns,
+              });
+
+              if (err) {
+                setAlert({
+                  open: true,
+                  type: "error",
+                  message: err,
+                });
+                return;
+              }
+              return message.otp;
+            },
+            interval: 10000,
+          }),
+        }}
+      />
     </Grid>
   );
 }

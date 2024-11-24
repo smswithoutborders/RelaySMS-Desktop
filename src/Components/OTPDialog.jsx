@@ -18,11 +18,11 @@ function OTPDialog({
   onSubmit,
   onResend,
   counterTimestamp,
+  placeholder,
   type = "number",
   otpLength = 6,
   subText,
   rows,
-  multiline,
   fullWidth,
   event,
 }) {
@@ -55,19 +55,16 @@ function OTPDialog({
 
   const handleOtpChange = (event, index) => {
     const value = event.target.value;
-    if (/^[0-9]?$/.test(value)) {
-      if (type === "number") {
-        const newOtp = [...otp];
-        newOtp[index] = value;
-        setOtp(newOtp);
+    if (/^[0-9]?$/.test(value) && type === "number") {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
 
-        if (value && index < otpLength - 1) {
-          document.getElementById(`otp-${index + 1}`)?.focus();
-        }
-      } else {
-        setOtp(value);
+      if (value && index < otpLength - 1) {
+        document.getElementById(`otp-${index + 1}`)?.focus();
       }
     }
+    setOtp(value);
     setAlert({ ...alert, message: "" });
   };
 
@@ -81,7 +78,7 @@ function OTPDialog({
 
   const handleOtpSubmit = async () => {
     const otpValue = type === "number" ? otp.join("") : otp;
-    if (otpValue.length === otpLength) {
+    if (otpValue.length >= otpLength) {
       setLoading(true);
       try {
         await onSubmit(setAlert, otpValue);
@@ -161,7 +158,12 @@ function OTPDialog({
   }, [open, type]);
 
   return (
-    <Dialog open={open} onClose={onClose} aria-labelledby="otp-dialog-title">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      aria-labelledby="otp-dialog-title"
+      sx={{ "& .MuiDialog-paper": { width: 500 } }}
+    >
       <DialogContent sx={{ px: 5, pt: 5 }}>
         <Typography
           id="otp-dialog-title"
@@ -239,48 +241,46 @@ function OTPDialog({
               fullWidth={fullWidth}
               value={otp}
               onChange={(e) => handleOtpChange(e)}
-              placeholder={`Enter OTP`}
-              slotProps={{
-                input: {
-                  maxLength: otpLength,
-                  style: { textAlign: "center" },
-                },
-              }}
+              placeholder={placeholder}
               variant="outlined"
               autoComplete="off"
               disabled={loading}
-              rows={rows}
-              multiline={multiline}
+              rows={rows || 4}
+              multiline={true}
             />
           )}
         </Box>
 
-        <Box mt={2} textAlign="center">
-          <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-            Didn't receive the OTP?
-          </Typography>
-          {counter > 0 ? (
-            <Box mt={2}>
-              <MuiAlert severity="info" variant="outlined">
-                Resend OTP in {counter} seconds
-              </MuiAlert>
-            </Box>
-          ) : (
-            <Button
-              size="small"
-              onClick={handleResend}
-              color="primary"
-              variant="contained"
-              fullWidth
-              disabled={loading}
-              startIcon={
-                loading ? <CircularProgress size={24} color="inherit" /> : null
-              }
-            >
-              {loading ? "Resending OTP..." : "Resend OTP"}
-            </Button>
-          )}
-        </Box>
+        {counterTimestamp > 0 && (
+          <Box mt={2} textAlign="center">
+            <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+              Didn't receive the OTP?
+            </Typography>
+            {counter > 0 ? (
+              <Box mt={2}>
+                <MuiAlert severity="info" variant="outlined">
+                  Resend OTP in {counter} seconds
+                </MuiAlert>
+              </Box>
+            ) : (
+              <Button
+                size="small"
+                onClick={handleResend}
+                color="primary"
+                variant="contained"
+                fullWidth
+                disabled={loading}
+                startIcon={
+                  loading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : null
+                }
+              >
+                {loading ? "Resending OTP..." : "Resend OTP"}
+              </Button>
+            )}
+          </Box>
+        )}
       </DialogContent>
 
       <DialogActions sx={{ px: 5, pb: 5 }}>

@@ -23,3 +23,4 @@ export {
   fetchLatestMessageWithOtp,
   fetchModems,
 } from "./gatewayClientController";
+export { createBridgeEntity } from "./bridgeControllers";
