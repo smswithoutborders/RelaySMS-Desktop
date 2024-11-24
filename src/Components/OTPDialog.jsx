@@ -63,8 +63,9 @@ function OTPDialog({
       if (value && index < otpLength - 1) {
         document.getElementById(`otp-${index + 1}`)?.focus();
       }
+    } else if (type === "text") {
+      setOtp(value);
     }
-    setOtp(value);
     setAlert({ ...alert, message: "" });
   };
 

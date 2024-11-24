@@ -16,7 +16,13 @@ export const AuthenticationProvider = ({ children }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       const data = await userController.getAllData();
-      setUserData(data.length === 0 ? null : data[0]);
+
+      const userDataMap = data.reduce((acc, item) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {});
+
+      setUserData(Object.keys(userDataMap).length === 0 ? null : userDataMap);
     };
 
     const fetchBridgeCode = async () => {

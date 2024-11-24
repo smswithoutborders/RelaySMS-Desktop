@@ -956,15 +956,18 @@ const handleLogoutSelect = ({ setDisplayPanel }) => {
           confirmText="logout"
           onClose={() => setDisplayPanel(null)}
           onConfirm={async () => {
-            await Promise.all([
-              await window.api.invoke("clear-ratchet-state"),
-              await messageController.deleteTable(),
-              await userController.deleteTable(),
-            ]);
+            await new Promise((resolve) => {
+              setTimeout(async () => {
+                await Promise.all([
+                  window.api.invoke("clear-ratchet-state"),
+                  messageController.deleteTable(),
+                  userController.deleteTable(),
+                ]);
 
-            setTimeout(async () => {
-              await window.api.invoke("reload-window");
-            }, 1000);
+                await window.api.invoke("reload-window");
+                resolve();
+              }, 2000);
+            });
           }}
         />
       }

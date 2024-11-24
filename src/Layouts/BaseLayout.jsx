@@ -1,8 +1,34 @@
-import { Grid2 as Grid } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Grid2 as Grid, CircularProgress, Box } from "@mui/material";
 import { useLayout } from "../Contexts/LayoutContext";
 
 function BaseLayout() {
   const { navigationPanel, controlPanel, displayPanel } = useLayout();
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          bgcolor: "background.default",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Grid
