@@ -43,12 +43,15 @@ if (!gotTheLock) {
   function showNotification () {
     new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show()
   }
+  app.whenReady().then(showNotification);
+
 
   app.whenReady().then(() => {
     createWindow();
-    mainWindow.maximize().then(showNotification);
+    mainWindow.maximize();
   });
 }
+
 
 async function createWindow() {
   ipcMain.handle("reload-window", () => {
