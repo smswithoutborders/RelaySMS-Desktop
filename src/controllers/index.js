@@ -9,6 +9,8 @@ export {
   createTransmissionPayload,
   addOAuth2Token,
   deleteOAuth2Token,
+  addPNBAToken,
+  deletePNBAToken,
   updateEntityPassword,
   deleteEntity,
 } from "./platformControllers";

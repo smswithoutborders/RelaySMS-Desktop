@@ -433,6 +433,89 @@ export const deleteOAuth2Token = async ({ platform, identifier }) => {
   }
 };
 
+export const addPNBAToken = async ({
+  platform,
+  phoneNumber,
+  authorizationCode = "",
+  password = "",
+}) => {
+  const userController = new UserController();
+
+  try {
+    let response;
+
+    if (!authorizationCode) {
+      response = await window.api.invoke("GetPNBACode", {
+        platform,
+        phone_number: phoneNumber,
+      });
+    } else {
+      const [deviceIDKeypairs, longLivedTokenCipher] = await Promise.all([
+        userController.getData("keypairs.deviceID"),
+        userController.getData("longLivedToken"),
+      ]);
+
+      const longLivedToken = await window.api.invoke(
+        "decrypt-long-lived-token",
+        {
+          client_device_id_private_key: deviceIDKeypairs.client.privateKey,
+          server_device_id_public_key: deviceIDKeypairs.server.publicKey,
+          long_lived_token_cipher: longLivedTokenCipher,
+        }
+      );
+
+      response = await window.api.invoke("ExchangePNBACodeAndStore", {
+        long_lived_token: longLivedToken,
+        platform,
+        authorization_code: authorizationCode,
+        phone_number: phoneNumber,
+        password,
+      });
+    }
+
+    return { err: null, res: response };
+  } catch (error) {
+    console.error("PNBA Add Token Error:", error);
+
+    const extractedError =
+      extractRpcErrorMessage(error.message) ||
+      "Oops, something went wrong. Please try again later.";
+    return { err: extractedError, res: null };
+  }
+};
+
+export const deletePNBAToken = async ({ platform, identifier }) => {
+  const userController = new UserController();
+
+  try {
+    const [deviceIDKeypairs, longLivedTokenCipher] = await Promise.all([
+      userController.getData("keypairs.deviceID"),
+      userController.getData("longLivedToken"),
+    ]);
+
+    const longLivedToken = await window.api.invoke("decrypt-long-lived-token", {
+      client_device_id_private_key: deviceIDKeypairs.client.privateKey,
+      server_device_id_public_key: deviceIDKeypairs.server.publicKey,
+      long_lived_token_cipher: longLivedTokenCipher,
+    });
+
+    const response = await window.api.invoke("RevokeAndDeletePNBAToken", {
+      long_lived_token: longLivedToken,
+      platform,
+      account_identifier: identifier,
+    });
+
+    return { err: null, res: response };
+  } catch (error) {
+    console.error("PNBA Delete Token Error:", error);
+
+    const extractedError =
+      extractRpcErrorMessage(error.message) ||
+      "Oops, something went wrong. Please try again later.";
+    return { err: extractedError, res: null };
+  }
+};
+
 export const updateEntityPassword = async ({
   currentPassword,
   newPassword,

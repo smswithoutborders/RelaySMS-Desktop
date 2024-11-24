@@ -6,7 +6,7 @@ import {
   MessageList,
   ItemsList,
 } from "../Components";
-import { ComposeForm, PasswordForm } from "../Forms";
+import { ComposeForm, PasswordForm, OTPForm } from "../Forms";
 import { DialogView, SettingView, ComposeView } from "../Views";
 import {
   fetchGatewayClients,
@@ -19,6 +19,8 @@ import {
   createTransmissionPayload,
   addOAuth2Token,
   deleteOAuth2Token,
+  addPNBAToken,
+  deletePNBAToken,
   UserController,
   MessageController,
   SettingsController,
@@ -155,7 +157,6 @@ const handlePlatformComposeClick = ({
         message: "Message sent successfully!",
       });
     } catch (error) {
-      console.error("Error during form submission:", error);
       setAlert({
         open: true,
         severity: "error",
@@ -336,10 +337,12 @@ const handleOAuth2Platform = async ({
 
   setDisplayPanel(
     <DialogView
-      title={`Change Revoke Access to ${platform.name}`}
+      open={true}
+      title={`Revoke Access to ${platform.name}`}
       description={`You are about to revoke access for the identifier "${identifier}". This will permanently remove access to your ${platform.name} account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?`}
       cancelText="Cancel"
       confirmText="Yes, Revoke Access"
+      onClose={() => setDisplayPanel(null)}
       onConfirm={async () => {
         const { err, res } = await deleteOAuth2Token({
           platform: platform.name.toLowerCase(),
@@ -375,12 +378,269 @@ const handleOAuth2Platform = async ({
   );
 };
 
+const handlePNBAAuthWithPassword = async ({
+  platform,
+  prevData,
+  setAlert,
+  setControlPanel,
+  setDisplayPanel,
+  currentActionRef,
+}) => {
+  const handleFormSubmit = async (data) => {
+    const { err, res } = await addPNBAToken({
+      ...prevData,
+      ...data,
+      platform: platform.name.toLowerCase(),
+    });
+
+    if (err || !res.success) {
+      setAlert({
+        open: true,
+        severity: "error",
+        message: err || res.message,
+      });
+      return;
+    }
+
+    await executeSelect({
+      actionName: "Platforms",
+      selectFunction: handlePlatformSelect,
+      setControlPanel,
+      setDisplayPanel,
+      setAlert,
+      currentActionRef,
+    });
+
+    setAlert({
+      open: true,
+      severity: "success",
+      message: `${platform.name} token added successfully!`,
+    });
+  };
+
+  const details = {
+    fields: [
+      {
+        name: "password",
+        label: "Two Step Verification Password",
+        required: true,
+        type: "password",
+      },
+    ],
+    description: `You've enabled two-step verification on your ${platform.name} app. To complete the process, please enter your ${platform.name} two-step verification password.`,
+  };
+
+  setDisplayPanel(
+    <DisplayPanel
+      header={`Complete ${platform.name} Authentication`}
+      body={
+        <SettingView>
+          <OTPForm
+            description={details.description}
+            fields={details.fields}
+            twoStepVerificationEnabled={true}
+            onSubmit={handleFormSubmit}
+          />
+        </SettingView>
+      }
+    />
+  );
+};
+
+const handlePNBAAuth = async ({
+  platform,
+  prevData,
+  setAlert,
+  setControlPanel,
+  setDisplayPanel,
+  currentActionRef,
+}) => {
+  const handleFormSubmit = async (data) => {
+    const { err, res } = await addPNBAToken({
+      ...prevData,
+      ...data,
+      platform: platform.name.toLowerCase(),
+    });
+
+    if (err || !res.success) {
+      setAlert({
+        open: true,
+        severity: "error",
+        message: err || res.message,
+      });
+      return;
+    }
+
+    if (res.two_step_verification_enabled) {
+      await handlePNBAAuthWithPassword({
+        platform,
+        prevData: { ...data, ...prevData },
+        setAlert,
+        setControlPanel,
+        setDisplayPanel,
+        currentActionRef,
+      });
+      return;
+    }
+
+    await executeSelect({
+      actionName: "Platforms",
+      selectFunction: handlePlatformSelect,
+      setControlPanel,
+      setDisplayPanel,
+      setAlert,
+      currentActionRef,
+    });
+
+    setAlert({
+      open: true,
+      severity: "success",
+      message: `${platform.name} token added successfully!`,
+    });
+  };
+
+  const details = {
+    fields: [
+      {
+        name: "authorizationCode",
+        label: "Authorization Code",
+        required: true,
+        type: "number",
+      },
+    ],
+    description: `An authorization code has been sent to your ${platform.name} app. Please check the app and enter the code below.`,
+  };
+
+  setDisplayPanel(
+    <DisplayPanel
+      header={`Complete ${platform.name} Authentication`}
+      body={
+        <SettingView>
+          <OTPForm
+            description={details.description}
+            fields={details.fields}
+            onSubmit={handleFormSubmit}
+          />
+        </SettingView>
+      }
+    />
+  );
+};
+
+const handlePNBAPlatform = async ({
+  platform,
+  identifier,
+  setAlert,
+  setControlPanel,
+  setDisplayPanel,
+  currentActionRef,
+}) => {
+  if (!identifier) {
+    const handleFormSubmit = async (data) => {
+      const { err, res } = await addPNBAToken({
+        ...data,
+        platform: platform.name.toLowerCase(),
+      });
+
+      if (err || !res.success) {
+        setAlert({
+          open: true,
+          severity: "error",
+          message: err || res.message,
+        });
+        return;
+      }
+
+      await handlePNBAAuth({
+        platform,
+        prevData: data,
+        setAlert,
+        setControlPanel,
+        setDisplayPanel,
+        currentActionRef,
+      });
+    };
+
+    const details = {
+      fields: [
+        {
+          name: "phoneNumber",
+          label: "Phone Number",
+          required: true,
+          type: "phone",
+        },
+      ],
+      description: `Please enter the phone number linked to your ${platform.name} account.`,
+    };
+
+    setDisplayPanel(
+      <DisplayPanel
+        header={`Complete ${platform.name} Authentication`}
+        body={
+          <SettingView>
+            <OTPForm
+              description={details.description}
+              fields={details.fields}
+              onSubmit={handleFormSubmit}
+            />
+          </SettingView>
+        }
+      />
+    );
+    return;
+  }
+
+  setDisplayPanel(
+    <DialogView
+      open={true}
+      title={`Revoke Access to ${platform.name}`}
+      description={`You are about to revoke access for the identifier "${identifier}". This will permanently remove access to your ${platform.name} account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?`}
+      cancelText="Cancel"
+      confirmText="Yes, Revoke Access"
+      onClose={() => setDisplayPanel(null)}
+      onConfirm={async () => {
+        const { err, res } = await deletePNBAToken({
+          platform: platform.name.toLowerCase(),
+          identifier,
+        });
+
+        if (err || !res.success) {
+          setAlert({
+            open: true,
+            severity: "error",
+            message: `Failed to remove ${platform.name} token: ${
+              err || res.message
+            }`,
+          });
+          return;
+        }
+
+        await executeSelect({
+          actionName: "Platforms",
+          selectFunction: handlePlatformSelect,
+          setControlPanel,
+          setDisplayPanel,
+          setAlert,
+          currentActionRef,
+        });
+
+        setAlert({
+          open: true,
+          severity: "success",
+          message: `${platform.name} token removed successfully!`,
+        });
+      }}
+    />
+  );
+};
+
 const handlePlatformClick = async ({
   platform,
   identifier,
   setAlert,
   setControlPanel,
   setDisplayPanel,
+  currentActionRef,
 }) => {
   try {
     if (platform.protocol_type === "oauth2") {
@@ -390,6 +650,16 @@ const handlePlatformClick = async ({
         setAlert,
         setControlPanel,
         setDisplayPanel,
+        currentActionRef,
+      });
+    } else if (platform.protocol_type === "pnba") {
+      await handlePNBAPlatform({
+        platform,
+        identifier,
+        setAlert,
+        setControlPanel,
+        setDisplayPanel,
+        currentActionRef,
       });
     } else {
       setAlert({
@@ -399,11 +669,10 @@ const handlePlatformClick = async ({
       });
     }
   } catch (error) {
-    console.error(error);
     setAlert({
       open: true,
       severity: "error",
-      message: `An unexpected error occurred while managing ${platform.name} tokens.`,
+      message: "Oops, something went wrong. Please try again later.",
     });
   }
 };
@@ -460,6 +729,7 @@ export const handlePlatformSelect = async ({
                 setAlert,
                 setControlPanel,
                 setDisplayPanel,
+                currentActionRef,
               })
             }
           />
