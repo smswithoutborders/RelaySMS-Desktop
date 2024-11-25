@@ -95,6 +95,17 @@ export const fetchGatewayClients = async () => {
     updatedGatewayClients = storedGatewayClients;
   }
 
+  // Step 8: Check if any client is active, if none, set the default one to active
+  const activeClient = updatedGatewayClients.find((client) => client.active);
+  if (!activeClient) {
+    const defaultClient = updatedGatewayClients.find(
+      (client) => client.default
+    );
+    if (defaultClient) {
+      defaultClient.active = true; // Set default client to active if no active client exists
+    }
+  }
+
   return updatedGatewayClients;
 };
 
@@ -168,8 +179,8 @@ export const sendSms = async ({ smsPayload }) => {
 
         if (!response.ok) {
           await window.api.invoke("notify-system", {
-            title: "DekuSMS Alert",
-            body: `SMS send attempt failed. However, SMS delivery might still have gone through due to service provider limitations or network instability. Delivery is not guaranteed and may need to be retried.`,
+            title: "RelaySMS Alert",
+            body: `Oops! The SMS send attempt didn't go through. However, there's a chance the message was still delivered, as it can depend on network or service provider conditions. Delivery isn't guaranteed, so you may need to try again.`,
           });
 
           console.warn(
@@ -181,14 +192,14 @@ export const sendSms = async ({ smsPayload }) => {
         const result = await response.text();
         console.log("SMS sent successfully:", result);
         await window.api.invoke("notify-system", {
-          title: "DekuSMS Alert",
+          title: "RelaySMS Alert",
           body: "SMS sent successfully",
         });
       } catch (error) {
         console.error("Error sending SMS:", error.message);
         await window.api.invoke("notify-system", {
-          title: "DekuSMS Alert",
-          body: `SMS send attempt failed. However, SMS delivery might still have gone through due to service provider limitations or network instability. Delivery is not guaranteed and may need to be retried.`,
+          title: "RelaySMS Alert",
+          body: `Oops! The SMS send attempt didn't go through. However, there's a chance the message was still delivered, as it can depend on network or service provider conditions. Delivery isn't guaranteed, so you may need to try again.`,
         });
       }
     })();
@@ -276,7 +287,7 @@ export const fetchLatestMessageWithOtp = async ({
     const matchedOtps = messagePatterns
       .map((pattern) => latestMessage.text.match(pattern))
       .filter((otpMatch) => otpMatch);
-    const otp = matchedOtps.length > 0 ? matchedOtps[0][0] : null;
+    const otp = matchedOtps.length > 0 ? matchedOtps[0][1] : null;
 
     return {
       err: null,

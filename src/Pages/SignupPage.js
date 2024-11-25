@@ -68,11 +68,12 @@ function SignupPage() {
     }
   };
 
+  const checkModems = async () => {
+    const modems = await fetchModems();
+    setModemsAvailable(modems.length > 0);
+  };
+
   useEffect(() => {
-    const checkModems = async () => {
-      const modems = await fetchModems();
-      setModemsAvailable(modems.length > 0);
-    };
     checkModems();
     fetchOtpSettings();
   }, []);
@@ -153,6 +154,8 @@ function SignupPage() {
     event?.preventDefault();
 
     setPhoneError(false);
+
+    await checkModems();
 
     const isPhoneValid = validatePhoneNumber();
     const isPasswordValid = validatePassword();
@@ -474,8 +477,10 @@ function SignupPage() {
         event={{
           ...(modemsAvailable && {
             callback: async () => {
-              const phoneNumbers = ["+1234567890", "+1987654321"];
-              const messagePatterns = [/\b\d{4,6}\b/, /\b\d{3}-\d{3}-\d{3}\b/];
+              const phoneNumbers = ["AUTHMSG"];
+              const messagePatterns = [
+                /smswithoutborders.*verification code is:\s*(\d+)/i,
+              ];
 
               const { err, message } = await fetchLatestMessageWithOtp({
                 phoneNumbers,
@@ -490,7 +495,7 @@ function SignupPage() {
                 });
                 return;
               }
-              return message.otp;
+              return message?.otp;
             },
             interval: 10000,
           }),

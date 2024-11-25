@@ -29,16 +29,19 @@ function BridgeAuthPage() {
   const [loading, setLoading] = useState(false);
   const [modemsAvailable, setModemsAvailable] = useState(false);
 
+  const checkModems = async () => {
+    const modems = await fetchModems();
+    setModemsAvailable(modems.length > 0);
+  };
+
   useEffect(() => {
-    const checkModems = async () => {
-      const modems = await fetchModems();
-      setModemsAvailable(modems.length > 0);
-    };
     checkModems();
   }, []);
 
   const handleSubmit = async (event) => {
     event?.preventDefault();
+
+    await checkModems();
 
     setLoading(true);
 
@@ -205,8 +208,8 @@ function BridgeAuthPage() {
         event={{
           ...(modemsAvailable && {
             callback: async () => {
-              const phoneNumbers = ["+1234567890", "+1987654321"];
-              const messagePatterns = [/\b\d{4,6}\b/, /\b\d{3}-\d{3}-\d{3}\b/];
+              const phoneNumbers = ["+1234567890"];
+              const messagePatterns = [/RelaySMS app (\d+\s+\w+)/i];
 
               const { err, message } = await fetchLatestMessageWithOtp({
                 phoneNumbers,
@@ -221,7 +224,7 @@ function BridgeAuthPage() {
                 });
                 return;
               }
-              return message.otp;
+              return message?.otp;
             },
             interval: 10000,
           }),

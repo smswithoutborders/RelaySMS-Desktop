@@ -5,6 +5,7 @@ PDR_CLI_PATH="$USER_HOME/.config/relaysms/py_double_ratchet_cli"
 PDR_CLI_URL="https://github.com/smswithoutborders/py_double_ratchet_cli/archive/refs/heads/main.tar.gz"
 GATEWAY_CLIENT_PATH="$USER_HOME/.config/relaysms/RelaySMS-GatewayClient-Linux"
 GATEWAY_CLIENT_URL="https://github.com/smswithoutborders/RelaySMS-GatewayClient-Linux/archive/refs/heads/master.tar.gz"
+RABBITMQ_PATH="$GATEWAY_CLIENT_PATH/deps/rabbitmq"
 
 # Color settings for loader
 SUCCESS_COLOR="\033[0;32m"
@@ -105,14 +106,41 @@ setup_gateway_client() {
     show_loader $! "Enabling Gateway Client"
 }
 
+# Check if RabbitMQ is installed and running as a systemd service
+is_rabbitmq_running() {
+    if systemctl is-active --quiet rabbitmq-server; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Setup rabbitmq
+setup_rabbitmq() {    
+    cd "$RABBITMQ_PATH" || exit
+
+    sudo -u "$SUDO_USER" mkdir -p "$RABBITMQ_PATH/builds"
+    sudo -u "$SUDO_USER" tar -xJf "$RABBITMQ_PATH/rabbitmq-server-generic-unix-3.9.9.tar.xz" -C "$RABBITMQ_PATH/builds"  --strip-components=1 &>/dev/null & 
+    show_loader $! "Extracting rabbitmq components"
+
+    .$RABBITMQ_PATH/builds/sbin/rabbitmq-plugins enable rabbitmq_management &>/dev/null & 
+    show_loader $! "Setting up rabbitmq"
+}
+
 if [ ! -d "$PDR_CLI_PATH" ]; then
-    setup_python_cli
+    setup_python_cli || exit 1
 else
     echo "py_double_ratchet_cli already exists. Skipping setup."
 fi
 
 if [ ! -d "$GATEWAY_CLIENT_PATH" ]; then
-    setup_gateway_client
+    setup_gateway_client || exit 1
 else
     echo "RelaySMS Gateway Client already exists. Skipping setup."
+fi
+
+if is_rabbitmq_running; then
+    setup_rabbitmq || exit 1
+else
+    echo "RabbitMQ is running. Skipping setup."
 fi

@@ -70,7 +70,7 @@ async function createWindow() {
       return { success: true };
     } catch (error) {
       logger.error("Failed to send notification:", error.message);
-      throw err;
+      throw error;
     }
   });
 
@@ -87,7 +87,7 @@ async function createWindow() {
   ipcMain.handle("check-internet", async () => {
     try {
       await axios.get("https://1.1.1.1", {
-        timeout: 6000,
+        timeout: 10000,
       });
       return true;
     } catch (error) {
