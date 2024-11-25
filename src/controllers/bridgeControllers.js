@@ -1,4 +1,4 @@
-import { extractRpcErrorMessage, capitalizeFirstLetter } from "../lib/utils";
+import { capitalizeFirstLetter } from "../lib/utils";
 import { UserController, SettingsController, sendSms } from ".";
 
 export const fetchBridges = async ({ name, shortcode } = {}) => {
@@ -39,46 +39,79 @@ export const createBridgeEntity = async ({ ownershipProofResponse }) => {
   const userController = new UserController();
   const settingsController = new SettingsController();
 
-  const setPublishKeyData = async (type, keyData) => {
-    await userController.setData("keypairs", {
-      publish: { [type]: keyData },
-    });
-  };
-
   try {
+    let res;
+
     if (ownershipProofResponse) {
-      const [otpCode, authPhrase] = ownershipProofResponse.split(" ");
+      const normalizedResponse = ownershipProofResponse
+        .replace(/\s+/g, " ")
+        .trim();
+      const regex = /RelaySMS.*?(\d+)\s+(\S+)/i;
+      const match = normalizedResponse.match(regex);
+
+      let otpCode, authPhrase;
+
+      if (match) {
+        otpCode = match[1];
+        authPhrase = match[2];
+      } else {
+        const parts = normalizedResponse.split(" ");
+        if (parts.length >= 2) {
+          otpCode = parts[0];
+          authPhrase = parts.slice(1).join(" ");
+        } else {
+          throw new Error("Invalid ownership proof format.");
+        }
+      }
 
       const { serverPublishPublicKey } = await window.api.invoke(
         "extract-bridge-payload",
         { content: authPhrase }
       );
 
-      await setPublishKeyData("server", { publicKey: serverPublishPublicKey });
+      const publishKeypairs = await userController.getData("keypairs.publish");
+      await userController.setData("keypairs", {
+        publish: {
+          ...publishKeypairs,
+          server: {
+            publicKey: serverPublishPublicKey,
+          },
+        },
+      });
+
       await settingsController.setData("preferences.otp.bridge", otpCode);
+
+      res = { message: "Ownership proof verified." };
     } else {
       const clientPublishKeypair = await generateKeyPair();
 
-      await setPublishKeyData("client", clientPublishKeypair);
+      await userController.setData("keypairs", {
+        publish: {
+          client: clientPublishKeypair,
+        },
+      });
 
       const payload = await createBridgeTransmissionPayload({
         contentSwitch: 0,
         clientPublishPublicKey: clientPublishKeypair.publicKey,
       });
 
-      console.log("Generated Payload:", payload);
+      const response = await sendSms({ smsPayload: payload });
 
-      // response = await sendSms({ smsPayload: payload });
-
-      return { err: null, res: true };
+      if (response.err) {
+        throw new Error(response.err);
+      }
+      res = { message: "Auth phrase requested via SMS." };
     }
+
+    return { err: null, res };
   } catch (error) {
     console.error("Failed to create bridge entity.", error);
-    return { err: error, res: null };
+    return { err: error.message, res: null };
   }
 };
 
-export const encryptPayload = async (content) => {
+export const encryptBridgePayload = async (content) => {
   const userController = new UserController();
 
   try {
@@ -105,11 +138,11 @@ export const encryptPayload = async (content) => {
 
 export const createBridgeTransmissionPayload = async ({
   contentSwitch,
-  authorizationCode = "",
-  contentCiphertext = "",
-  bridgeShortCode = "",
-  clientPublishPublicKey = "",
-  deviceID = "",
+  authorizationCode = null,
+  contentCiphertext = null,
+  bridgeShortCode = null,
+  clientPublishPublicKey = null,
+  deviceID = null,
 }) => {
   try {
     const payload = await window.api.invoke(

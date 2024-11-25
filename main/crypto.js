@@ -189,7 +189,7 @@ const createBridgeTransmissionPayload = ({
     const contentSwitchBuffer = Buffer.from([contentSwitch]);
 
     switch (contentSwitch) {
-      case 0:
+      case 0: {
         const clientPublishPublicKeyBuffer = nacl.util.decodeBase64(
           clientPublishPublicKey
         );
@@ -205,6 +205,27 @@ const createBridgeTransmissionPayload = ({
           clientPublishPublicKeyBuffer,
         ]);
         break;
+      }
+      case 2: {
+        const authCodeBuffer = Buffer.from(authorizationCode, "utf-8");
+        const contentCiphertextBuffer = Buffer.from(contentCiphertext, "base64");
+        const bridgeShortCodeBuffer = Buffer.from(bridgeShortCode, "utf-8");
+
+        const authCodeLengthBuffer = Buffer.from([authCodeBuffer.length]);
+        const ciphertextLengthBuffer = Buffer.alloc(4);
+        ciphertextLengthBuffer.writeInt32LE(contentCiphertextBuffer.length);
+
+        payload = Buffer.concat([
+          bridgeIndicator,
+          contentSwitchBuffer,
+          authCodeLengthBuffer,
+          ciphertextLengthBuffer,
+          bridgeShortCodeBuffer,
+          authCodeBuffer,
+          contentCiphertextBuffer,
+        ]);
+        break;
+      }
       default:
         throw new Error(`Invalid content switch: ${contentSwitch}`);
     }
@@ -229,7 +250,9 @@ const extractBridgePayload = ({ content }) => {
     }
 
     return {
-      serverPublishPublicKey: serverPublishPublicKeyBuffer.toString("base64"),
+      serverPublishPublicKey: nacl.util.encodeBase64(
+        serverPublishPublicKeyBuffer
+      ),
     };
   } catch (error) {
     throw error;

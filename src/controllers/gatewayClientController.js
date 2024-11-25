@@ -189,8 +189,7 @@ export const sendSms = async ({ smsPayload }) => {
           return;
         }
 
-        const result = await response.text();
-        console.log("SMS sent successfully:", result);
+        await response.text();
         await window.api.invoke("notify-system", {
           title: "RelaySMS Alert",
           body: "SMS sent successfully",

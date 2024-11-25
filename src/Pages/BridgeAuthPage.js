@@ -55,6 +55,11 @@ function BridgeAuthPage() {
         });
         return;
       }
+      setAlert({
+        open: true,
+        type: "success",
+        message: res.message,
+      });
       setOtpDialogOpen(true);
     } catch (error) {
       console.error(error);
@@ -70,8 +75,8 @@ function BridgeAuthPage() {
 
   const handleOtpSubmit = async (setOtpAlert, otp) => {
     try {
-      const { err, res } = await createBridgeEntity({
-        ownership_proof_response: otp,
+      const { err } = await createBridgeEntity({
+        ownershipProofResponse: otp,
       });
       if (err) {
         setOtpAlert({
@@ -80,6 +85,7 @@ function BridgeAuthPage() {
         });
         return;
       }
+      setOtpDialogOpen(false);
       await window.api.invoke("reload-window");
     } catch (error) {
       console.error(error);
@@ -208,8 +214,8 @@ function BridgeAuthPage() {
         event={{
           ...(modemsAvailable && {
             callback: async () => {
-              const phoneNumbers = ["+1234567890"];
-              const messagePatterns = [/RelaySMS app (\d+\s+\w+)/i];
+              const phoneNumbers = ["+15024439537"];
+              const messagePatterns = [/RelaySMS.*?(\d+)\s+(\S+)/i];
 
               const { err, message } = await fetchLatestMessageWithOtp({
                 phoneNumbers,

@@ -113,7 +113,7 @@ const handlePlatformComposeClick = ({
             severity: "error",
             message: `Unsupported service type: ${platform.service_type}`,
           });
-          break;
+          return;
       }
 
       const contentCiphertext = await encryptPayload(structuredContent);

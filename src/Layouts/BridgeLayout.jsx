@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLayout } from "../Contexts/LayoutContext";
 import BaseLayout from "./BaseLayout";
 import NavigationPanel from "../Components/NavigationPanel";
@@ -7,13 +7,21 @@ import {
   handleBridgeComposeSelect,
   handleGatewayClientSelect,
   handleBridgeSettingsSelect,
-  handleMessagesSelect,
+  handleBridgeMessageSelect,
+  executeSelect,
 } from "../handlers/bridgeHandlers";
-import { Settings, Edit, CellTower, HelpOutline } from "@mui/icons-material";
+import {
+  Settings,
+  Edit,
+  Wallet,
+  CellTower,
+  HelpOutline,
+} from "@mui/icons-material";
 import { Snackbar, Alert } from "@mui/material";
 import { FaRegComments } from "react-icons/fa6";
 
 function BridgeLayout() {
+  const currentActionRef = useRef(null);
   const { setNavigationPanel, setControlPanel, setDisplayPanel } = useLayout();
 
   const [alert, setAlert] = useState({
@@ -26,42 +34,54 @@ function BridgeLayout() {
     {
       default: true,
       text: "Messages",
-      icon: <FaRegComments size="23px"/>,
-      action: () =>
-        handleMessagesSelect({
+      icon: <FaRegComments size="23px" />,
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handleBridgeMessageSelect,
           setControlPanel,
           setDisplayPanel,
           setAlert,
+          currentActionRef,
         }),
     },
     {
       text: "Compose",
       icon: <Edit />,
-      action: () =>
-        handleBridgeComposeSelect({
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handleBridgeComposeSelect,
           setControlPanel,
           setDisplayPanel,
           setAlert,
+          currentActionRef,
         }),
     },
-
     {
       text: "Gateway Clients",
       icon: <CellTower />,
-      action: () =>
-        handleGatewayClientSelect({
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handleGatewayClientSelect,
           setControlPanel,
           setDisplayPanel,
           setAlert,
+          currentActionRef,
         }),
     },
     {
       text: "Settings",
       icon: <Settings />,
-      action: () =>
-        handleBridgeSettingsSelect({
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handleBridgeSettingsSelect,
           setControlPanel,
           setDisplayPanel,
+          setAlert,
+          currentActionRef,
         }),
     },
     {
@@ -80,16 +100,17 @@ function BridgeLayout() {
   ];
 
   useEffect(() => {
-    // setNavigationPanel(<NavigationPanel items={navItems} />);
+    setNavigationPanel(<NavigationPanel items={navItems} />);
   }, []);
 
   return (
     <>
       <Snackbar
         open={alert.open}
-        autoHideDuration={4000}
+        autoHideDuration={8000}
         onClose={() => setAlert({ ...alert, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        sx={{ maxWidth: 700 }}
       >
         <Alert
           onClose={() => setAlert({ ...alert, open: false })}

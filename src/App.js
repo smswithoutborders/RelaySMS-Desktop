@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import "./i18n"
+import "./i18n";
 import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -130,7 +130,16 @@ function AppRoutes() {
           )
         }
       />
-      <Route path="/bridge-auth" element={<BridgeAuthPage />} />
+      <Route
+        path="/bridge-auth"
+        element={
+          hasLongLivedToken() || hasBridgeAuthorizationCode ? (
+            <Navigate to="/" replace />
+          ) : (
+            <BridgeAuthPage />
+          )
+        }
+      />
       <Route path="/deku" element={<DekuLayout />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
