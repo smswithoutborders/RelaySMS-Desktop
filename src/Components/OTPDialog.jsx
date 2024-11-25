@@ -198,16 +198,36 @@ function OTPDialog({
 
         {event?.interval && callbackIntervalCounter > 0 && (
           <Box mt={2}>
-            <MuiAlert severity="info" variant="outlined">
-              <CircularProgress size={24} color="inherit" />{" "}
-              <Typography variant="body2" component="span">
-                We're attempting to retrieve your OTP from your SMS inbox...
-              </Typography>
-              <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                We'll check your SMS inbox again in {callbackIntervalCounter}{" "}
-                seconds. If it doesn't auto-fill, please check your phone number
-                or try entering the OTP manually.
-              </Typography>
+            <MuiAlert
+              severity="info"
+              variant="outlined"
+              sx={{ display: "flex", alignItems: "center" }}
+            >
+              <CircularProgress size={24} color="inherit" sx={{ mr: 2 }} />
+              <Box>
+                <Typography variant="body2" component="span">
+                  We're trying to retrieve your OTP from your SMS inbox...
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  sx={{ mt: 1 }}
+                >
+                  We'll check again in{" "}
+                  <strong>{callbackIntervalCounter} seconds</strong>. If it
+                  doesn't auto-fill, double-check your phone number or manually
+                  enter the OTP.
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  sx={{ mt: 1 }}
+                  onClick={() => (window.location.hash = "/deku")}
+                >
+                  Check your Deku SMS Inbox
+                </Button>
+              </Box>
             </MuiAlert>
           </Box>
         )}
