@@ -3,13 +3,8 @@ import { useLayout } from "../Contexts/LayoutContext";
 import BaseLayout from "./BaseLayout";
 import NavigationPanel from "../Components/NavigationPanel";
 import ControlPanel from "../Components/ControlPanel";
-import {
-  handleDekuComposeSelect,
-  handleModemSelect,
-  handleDekuSettingsSelect,
-  handleSmsMessageSelect,
-} from "../handlers/dekuHandler";
-import { Settings, Edit, CellTower, HelpOutline } from "@mui/icons-material";
+import { handleSmsMessageSelect } from "../handlers/dekuHandler";
+import { HelpOutline } from "@mui/icons-material";
 import { Snackbar, Alert } from "@mui/material";
 import { FaRegComments } from "react-icons/fa6";
 
@@ -26,42 +21,12 @@ function DekuLayout() {
     {
       default: true,
       text: "Messages",
-      icon: <FaRegComments size="23px"/>,
+      icon: <FaRegComments size="23px" />,
       action: () =>
         handleSmsMessageSelect({
           setControlPanel,
           setDisplayPanel,
           setAlert,
-        }),
-    },
-    {
-      text: "Compose",
-      icon: <Edit />,
-      action: () =>
-        handleDekuComposeSelect({
-          setControlPanel,
-          setDisplayPanel,
-          setAlert,
-        }),
-    },
-
-    {
-      text: "Modems",
-      icon: <CellTower />,
-      action: () =>
-        handleModemSelect({
-          setControlPanel,
-          setDisplayPanel,
-          setAlert,
-        }),
-    },
-    {
-      text: "Settings",
-      icon: <Settings />,
-      action: () =>
-        handleDekuSettingsSelect({
-          setControlPanel,
-          setDisplayPanel,
         }),
     },
     {
