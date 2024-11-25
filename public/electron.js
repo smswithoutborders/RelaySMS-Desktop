@@ -31,7 +31,7 @@ if (!gotTheLock) {
 } else {
   app.on("second-instance", (event, commandLine, _) => {
     if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
+      if (mainWindow.maximize()) mainWindow.restore();
       mainWindow.focus();
     }
     const deepLinkUrl = commandLine.find((arg) => arg.startsWith("apps://"));
