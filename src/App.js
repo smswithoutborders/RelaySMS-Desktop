@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
+import "./i18n"
 import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 
 import useMediaQuery from "@mui/material/useMediaQuery";

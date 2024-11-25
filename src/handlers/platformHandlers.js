@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import {
   DisplayPanel,
   ControlPanel,
@@ -833,8 +834,22 @@ export const handlePlatformMessageSelect = async ({
 };
 
 const handleLanguageSelect = ({ setDisplayPanel }) => {
-  setDisplayPanel(<DisplayPanel body={<ItemsList items={languages} />} />);
+  
+  setDisplayPanel(
+    <DisplayPanel
+      body={
+        <ItemsList
+          items={languages}
+          onSelect={async (selectedLanguage) => {
+            await i18next.changeLanguage(selectedLanguage.toLowerCase());
+            setDisplayPanel(null); // Close the language selection menu
+          }}
+        />
+      }
+    />
+  );
 };
+
 
 const handleChangePasswordSelect = ({ setDisplayPanel, setAlert }) => {
   const messageController = new MessageController();
