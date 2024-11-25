@@ -154,7 +154,7 @@ const handlePlatformComposeClick = ({
       setAlert({
         open: true,
         severity: "success",
-        message: "Message sent successfully!",
+        message: "Message is ready and queued for sending.",
       });
     } catch (error) {
       setAlert({
@@ -306,6 +306,7 @@ const handleOAuth2Platform = async ({
   setAlert,
   setControlPanel,
   setDisplayPanel,
+  currentActionRef,
 }) => {
   if (!identifier) {
     const { err, res } = await addOAuth2Token({
@@ -321,61 +322,55 @@ const handleOAuth2Platform = async ({
       return;
     }
 
-    await handlePlatformSelect({
-      setControlPanel,
-      setDisplayPanel,
-      setAlert,
-    });
-
     setAlert({
       open: true,
       severity: "success",
       message: `${platform.name} token added successfully!`,
     });
-    return;
-  }
+  } else {
+    setDisplayPanel(
+      <DialogView
+        open={true}
+        title={`Revoke Access to ${platform.name}`}
+        description={`You are about to revoke access for the identifier "${identifier}". This will permanently remove access to your ${platform.name} account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?`}
+        cancelText="Cancel"
+        confirmText="Yes, Revoke Access"
+        onClose={() => setDisplayPanel(null)}
+        onConfirm={async () => {
+          const { err, res } = await deleteOAuth2Token({
+            platform: platform.name.toLowerCase(),
+            identifier,
+          });
 
-  setDisplayPanel(
-    <DialogView
-      open={true}
-      title={`Revoke Access to ${platform.name}`}
-      description={`You are about to revoke access for the identifier "${identifier}". This will permanently remove access to your ${platform.name} account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?`}
-      cancelText="Cancel"
-      confirmText="Yes, Revoke Access"
-      onClose={() => setDisplayPanel(null)}
-      onConfirm={async () => {
-        const { err, res } = await deleteOAuth2Token({
-          platform: platform.name.toLowerCase(),
-          identifier,
-        });
+          if (err || !res.success) {
+            setAlert({
+              open: true,
+              severity: "error",
+              message: `Failed to remove ${platform.name} token: ${
+                err || res.message
+              }`,
+            });
+            return;
+          }
 
-        if (err || !res.success) {
           setAlert({
             open: true,
-            severity: "error",
-            message: `Failed to remove ${platform.name} token: ${
-              err || res.message
-            }`,
+            severity: "success",
+            message: `${platform.name} token removed successfully!`,
           });
-          return;
-        }
+        }}
+      />
+    );
+  }
 
-        await handlePlatformSelect({
-          setControlPanel,
-          setDisplayPanel,
-          setAlert,
-        });
-
-        setDisplayPanel(null);
-
-        setAlert({
-          open: true,
-          severity: "success",
-          message: `${platform.name} token removed successfully!`,
-        });
-      }}
-    />
-  );
+  executeSelect({
+    actionName: "Platforms",
+    selectFunction: handlePlatformSelect,
+    setControlPanel,
+    setDisplayPanel,
+    setAlert,
+    currentActionRef,
+  });
 };
 
 const handlePNBAAuthWithPassword = async ({
@@ -402,19 +397,19 @@ const handlePNBAAuthWithPassword = async ({
       return;
     }
 
-    await executeSelect({
+    setAlert({
+      open: true,
+      severity: "success",
+      message: `${platform.name} token added successfully!`,
+    });
+
+    executeSelect({
       actionName: "Platforms",
       selectFunction: handlePlatformSelect,
       setControlPanel,
       setDisplayPanel,
       setAlert,
       currentActionRef,
-    });
-
-    setAlert({
-      open: true,
-      severity: "success",
-      message: `${platform.name} token added successfully!`,
     });
   };
 
@@ -483,19 +478,19 @@ const handlePNBAAuth = async ({
       return;
     }
 
-    await executeSelect({
+    setAlert({
+      open: true,
+      severity: "success",
+      message: `${platform.name} token added successfully!`,
+    });
+
+    executeSelect({
       actionName: "Platforms",
       selectFunction: handlePlatformSelect,
       setControlPanel,
       setDisplayPanel,
       setAlert,
       currentActionRef,
-    });
-
-    setAlert({
-      open: true,
-      severity: "success",
-      message: `${platform.name} token added successfully!`,
     });
   };
 
@@ -615,19 +610,19 @@ const handlePNBAPlatform = async ({
           return;
         }
 
-        await executeSelect({
+        setAlert({
+          open: true,
+          severity: "success",
+          message: `${platform.name} token removed successfully!`,
+        });
+
+        executeSelect({
           actionName: "Platforms",
           selectFunction: handlePlatformSelect,
           setControlPanel,
           setDisplayPanel,
           setAlert,
           currentActionRef,
-        });
-
-        setAlert({
-          open: true,
-          severity: "success",
-          message: `${platform.name} token removed successfully!`,
         });
       }}
     />

@@ -35,40 +35,47 @@ const generateKeyPair = async () => {
   return response;
 };
 
-export const createBridgeEntity = async ({ ownership_proof_response }) => {
+export const createBridgeEntity = async ({ ownershipProofResponse }) => {
   const userController = new UserController();
   const settingsController = new SettingsController();
 
-  let response;
-
-  if (ownership_proof_response) {
-    const server_publish_pub_key = "";
+  const setPublishKeyData = async (type, keyData) => {
     await userController.setData("keypairs", {
-      publish: {
-        server: { publicKey: server_publish_pub_key },
-      },
+      publish: { [type]: keyData },
     });
-    await settingsController.setData("preferences.otp.bridge", "");
-  } else {
-    const clientPublishKeypair = await generateKeyPair();
+  };
 
-    await userController.setData("keypairs", {
-      publish: {
-        client: clientPublishKeypair,
-      },
-    });
-    const payload = await createBridgeTransmissionPayload({
-      contentSwitch: 0,
-      clientPublishPublicKey: clientPublishKeypair.publicKey,
-    });
+  try {
+    if (ownershipProofResponse) {
+      const [otpCode, authPhrase] = ownershipProofResponse.split(" ");
 
-    console.log(">>>>>", payload);
+      const { serverPublishPublicKey } = await window.api.invoke(
+        "extract-bridge-payload",
+        { content: authPhrase }
+      );
 
-    // response = await sendSms({ smsPayload: payload });
-    response = { err: null, res: true };
+      await setPublishKeyData("server", { publicKey: serverPublishPublicKey });
+      await settingsController.setData("preferences.otp.bridge", otpCode);
+    } else {
+      const clientPublishKeypair = await generateKeyPair();
+
+      await setPublishKeyData("client", clientPublishKeypair);
+
+      const payload = await createBridgeTransmissionPayload({
+        contentSwitch: 0,
+        clientPublishPublicKey: clientPublishKeypair.publicKey,
+      });
+
+      console.log("Generated Payload:", payload);
+
+      // response = await sendSms({ smsPayload: payload });
+
+      return { err: null, res: true };
+    }
+  } catch (error) {
+    console.error("Failed to create bridge entity.", error);
+    return { err: error, res: null };
   }
-
-  return response;
 };
 
 export const encryptPayload = async (content) => {

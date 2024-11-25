@@ -8,6 +8,7 @@ const {
   createTransmissionPayload,
   clearRatchetState,
   createBridgeTransmissionPayload,
+  extractBridgePayload,
 } = require("../crypto");
 
 function setupCryptoHandlers() {
@@ -160,6 +161,18 @@ function setupCryptoHandlers() {
       }
     }
   );
+
+  ipcMain.handle("extract-bridge-payload", async (event, { content }) => {
+    try {
+      const result = extractBridgePayload({
+        content,
+      });
+      return result;
+    } catch (error) {
+      logger.error("Error in extract-bridge-payload handler:", error.message);
+      throw error;
+    }
+  });
 }
 
 module.exports = {

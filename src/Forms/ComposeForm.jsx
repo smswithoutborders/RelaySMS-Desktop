@@ -6,6 +6,7 @@ import {
   MenuItem,
   CircularProgress,
 } from "@mui/material";
+import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
 
 function ComposeForm({ fields, onSubmit }) {
   const [formData, setFormData] = useState({});
@@ -28,11 +29,24 @@ function ComposeForm({ fields, onSubmit }) {
     }));
   };
 
+  const handlePhoneChange = (value, name) => {
+    const cleanedValue = value.replace(/\s+/g, "");
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: cleanedValue,
+    }));
+  };
+
   const handleSubmit = async () => {
     const validationErrors = {};
     fields.forEach((field) => {
-      if (field.required && !formData[field.name]) {
+      const value = formData[field.name];
+      if (field.required && !value) {
         validationErrors[field.name] = `${field.label} is required`;
+      }
+
+      if (field.type === "tel" && value && !matchIsValidTel(value)) {
+        validationErrors[field.name] = "Please enter a valid phone number";
       }
     });
 
@@ -61,29 +75,54 @@ function ComposeForm({ fields, onSubmit }) {
     >
       {fields.map((field) => (
         <Box key={field.name}>
-          <TextField
-            select={field.type === "select"}
-            variant="standard"
-            label={field.label}
-            name={field.name}
-            value={formData[field.name] || ""}
-            onChange={handleFieldChange}
-            fullWidth
-            required={field.required}
-            error={!!errors[field.name]}
-            helperText={errors[field.name]}
-            type={field.type || "text"}
-            multiline={field.multiline}
-            rows={field.rows || 1}
-            disabled={loading}
-          >
-            {field.type === "select" &&
-              field.options.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-          </TextField>
+          {field.type === "tel" ? (
+            <MuiTelInput
+              fullWidth
+              defaultCountry="CM"
+              forceCallingCode
+              focusOnSelectCountry
+              variant="standard"
+              label={field.label}
+              value={formData[field.name] || ""}
+              onChange={(value) => handlePhoneChange(value, field.name)}
+              required={field.required}
+              error={!!errors[field.name]}
+              helperText={errors[field.name]}
+              disabled={loading}
+              sx={{
+                py: 2,
+                "& .MuiInput-root": {
+                  borderRadius: 4,
+                  backgroundColor: "background.default",
+                  boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+                },
+              }}
+            />
+          ) : (
+            <TextField
+              select={field.type === "select"}
+              variant="standard"
+              label={field.label}
+              name={field.name}
+              value={formData[field.name] || ""}
+              onChange={handleFieldChange}
+              fullWidth
+              required={field.required}
+              error={!!errors[field.name]}
+              helperText={errors[field.name]}
+              type={field.type || "text"}
+              multiline={field.multiline}
+              rows={field.rows || 1}
+              disabled={loading}
+            >
+              {field.type === "select" &&
+                field.options.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+            </TextField>
+          )}
         </Box>
       ))}
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>

@@ -1,7 +1,15 @@
-const { app, BrowserWindow, Menu, shell, ipcMain, Notification } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  Menu,
+  shell,
+  ipcMain,
+  Notification,
+} = require("electron");
 const path = require("path");
 const url = require("url");
 const axios = require("axios");
+const logger = require("../Logger");
 const { registerIpcHandlers } = require("../main/ipcHandlers");
 
 let mainWindow;
@@ -32,19 +40,10 @@ if (!gotTheLock) {
       if (parsed.query.code) {
         mainWindow.webContents.send("authorization-code", parsed.query.code);
       } else {
-        console.error("Authorization code not found");
+        logger.error("Authorization code not found");
       }
     }
   });
-
-  const NOTIFICATION_TITLE = 'Basic Notification'
-  const NOTIFICATION_BODY = 'Notification from the Main process'
-  
-  function showNotification () {
-    new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show()
-  }
-  app.whenReady().then(showNotification);
-
 
   app.whenReady().then(() => {
     createWindow();
@@ -52,11 +51,26 @@ if (!gotTheLock) {
   });
 }
 
-
 async function createWindow() {
   ipcMain.handle("reload-window", () => {
     if (mainWindow) {
       mainWindow.reload();
+    }
+  });
+
+  ipcMain.handle("notify-system", async (event, { title, body }) => {
+    try {
+      const iconPath = path.join(__dirname, "icon.png");
+
+      new Notification({
+        title,
+        body,
+        icon: iconPath,
+      }).show();
+      return { success: true };
+    } catch (error) {
+      logger.error("Failed to send notification:", error.message);
+      throw err;
     }
   });
 
@@ -80,7 +94,7 @@ async function createWindow() {
       return false;
     }
   });
- 
+
   mainWindow = new BrowserWindow({
     webPreferences: {
       preload: path.join(__dirname, "../main/preload.js"),
@@ -90,9 +104,6 @@ async function createWindow() {
     },
     icon: path.join(__dirname, "icon.png"),
   });
-
- 
-
 
   const appURL = app.isPackaged
     ? url.format({

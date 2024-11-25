@@ -215,6 +215,27 @@ const createBridgeTransmissionPayload = ({
   }
 };
 
+const extractBridgePayload = ({ content }) => {
+  try {
+    const contentBuffer = nacl.util.decodeBase64(content);
+    const serverPublishPublicKeyLength = contentBuffer[0];
+    const serverPublishPublicKeyBuffer = contentBuffer.slice(
+      1,
+      1 + serverPublishPublicKeyLength
+    );
+
+    if (serverPublishPublicKeyLength !== 32) {
+      throw new Error("Invalid public key length. Expected 32 bytes.");
+    }
+
+    return {
+      serverPublishPublicKey: serverPublishPublicKeyBuffer.toString("base64"),
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   decryptLongLivedToken,
   generateKeyPair,
@@ -223,4 +244,5 @@ module.exports = {
   createTransmissionPayload,
   clearRatchetState,
   createBridgeTransmissionPayload,
+  extractBridgePayload,
 };

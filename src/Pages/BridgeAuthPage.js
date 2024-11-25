@@ -79,6 +79,7 @@ function BridgeAuthPage() {
       }
       await window.api.invoke("reload-window");
     } catch (error) {
+      console.error(error);
       setOtpAlert({
         severity: "error",
         message: "An unexpected error occurred. Please try again later.",

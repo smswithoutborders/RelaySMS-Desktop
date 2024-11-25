@@ -152,26 +152,50 @@ export const sendSms = async ({ smsPayload }) => {
 
     const firstModemIndex = modems[0].index;
 
-    const response = await fetch(
-      `http://localhost:6868/modems/${firstModemIndex}/sms`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(smsPayload),
-        timeout: 8000,
+    (async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:6868/modems/${firstModemIndex}/sms`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(smsPayload),
+            timeout: 8000,
+          }
+        );
+
+        if (!response.ok) {
+          await window.api.invoke("notify-system", {
+            title: "DekuSMS Alert",
+            body: `SMS send attempt failed. However, SMS delivery might still have gone through due to service provider limitations or network instability. Delivery is not guaranteed and may need to be retried.`,
+          });
+
+          console.warn(
+            `SMS send attempt failed with status: ${response.statusText}`
+          );
+          return;
+        }
+
+        const result = await response.text();
+        console.log("SMS sent successfully:", result);
+        await window.api.invoke("notify-system", {
+          title: "DekuSMS Alert",
+          body: "SMS sent successfully",
+        });
+      } catch (error) {
+        console.error("Error sending SMS:", error.message);
+        await window.api.invoke("notify-system", {
+          title: "DekuSMS Alert",
+          body: `SMS send attempt failed. However, SMS delivery might still have gone through due to service provider limitations or network instability. Delivery is not guaranteed and may need to be retried.`,
+        });
       }
-    );
+    })();
 
-    if (!response.ok) {
-      throw new Error(`Failed to send SMS: ${response.statusText}`);
-    }
-
-    const result = await response.text();
-    return { err: null, res: result };
+    return { err: null, res: "SMS sending in progress..." };
   } catch (error) {
-    console.error("Error sending SMS:", error.message);
+    console.error("Error preparing SMS send:", error.message);
     return { err: error.message, res: null };
   }
 };
