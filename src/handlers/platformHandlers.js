@@ -1,3 +1,4 @@
+import { Typography } from "@mui/material";
 import {
   DisplayPanel,
   ControlPanel,
@@ -26,7 +27,9 @@ import {
   UserController,
   MessageController,
   SettingsController,
+  fetchBridges,
 } from "../controllers";
+import { handleBridgeComposeClick } from "./bridgeHandlers";
 
 const languages = [
   { code: "en", name: "english" },
@@ -41,9 +44,8 @@ const handleLanguageSelect = ({ setDisplayPanel }) => {
 };
 
 const handleTutorialSelect = ({ setDisplayPanel }) => {
-  setDisplayPanel(<DisplayPanel body={<AppTutorial/>} />);
+  setDisplayPanel(<DisplayPanel body={<AppTutorial />} />);
 };
-
 
 export const executeSelect = async ({
   actionName,
@@ -293,19 +295,34 @@ export const handlePlatformComposeSelect = async ({
       identifiers: tokenMap[platform.name.toLowerCase()] || [],
     }));
 
+  const availableBridges = await fetchBridges();
+
   if (currentActionRef.current !== actionName) return;
 
   setControlPanel(
     <ControlPanel
       title="Compose"
       element={
-        <ServiceList
-          serviceType="Platform"
-          services={filteredPlatforms}
-          onClick={(platform) =>
-            handlePlatformComposeClick({ setDisplayPanel, setAlert, platform })
-          }
-        />
+        <>
+          <ServiceList
+            serviceType="Platform"
+            services={filteredPlatforms}
+            onClick={(platform) =>
+              handlePlatformComposeClick({
+                setDisplayPanel,
+                setAlert,
+                platform,
+              })
+            }
+          />
+          <ServiceList
+            serviceType="Bridge"
+            services={availableBridges}
+            onClick={(bridge) =>
+              handleBridgeComposeClick({ setDisplayPanel, setAlert, bridge })
+            }
+          />
+        </>
       }
     />
   );
@@ -1044,7 +1061,6 @@ export const handlePlatformSettingsSelect = ({
   setControlPanel,
   setAlert,
 }) => {
- 
   const settings = [
     {
       name: "Language",
@@ -1067,7 +1083,14 @@ export const handlePlatformSettingsSelect = ({
   if (currentActionRef.current !== actionName) return;
 
   setControlPanel(
-    <ControlPanel title="Settings" element={<><ItemsList items={settings}/> <ThemeToggle /> </>} />
+    <ControlPanel
+      title="Settings"
+      element={
+        <>
+          <ItemsList items={settings} /> <ThemeToggle />{" "}
+        </>
+      }
+    />
   );
 };
 
@@ -1078,13 +1101,8 @@ export const handlePlatformHelpSelect = ({
   setControlPanel,
   setAlert,
 }) => {
-
   const handleOpenExternalLink = (url) => {
-    if (window.api && window.api.openExternalLink) {
-      window.api.openExternalLink(url);
-    } else {
-      console.error("openExternalLink is not defined on window.api");
-    }
+    window.api.send("open-external-link", url);
   };
 
   const help = [
@@ -1094,11 +1112,13 @@ export const handlePlatformHelpSelect = ({
     },
     {
       name: "Website",
-      action: () => handleOpenExternalLink("https://relay.smswithoutborders.com"),
+      action: () =>
+        handleOpenExternalLink("https://relay.smswithoutborders.com"),
     },
     {
       name: "GitHub",
-      action: () => handleOpenExternalLink("https://github.com/smswithoutborders"),
+      action: () =>
+        handleOpenExternalLink("https://github.com/smswithoutborders"),
     },
     {
       name: "X (Twitter)",
@@ -1106,11 +1126,13 @@ export const handlePlatformHelpSelect = ({
     },
     {
       name: "Documentation",
-      action: () => handleOpenExternalLink("https://docs.smswithoutborders.com"),
+      action: () =>
+        handleOpenExternalLink("https://docs.smswithoutborders.com"),
     },
     {
       name: "Blog",
-      action: () => handleOpenExternalLink("https://blog.smswithoutborders.com"),
+      action: () =>
+        handleOpenExternalLink("https://blog.smswithoutborders.com"),
     },
   ];
 

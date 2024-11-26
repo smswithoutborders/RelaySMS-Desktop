@@ -57,7 +57,11 @@ export const executeSelect = async ({
   }
 };
 
-const handleBridgeComposeClick = ({ setDisplayPanel, setAlert, bridge }) => {
+export const handleBridgeComposeClick = ({
+  setDisplayPanel,
+  setAlert,
+  bridge,
+}) => {
   const messageController = new MessageController();
   const settingsController = new SettingsController();
 
@@ -82,7 +86,7 @@ const handleBridgeComposeClick = ({ setDisplayPanel, setAlert, bridge }) => {
       let structuredContent;
 
       switch (bridge.name) {
-        case "Email_bridge":
+        case "Email Bridge":
           structuredContent = `${data.to}:${data.cc}:${data.bcc}:${data.subject}:${data.body}`;
           break;
 
@@ -100,10 +104,11 @@ const handleBridgeComposeClick = ({ setDisplayPanel, setAlert, bridge }) => {
       );
 
       const contentCiphertext = await encryptBridgePayload(structuredContent);
+      console.log(contentCiphertext);
       const transmissionPayload = await createBridgeTransmissionPayload({
         contentCiphertext,
         authorizationCode,
-        contentSwitch: 2,
+        contentSwitch: authorizationCode ? 2 : 3,
         bridgeShortCode: bridge.shortcode,
       });
 
@@ -157,7 +162,7 @@ const handleBridgeComposeClick = ({ setDisplayPanel, setAlert, bridge }) => {
   let fields;
 
   switch (bridge.name) {
-    case "Email_bridge":
+    case "Email Bridge":
       fields = [
         { name: "to", label: "To", required: true, type: "email" },
         { name: "cc", label: "Cc", required: false },

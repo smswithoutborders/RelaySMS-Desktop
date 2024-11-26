@@ -95,7 +95,7 @@ function BridgeAuthPage() {
   };
 
   const handleOpenExternalLink = (url) => {
-    window.api.openExternalLink(url);
+    window.api.send("open-external-link", url);
   };
 
   return (

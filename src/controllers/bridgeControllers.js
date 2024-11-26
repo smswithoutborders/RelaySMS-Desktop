@@ -1,6 +1,13 @@
 import { capitalizeFirstLetter } from "../lib/utils";
 import { UserController, SettingsController, sendSms } from ".";
 
+const formatBridgeName = (name) => {
+  return name
+    .split("_")
+    .map((word) => capitalizeFirstLetter(word))
+    .join(" ");
+};
+
 export const fetchBridges = async ({ name, shortcode } = {}) => {
   try {
     const response = await fetch("bridges_resources/bridges.json");
@@ -19,7 +26,7 @@ export const fetchBridges = async ({ name, shortcode } = {}) => {
 
     const updatedBridges = filteredBridges.map((bridge) => ({
       ...bridge,
-      name: capitalizeFirstLetter(bridge.name),
+      name: formatBridgeName(bridge.name),
       avatar: `./bridges_resources/icons/${bridge.name}.png`,
     }));
 

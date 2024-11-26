@@ -208,7 +208,10 @@ const createBridgeTransmissionPayload = ({
       }
       case 2: {
         const authCodeBuffer = Buffer.from(authorizationCode, "utf-8");
-        const contentCiphertextBuffer = Buffer.from(contentCiphertext, "base64");
+        const contentCiphertextBuffer = Buffer.from(
+          contentCiphertext,
+          "base64"
+        );
         const bridgeShortCodeBuffer = Buffer.from(bridgeShortCode, "utf-8");
 
         const authCodeLengthBuffer = Buffer.from([authCodeBuffer.length]);
@@ -222,6 +225,25 @@ const createBridgeTransmissionPayload = ({
           ciphertextLengthBuffer,
           bridgeShortCodeBuffer,
           authCodeBuffer,
+          contentCiphertextBuffer,
+        ]);
+        break;
+      }
+      case 3: {
+        const contentCiphertextBuffer = Buffer.from(
+          contentCiphertext,
+          "base64"
+        );
+        const bridgeShortCodeBuffer = Buffer.from(bridgeShortCode, "utf-8");
+
+        const ciphertextLengthBuffer = Buffer.alloc(4);
+        ciphertextLengthBuffer.writeInt32LE(contentCiphertextBuffer.length);
+
+        payload = Buffer.concat([
+          bridgeIndicator,
+          contentSwitchBuffer,
+          ciphertextLengthBuffer,
+          bridgeShortCodeBuffer,
           contentCiphertextBuffer,
         ]);
         break;
