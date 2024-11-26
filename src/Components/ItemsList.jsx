@@ -24,6 +24,7 @@ const ItemsList = ({ items }) => {
           }}
         >
           <ListItemText primary={item.name} />
+          {item.icon && <span style={{ marginLeft: "8px" }}>{item.icon}</span>}
         </ListItemButton>
       ))}
     </List>

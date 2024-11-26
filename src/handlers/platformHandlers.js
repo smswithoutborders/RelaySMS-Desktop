@@ -30,6 +30,7 @@ import {
   fetchBridges,
 } from "../controllers";
 import { handleBridgeComposeClick } from "./bridgeHandlers";
+import { Launch } from "@mui/icons-material";
 
 const languages = [
   { code: "en", name: "english" },
@@ -1107,32 +1108,37 @@ export const handlePlatformHelpSelect = ({
 
   const help = [
     {
-      name: "About",
+      name: "App Tutorial",
       action: () => handleTutorialSelect({ setDisplayPanel }),
     },
     {
       name: "Website",
       action: () =>
         handleOpenExternalLink("https://relay.smswithoutborders.com"),
+      icon: <Launch />,
     },
     {
       name: "GitHub",
       action: () =>
         handleOpenExternalLink("https://github.com/smswithoutborders"),
+      icon: <Launch />,
     },
     {
       name: "X (Twitter)",
       action: () => handleOpenExternalLink("https://x.com/RelaySMS"),
+      icon: <Launch />,
     },
     {
       name: "Documentation",
       action: () =>
         handleOpenExternalLink("https://docs.smswithoutborders.com"),
+      icon: <Launch />,
     },
     {
       name: "Blog",
       action: () =>
         handleOpenExternalLink("https://blog.smswithoutborders.com"),
+      icon: <Launch />,
     },
   ];
 
