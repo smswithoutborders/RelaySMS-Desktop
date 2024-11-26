@@ -50,6 +50,7 @@ function PlatformLayout() {
     },
     {
       text: "Compose",
+      className: "compose-step",
       icon: <Edit />,
       action: (action) =>
         executeSelect({
@@ -64,6 +65,7 @@ function PlatformLayout() {
     {
       text: "Platforms",
       icon: <Wallet />,
+      className: "platform-step",
       action: (action) =>
         executeSelect({
           actionName: action,
@@ -76,6 +78,7 @@ function PlatformLayout() {
     },
     {
       text: "Gateway Clients",
+      className: "gateway-step",
       icon: <CellTower />,
       action: (action) =>
         executeSelect({

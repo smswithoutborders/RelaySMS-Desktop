@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ReactJoyride, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import {
   Box,
   List,
@@ -16,6 +17,7 @@ import { Link, useLocation } from "react-router-dom";
 function NavigationPanel({ items = [], app }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [activeItem, setActiveItem] = useState(null);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -38,6 +40,64 @@ function NavigationPanel({ items = [], app }) {
 
   const isActive = (path) => location.pathname === path;
 
+  //Joyride (Tutorial) config
+  const [joyrideState, setJoyrideState] = useState({
+    run: false,
+    stepIndex: 0,
+    steps: [
+      {
+        target: ".platform-step",
+        content:
+          "To get started first add platforms by clicking the Add button for the platform you want to save This will open the authentication screen",
+      },
+      {
+        target: ".gateway-step",
+        content:
+          "Next, You need to select a gatway client closest to your location to minimize SMS costs",
+      },
+      {
+        target: ".compose-step",
+        content:
+          "Finally, select the platform you want to publish to, and that's it! You've sent your first message using RelaySMS.",
+        showNextButton: false,
+        showSkipButton: false,
+      },
+    ],
+  });
+
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem("hasSeenTour");
+
+    if (!hasSeenTour) {
+      setIsFirstTimeUser(true);
+      setJoyrideState((prevState) => ({
+        ...prevState,
+        run: true, 
+      }));
+    }
+  }, []);
+
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+
+    if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
+      setJoyrideState((prevState) => ({
+        ...prevState,
+        stepIndex: action === ACTIONS.PREV ? index - 1 : index + 1,
+      }));
+    }
+
+    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+      setJoyrideState((prevState) => ({
+        ...prevState,
+        run: false,
+      }));
+      localStorage.setItem("hasSeenTour", "true");
+      setIsFirstTimeUser(false);
+    }
+    
+  };
+
   return (
     <Box
       sx={{
@@ -48,6 +108,47 @@ function NavigationPanel({ items = [], app }) {
         bgcolor: "background.paper",
       }}
     >
+      <ReactJoyride
+        steps={joyrideState.steps}
+        run={joyrideState.run}
+        stepIndex={joyrideState.stepIndex}
+        continuous={true}
+        scrollToFirstStep={true}
+        showProgress={true}
+        showSkipButton={true}
+        disableOverlayClose={true}
+        callback={handleJoyrideCallback}
+        locale={{
+          back: "Back",
+          close: "Close",
+          last: "Finish",
+          next: "Next",
+          skip: "Skip",
+        }}
+        styles={{
+          options: {
+            arrowColor: "#fff",
+            backgroundColor: "#fff",
+            primaryColor: "#007BFF",
+            textColor: "#333",
+            spotlightShadow: "0 0 0 2px rgba(0, 123, 255, 0.5)",
+          },
+          buttonClose: {
+            color: "#007BFF",
+          },
+          buttonNext: {
+            backgroundColor: "#007BFF",
+            color: "#fff",
+          },
+          buttonBack: {
+            color: "#007BFF",
+          },
+          buttonSkip: {
+            color: "#007BFF",
+          },
+        }}
+      />
+
       <Box
         sx={{
           width: 72,
@@ -145,6 +246,15 @@ function NavigationPanel({ items = [], app }) {
                 >
                   <ListItemButton
                     onClick={() => handleItemClick(item)}
+                    className={
+                      item.text === "Platforms"
+                        ? "platform-step"
+                        : item.text === "Gateway Clients"
+                        ? "gateway-step"
+                        : item.text === "Compose"
+                        ? "compose-step"
+                        : ""
+                    }
                     sx={{
                       padding: "10px 20px",
                       cursor: "pointer",
