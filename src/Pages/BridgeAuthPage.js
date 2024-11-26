@@ -62,7 +62,6 @@ function BridgeAuthPage() {
       });
       setOtpDialogOpen(true);
     } catch (error) {
-      console.error(error);
       setAlert({
         open: true,
         type: "error",
@@ -88,7 +87,6 @@ function BridgeAuthPage() {
       setOtpDialogOpen(false);
       await window.api.invoke("reload-window");
     } catch (error) {
-      console.error(error);
       setOtpAlert({
         severity: "error",
         message: "An unexpected error occurred. Please try again later.",
@@ -176,8 +174,6 @@ function BridgeAuthPage() {
           disabled={loading}
           onClick={async () => {
             await checkModems();
-
-            setLoading(true);
             setOtpDialogOpen(true);
           }}
         >

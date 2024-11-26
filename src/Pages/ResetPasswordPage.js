@@ -432,7 +432,6 @@ function ResetPasswordPage() {
               return;
             }
 
-            setLoading(true);
             setOtpDialogOpen(true);
           }}
         >

@@ -459,7 +459,6 @@ function SignupPage() {
               return;
             }
 
-            setLoading(true);
             setOtpDialogOpen(true);
           }}
         >
