@@ -1092,11 +1092,11 @@ export const handlePlatformHelpSelect = ({
     },
     {
       name: "Website",
-      action: () => handleOpenExternalLink("https://x.com/RelaySMS"),
+      action: () => handleOpenExternalLink("https://relay.smswithoutborders.com"),
     },
     {
       name: "GitHub",
-      action: () => handleOpenExternalLink("https://x.com/RelaySMS"),
+      action: () => handleOpenExternalLink("https://github.com/smswithoutborders"),
     },
     {
       name: "X (Twitter)",
@@ -1104,11 +1104,11 @@ export const handlePlatformHelpSelect = ({
     },
     {
       name: "Documentation",
-      action: () => handleOpenExternalLink("https://x.com/RelaySMS"),
+      action: () => handleOpenExternalLink("https://docs.smswithoutborders.com"),
     },
     {
       name: "Blog",
-      action: () => handleOpenExternalLink("https://x.com/RelaySMS"),
+      action: () => handleOpenExternalLink("https://blog.smswithoutborders.com"),
     },
   ];
 

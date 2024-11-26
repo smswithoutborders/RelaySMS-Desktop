@@ -80,10 +80,12 @@ async function createWindow() {
     shell.openExternal(authorizationUrl);
   });
 
-  ipcMain.handle("open-external-link", (event, { url }) => {
-    shell.openExternal(url);
+  ipcMain.on("open-external-link", (event, url) => {
+    if (url) {
+      shell.openExternal(url);
+    }
   });
-
+  
   ipcMain.handle("check-internet", async () => {
     try {
       await axios.get("https://1.1.1.1", {

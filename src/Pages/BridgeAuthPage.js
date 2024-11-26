@@ -96,6 +96,14 @@ function BridgeAuthPage() {
     }
   };
 
+  const handleOpenExternalLink = (url) => {
+    if (window.api && window.api.openExternalLink) {
+      window.api.openExternalLink(url);
+    } else {
+      console.error("openExternalLink is not defined on window.api");
+    }
+  };
+
   return (
     <Grid container height="100vh" justifyContent="center" alignItems="center">
       <Grid
@@ -165,17 +173,19 @@ function BridgeAuthPage() {
           Get Authentication Code
         </Button>
         <Box sx={{ mt: 3 }}>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            <Link
-              href="#"
-              underline="hover"
-              display="inline-flex"
-              alignItems="center"
-              color="background.more"
-            >
-              Learn more about Relay Bridges{" "}
-              <Info fontSize="10px" sx={{ ml: 1 }} />
-            </Link>
+          <Typography
+            variant="body2"
+            sx={{
+              mb: 1,
+              color: "background.more",
+              cursor: "pointer",
+              alignItems: "center",
+              display: "inline-flex",
+            }}
+            onClick={() => handleOpenExternalLink("https://blog.smswithoutborders.com/posts/Bridges")}
+          >
+            Learn more about Relay Bridges{" "}
+            <Info fontSize="14px" sx={{ ml: 1 }} />
           </Typography>
           <Typography variant="h6" sx={{ mt: 10 }}>
             <Link component={RouterLink} to="/login" underline="always">

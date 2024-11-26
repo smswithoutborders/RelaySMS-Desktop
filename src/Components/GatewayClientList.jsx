@@ -140,7 +140,14 @@ function GatewayClientList({ items, onSelect, loading }) {
               checked={item.active || false}
               onChange={() => handleToggle(item.msisdn)}
               name={item.msisdn}
-              color="primary"
+              sx={{
+                "& .MuiSwitch-switchBase.Mui-checked": {
+                  color: "green",
+                },
+                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                  backgroundColor: "green",
+                },
+              }}
             />
           </ListItem>
         ))

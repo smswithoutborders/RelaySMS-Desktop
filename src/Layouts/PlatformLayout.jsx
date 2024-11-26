@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useLayout } from "../Contexts/LayoutContext";
 import BaseLayout from "./BaseLayout";
 import NavigationPanel from "../Components/NavigationPanel";
-import ControlPanel from "../Components/ControlPanel";
+//import ControlPanel from "../Components/ControlPanel";
 import {
   handlePlatformComposeSelect,
   handleGatewayClientSelect,
