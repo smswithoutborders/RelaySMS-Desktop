@@ -7,6 +7,7 @@ import {
   ItemsList,
   AppTutorial,
 } from "../Components";
+import ThemeToggle from "../Components/ThemeToggle";
 import { ComposeForm, PasswordForm, OTPForm } from "../Forms";
 import { DialogView, SettingView, ComposeView } from "../Views";
 import {
@@ -1043,6 +1044,7 @@ export const handlePlatformSettingsSelect = ({
   setControlPanel,
   setAlert,
 }) => {
+ 
   const settings = [
     {
       name: "Language",
@@ -1065,7 +1067,7 @@ export const handlePlatformSettingsSelect = ({
   if (currentActionRef.current !== actionName) return;
 
   setControlPanel(
-    <ControlPanel title="Settings" element={<ItemsList items={settings} />} />
+    <ControlPanel title="Settings" element={<><ItemsList items={settings}/> <ThemeToggle /> </>} />
   );
 };
 

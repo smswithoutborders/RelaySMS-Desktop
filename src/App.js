@@ -1,10 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import "./i18n";
 import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import { LayoutProvider } from "./Contexts/LayoutContext";
 import {
@@ -19,38 +17,12 @@ import {
   BridgeAuthPage,
   ResetPasswordPage,
 } from "./Pages";
+import { ThemeModeProvider } from "./Contexts/ThemeContext";
 
 function App() {
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-
-  useEffect(() => {
-    document.body.classList.toggle("dark-mode", prefersDarkMode);
-  }, [prefersDarkMode]);
-
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: prefersDarkMode ? "dark" : "light",
-          primary: { main: prefersDarkMode ? "#fff" : "#000" },
-          background: {
-            default: prefersDarkMode ? "#1E1E1E" : "#fafafa",
-            paper: prefersDarkMode ? "#000" : "#fff",
-            custom: prefersDarkMode ? "#232226" : "#E0E2DB",
-            side: prefersDarkMode ? "#171614" : "#fff",
-            more: "#0C4B94",
-          },
-          text: {
-            primary: prefersDarkMode ? "#fff" : "#000",
-            secondary: prefersDarkMode ? "#b0b0b0" : "#333",
-          },
-        },
-      }),
-    [prefersDarkMode]
-  );
-
+ 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeModeProvider>
       <CssBaseline />
       <AuthenticationProvider>
         <LayoutProvider>
@@ -59,7 +31,7 @@ function App() {
           </HashRouter>
         </LayoutProvider>
       </AuthenticationProvider>
-    </ThemeProvider>
+    </ThemeModeProvider>
   );
 }
 
