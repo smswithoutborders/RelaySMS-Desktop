@@ -7,6 +7,7 @@ import {
   handlePlatformComposeSelect,
   handleGatewayClientSelect,
   handlePlatformSettingsSelect,
+  handlePlatformHelpSelect,
   handlePlatformSelect,
   handlePlatformMessageSelect,
   executeSelect,
@@ -102,15 +103,15 @@ function PlatformLayout() {
     {
       text: "Help",
       icon: <HelpOutline />,
-      action: () => {
-        setDisplayPanel(null);
-        setControlPanel(
-          <ControlPanel
-            title="Help"
-            element={<div>Welcome to the Help Page</div>}
-          />
-        );
-      },
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handlePlatformHelpSelect,
+          setControlPanel,
+          setDisplayPanel,
+          setAlert,
+          currentActionRef,
+        }),
     },
   ];
 

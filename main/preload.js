@@ -17,6 +17,8 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.removeListener(channel, listener);
   },
 
+  openExternalLink: (url) => ipcRenderer.send("open-external-link", url),
+
   once: (channel) => {
     return new Promise((resolve, reject) => {
       ipcRenderer.once(channel, (event, data) => {

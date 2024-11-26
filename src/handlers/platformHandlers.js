@@ -5,6 +5,7 @@ import {
   GatewayClientList,
   MessageList,
   ItemsList,
+  AppTutorial,
 } from "../Components";
 import { ComposeForm, PasswordForm, OTPForm } from "../Forms";
 import { DialogView, SettingView, ComposeView } from "../Views";
@@ -37,6 +38,11 @@ const languages = [
 const handleLanguageSelect = ({ setDisplayPanel }) => {
   setDisplayPanel(<DisplayPanel body={<ItemsList items={languages} />} />);
 };
+
+const handleTutorialSelect = ({ setDisplayPanel }) => {
+  setDisplayPanel(<DisplayPanel body={<AppTutorial/>} />);
+};
+
 
 export const executeSelect = async ({
   actionName,
@@ -1060,5 +1066,55 @@ export const handlePlatformSettingsSelect = ({
 
   setControlPanel(
     <ControlPanel title="Settings" element={<ItemsList items={settings} />} />
+  );
+};
+
+export const handlePlatformHelpSelect = ({
+  actionName,
+  currentActionRef,
+  setDisplayPanel,
+  setControlPanel,
+  setAlert,
+}) => {
+
+  const handleOpenExternalLink = (url) => {
+    if (window.api && window.api.openExternalLink) {
+      window.api.openExternalLink(url);
+    } else {
+      console.error("openExternalLink is not defined on window.api");
+    }
+  };
+
+  const help = [
+    {
+      name: "About",
+      action: () => handleTutorialSelect({ setDisplayPanel }),
+    },
+    {
+      name: "Website",
+      action: () => handleOpenExternalLink("https://x.com/RelaySMS"),
+    },
+    {
+      name: "GitHub",
+      action: () => handleOpenExternalLink("https://x.com/RelaySMS"),
+    },
+    {
+      name: "X (Twitter)",
+      action: () => handleOpenExternalLink("https://x.com/RelaySMS"),
+    },
+    {
+      name: "Documentation",
+      action: () => handleOpenExternalLink("https://x.com/RelaySMS"),
+    },
+    {
+      name: "Blog",
+      action: () => handleOpenExternalLink("https://x.com/RelaySMS"),
+    },
+  ];
+
+  if (currentActionRef.current !== actionName) return;
+
+  setControlPanel(
+    <ControlPanel title="Help" element={<ItemsList items={help} />} />
   );
 };
