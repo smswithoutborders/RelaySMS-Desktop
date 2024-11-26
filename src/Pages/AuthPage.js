@@ -347,7 +347,7 @@ function AuthPage() {
             borderRadius: 7,
             width: "50%",
             bgcolor: "background.more",
-            color: "white",
+            color: "primary.main",
             "&:hover": {
               bgcolor: "primary.main",
               color: "black",
@@ -357,6 +357,32 @@ function AuthPage() {
           disabled={loading}
         >
           {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+        </Button>
+
+        <Button
+          variant="outlined"
+          size="small"
+          sx={{ mt: 2, borderRadius: 7, color: "primary", width: "40%" }}
+          disabled={loading}
+          onClick={async () => {
+            setPhoneError(false);
+            setPasswordError(false);
+
+            await checkModems();
+
+            const isPhoneValid = validatePhoneNumber();
+
+            if (!isPhoneValid || !password) {
+              if (!isPhoneValid) setPhoneError(true);
+              if (!password) setPasswordError(true);
+              return;
+            }
+
+            setLoading(true);
+            setOtpDialogOpen(true);
+          }}
+        >
+          Already have an OTP? Click here.
         </Button>
 
         <Box sx={{ mt: 3 }}>

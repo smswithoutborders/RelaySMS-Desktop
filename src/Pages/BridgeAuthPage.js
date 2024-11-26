@@ -97,11 +97,7 @@ function BridgeAuthPage() {
   };
 
   const handleOpenExternalLink = (url) => {
-    if (window.api && window.api.openExternalLink) {
-      window.api.openExternalLink(url);
-    } else {
-      console.error("openExternalLink is not defined on window.api");
-    }
+    window.api.openExternalLink(url);
   };
 
   return (
@@ -172,6 +168,22 @@ function BridgeAuthPage() {
         >
           Get Authentication Code
         </Button>
+
+        <Button
+          variant="outlined"
+          size="small"
+          sx={{ mt: 2, borderRadius: 7, color: "primary", width: "40%" }}
+          disabled={loading}
+          onClick={async () => {
+            await checkModems();
+
+            setLoading(true);
+            setOtpDialogOpen(true);
+          }}
+        >
+          Already have an Authentication Code? Click here.
+        </Button>
+
         <Box sx={{ mt: 3 }}>
           <Typography
             variant="body2"
@@ -182,7 +194,11 @@ function BridgeAuthPage() {
               alignItems: "center",
               display: "inline-flex",
             }}
-            onClick={() => handleOpenExternalLink("https://blog.smswithoutborders.com/posts/Bridges")}
+            onClick={() =>
+              handleOpenExternalLink(
+                "https://blog.smswithoutborders.com/posts/Bridges"
+              )
+            }
           >
             Learn more about Relay Bridges{" "}
             <Info fontSize="14px" sx={{ ml: 1 }} />

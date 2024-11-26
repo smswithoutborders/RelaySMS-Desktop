@@ -429,7 +429,7 @@ function SignupPage() {
             borderRadius: 7,
             width: "50%",
             bgcolor: "background.more",
-            color: "white",
+            color: "primary.main",
             "&:hover": {
               bgcolor: "primary.main",
               color: "black",
@@ -439,6 +439,31 @@ function SignupPage() {
           disabled={!agreedToTerms || loading}
         >
           {loading ? <CircularProgress size={24} color="inherit" /> : "Sign Up"}
+        </Button>
+
+        <Button
+          variant="outlined"
+          size="small"
+          sx={{ mt: 2, borderRadius: 7, color: "primary", width: "40%" }}
+          disabled={!agreedToTerms || loading}
+          onClick={async () => {
+            setPhoneError(false);
+
+            await checkModems();
+
+            const isPhoneValid = validatePhoneNumber();
+            const isPasswordValid = validatePassword();
+
+            if (!isPhoneValid || !isPasswordValid || !agreedToTerms) {
+              if (!isPhoneValid) setPhoneError(true);
+              return;
+            }
+
+            setLoading(true);
+            setOtpDialogOpen(true);
+          }}
+        >
+          Already have an OTP? Click here.
         </Button>
 
         <Box sx={{ mt: 3 }}>
