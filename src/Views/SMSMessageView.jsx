@@ -71,14 +71,14 @@ function SMSMessageView({ selectedGroup }) {
                           <>
                             <Typography
                               variant="body2"
-                              color="text.secondary"
+                              color="white"
                               component="span"
                             >
                               {message.text}{" "}
                             </Typography>
                             <Typography
                               variant="caption"
-                              color="gray"
+                              color="white"
                               style={{
                                 display: "block",
                                 textAlign: "right",
