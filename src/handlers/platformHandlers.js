@@ -1,4 +1,5 @@
 import { Typography } from "@mui/material";
+import { Launch } from "@mui/icons-material";
 import {
   DisplayPanel,
   ControlPanel,
@@ -30,19 +31,8 @@ import {
   fetchBridges,
 } from "../controllers";
 import { handleBridgeComposeClick } from "./bridgeHandlers";
-import { Launch } from "@mui/icons-material";
-
-const languages = [
-  { code: "en", name: "english" },
-  { code: "fr", name: "french" },
-  { code: "fa", name: "persian" },
-  { code: "es", name: "spanish" },
-  { code: "tr", name: "turkish" },
-];
-
-const handleLanguageSelect = ({ setDisplayPanel }) => {
-  setDisplayPanel(<DisplayPanel body={<ItemsList items={languages} />} />);
-};
+import { LanguageUtils } from "../Contexts/LanguageContext";
+import LanguageList from "../Components/LanguageList";
 
 const handleTutorialSelect = ({ setDisplayPanel }) => {
   setDisplayPanel(<DisplayPanel body={<AppTutorial />} />);
@@ -861,6 +851,12 @@ export const handlePlatformMessageSelect = async ({
   );
 };
 
+const handleLanguageSelect = ({ setDisplayPanel }) => {
+  setDisplayPanel(
+    <DisplayPanel header={"Select Language"} body={<LanguageList />} />
+  );
+};
+
 const handleChangePasswordSelect = ({ setDisplayPanel, setAlert }) => {
   const messageController = new MessageController();
   const userController = new UserController();
@@ -1064,7 +1060,7 @@ export const handlePlatformSettingsSelect = ({
 }) => {
   const settings = [
     {
-      name: "Language",
+      name: "Select Language",
       action: () => handleLanguageSelect({ setDisplayPanel }),
     },
     {

@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { useLayout } from "../Contexts/LayoutContext";
 import BaseLayout from "./BaseLayout";
 import NavigationPanel from "../Components/NavigationPanel";
-//import ControlPanel from "../Components/ControlPanel";
 import {
   handlePlatformComposeSelect,
   handleGatewayClientSelect,
@@ -22,10 +21,12 @@ import {
 } from "@mui/icons-material";
 import { Snackbar, Alert, CircularProgress } from "@mui/material";
 import { FaRegComments } from "react-icons/fa6";
+import { useTranslation } from "react-i18next";
 
 function PlatformLayout() {
   const currentActionRef = useRef(null);
   const { setNavigationPanel, setControlPanel, setDisplayPanel } = useLayout();
+  const { t } = useTranslation();
 
   const [alert, setAlert] = useState({
     open: false,
@@ -131,7 +132,7 @@ function PlatformLayout() {
               color="inherit"
               style={{ marginRight: 8 }}
             />
-            Refreshing your stored token list...
+            {t("common.refreshingTokens")}
           </div>
         ),
         severity: "info",

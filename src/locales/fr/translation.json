@@ -1,46 +1,51 @@
 {
+  "languages": {
+    "en": "Anglais",
+    "fr": "Français",
+    "fa": "Farsi",
+    "es": "Espagnol",
+    "tr": "Turc"
+  },
+  "navigation": {
+    "messages": "Messages",
+    "compose": "Composer",
+    "platforms": "Plateformes",
+    "gateway clients": "Clients passerelle",
+    "settings": "Paramètres",
+    "help": "Aide",
+    "vault": "Coffre-fort"
+  },
+  "ui": {
     "relaysms": "RelaySMS",
     "deku": "Deku SMS",
-    "language": {
-      "english": "Anglais",
-      "french": "Français",
-      "farsi": "Persan",
-      "spanish": "Espagnol",
-      "turkish": "Turc"
-    },
-    "platforms": {
-      "gmail": "Gmail",
-      "twitter": "X (Twitter)",
-      "telegram": "Telegram",
-      "mail": "Mail"
-    },
-    "settings": "Paramètres",
-    "gatewayClients": "Clients Passerelle",
-    "selectLanguage": "Choisir la langue",
-    "addAccount": "Ajouter un compte",
-    "accounts": "Comptes",
-    "help": "Aide",
-    "messages": "Messages",
     "login": "Connexion",
     "signup": "Inscription",
-    "logout": "Déconnexion",
-    "forgotPassword": "Mot de passe oublié",
-    "oldPassword": "Ancien mot de passe",
-    "conformPassword": "Confirmer le mot de passe",
-    "resetPassword": "Réinitialiser le mot de passe",
-    "repeatPassword": "Répéter le mot de passe",
+    "log out": "Déconnexion",
+    "forgot password": "Mot de passe oublié",
+    "old password": "Ancien mot de passe",
+    "new password": "Créer un nouveau mot de passe",
+    "confirm password": "Confirmer le mot de passe",
+    "repeat password": "Répéter le mot de passe",
     "password": "Mot de passe",
-    "send": "Envoyer",
-    "deleteAccount": "Supprimer le compte",
-    "newPassword": "Créer un nouveau mot de passe",
-    "vault": "Coffre-fort",
-    "compose": "Composer",
+    "reset password": "Réinitialiser le mot de passe",
+    "delete account": "Supprimer le compte",
+    "change password": "Changer le mot de passe",
+    "select language": "Sélectionner une langue",
+    "gmail": "Gmail",
+    "twitter": "X (Twitter)",
+    "telegram": "Telegram",
+    "mail": "Courriel",
+    "revoke platforms": "Révoquer les plateformes",
+    "add account": "Ajouter un compte",
+    "accounts": "Comptes",
     "to": "À",
     "from": "De",
     "subject": "Objet",
-    "whatsHappening": "Que se passe-t-il ?",
-    "search": "Rechercher des messages",
-    "revokePlatforms": "Révoquer les plateformes",
-    "changePassword": "Changer le mot de passe"
+    "whats happening": "Quoi de neuf ?",
+    "search": "Rechercher dans les messages",
+    "send": "Envoyer"
+  },
+  "common": {
+    "refreshingTokens": "Actualisation de votre liste de jetons enregistrés..."
   }
-  
+}

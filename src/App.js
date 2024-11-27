@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import "./i18n";
 import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
-
 
 import { LayoutProvider } from "./Contexts/LayoutContext";
 import {
   AuthenticationProvider,
   useAuth,
 } from "./Contexts/AuthenticationContext";
+import { ThemeModeProvider } from "./Contexts/ThemeContext";
+import { LanguageProvider } from "./Contexts/LanguageContext";
 import { CssBaseline, CircularProgress, Box } from "@mui/material";
 import { PlatformLayout, BridgeLayout, DekuLayout } from "./Layouts";
 import {
@@ -17,21 +17,21 @@ import {
   BridgeAuthPage,
   ResetPasswordPage,
 } from "./Pages";
-import { ThemeModeProvider } from "./Contexts/ThemeContext";
 
 function App() {
- 
   return (
-    <ThemeModeProvider>
-      <CssBaseline />
-      <AuthenticationProvider>
-        <LayoutProvider>
-          <HashRouter>
-            <AppRoutes />
-          </HashRouter>
-        </LayoutProvider>
-      </AuthenticationProvider>
-    </ThemeModeProvider>
+    <LanguageProvider>
+      <ThemeModeProvider>
+        <CssBaseline />
+        <AuthenticationProvider>
+          <LayoutProvider>
+            <HashRouter>
+              <AppRoutes />
+            </HashRouter>
+          </LayoutProvider>
+        </AuthenticationProvider>
+      </ThemeModeProvider>
+    </LanguageProvider>
   );
 }
 

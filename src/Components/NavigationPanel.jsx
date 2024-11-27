@@ -13,12 +13,14 @@ import {
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
-function NavigationPanel({ items = [], app }) {
+function NavigationPanel({ items = [] }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [activeItem, setActiveItem] = useState(null);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const location = useLocation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (items.length > 0) {
@@ -72,7 +74,7 @@ function NavigationPanel({ items = [], app }) {
       setIsFirstTimeUser(true);
       setJoyrideState((prevState) => ({
         ...prevState,
-        run: true, 
+        run: true,
       }));
     }
   }, []);
@@ -95,7 +97,6 @@ function NavigationPanel({ items = [], app }) {
       localStorage.setItem("hasSeenTour", "true");
       setIsFirstTimeUser(false);
     }
-    
   };
 
   return (
@@ -159,7 +160,7 @@ function NavigationPanel({ items = [], app }) {
           zIndex: 1,
         }}
       >
-        <Tooltip title="Relay" placement="right">
+        <Tooltip title={t("ui.relaysms")} placement="right">
           <Link to="/">
             <ListItemButton>
               <ListItemIcon>
@@ -182,7 +183,7 @@ function NavigationPanel({ items = [], app }) {
             </ListItemButton>
           </Link>
         </Tooltip>
-        <Tooltip title="Deku" placement="right">
+        <Tooltip title={t("ui.deku")} placement="right">
           <Link to="/deku">
             <ListItemButton>
               <ListItemIcon>
@@ -240,7 +241,11 @@ function NavigationPanel({ items = [], app }) {
           {items.length > 0
             ? items.map((item, index) => (
                 <Tooltip
-                  title={!isExpanded && item.text ? item.text : ""}
+                  title={
+                    !isExpanded && item.text
+                      ? t(`navigation.${item.text.toLowerCase()}`)
+                      : ""
+                  }
                   placement="right"
                   key={index}
                 >
@@ -271,7 +276,7 @@ function NavigationPanel({ items = [], app }) {
                       <Skeleton variant="circular" width={24} height={24} />
                     )}
                     <ListItemText
-                      primary={item.text}
+                      primary={t(`navigation.${item.text.toLowerCase()}`)}
                       sx={{
                         opacity: isExpanded ? 1 : 0,
                         transition: "opacity 0.5s ease, visibility 0.5s ease",

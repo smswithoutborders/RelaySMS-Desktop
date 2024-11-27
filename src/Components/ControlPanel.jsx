@@ -1,7 +1,10 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 function ControlPanel({ title, element }) {
+  const { t } = useTranslation();
+
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Typography
@@ -17,7 +20,7 @@ function ControlPanel({ title, element }) {
         component="div"
         gutterBottom
       >
-        {title}
+        {t(`navigation.${title.toLowerCase()}`)}
       </Typography>
 
       <Box

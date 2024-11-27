@@ -1,7 +1,10 @@
 import React from "react";
 import { Box, Typography, Divider } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 function DisplayPanel({ header, body, footer }) {
+  const { t } = useTranslation();
+
   return (
     <Box
       sx={{
@@ -12,8 +15,13 @@ function DisplayPanel({ header, body, footer }) {
     >
       {header && (
         <>
-          <Typography sx={{fontWeight: 700}} variant="body1" component="div" gutterBottom>
-            {header}
+          <Typography
+            sx={{ fontWeight: 700 }}
+            variant="body1"
+            component="div"
+            gutterBottom
+          >
+            {t(`ui.${header.toLowerCase()}`)}
           </Typography>
           <Divider sx={{ mb: 2 }} />
         </>

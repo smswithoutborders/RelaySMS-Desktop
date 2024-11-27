@@ -1,12 +1,14 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { List, ListItemText, ListItemButton } from "@mui/material";
 
 const ItemsList = ({ items }) => {
   const [activeIndex, setActiveIndex] = useState(null);
+  const { t, i18n } = useTranslation();
 
-  const handleClick = (index, action) => {
-    setActiveIndex(index); // Update the active item
-    if (action) action(); // Execute the item's action
+  const handleClick = (item, index, action) => {
+    setActiveIndex(index);
+    if (action) action(item);
   };
 
   return (
@@ -14,16 +16,17 @@ const ItemsList = ({ items }) => {
       {items.map((item, index) => (
         <ListItemButton
           key={index}
-          onClick={() => handleClick(index, item.action)}
+          onClick={() => handleClick(item, index, item.action)}
           sx={{
             cursor: "pointer",
-            backgroundColor: activeIndex === index ? "background.default" : "transparent",
+            backgroundColor:
+              activeIndex === index ? "background.default" : "transparent",
             "&:hover": {
               backgroundColor: "",
             },
           }}
         >
-          <ListItemText primary={item.name} />
+          <ListItemText primary={t(`ui.${item.name.toLowerCase()}`)} />
           {item.icon && <span style={{ marginLeft: "8px" }}>{item.icon}</span>}
         </ListItemButton>
       ))}
