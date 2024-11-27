@@ -7,7 +7,6 @@ import {
   GatewayClientList,
   MessageList,
   ItemsList,
-  AppTutorial,
 } from "../Components";
 import ThemeToggle from "../Components/ThemeToggle";
 import { ComposeForm, PasswordForm, OTPForm } from "../Forms";
@@ -33,6 +32,7 @@ import {
 import { handleBridgeComposeClick } from "./bridgeHandlers";
 import { LanguageUtils } from "../Contexts/LanguageContext";
 import LanguageList from "../Components/LanguageList";
+import { AppTutorial } from "../Pages";
 
 const handleTutorialSelect = ({ setDisplayPanel }) => {
   setDisplayPanel(<DisplayPanel body={<AppTutorial />} />);

@@ -13,6 +13,7 @@ import {
   Button,
 } from "@mui/material";
 import { Add, Delete } from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
 
 function ServiceList({
   serviceType,
@@ -23,6 +24,7 @@ function ServiceList({
   adornmentIcon,
 }) {
   const [activeService, setActiveService] = useState(null);
+const {t} = useTranslation();
 
   if (loading) {
     return (
@@ -45,7 +47,7 @@ function ServiceList({
   if (!services || services.length === 0) {
     return (
       <Typography variant="body1" color="text.secondary" sx={{ pt: 3 }}>
-        No {serviceType}s available
+        {t("no")} {serviceType}s {t("available")}
       </Typography>
     );
   }
@@ -77,7 +79,7 @@ function ServiceList({
                     startIcon={<Add />}
                     sx={{ textTransform: "none", fontSize: 9 }}
                   >
-                    Add
+                    {t("common.add")}
                   </Button>
                 )
               }
@@ -105,7 +107,7 @@ function ServiceList({
                     service.icon
                   )}
                 </ListItemAvatar>
-                <ListItemText primary={service.name} />
+                <ListItemText primary={t(`ui.${service.name.toLowerCase()}`)} />
               </ListItemButton>
             </ListItem>
 
@@ -127,7 +129,7 @@ function ServiceList({
                           startIcon={<Delete />}
                           sx={{ textTransform: "none", fontSize: 9 }}
                         >
-                          Revoke
+                          {t("common.revoke")}
                         </Button>
                       )
                     }
@@ -136,7 +138,7 @@ function ServiceList({
                       <ListItemText
                         primary={
                           <Typography variant="caption" color="text.secondary">
-                            {identifier}
+                         {identifier}
                           </Typography>
                         }
                       />

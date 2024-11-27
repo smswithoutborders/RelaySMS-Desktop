@@ -21,7 +21,7 @@ function DisplayPanel({ header, body, footer }) {
             component="div"
             gutterBottom
           >
-            {t(`ui.${header.toLowerCase()}`)}
+            {header}
           </Typography>
           <Divider sx={{ mb: 2 }} />
         </>

@@ -16,11 +16,13 @@ import {
 } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import { formatDistanceToNow } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 function SMSMessageList({ messages = [], onClick, loading }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(20);
-  const [selectedGroup, setSelectedGroup] = useState(null); // Track active item
+  const [selectedGroup, setSelectedGroup] = useState(null); 
+  const {t} = useTranslation();
 
   const sortedMessages = [...messages].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
@@ -81,7 +83,7 @@ function SMSMessageList({ messages = [], onClick, loading }) {
         }}
         variant="standard"
       >
-        <InputLabel sx={{ fontSize: "13px" }}>Search Messages</InputLabel>
+        <InputLabel sx={{ fontSize: "13px" }}>{t("ui.search")}</InputLabel>
         <Input
           size="small"
           value={searchTerm}
@@ -192,7 +194,7 @@ function SMSMessageList({ messages = [], onClick, loading }) {
             ))
           ) : (
             <Typography variant="body1" color="text.secondary" sx={{ pt: 3 }}>
-              No message to display
+              {t("ui.no message")}
             </Typography>
           )}
         </List>

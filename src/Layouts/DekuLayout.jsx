@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLayout } from "../Contexts/LayoutContext";
 import BaseLayout from "./BaseLayout";
 import NavigationPanel from "../Components/NavigationPanel";
 import ControlPanel from "../Components/ControlPanel";
-import { handleSmsMessageSelect } from "../handlers/dekuHandler";
-import { HelpOutline } from "@mui/icons-material";
+import { executeSelect, handleDekuHelpSelect, handleDekuSettingsSelect, handleSmsMessageSelect } from "../handlers/dekuHandler";
+import { HelpOutline, Settings } from "@mui/icons-material";
 import { Snackbar, Alert } from "@mui/material";
 import { FaRegComments } from "react-icons/fa6";
 
 function DekuLayout() {
   const { setNavigationPanel, setControlPanel, setDisplayPanel } = useLayout();
+  const currentActionRef = useRef(null);
 
   const [alert, setAlert] = useState({
     open: false,
@@ -30,17 +31,30 @@ function DekuLayout() {
         }),
     },
     {
+      text: "Settings",
+      icon: <Settings />,
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handleDekuSettingsSelect,
+          setControlPanel,
+          setDisplayPanel,
+          setAlert,
+          currentActionRef,
+        }),
+    },
+    {
       text: "Help",
       icon: <HelpOutline />,
-      action: () => {
-        setDisplayPanel(null);
-        setControlPanel(
-          <ControlPanel
-            title="Help"
-            element={<div>Welcome to the Help Page</div>}
-          />
-        );
-      },
+      action: (action) =>
+        executeSelect({
+          actionName: action,
+          selectFunction: handleDekuHelpSelect,
+          setControlPanel,
+          setDisplayPanel,
+          setAlert,
+          currentActionRef,
+        }),
     },
   ];
 

@@ -16,11 +16,14 @@ import {
 } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import { formatDistanceToNow } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 function MessageList({ messages = [], onClick, loading }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(20);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
+  const { t } = useTranslation();
+
 
   const filteredMessages = messages.filter(
     (message) =>
@@ -60,7 +63,7 @@ function MessageList({ messages = [], onClick, loading }) {
         }}
         variant="standard"
       >
-        <InputLabel sx={{ fontSize: "13px" }}>Search Messages</InputLabel>
+        <InputLabel sx={{ fontSize: "13px" }}>{t("ui.search")}</InputLabel>
         <Input
           size="small"
           value={searchTerm}
@@ -130,7 +133,7 @@ function MessageList({ messages = [], onClick, loading }) {
                       variant="body1"
                       component="span"
                     >
-                      {message.title}
+                      {message.title} 
                     </Typography>
                   }
                   secondary={

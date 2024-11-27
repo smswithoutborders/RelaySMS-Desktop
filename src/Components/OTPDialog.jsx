@@ -11,6 +11,7 @@ import {
   Alert as MuiAlert,
   CircularProgress,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 function OTPDialog({
   open,
@@ -37,6 +38,7 @@ function OTPDialog({
   });
   const [loading, setLoading] = useState(false);
   const [callbackIntervalCounter, setCallbackIntervalCounter] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (open) {
@@ -172,7 +174,7 @@ function OTPDialog({
           gutterBottom
           textAlign="center"
         >
-          Verify Your Identity
+         {t("verify identity")}
         </Typography>
 
         <Typography
@@ -182,7 +184,7 @@ function OTPDialog({
           textAlign="center"
           mt={2}
         >
-          {subText}
+          {t(`navigation.${subText.toLowerCase()}`)}
         </Typography>
 
         {alert?.message && (
@@ -206,17 +208,15 @@ function OTPDialog({
               <CircularProgress size={24} color="inherit" sx={{ mr: 2 }} />
               <Box>
                 <Typography variant="body2" component="span">
-                  We're trying to retrieve your OTP from your SMS inbox...
+                  {t("common.retrieving otp")}
                 </Typography>
                 <Typography
                   variant="body2"
                   color="textSecondary"
                   sx={{ mt: 1 }}
                 >
-                  We'll check again in{" "}
-                  <strong>{callbackIntervalCounter} seconds</strong>. If it
-                  doesn't auto-fill, double-check your phone number or manually
-                  enter the OTP.
+                  {t("common.check again")}{" "}
+                  <strong>{callbackIntervalCounter} {t("common.seconds")}</strong>. {t("common.double check")}
                 </Typography>
                 <Button
                   variant="contained"
@@ -225,7 +225,7 @@ function OTPDialog({
                   sx={{ mt: 1 }}
                   onClick={() => (window.location.hash = "/deku")}
                 >
-                  Check your Deku SMS Inbox
+                  {t("common.check deku")}
                 </Button>
               </Box>
             </MuiAlert>
@@ -275,12 +275,12 @@ function OTPDialog({
         {counterTimestamp > 0 && (
           <Box mt={2} textAlign="center">
             <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-              Didn't receive the OTP?
+            {t("common.didnt recieve otp")}
             </Typography>
             {counter > 0 ? (
               <Box mt={2}>
                 <MuiAlert severity="info" variant="outlined">
-                  Resend OTP in {counter} seconds
+                {t("common.resend otp")} {t("in")} {counter} {t("common.seconds")}
                 </MuiAlert>
               </Box>
             ) : (
@@ -297,7 +297,7 @@ function OTPDialog({
                   ) : null
                 }
               >
-                {loading ? "Resending OTP..." : "Resend OTP"}
+                {loading ? t("common.resending otp") : t("common.resend otp")}
               </Button>
             )}
           </Box>
@@ -313,7 +313,7 @@ function OTPDialog({
           disabled={loading}
           sx={{ mr: 1 }}
         >
-          Cancel
+          {t("ui.cancel")}
         </Button>
         <Button
           onClick={handleOtpSubmit}
@@ -329,7 +329,7 @@ function OTPDialog({
             loading ? <CircularProgress size={24} color="inherit" /> : null
           }
         >
-          {loading ? "Submitting..." : "Submit"}
+          {loading ? t("ui.submitting") : t("ui.submit")}
         </Button>
       </DialogActions>
     </Dialog>

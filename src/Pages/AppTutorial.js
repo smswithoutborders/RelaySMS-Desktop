@@ -1,36 +1,34 @@
 import { Alert, Box, List, ListItem, Typography } from "@mui/material";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 export default function AppTutorial() {
+  const {t} = useTranslation();
   return (
     <Box>
       <Typography variant="h6" sx={{ fontWeight: 600, mt: 3 }}>
-        About
+       {t("tutorials.about")}
       </Typography>
       <Typography variant="body2" sx={{ mt: 2 }}>
-        RelaySMS (also known as SWoB, short for SMS Without Borders) is a tool
-        that allows you to send secure online messages via SMS without requiring
-        an internet connection.
+      {t("tutorials.about info")}
       </Typography>
       <Typography variant="h6" sx={{ fontWeight: 600, mt: 3 }}>
-        Dependencies/Requirements
+      {t("tutorials.dependencies/requirements")}
       </Typography>
       <ul>
-        <li>A modem or an active SIM card in your computer</li>
+        <li>{t("tutorials.modem")}</li>
       </ul>
       <Typography variant="body2">
-        This is essential for sending SMS using RelaySMS Desktop. Without a
-        modem or SIM card, you cannot send SMS.
+      {t("tutorials.modem info")}
       </Typography>
       <Typography variant="h6" sx={{ fontWeight: 600, mt: 5 }}>
-        Using the App
+      {t("tutorials.using the app")}
       </Typography>
       <List>
-        <ListItem>1. Save Platforms</ListItem>
+        <ListItem>1. {t("tutorials.save platforms")}</ListItem>
       </List>
       <Typography variant="body2">
-        Navigate to the "Platforms" tab and click the "Add" button for the
-        platform you want to save. This will open the authentication screen.
+      {t("tutorials.save platfrom info")}
       </Typography>
       <Box
         component="img"
@@ -39,11 +37,10 @@ export default function AppTutorial() {
         sx={{ width: "60%" }}
       />
       <List>
-        <ListItem>2. Select Gateway Client</ListItem>
+        <ListItem>{t("tutorials.select gateway client")}</ListItem>
       </List>
       <Typography variant="body2">
-        Go to the "Gateway Clients" tab and select the gateway client (number)
-        closest to your location to minimize SMS costs.
+      {t("tutorials.select gateway client info")}
       </Typography>
       <Box
         component="img"
@@ -52,15 +49,13 @@ export default function AppTutorial() {
         sx={{ width: "60%" }}
       />
       <List>
-        <ListItem>3. Compose Message</ListItem>
+        <ListItem>{t("tutorials.compose message")}</ListItem>
       </List>
       <Typography variant="body2">
-        Open the "Compose" tab, select the platform you want to publish to, and
-        that's it! You've sent your first message using RelaySMS.
+      {t("tutorials.compose message info")}
       </Typography>
       <Alert severity="info" sx={{my: 2}}>
-        Ensure you have an active modem or SIM card in your computer to
-        successfully send SMS.
+      {t("tutorials.alert")}
       </Alert>
       <Box
         component="img"

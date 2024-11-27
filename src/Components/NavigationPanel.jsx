@@ -50,17 +50,17 @@ function NavigationPanel({ items = [] }) {
       {
         target: ".platform-step",
         content:
-          "To get started first add platforms by clicking the Add button for the platform you want to save This will open the authentication screen",
+          t("common.platform-step"),
       },
       {
         target: ".gateway-step",
         content:
-          "Next, You need to select a gatway client closest to your location to minimize SMS costs",
+        t("common.gateway-step"),
       },
       {
         target: ".compose-step",
         content:
-          "Finally, select the platform you want to publish to, and that's it! You've sent your first message using RelaySMS.",
+        t("common.compose-step"),
         showNextButton: false,
         showSkipButton: false,
       },
@@ -120,11 +120,11 @@ function NavigationPanel({ items = [] }) {
         disableOverlayClose={true}
         callback={handleJoyrideCallback}
         locale={{
-          back: "Back",
-          close: "Close",
-          last: "Finish",
-          next: "Next",
-          skip: "Skip",
+          back: t("ui.back"),
+          close: t("ui.close"),
+          last: t("ui.last"),
+          next: t("ui.next"),
+          skip: t("ui.skip"),
         }}
         styles={{
           options: {
