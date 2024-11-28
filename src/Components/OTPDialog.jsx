@@ -184,7 +184,7 @@ function OTPDialog({
           textAlign="center"
           mt={2}
         >
-          {t(`navigation.${subText.toLowerCase()}`)}
+          {subText}
         </Typography>
 
         {alert?.message && (
