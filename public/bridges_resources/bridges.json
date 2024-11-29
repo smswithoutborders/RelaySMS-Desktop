@@ -1,0 +1,7 @@
+[
+  {
+    "name": "email_bridge",
+    "shortcode": "e",
+    "url": "https://github.com/smswithoutborders/RelaySMS-Bridge-EmailClient.git"
+  }
+]
