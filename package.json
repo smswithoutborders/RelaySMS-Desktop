@@ -141,9 +141,12 @@
     },
     "linux": {
       "target": [
-        "deb"
+        "deb",
+        "rpm",
+        "AppImage",
+        "snap"
       ],
-      "icon": "public/icon.png",
+      "icon": "public/images",
       "category": "Communication"
     },
     "deb": {
@@ -165,6 +168,24 @@
       ],
       "afterInstall": "scripts/after-install.sh",
       "afterRemove": "scripts/after-remove.sh"
+    },
+    "rpm": {
+      "depends": [
+        "curl",
+        "git",
+        "libXScrnSaver",
+        "libdbus-glib-1-2"
+      ],
+      "compression": "xz"
+    },
+    "snap": {
+      "grade": "stable",
+      "confinement": "strict",
+      "plugs": [
+        "home",
+        "network",
+        "network-bind"
+      ]
     }
   }
 }

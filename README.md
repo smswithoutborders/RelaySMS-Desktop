@@ -1,7 +1,7 @@
 # RelaySMS - Desktop
 --------
 
-![relay-sms-screenshot](public/homepage.png)
+![relay-sms-screenshot](public/images/homepage.png)
 
 Connecting the world, one SMS at a time.
 

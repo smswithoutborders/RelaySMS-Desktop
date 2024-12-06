@@ -32,7 +32,7 @@ export default function AppTutorial() {
       </Typography>
       <Box
         component="img"
-        src="AddPlatforms.png"
+        src="images/AddPlatforms.png"
         alt="Adding platforms"
         sx={{ width: "60%" }}
       />
@@ -44,7 +44,7 @@ export default function AppTutorial() {
       </Typography>
       <Box
         component="img"
-        src="SelectGatewayClient.png"
+        src="images/SelectGatewayClient.png"
         alt="Selecting gateway client"
         sx={{ width: "60%" }}
       />
@@ -59,7 +59,7 @@ export default function AppTutorial() {
       </Alert>
       <Box
         component="img"
-        src="ComposeMessage.png"
+        src="images/ComposeMessage.png"
         alt="Composing a message"
         sx={{ width: "60%" }}
       />

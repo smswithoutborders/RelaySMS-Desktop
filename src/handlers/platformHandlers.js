@@ -1,4 +1,3 @@
-import { Typography } from "@mui/material";
 import { Launch } from "@mui/icons-material";
 import {
   DisplayPanel,
@@ -30,7 +29,6 @@ import {
   fetchBridges,
 } from "../controllers";
 import { handleBridgeComposeClick } from "./bridgeHandlers";
-import { LanguageUtils } from "../Contexts/LanguageContext";
 import LanguageList from "../Components/LanguageList";
 import { AppTutorial } from "../Pages";
 

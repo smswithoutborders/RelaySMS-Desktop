@@ -486,7 +486,7 @@ function SignupPage() {
         }}
       >
         <img
-          src="login.png"
+          src="images/login.png"
           alt="login illustration"
           style={{ width: "100%", height: "auto" }}
         />
