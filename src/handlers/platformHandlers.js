@@ -27,6 +27,7 @@ import {
   MessageController,
   SettingsController,
   fetchBridges,
+  computeDeviceID,
 } from "../controllers";
 import { handleBridgeComposeClick } from "./bridgeHandlers";
 import LanguageList from "../Components/LanguageList";
@@ -115,9 +116,23 @@ const handlePlatformComposeClick = ({
       }
 
       const contentCiphertext = await encryptPayload(structuredContent);
+
+      const publishWithDeviceIDState = localStorage.getItem(
+        "PublishWithDeviceID"
+      );
+      const isPublishWithDeviceIDEnabled =
+        publishWithDeviceIDState !== null
+          ? JSON.parse(publishWithDeviceIDState)
+          : false;
+
+      const deviceID = isPublishWithDeviceIDEnabled
+        ? await computeDeviceID()
+        : "";
+
       const transmissionPayload = await createTransmissionPayload({
         contentCiphertext,
         platformShortCode: platform.shortcode,
+        deviceID,
       });
 
       const smsPayload = {
@@ -1049,7 +1064,11 @@ const handleDeleteAccountSelect = ({ setDisplayPanel, setAlert }) => {
   );
 };
 
-const handlePublishWithDeviceIDSelect = ({ setDisplayPanel, setAlert, publishWithDeviceID, setPublishWithDeviceID }) => {
+const handlePublishWithDeviceIDSelect = ({ setDisplayPanel, setAlert }) => {
+  const storedState = localStorage.getItem("PublishWithDeviceID");
+  const publishWithDeviceID =
+    storedState !== null ? JSON.parse(storedState) : false;
+
   const publishSettings = {
     title: "Publish With Device ID",
     description: `Publishing with Device ID is currently ${
@@ -1060,12 +1079,16 @@ const handlePublishWithDeviceIDSelect = ({ setDisplayPanel, setAlert, publishWit
 
   const handleToggle = () => {
     const newState = !publishWithDeviceID;
-    setPublishWithDeviceID(newState);
+    localStorage.setItem("PublishWithDeviceID", JSON.stringify(newState));
+
     setAlert({
       open: true,
       severity: "info",
-      message: `Device ID Publishing has been ${newState ? "enabled" : "disabled"}.`,
+      message: `Device ID Publishing has been ${
+        newState ? "enabled" : "disabled"
+      }.`,
     });
+
     setDisplayPanel(null);
   };
 
@@ -1087,15 +1110,12 @@ const handlePublishWithDeviceIDSelect = ({ setDisplayPanel, setAlert, publishWit
   );
 };
 
-
 export const handlePlatformSettingsSelect = ({
   actionName,
   currentActionRef,
   setDisplayPanel,
   setControlPanel,
   setAlert,
-  publishWithDeviceID,
-  setPublishWithDeviceID,
 }) => {
   const settings = [
     {
@@ -1117,12 +1137,7 @@ export const handlePlatformSettingsSelect = ({
     {
       name: "Publish With Device ID",
       action: () =>
-        handlePublishWithDeviceIDSelect({
-          setDisplayPanel,
-          setAlert,
-          publishWithDeviceID,
-          setPublishWithDeviceID,
-        }),
+        handlePublishWithDeviceIDSelect({ setDisplayPanel, setAlert }),
     },
   ];
 

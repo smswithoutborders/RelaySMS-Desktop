@@ -25,8 +25,7 @@ function setupVaultHandlers() {
     }
   );
 
-  const vaultUrl =
-    process.env.VAULT_URL || "vault.staging.smswithoutborders.com:443";
+  const vaultUrl = process.env.VAULT_URL || "vault.smswithoutborders.com:443";
   protoHandler.connectToServer(vaultUrl, true);
 
   const entityMethods = protoHandler.getMethods();

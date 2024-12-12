@@ -9,7 +9,7 @@ const {
   clearRatchetState,
   createBridgeTransmissionPayload,
   extractBridgePayload,
-  generateDeviceID,
+  computeDeviceID,
 } = require("../crypto");
 
 function setupCryptoHandlers() {
@@ -117,25 +117,30 @@ function setupCryptoHandlers() {
   );
 
   ipcMain.handle(
-    "generate-device-id",
-    async (event, { phoneNumber, publicKey, sharedSecretKey }) => {
+    "compute-device-id",
+    async (
+      event,
+      {
+        phoneNumber,
+        clientDeviceIDPublicKey,
+        clientDeviceIdPrivateKey,
+        serverDeviceIdPublicKey,
+      }
+    ) => {
       try {
-        const payload = generateDeviceID({
+        const deviceId = computeDeviceID({
           phoneNumber,
-          publicKey,
-          sharedSecretKey,
+          clientDeviceIDPublicKey,
+          clientDeviceIdPrivateKey,
+          serverDeviceIdPublicKey,
         });
-        return payload;
+        return deviceId;
       } catch (error) {
-        logger.error(
-          "Error in generating-device-id:",
-          error.message
-        );
+        logger.error("Error in generating-device-id:", error.message);
         throw error;
       }
     }
   );
-
 
   ipcMain.handle("clear-ratchet-state", async () => {
     try {

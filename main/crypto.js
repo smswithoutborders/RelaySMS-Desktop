@@ -21,24 +21,41 @@ const generateKeyPair = () => {
   }
 };
 
-const generateDeviceID = (phoneNumber, publicKey, sharedSecretKey) => {
+const computeDeviceID = async ({
+  phoneNumber,
+  clientDeviceIDPublicKey,
+  clientDeviceIdPrivateKey,
+  serverDeviceIdPublicKey,
+}) => {
   try {
-    const publicKeyBytes = nacl.util.decodeBase64(publicKey);
-    const secretKeyBytes = nacl.util.decodeBase64(sharedSecretKey);
+    const clientDeviceIDPublicKeyBuffer = nacl.util.decodeBase64(
+      clientDeviceIDPublicKey
+    );
+    const clientPrivateKeyBuffer = nacl.util.decodeBase64(
+      clientDeviceIdPrivateKey
+    );
+    const serverPublicKeyBuffer = nacl.util.decodeBase64(
+      serverDeviceIdPublicKey
+    );
 
-    const hmacKey = crypto.createHmac("sha256", secretKeyBytes);
+    const deviceIDSecretKeyBuffer = nacl.scalarMult(
+      clientPrivateKeyBuffer,
+      serverPublicKeyBuffer
+    );
 
-    const dataToHash = Buffer.concat([
+    const derivedKey = await __getDerivedKey(deviceIDSecretKeyBuffer);
+
+    const combinedBuffer = Buffer.concat([
       Buffer.from(phoneNumber, "utf-8"),
-      Buffer.from(publicKeyBytes),
+      clientDeviceIDPublicKeyBuffer,
     ]);
 
-    const hmac = crypto.createHmac("sha256", hmacKey.digest());
-    hmac.update(dataToHash);
-
-    return hmac.digest("base64");
+    return crypto
+      .createHmac("sha256", derivedKey)
+      .update(combinedBuffer)
+      .digest("base64");
   } catch (err) {
-    throw new Error(`Failed to generate device ID: ${err.message}`);
+    throw err;
   }
 };
 
@@ -121,7 +138,6 @@ const encryptPayload = ({
       cliPath,
     ];
 
-    console.log(commandArgs.join(" "));
     execFile("bash", ["-c", commandArgs.join(" ")], (error, stdout, stderr) => {
       if (error) {
         reject(new Error(`Encryption failed: ${stderr || error.message}`));
@@ -177,7 +193,7 @@ const createTransmissionPayload = ({
   try {
     const platformShortCodeBuffer = Buffer.from(platformShortCode, "utf-8");
     const contentCiphertextBuffer = Buffer.from(contentCiphertext, "base64");
-    const deviceIDBuffer = Buffer.from(deviceID, "utf-8");
+    const deviceIDBuffer = Buffer.from(deviceID, "base64");
 
     const lengthBuffer = Buffer.alloc(4);
     lengthBuffer.writeInt32LE(contentCiphertextBuffer.length);
@@ -311,5 +327,5 @@ module.exports = {
   clearRatchetState,
   createBridgeTransmissionPayload,
   extractBridgePayload,
-  generateDeviceID
+  computeDeviceID,
 };
