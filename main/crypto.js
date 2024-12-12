@@ -21,6 +21,27 @@ const generateKeyPair = () => {
   }
 };
 
+const generateDeviceID = (phoneNumber, publicKey, sharedSecretKey) => {
+  try {
+    const publicKeyBytes = nacl.util.decodeBase64(publicKey);
+    const secretKeyBytes = nacl.util.decodeBase64(sharedSecretKey);
+
+    const hmacKey = crypto.createHmac("sha256", secretKeyBytes);
+
+    const dataToHash = Buffer.concat([
+      Buffer.from(phoneNumber, "utf-8"),
+      Buffer.from(publicKeyBytes),
+    ]);
+
+    const hmac = crypto.createHmac("sha256", hmacKey.digest());
+    hmac.update(dataToHash);
+
+    return hmac.digest("base64");
+  } catch (err) {
+    throw new Error(`Failed to generate device ID: ${err.message}`);
+  }
+};
+
 const __getDerivedKey = async (secretKey) => {
   const hkdfAsync = util.promisify(crypto.hkdf);
   const info = Buffer.from("x25591_key_exchange");
@@ -290,4 +311,5 @@ module.exports = {
   clearRatchetState,
   createBridgeTransmissionPayload,
   extractBridgePayload,
+  generateDeviceID
 };

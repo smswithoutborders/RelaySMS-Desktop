@@ -1049,12 +1049,53 @@ const handleDeleteAccountSelect = ({ setDisplayPanel, setAlert }) => {
   );
 };
 
+const handlePublishWithDeviceIDSelect = ({ setDisplayPanel, setAlert, publishWithDeviceID, setPublishWithDeviceID }) => {
+  const publishSettings = {
+    title: "Publish With Device ID",
+    description: `Publishing with Device ID is currently ${
+      publishWithDeviceID ? "enabled" : "disabled"
+    }. Would you like to toggle this setting?`,
+    color: "",
+  };
+
+  const handleToggle = () => {
+    const newState = !publishWithDeviceID;
+    setPublishWithDeviceID(newState);
+    setAlert({
+      open: true,
+      severity: "info",
+      message: `Device ID Publishing has been ${newState ? "enabled" : "disabled"}.`,
+    });
+    setDisplayPanel(null);
+  };
+
+  setDisplayPanel(
+    <DisplayPanel
+      header={publishSettings.title}
+      body={
+        <DialogView
+          open={true}
+          title={publishSettings.title}
+          description={publishSettings.description}
+          cancelText="cancel"
+          confirmText={`turn ${publishWithDeviceID ? "off" : "on"}`}
+          onClose={() => setDisplayPanel(null)}
+          onConfirm={() => handleToggle()}
+        />
+      }
+    />
+  );
+};
+
+
 export const handlePlatformSettingsSelect = ({
   actionName,
   currentActionRef,
   setDisplayPanel,
   setControlPanel,
   setAlert,
+  publishWithDeviceID,
+  setPublishWithDeviceID,
 }) => {
   const settings = [
     {
@@ -1072,6 +1113,16 @@ export const handlePlatformSettingsSelect = ({
     {
       name: "Delete Account",
       action: () => handleDeleteAccountSelect({ setDisplayPanel, setAlert }),
+    },
+    {
+      name: "Publish With Device ID",
+      action: () =>
+        handlePublishWithDeviceIDSelect({
+          setDisplayPanel,
+          setAlert,
+          publishWithDeviceID,
+          setPublishWithDeviceID,
+        }),
     },
   ];
 

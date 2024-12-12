@@ -89,6 +89,7 @@ export const createEntity = async ({
           response.next_attempt_timestamp
         )
       );
+      userController.setData("phoneNumber", phone_number);
     }
 
     await Promise.all(operations);
@@ -155,6 +156,7 @@ export const authenticateEntity = async ({
           response.next_attempt_timestamp
         )
       );
+      userController.setData("phoneNumber", phone_number);
     }
 
     await Promise.all(operations);
