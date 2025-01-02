@@ -13,6 +13,7 @@ export {
   deletePNBAToken,
   updateEntityPassword,
   deleteEntity,
+  computeDeviceID,
 } from "./platformControllers";
 export { default as SettingsController } from "./settingsController";
 export { default as UserController } from "./userController";

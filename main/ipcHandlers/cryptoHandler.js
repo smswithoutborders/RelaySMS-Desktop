@@ -9,6 +9,7 @@ const {
   clearRatchetState,
   createBridgeTransmissionPayload,
   extractBridgePayload,
+  computeDeviceID,
 } = require("../crypto");
 
 function setupCryptoHandlers() {
@@ -110,6 +111,32 @@ function setupCryptoHandlers() {
           "Error in create-transmission-payload handler:",
           error.message
         );
+        throw error;
+      }
+    }
+  );
+
+  ipcMain.handle(
+    "compute-device-id",
+    async (
+      event,
+      {
+        phoneNumber,
+        clientDeviceIDPublicKey,
+        clientDeviceIdPrivateKey,
+        serverDeviceIdPublicKey,
+      }
+    ) => {
+      try {
+        const deviceId = computeDeviceID({
+          phoneNumber,
+          clientDeviceIDPublicKey,
+          clientDeviceIdPrivateKey,
+          serverDeviceIdPublicKey,
+        });
+        return deviceId;
+      } catch (error) {
+        logger.error("Error in generating-device-id:", error.message);
         throw error;
       }
     }

@@ -1,4 +1,3 @@
-import { Typography } from "@mui/material";
 import { Launch } from "@mui/icons-material";
 import {
   DisplayPanel,
@@ -28,9 +27,9 @@ import {
   MessageController,
   SettingsController,
   fetchBridges,
+  computeDeviceID,
 } from "../controllers";
 import { handleBridgeComposeClick } from "./bridgeHandlers";
-import { LanguageUtils } from "../Contexts/LanguageContext";
 import LanguageList from "../Components/LanguageList";
 import { AppTutorial } from "../Pages";
 
@@ -117,9 +116,23 @@ const handlePlatformComposeClick = ({
       }
 
       const contentCiphertext = await encryptPayload(structuredContent);
+
+      const publishWithDeviceIDState = localStorage.getItem(
+        "PublishWithDeviceID"
+      );
+      const isPublishWithDeviceIDEnabled =
+        publishWithDeviceIDState !== null
+          ? JSON.parse(publishWithDeviceIDState)
+          : false;
+
+      const deviceID = isPublishWithDeviceIDEnabled
+        ? await computeDeviceID()
+        : "";
+
       const transmissionPayload = await createTransmissionPayload({
         contentCiphertext,
         platformShortCode: platform.shortcode,
+        deviceID,
       });
 
       const smsPayload = {
@@ -1051,6 +1064,52 @@ const handleDeleteAccountSelect = ({ setDisplayPanel, setAlert }) => {
   );
 };
 
+const handlePublishWithDeviceIDSelect = ({ setDisplayPanel, setAlert }) => {
+  const storedState = localStorage.getItem("PublishWithDeviceID");
+  const publishWithDeviceID =
+    storedState !== null ? JSON.parse(storedState) : false;
+
+  const publishSettings = {
+    title: "Publish With Device ID",
+    description: `Publishing with Device ID is currently ${
+      publishWithDeviceID ? "enabled" : "disabled"
+    }. Would you like to toggle this setting?`,
+    color: "",
+  };
+
+  const handleToggle = () => {
+    const newState = !publishWithDeviceID;
+    localStorage.setItem("PublishWithDeviceID", JSON.stringify(newState));
+
+    setAlert({
+      open: true,
+      severity: "info",
+      message: `Device ID Publishing has been ${
+        newState ? "enabled" : "disabled"
+      }.`,
+    });
+
+    setDisplayPanel(null);
+  };
+
+  setDisplayPanel(
+    <DisplayPanel
+      header={publishSettings.title}
+      body={
+        <DialogView
+          open={true}
+          title={publishSettings.title}
+          description={publishSettings.description}
+          cancelText="cancel"
+          confirmText={`turn ${publishWithDeviceID ? "off" : "on"}`}
+          onClose={() => setDisplayPanel(null)}
+          onConfirm={() => handleToggle()}
+        />
+      }
+    />
+  );
+};
+
 export const handlePlatformSettingsSelect = ({
   actionName,
   currentActionRef,
@@ -1074,6 +1133,11 @@ export const handlePlatformSettingsSelect = ({
     {
       name: "Delete Account",
       action: () => handleDeleteAccountSelect({ setDisplayPanel, setAlert }),
+    },
+    {
+      name: "Publish With Device ID",
+      action: () =>
+        handlePublishWithDeviceIDSelect({ setDisplayPanel, setAlert }),
     },
   ];
 

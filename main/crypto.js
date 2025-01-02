@@ -21,6 +21,44 @@ const generateKeyPair = () => {
   }
 };
 
+const computeDeviceID = async ({
+  phoneNumber,
+  clientDeviceIDPublicKey,
+  clientDeviceIdPrivateKey,
+  serverDeviceIdPublicKey,
+}) => {
+  try {
+    const clientDeviceIDPublicKeyBuffer = nacl.util.decodeBase64(
+      clientDeviceIDPublicKey
+    );
+    const clientPrivateKeyBuffer = nacl.util.decodeBase64(
+      clientDeviceIdPrivateKey
+    );
+    const serverPublicKeyBuffer = nacl.util.decodeBase64(
+      serverDeviceIdPublicKey
+    );
+
+    const deviceIDSecretKeyBuffer = nacl.scalarMult(
+      clientPrivateKeyBuffer,
+      serverPublicKeyBuffer
+    );
+
+    const derivedKey = await __getDerivedKey(deviceIDSecretKeyBuffer);
+
+    const combinedBuffer = Buffer.concat([
+      Buffer.from(phoneNumber, "utf-8"),
+      clientDeviceIDPublicKeyBuffer,
+    ]);
+
+    return crypto
+      .createHmac("sha256", derivedKey)
+      .update(combinedBuffer)
+      .digest("base64");
+  } catch (err) {
+    throw err;
+  }
+};
+
 const __getDerivedKey = async (secretKey) => {
   const hkdfAsync = util.promisify(crypto.hkdf);
   const info = Buffer.from("x25591_key_exchange");
@@ -100,7 +138,6 @@ const encryptPayload = ({
       cliPath,
     ];
 
-    console.log(commandArgs.join(" "));
     execFile("bash", ["-c", commandArgs.join(" ")], (error, stdout, stderr) => {
       if (error) {
         reject(new Error(`Encryption failed: ${stderr || error.message}`));
@@ -156,7 +193,7 @@ const createTransmissionPayload = ({
   try {
     const platformShortCodeBuffer = Buffer.from(platformShortCode, "utf-8");
     const contentCiphertextBuffer = Buffer.from(contentCiphertext, "base64");
-    const deviceIDBuffer = Buffer.from(deviceID, "utf-8");
+    const deviceIDBuffer = Buffer.from(deviceID, "base64");
 
     const lengthBuffer = Buffer.alloc(4);
     lengthBuffer.writeInt32LE(contentCiphertextBuffer.length);
@@ -290,4 +327,5 @@ module.exports = {
   clearRatchetState,
   createBridgeTransmissionPayload,
   extractBridgePayload,
+  computeDeviceID,
 };

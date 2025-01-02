@@ -166,7 +166,7 @@ function NavigationPanel({ items = [] }) {
               <ListItemIcon>
                 <Box
                   component="img"
-                  src="icon.png"
+                  src="images/icon.png"
                   alt="Relay"
                   sx={{
                     border: isActive("/") ? "2px solid #0C4B94" : "none",
@@ -189,7 +189,7 @@ function NavigationPanel({ items = [] }) {
               <ListItemIcon>
                 <Box
                   component="img"
-                  src="Deku.png"
+                  src="images/Deku.png"
                   alt="Deku"
                   sx={{
                     border: isActive("/deku") ? "2px solid #0C4B94" : "none",

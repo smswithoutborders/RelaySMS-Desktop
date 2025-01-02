@@ -58,7 +58,8 @@
     "blog": "Blog",
     "github": "GitHub",
     "theme toggle": "Theme Toggle",
-    "no message": "No message to display"
+    "no message": "No message to display",
+    "publish with device id": "Publish with Device ID"
   },
   "common": {
     "refreshingTokens": "Refreshing your stored token list...",

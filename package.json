@@ -30,6 +30,7 @@
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
+    "electron-icon-builder": "^2.0.1",
     "fernet": "^0.3.2",
     "i18next": "^23.11.4",
     "keytar": "^7.9.0",
@@ -141,9 +142,12 @@
     },
     "linux": {
       "target": [
-        "deb"
+        "deb",
+        "rpm",
+        "AppImage",
+        "snap"
       ],
-      "icon": "public/icon.png",
+      "icon": "public/images",
       "category": "Communication"
     },
     "deb": {
@@ -165,6 +169,24 @@
       ],
       "afterInstall": "scripts/after-install.sh",
       "afterRemove": "scripts/after-remove.sh"
+    },
+    "rpm": {
+      "depends": [
+        "curl",
+        "git",
+        "libXScrnSaver",
+        "libdbus-glib-1-2"
+      ],
+      "compression": "xz"
+    },
+    "snap": {
+      "grade": "stable",
+      "confinement": "strict",
+      "plugs": [
+        "home",
+        "network",
+        "network-bind"
+      ]
     }
   }
 }

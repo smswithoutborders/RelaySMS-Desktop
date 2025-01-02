@@ -104,7 +104,6 @@ export const handleBridgeComposeClick = ({
       );
 
       const contentCiphertext = await encryptBridgePayload(structuredContent);
-      console.log(contentCiphertext);
       const transmissionPayload = await createBridgeTransmissionPayload({
         contentCiphertext,
         authorizationCode,

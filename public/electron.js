@@ -60,7 +60,7 @@ async function createWindow() {
 
   ipcMain.handle("notify-system", async (event, { title, body }) => {
     try {
-      const iconPath = path.join(__dirname, "icon.png");
+      const iconPath = path.join(__dirname, "images/icon.png");
 
       new Notification({
         title,
@@ -104,7 +104,7 @@ async function createWindow() {
       contextIsolation: true,
       enableRemoteModule: false,
     },
-    icon: path.join(__dirname, "icon.png"),
+    icon: path.join(__dirname, "images/icon.png"),
   });
 
   const appURL = app.isPackaged

@@ -76,6 +76,7 @@ export const createEntity = async ({
           },
         }),
         userController.setData("longLivedToken", response.long_lived_token),
+        userController.setData("phoneNumber", phone_number),
         settingsController.deleteData("preferences.otp.nextAttemptTimestamp"),
         settingsController.deleteData("preferences.otp.phoneNumber")
       );
@@ -142,6 +143,7 @@ export const authenticateEntity = async ({
           },
         }),
         userController.setData("longLivedToken", response.long_lived_token),
+        userController.setData("phoneNumber", phone_number),
         settingsController.deleteData("preferences.otp.nextAttemptTimestamp"),
         settingsController.deleteData("preferences.otp.phoneNumber")
       );
@@ -580,5 +582,28 @@ export const deleteEntity = async () => {
       "Oops, something went wrong. Please try again later.";
     console.error(extractedError);
     return { err: extractedError, res: null };
+  }
+};
+
+export const computeDeviceID = async () => {
+  const userController = new UserController();
+
+  try {
+    const [deviceIDKeypairs, phoneNumber] = await Promise.all([
+      userController.getData("keypairs.deviceID"),
+      userController.getData("phoneNumber"),
+    ]);
+
+    const deviceID = await window.api.invoke("compute-device-id", {
+      phoneNumber,
+      clientDeviceIDPublicKey: deviceIDKeypairs.client.publicKey,
+      clientDeviceIdPrivateKey: deviceIDKeypairs.client.privateKey,
+      serverDeviceIdPublicKey: deviceIDKeypairs.server.publicKey,
+    });
+
+    return deviceID;
+  } catch (error) {
+    console.error("Failed to compute device ID:", error);
+    throw error;
   }
 };
