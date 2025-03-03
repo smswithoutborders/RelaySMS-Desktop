@@ -11,7 +11,6 @@ import {
 import { listEntityStoredTokens } from "../controllers/platformControllers";
 import {
   Settings,
-  Wallet,
   HelpOutline,
   People,
 } from "@mui/icons-material";
@@ -31,9 +30,9 @@ function PlatformLayout() {
 
   const navItems = [
     {
+      default: true,
       text: "Accounts",
       icon: <People />,
-      className: "platform-step",
       action: (action) =>
         executeSelect({
           actionName: action,

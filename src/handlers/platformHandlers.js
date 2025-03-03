@@ -50,6 +50,7 @@ const handleOAuth2Platform = async ({
   setAlert,
   setDisplayPanel,
   currentActionRef,
+  actionName,
 }) => {
   if (!identifier) {
     const { err, res } = await addOAuth2Token({
@@ -78,7 +79,16 @@ const handleOAuth2Platform = async ({
         description={`You are about to revoke access for the identifier "${identifier}". This will permanently remove access to your ${platform.name} account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?`}
         cancelText="Cancel"
         confirmText="Yes, Revoke Access"
-        onClose={() => setDisplayPanel(null)}
+        onClose={() => {
+          executeSelect({
+            actionName: actionName,
+            selectFunction: handlePlatformSelect,
+            setDisplayPanel,
+            setAlert,
+            currentActionRef,
+          });
+          return;
+        }}
         onConfirm={async () => {
           const { err, res } = await deleteOAuth2Token({
             platform: platform.name.toLowerCase(),
@@ -183,6 +193,7 @@ const handlePNBAAuth = async ({
   setAlert,
   setDisplayPanel,
   currentActionRef,
+  actionName,
 }) => {
   const handleFormSubmit = async (data) => {
     const { err, res } = await addPNBAToken({
@@ -239,13 +250,30 @@ const handlePNBAAuth = async ({
   };
 
   setDisplayPanel(
-    <SettingView>
-      <OTPForm
-        description={details.description}
-        fields={details.fields}
-        onSubmit={handleFormSubmit}
-      />
-    </SettingView>
+    <DialogView
+      open={true}
+      title="Store Telegram Token"
+      cancelText="Cancel"
+      onClose={() => {
+        executeSelect({
+          actionName: actionName,
+          selectFunction: handlePlatformSelect,
+          setDisplayPanel,
+          setAlert,
+          currentActionRef,
+        });
+        return;
+      }}
+      content={
+        <SettingView>
+          <OTPForm
+            description={details.description}
+            fields={details.fields}
+            onSubmit={handleFormSubmit}
+          />{" "}
+        </SettingView>
+      }
+    />
   );
 };
 
@@ -255,6 +283,7 @@ const handlePNBAPlatform = async ({
   setAlert,
   setDisplayPanel,
   currentActionRef,
+  actionName,
 }) => {
   if (!identifier) {
     const handleFormSubmit = async (data) => {
@@ -294,13 +323,30 @@ const handlePNBAPlatform = async ({
     };
 
     setDisplayPanel(
-      <SettingView>
-        <OTPForm
-          description={details.description}
-          fields={details.fields}
-          onSubmit={handleFormSubmit}
-        />
-      </SettingView>
+      <DialogView
+        open={true}
+        title="Store Telegram Token"
+        cancelText="Cancel"
+        onClose={() => {
+          executeSelect({
+            actionName: actionName,
+            selectFunction: handlePlatformSelect,
+            setDisplayPanel,
+            setAlert,
+            currentActionRef,
+          });
+          return;
+        }}
+        content={
+          <SettingView>
+            <OTPForm
+              description={details.description}
+              fields={details.fields}
+              onSubmit={handleFormSubmit}
+            />
+          </SettingView>
+        }
+      />
     );
     return;
   }
@@ -312,7 +358,16 @@ const handlePNBAPlatform = async ({
       description={`You are about to revoke access for the identifier "${identifier}". This will permanently remove access to your ${platform.name} account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?`}
       cancelText="Cancel"
       confirmText="Yes, Revoke Access"
-      onClose={() => setDisplayPanel(null)}
+      onClose={() => {
+        executeSelect({
+          actionName: actionName,
+          selectFunction: handlePlatformSelect,
+          setDisplayPanel,
+          setAlert,
+          currentActionRef,
+        });
+        return;
+      }}
       onConfirm={async () => {
         const { err, res } = await deletePNBAToken({
           platform: platform.name.toLowerCase(),
@@ -352,6 +407,7 @@ const handlePlatformClick = async ({
   platform,
   identifier,
   setAlert,
+  actionName,
   setDisplayPanel,
   currentActionRef,
 }) => {
@@ -361,6 +417,7 @@ const handlePlatformClick = async ({
         platform,
         identifier,
         setAlert,
+        actionName,
         setDisplayPanel,
         currentActionRef,
       });
@@ -369,6 +426,7 @@ const handlePlatformClick = async ({
         platform,
         identifier,
         setAlert,
+        actionName,
         setDisplayPanel,
         currentActionRef,
       });
