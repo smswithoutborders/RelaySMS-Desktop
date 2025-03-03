@@ -5,7 +5,6 @@ export const useLayout = () => useContext(LayoutContext);
 
 export const LayoutProvider = ({ children }) => {
   const [navigationPanel, setNavigationPanel] = useState(<></>);
-  const [controlPanel, setControlPanel] = useState(<></>);
   const [displayPanel, setDisplayPanel] = useState(<></>);
 
   return (
@@ -13,8 +12,6 @@ export const LayoutProvider = ({ children }) => {
       value={{
         navigationPanel,
         setNavigationPanel,
-        controlPanel,
-        setControlPanel,
         displayPanel,
         setDisplayPanel,
       }}

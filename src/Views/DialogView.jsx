@@ -13,15 +13,16 @@ import {
 
 function DialogView({
   open,
-  onClose,
   title,
   description,
-  onConfirm,
   colorName,
+  onClose = null,
+  onConfirm = null,
   confirmText = "Yes",
   cancelText = "No",
   confirmColor = "error",
   cancelColor = "primary",
+  content = null,
 }) {
   const [loading, setLoading] = useState(false);
 
@@ -36,37 +37,44 @@ function DialogView({
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <Box sx={{ padding: 3, bgcolor: colorName }}>
+      <Box sx={{ padding: 3, bgcolor: colorName, minWidth: 600 }}>
         <DialogTitle sx={{ fontWeight: 600 }}>{title}</DialogTitle>
         <Divider />
         <DialogContent>
-          <Typography variant="body1" sx={{ color: "text.secondary", pb: 2 }}>
-            {description}
-          </Typography>
+          {description && (
+            <Typography variant="body1" sx={{ color: "text.secondary", pb: 2 }}>
+              {description}
+            </Typography>
+          )}
+          {content}
         </DialogContent>
         <DialogActions>
-          <Button
-            variant="contained"
-            onClick={onClose}
-            color={cancelColor}
-            fullWidth
-            disabled={loading}
-          >
-            {cancelText}
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleConfirm}
-            color={confirmColor}
-            autoFocus
-            fullWidth
-            disabled={loading}
-            startIcon={
-              loading ? <CircularProgress size={20} color="inherit" /> : null
-            }
-          >
-            {confirmText}
-          </Button>
+          {onClose && (
+            <Button
+              variant="contained"
+              onClick={onClose}
+              color={cancelColor}
+              fullWidth
+              disabled={loading}
+            >
+              {cancelText}
+            </Button>
+          )}
+          {onConfirm && (
+            <Button
+              variant="contained"
+              onClick={handleConfirm}
+              color={confirmColor}
+              autoFocus
+              fullWidth
+              disabled={loading}
+              startIcon={
+                loading ? <CircularProgress size={20} color="inherit" /> : null
+              }
+            >
+              {confirmText}
+            </Button>
+          )}
         </DialogActions>
       </Box>
     </Dialog>

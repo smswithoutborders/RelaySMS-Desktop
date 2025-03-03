@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import { UserController, SettingsController } from "../controllers";
+import { UserController } from "../controllers";
 
 const AuthenticationContext = createContext();
 
@@ -8,10 +8,8 @@ export const useAuth = () => useContext(AuthenticationContext);
 
 export const AuthenticationProvider = ({ children }) => {
   const userController = new UserController();
-  const settingsController = new SettingsController();
 
   const [userData, setUserData] = useState(null);
-  const [hasBridgeCode, setHasBridgeCode] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -25,13 +23,7 @@ export const AuthenticationProvider = ({ children }) => {
       setUserData(Object.keys(userDataMap).length === 0 ? null : userDataMap);
     };
 
-    const fetchBridgeCode = async () => {
-      const code = await settingsController.getData("preferences.otp.bridge");
-      setHasBridgeCode(!!code);
-    };
-
     fetchUserData();
-    fetchBridgeCode();
   }, []);
 
   const clearUserSession = async (onLogoutCallback) => {
@@ -66,7 +58,6 @@ export const AuthenticationProvider = ({ children }) => {
         userData,
         isAuthenticated,
         hasLongLivedToken,
-        hasBridgeAuthorizationCode: hasBridgeCode,
         logout,
         AuthRequired,
       }}

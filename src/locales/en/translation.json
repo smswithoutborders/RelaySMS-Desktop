@@ -9,7 +9,7 @@
   "navigation": {
     "messages": "Messages",
     "compose": "Compose",
-    "platforms": "Platforms",
+    "accounts": "Accounts",
     "gateway clients": "Gateway Clients",
     "settings": "Settings",
     "help": "Help",
@@ -78,7 +78,7 @@
     "resending otp": "Resending OTP",
     "no": "No",
     "available": "available",
-    "add": "Add",
+    "add": "Add New",
     "revoke": "Revoke"
   },
   "tutorials": {

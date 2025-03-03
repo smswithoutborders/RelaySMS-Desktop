@@ -1,46 +1,25 @@
 import { Launch } from "@mui/icons-material";
-import {
-  DisplayPanel,
-  ControlPanel,
-  ServiceList,
-  GatewayClientList,
-  MessageList,
-  ItemsList,
-} from "../Components";
+import { DisplayPanel, ServiceList, ItemsList } from "../Components";
 import ThemeToggle from "../Components/ThemeToggle";
-import { ComposeForm, PasswordForm, OTPForm } from "../Forms";
-import { DialogView, SettingView, ComposeView } from "../Views";
+import { PasswordForm, OTPForm } from "../Forms";
+import { DialogView, SettingView } from "../Views";
 import {
-  fetchGatewayClients,
-  sendSms,
-  encryptPayload,
   fetchPlatforms,
   listEntityStoredTokens,
   updateEntityPassword,
   deleteEntity,
-  createTransmissionPayload,
   addOAuth2Token,
   deleteOAuth2Token,
   addPNBAToken,
   deletePNBAToken,
   UserController,
   MessageController,
-  SettingsController,
-  fetchBridges,
-  computeDeviceID,
 } from "../controllers";
-import { handleBridgeComposeClick } from "./bridgeHandlers";
 import LanguageList from "../Components/LanguageList";
-import { AppTutorial } from "../Pages";
-
-const handleTutorialSelect = ({ setDisplayPanel }) => {
-  setDisplayPanel(<DisplayPanel body={<AppTutorial />} />);
-};
 
 export const executeSelect = async ({
   actionName,
   selectFunction,
-  setControlPanel,
   setDisplayPanel,
   setAlert,
   currentActionRef,
@@ -56,7 +35,6 @@ export const executeSelect = async ({
   await selectFunction({
     actionName,
     currentActionRef,
-    setControlPanel,
     setDisplayPanel,
     setAlert,
   });
@@ -66,277 +44,10 @@ export const executeSelect = async ({
   }
 };
 
-const handlePlatformComposeClick = ({
-  setDisplayPanel,
-  setAlert,
-  platform,
-}) => {
-  const messageController = new MessageController();
-
-  const handleFormSubmit = async (data) => {
-    try {
-      const gatewayClients = await fetchGatewayClients();
-
-      const activeGatewayClient = gatewayClients.find(
-        (client) => client.active === true
-      );
-
-      if (!activeGatewayClient) {
-        setAlert({
-          open: true,
-          severity: "error",
-          message:
-            "No active gateway client selected. Please select one and try again.",
-        });
-        return;
-      }
-
-      let structuredContent;
-
-      switch (platform.service_type) {
-        case "email":
-          structuredContent = `${data.from}:${data.to}:${data.cc}:${data.bcc}:${data.subject}:${data.body}`;
-          break;
-
-        case "text":
-          structuredContent = `${data.from}:${data.body}`;
-          break;
-
-        case "message":
-          structuredContent = `${data.from}:${data.to}:${data.body}`;
-          break;
-
-        default:
-          setAlert({
-            open: true,
-            severity: "error",
-            message: `Unsupported service type: ${platform.service_type}`,
-          });
-          return;
-      }
-
-      const contentCiphertext = await encryptPayload(structuredContent);
-
-      const publishWithDeviceIDState = localStorage.getItem(
-        "PublishWithDeviceID"
-      );
-      const isPublishWithDeviceIDEnabled =
-        publishWithDeviceIDState !== null
-          ? JSON.parse(publishWithDeviceIDState)
-          : false;
-
-      const deviceID = isPublishWithDeviceIDEnabled
-        ? await computeDeviceID()
-        : "";
-
-      const transmissionPayload = await createTransmissionPayload({
-        contentCiphertext,
-        platformShortCode: platform.shortcode,
-        deviceID,
-      });
-
-      const smsPayload = {
-        number: activeGatewayClient.msisdn,
-        text: transmissionPayload,
-      };
-
-      const { err } = await sendSms({ smsPayload });
-
-      if (err) {
-        setAlert({
-          open: true,
-          severity: "error",
-          message: err,
-        });
-        return;
-      }
-
-      const existingMessages =
-        (await messageController.getData("relaysms")) || [];
-      const newMessage = {
-        raw: data,
-        platform: platform,
-        avatar: platform.avatar,
-        id: existingMessages.length + 1,
-        text: data.body,
-        title: data.from,
-        date: new Date().toISOString(),
-      };
-
-      const updatedMessages = [...existingMessages, newMessage];
-      await messageController.setData("relaysms", updatedMessages);
-
-      setDisplayPanel(null);
-
-      setAlert({
-        open: true,
-        severity: "success",
-        message: "Message is ready and queued for sending.",
-      });
-    } catch (error) {
-      setAlert({
-        open: true,
-        severity: "error",
-        message: "Oops, something went wrong. Please try again later.",
-      });
-    }
-  };
-
-  let fields;
-
-  switch (platform.name) {
-    case "Gmail":
-      fields = [
-        {
-          name: "from",
-          label: "From",
-          required: true,
-          type: "select",
-          options: platform.identifiers.map((data) => ({
-            label: data,
-            value: data,
-          })),
-          defaultValue: platform.identifiers?.[0] || "",
-        },
-        { name: "to", label: "To", required: true, type: "email" },
-        { name: "cc", label: "Cc", required: false },
-        { name: "bcc", label: "BCC", required: false },
-        { name: "subject", label: "Subject", required: true },
-        { name: "body", label: "", required: true, multiline: true, rows: 10 },
-      ];
-      break;
-    case "Twitter":
-      fields = [
-        {
-          name: "from",
-          label: "Handle",
-          required: true,
-          type: "select",
-          options: platform.identifiers.map((data) => ({
-            label: data,
-            value: data,
-          })),
-          defaultValue: platform.identifiers?.[0] || "",
-        },
-        {
-          name: "body",
-          label: "What is happening?",
-          required: true,
-          multiline: true,
-          rows: 8,
-        },
-      ];
-      break;
-    case "Telegram":
-      fields = [
-        {
-          name: "from",
-          label: "From",
-          required: true,
-          type: "select",
-          options: platform.identifiers.map((data) => ({
-            label: data,
-            value: data,
-          })),
-          defaultValue: platform.identifiers?.[0] || "",
-        },
-        { name: "to", label: "To (Phone Number)", required: true, type: "tel" },
-        {
-          name: "body",
-          label: "Message",
-          required: true,
-          multiline: true,
-          rows: 8,
-        },
-      ];
-      break;
-    default:
-      fields = [];
-  }
-
-  setDisplayPanel(
-    <DisplayPanel
-      header={`Compose ${platform.name}`}
-      body={
-        <ComposeView onClose={() => setDisplayPanel(null)}>
-          <ComposeForm fields={fields} onSubmit={handleFormSubmit} />
-        </ComposeView>
-      }
-    />
-  );
-};
-
-export const handlePlatformComposeSelect = async ({
-  actionName,
-  currentActionRef,
-  setControlPanel,
-  setDisplayPanel,
-  setAlert,
-}) => {
-  setControlPanel(
-    <ControlPanel
-      title="Compose"
-      element={<ServiceList serviceType="Platform" loading={true} />}
-    />
-  );
-
-  const [availablePlatforms, storedTokens] = await Promise.all([
-    fetchPlatforms(),
-    listEntityStoredTokens(),
-  ]);
-
-  const tokenMap = storedTokens.res.storedTokens.reduce((acc, token) => {
-    const platformKey = token.platform.toLowerCase();
-    if (!acc[platformKey]) acc[platformKey] = [];
-    acc[platformKey].push(token.account_identifier);
-    return acc;
-  }, {});
-
-  const filteredPlatforms = availablePlatforms
-    .filter((platform) => tokenMap[platform.name.toLowerCase()])
-    .map((platform) => ({
-      ...platform,
-      identifiers: tokenMap[platform.name.toLowerCase()] || [],
-    }));
-
-  const availableBridges = await fetchBridges();
-
-  if (currentActionRef.current !== actionName) return;
-
-  setControlPanel(
-    <ControlPanel
-      title="Compose"
-      element={
-        <>
-          <ServiceList
-            serviceType="Platform"
-            services={filteredPlatforms}
-            onClick={(platform) =>
-              handlePlatformComposeClick({
-                setDisplayPanel,
-                setAlert,
-                platform,
-              })
-            }
-          />
-          <ServiceList
-            serviceType="Bridge"
-            services={availableBridges}
-            onClick={(bridge) =>
-              handleBridgeComposeClick({ setDisplayPanel, setAlert, bridge })
-            }
-          />
-        </>
-      }
-    />
-  );
-};
-
 const handleOAuth2Platform = async ({
   platform,
   identifier,
   setAlert,
-  setControlPanel,
   setDisplayPanel,
   currentActionRef,
 }) => {
@@ -398,7 +109,6 @@ const handleOAuth2Platform = async ({
   executeSelect({
     actionName: "Platforms",
     selectFunction: handlePlatformSelect,
-    setControlPanel,
     setDisplayPanel,
     setAlert,
     currentActionRef,
@@ -409,7 +119,6 @@ const handlePNBAAuthWithPassword = async ({
   platform,
   prevData,
   setAlert,
-  setControlPanel,
   setDisplayPanel,
   currentActionRef,
 }) => {
@@ -438,7 +147,6 @@ const handlePNBAAuthWithPassword = async ({
     executeSelect({
       actionName: "Platforms",
       selectFunction: handlePlatformSelect,
-      setControlPanel,
       setDisplayPanel,
       setAlert,
       currentActionRef,
@@ -458,19 +166,14 @@ const handlePNBAAuthWithPassword = async ({
   };
 
   setDisplayPanel(
-    <DisplayPanel
-      header={`Complete ${platform.name} Authentication`}
-      body={
-        <SettingView>
-          <OTPForm
-            description={details.description}
-            fields={details.fields}
-            twoStepVerificationEnabled={true}
-            onSubmit={handleFormSubmit}
-          />
-        </SettingView>
-      }
-    />
+    <SettingView>
+      <OTPForm
+        description={details.description}
+        fields={details.fields}
+        twoStepVerificationEnabled={true}
+        onSubmit={handleFormSubmit}
+      />
+    </SettingView>
   );
 };
 
@@ -478,7 +181,6 @@ const handlePNBAAuth = async ({
   platform,
   prevData,
   setAlert,
-  setControlPanel,
   setDisplayPanel,
   currentActionRef,
 }) => {
@@ -503,7 +205,6 @@ const handlePNBAAuth = async ({
         platform,
         prevData: { ...data, ...prevData },
         setAlert,
-        setControlPanel,
         setDisplayPanel,
         currentActionRef,
       });
@@ -519,7 +220,6 @@ const handlePNBAAuth = async ({
     executeSelect({
       actionName: "Platforms",
       selectFunction: handlePlatformSelect,
-      setControlPanel,
       setDisplayPanel,
       setAlert,
       currentActionRef,
@@ -539,18 +239,13 @@ const handlePNBAAuth = async ({
   };
 
   setDisplayPanel(
-    <DisplayPanel
-      header={`Complete ${platform.name} Authentication`}
-      body={
-        <SettingView>
-          <OTPForm
-            description={details.description}
-            fields={details.fields}
-            onSubmit={handleFormSubmit}
-          />
-        </SettingView>
-      }
-    />
+    <SettingView>
+      <OTPForm
+        description={details.description}
+        fields={details.fields}
+        onSubmit={handleFormSubmit}
+      />
+    </SettingView>
   );
 };
 
@@ -558,7 +253,6 @@ const handlePNBAPlatform = async ({
   platform,
   identifier,
   setAlert,
-  setControlPanel,
   setDisplayPanel,
   currentActionRef,
 }) => {
@@ -582,7 +276,6 @@ const handlePNBAPlatform = async ({
         platform,
         prevData: data,
         setAlert,
-        setControlPanel,
         setDisplayPanel,
         currentActionRef,
       });
@@ -601,18 +294,13 @@ const handlePNBAPlatform = async ({
     };
 
     setDisplayPanel(
-      <DisplayPanel
-        header={`Complete ${platform.name} Authentication`}
-        body={
-          <SettingView>
-            <OTPForm
-              description={details.description}
-              fields={details.fields}
-              onSubmit={handleFormSubmit}
-            />
-          </SettingView>
-        }
-      />
+      <SettingView>
+        <OTPForm
+          description={details.description}
+          fields={details.fields}
+          onSubmit={handleFormSubmit}
+        />
+      </SettingView>
     );
     return;
   }
@@ -651,7 +339,6 @@ const handlePNBAPlatform = async ({
         executeSelect({
           actionName: "Platforms",
           selectFunction: handlePlatformSelect,
-          setControlPanel,
           setDisplayPanel,
           setAlert,
           currentActionRef,
@@ -665,7 +352,6 @@ const handlePlatformClick = async ({
   platform,
   identifier,
   setAlert,
-  setControlPanel,
   setDisplayPanel,
   currentActionRef,
 }) => {
@@ -675,7 +361,6 @@ const handlePlatformClick = async ({
         platform,
         identifier,
         setAlert,
-        setControlPanel,
         setDisplayPanel,
         currentActionRef,
       });
@@ -684,7 +369,6 @@ const handlePlatformClick = async ({
         platform,
         identifier,
         setAlert,
-        setControlPanel,
         setDisplayPanel,
         currentActionRef,
       });
@@ -707,14 +391,13 @@ const handlePlatformClick = async ({
 export const handlePlatformSelect = async ({
   actionName,
   currentActionRef,
-  setControlPanel,
   setDisplayPanel,
   setAlert,
 }) => {
-  setControlPanel(
-    <ControlPanel
-      title="Platforms"
-      element={<ServiceList serviceType="Platform" loading={true} />}
+  setDisplayPanel(
+    <DisplayPanel
+      header="Accounts"
+      body={<ServiceList serviceType="Platform" loading={true} />}
     />
   );
 
@@ -740,26 +423,20 @@ export const handlePlatformSelect = async ({
 
     if (currentActionRef.current !== actionName) return;
 
-    setControlPanel(
-      <ControlPanel
-        title="Platforms"
-        element={
-          <ServiceList
-            serviceType="Platform"
-            services={availablePlatforms}
-            lists={filteredPlatforms}
-            adornmentIcon={true}
-            onClick={(platform, identifier) =>
-              handlePlatformClick({
-                platform,
-                identifier,
-                setAlert,
-                setControlPanel,
-                setDisplayPanel,
-                currentActionRef,
-              })
-            }
-          />
+    setDisplayPanel(
+      <ServiceList
+        serviceType="Platform"
+        services={availablePlatforms}
+        lists={filteredPlatforms}
+        adornmentIcon={true}
+        onClick={(platform, identifier) =>
+          handlePlatformClick({
+            platform,
+            identifier,
+            setAlert,
+            setDisplayPanel,
+            currentActionRef,
+          })
         }
       />
     );
@@ -772,105 +449,12 @@ export const handlePlatformSelect = async ({
   }
 };
 
-const handleGatewayClientToggle = async ({ client, setAlert }) => {
-  const settingsController = new SettingsController();
-
-  const currentGatewayClients =
-    (await settingsController.getData("gatewayclients")) || [];
-
-  const updatedGatewayClients = currentGatewayClients.map((existingClient) =>
-    existingClient.msisdn === client.msisdn
-      ? { ...client, active: true }
-      : { ...existingClient, active: false }
-  );
-
-  await settingsController.setData("gatewayclients", updatedGatewayClients);
-
-  setAlert({
-    open: true,
-    message: `Gateway client ${client.msisdn} is now active.`,
-    severity: "success",
-  });
-};
-
-export const handleGatewayClientSelect = async ({
+const handleChangePasswordSelect = ({
+  setDisplayPanel,
   actionName,
   currentActionRef,
-  setControlPanel,
-  setDisplayPanel,
   setAlert,
 }) => {
-  setControlPanel(
-    <ControlPanel
-      title="Gateway Clients"
-      element={<GatewayClientList items={[]} loading={true} />}
-    />
-  );
-
-  const gatewayClients = await fetchGatewayClients();
-
-  if (currentActionRef.current !== actionName) return;
-
-  setControlPanel(
-    <ControlPanel
-      title="Gateway Clients"
-      element={
-        <GatewayClientList
-          items={gatewayClients}
-          onSelect={(client) => handleGatewayClientToggle({ client, setAlert })}
-        />
-      }
-    />
-  );
-};
-
-const handlePlatformMessageClick = (setDisplayPanel, message) => {
-  setDisplayPanel(
-    <DisplayPanel header={message.title} body={<div>{message.text}</div>} />
-  );
-};
-
-export const handlePlatformMessageSelect = async ({
-  actionName,
-  currentActionRef,
-  setControlPanel,
-  setDisplayPanel,
-  setAlert,
-}) => {
-  setControlPanel(
-    <ControlPanel
-      title="Messages"
-      element={<MessageList messages={[]} loading={true} />}
-    />
-  );
-
-  const messageController = new MessageController();
-  const messages = (await messageController.getData("relaysms")) || [];
-
-  if (currentActionRef.current !== actionName) return;
-
-  setControlPanel(
-    <ControlPanel
-      title="Messages"
-      element={
-        <MessageList
-          messages={messages}
-          onClick={(message) =>
-            handlePlatformMessageClick(setDisplayPanel, message)
-          }
-        />
-      }
-    />
-  );
-};
-
-const handleLanguageSelect = ({ setDisplayPanel }) => {
-  setDisplayPanel(
-    <DisplayPanel header={"Select Language"} body={<LanguageList />} />
-  );
-};
-
-const handleChangePasswordSelect = ({ setDisplayPanel, setAlert }) => {
   const messageController = new MessageController();
   const userController = new UserController();
 
@@ -882,7 +466,12 @@ const handleChangePasswordSelect = ({ setDisplayPanel, setAlert }) => {
   };
 
   const handleFormSubmit = async (data) => {
-    handleChangePasswordSelect({ setDisplayPanel, setAlert });
+    handleChangePasswordSelect({
+      setDisplayPanel,
+      actionName,
+      currentActionRef,
+      setAlert,
+    });
 
     const { err, res } = await updateEntityPassword({
       ...data,
@@ -915,9 +504,21 @@ const handleChangePasswordSelect = ({ setDisplayPanel, setAlert }) => {
   };
 
   setDisplayPanel(
-    <DisplayPanel
-      header={"Change Password"}
-      body={
+    <DialogView
+      open={true}
+      title="Change Password"
+      cancelText="cancel"
+      onClose={() => {
+        executeSelect({
+          actionName: actionName,
+          selectFunction: handlePlatformSettingsSelect,
+          setDisplayPanel,
+          setAlert,
+          currentActionRef,
+        });
+        return;
+      }}
+      content={
         <SettingView>
           <PasswordForm
             fields={[
@@ -949,9 +550,15 @@ const handleChangePasswordSelect = ({ setDisplayPanel, setAlert }) => {
                   description={changePassword.description}
                   cancelText="cancel"
                   confirmText="yes, change password"
-                  onClose={() =>
-                    handleChangePasswordSelect({ setDisplayPanel, setAlert })
-                  }
+                  onClose={() => {
+                    handleChangePasswordSelect({
+                      setDisplayPanel,
+                      actionName,
+                      currentActionRef,
+                      setAlert,
+                    });
+                    return;
+                  }}
                   onConfirm={() => handleFormSubmit(data)}
                 />
               );
@@ -963,7 +570,12 @@ const handleChangePasswordSelect = ({ setDisplayPanel, setAlert }) => {
   );
 };
 
-const handleLogoutSelect = ({ setDisplayPanel }) => {
+const handleLogoutSelect = ({
+  setDisplayPanel,
+  actionName,
+  currentActionRef,
+  setAlert,
+}) => {
   const messageController = new MessageController();
   const userController = new UserController();
 
@@ -975,36 +587,46 @@ const handleLogoutSelect = ({ setDisplayPanel }) => {
   };
 
   setDisplayPanel(
-    <DisplayPanel
-      body={
-        <DialogView
-          open={true}
-          title={logout.title}
-          description={logout.description}
-          cancelText="cancel"
-          confirmText="logout"
-          onClose={() => setDisplayPanel(null)}
-          onConfirm={async () => {
-            await new Promise((resolve) => {
-              setTimeout(async () => {
-                await Promise.all([
-                  window.api.invoke("clear-ratchet-state"),
-                  messageController.deleteTable(),
-                  userController.deleteTable(),
-                ]);
+    <DialogView
+      open={true}
+      title={logout.title}
+      description={logout.description}
+      cancelText="cancel"
+      confirmText="logout"
+      onClose={() => {
+        executeSelect({
+          actionName: actionName,
+          selectFunction: handlePlatformSettingsSelect,
+          setDisplayPanel,
+          setAlert,
+          currentActionRef,
+        });
+        return;
+      }}
+      onConfirm={async () => {
+        await new Promise((resolve) => {
+          setTimeout(async () => {
+            await Promise.all([
+              window.api.invoke("clear-ratchet-state"),
+              messageController.deleteTable(),
+              userController.deleteTable(),
+            ]);
 
-                await window.api.invoke("reload-window");
-                resolve();
-              }, 2000);
-            });
-          }}
-        />
-      }
+            await window.api.invoke("reload-window");
+            resolve();
+          }, 2000);
+        });
+      }}
     />
   );
 };
 
-const handleDeleteAccountSelect = ({ setDisplayPanel, setAlert }) => {
+const handleDeleteAccountSelect = ({
+  setDisplayPanel,
+  setAlert,
+  actionName,
+  currentActionRef,
+}) => {
   const messageController = new MessageController();
   const userController = new UserController();
 
@@ -1047,65 +669,23 @@ const handleDeleteAccountSelect = ({ setDisplayPanel, setAlert }) => {
   };
 
   setDisplayPanel(
-    <DisplayPanel
-      header={"Delete Account"}
-      body={
-        <DialogView
-          open={true}
-          title={deleteAccount.title}
-          description={deleteAccount.description}
-          cancelText="cancel"
-          confirmText="yes, delete account"
-          onClose={() => setDisplayPanel(null)}
-          onConfirm={async () => handleFormSubmit()}
-        />
-      }
-    />
-  );
-};
-
-const handlePublishWithDeviceIDSelect = ({ setDisplayPanel, setAlert }) => {
-  const storedState = localStorage.getItem("PublishWithDeviceID");
-  const publishWithDeviceID =
-    storedState !== null ? JSON.parse(storedState) : false;
-
-  const publishSettings = {
-    title: "Publish With Device ID",
-    description: `Publishing with Device ID is currently ${
-      publishWithDeviceID ? "enabled" : "disabled"
-    }. Would you like to toggle this setting?`,
-    color: "",
-  };
-
-  const handleToggle = () => {
-    const newState = !publishWithDeviceID;
-    localStorage.setItem("PublishWithDeviceID", JSON.stringify(newState));
-
-    setAlert({
-      open: true,
-      severity: "info",
-      message: `Device ID Publishing has been ${
-        newState ? "enabled" : "disabled"
-      }.`,
-    });
-
-    setDisplayPanel(null);
-  };
-
-  setDisplayPanel(
-    <DisplayPanel
-      header={publishSettings.title}
-      body={
-        <DialogView
-          open={true}
-          title={publishSettings.title}
-          description={publishSettings.description}
-          cancelText="cancel"
-          confirmText={`turn ${publishWithDeviceID ? "off" : "on"}`}
-          onClose={() => setDisplayPanel(null)}
-          onConfirm={() => handleToggle()}
-        />
-      }
+    <DialogView
+      open={true}
+      title={deleteAccount.title}
+      description={deleteAccount.description}
+      cancelText="cancel"
+      confirmText="yes, delete account"
+      onClose={() => {
+        executeSelect({
+          actionName: actionName,
+          selectFunction: handlePlatformSettingsSelect,
+          setDisplayPanel,
+          setAlert,
+          currentActionRef,
+        });
+        return;
+      }}
+      onConfirm={async () => handleFormSubmit()}
     />
   );
 };
@@ -1114,41 +694,49 @@ export const handlePlatformSettingsSelect = ({
   actionName,
   currentActionRef,
   setDisplayPanel,
-  setControlPanel,
   setAlert,
 }) => {
   const settings = [
     {
-      name: "Select Language",
-      action: () => handleLanguageSelect({ setDisplayPanel }),
-    },
-    {
       name: "Change Password",
-      action: () => handleChangePasswordSelect({ setDisplayPanel, setAlert }),
+      action: () =>
+        handleChangePasswordSelect({
+          setDisplayPanel,
+          actionName,
+          currentActionRef,
+          setAlert,
+        }),
     },
     {
       name: "Log out",
-      action: () => handleLogoutSelect({ setDisplayPanel }),
+      action: () =>
+        handleLogoutSelect({
+          setDisplayPanel,
+          setAlert,
+          actionName,
+          currentActionRef,
+        }),
     },
     {
       name: "Delete Account",
-      action: () => handleDeleteAccountSelect({ setDisplayPanel, setAlert }),
-    },
-    {
-      name: "Publish With Device ID",
       action: () =>
-        handlePublishWithDeviceIDSelect({ setDisplayPanel, setAlert }),
+        handleDeleteAccountSelect({
+          setDisplayPanel,
+          setAlert,
+          actionName,
+          currentActionRef,
+        }),
     },
   ];
 
   if (currentActionRef.current !== actionName) return;
 
-  setControlPanel(
-    <ControlPanel
-      title="Settings"
-      element={
+  setDisplayPanel(
+    <DisplayPanel
+      header="Settings"
+      body={
         <>
-          <ItemsList items={settings} /> <ThemeToggle />{" "}
+          <LanguageList /> <ItemsList items={settings} /> <ThemeToggle />
         </>
       }
     />
@@ -1159,7 +747,6 @@ export const handlePlatformHelpSelect = ({
   actionName,
   currentActionRef,
   setDisplayPanel,
-  setControlPanel,
   setAlert,
 }) => {
   const handleOpenExternalLink = (url) => {
@@ -1167,10 +754,6 @@ export const handlePlatformHelpSelect = ({
   };
 
   const help = [
-    {
-      name: "App Tutorial",
-      action: () => handleTutorialSelect({ setDisplayPanel }),
-    },
     {
       name: "Website",
       action: () =>
@@ -1204,7 +787,7 @@ export const handlePlatformHelpSelect = ({
 
   if (currentActionRef.current !== actionName) return;
 
-  setControlPanel(
-    <ControlPanel title="Help" element={<ItemsList items={help} />} />
+  setDisplayPanel(
+    <DisplayPanel header="Help" body={<ItemsList items={help} />} />
   );
 };

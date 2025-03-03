@@ -37,3 +37,8 @@ body.dark-mode {
   background-color: #adadad6e; 
   cursor: pointer;
 }
+
+.header {
+  font-family: "Unbounded", serif !important;
+  font-optical-sizing: auto;
+}

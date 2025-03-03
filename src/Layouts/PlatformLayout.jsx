@@ -3,29 +3,24 @@ import { useLayout } from "../Contexts/LayoutContext";
 import BaseLayout from "./BaseLayout";
 import NavigationPanel from "../Components/NavigationPanel";
 import {
-  handlePlatformComposeSelect,
-  handleGatewayClientSelect,
   handlePlatformSettingsSelect,
   handlePlatformHelpSelect,
   handlePlatformSelect,
-  handlePlatformMessageSelect,
   executeSelect,
 } from "../handlers/platformHandlers";
 import { listEntityStoredTokens } from "../controllers/platformControllers";
 import {
   Settings,
-  Edit,
   Wallet,
-  CellTower,
   HelpOutline,
+  People,
 } from "@mui/icons-material";
 import { Snackbar, Alert, CircularProgress } from "@mui/material";
-import { FaRegComments } from "react-icons/fa6";
 import { useTranslation } from "react-i18next";
 
 function PlatformLayout() {
   const currentActionRef = useRef(null);
-  const { setNavigationPanel, setControlPanel, setDisplayPanel } = useLayout();
+  const { setNavigationPanel, setDisplayPanel } = useLayout();
   const { t } = useTranslation();
 
   const [alert, setAlert] = useState({
@@ -36,61 +31,19 @@ function PlatformLayout() {
 
   const navItems = [
     {
-      default: true,
-      text: "Messages",
-      icon: <FaRegComments size="23px" />,
-      action: (action) =>
-        executeSelect({
-          actionName: action,
-          selectFunction: handlePlatformMessageSelect,
-          setControlPanel,
-          setDisplayPanel,
-          setAlert,
-          currentActionRef,
-        }),
-    },
-    {
-      text: "Compose",
-      className: "compose-step",
-      icon: <Edit />,
-      action: (action) =>
-        executeSelect({
-          actionName: action,
-          selectFunction: handlePlatformComposeSelect,
-          setControlPanel,
-          setDisplayPanel,
-          setAlert,
-          currentActionRef,
-        }),
-    },
-    {
-      text: "Platforms",
-      icon: <Wallet />,
+      text: "Accounts",
+      icon: <People />,
       className: "platform-step",
       action: (action) =>
         executeSelect({
           actionName: action,
           selectFunction: handlePlatformSelect,
-          setControlPanel,
           setDisplayPanel,
           setAlert,
           currentActionRef,
         }),
     },
-    {
-      text: "Gateway Clients",
-      className: "gateway-step",
-      icon: <CellTower />,
-      action: (action) =>
-        executeSelect({
-          actionName: action,
-          selectFunction: handleGatewayClientSelect,
-          setControlPanel,
-          setDisplayPanel,
-          setAlert,
-          currentActionRef,
-        }),
-    },
+    
     {
       text: "Settings",
       icon: <Settings />,
@@ -98,7 +51,6 @@ function PlatformLayout() {
         executeSelect({
           actionName: action,
           selectFunction: handlePlatformSettingsSelect,
-          setControlPanel,
           setDisplayPanel,
           setAlert,
           currentActionRef,
@@ -111,7 +63,6 @@ function PlatformLayout() {
         executeSelect({
           actionName: action,
           selectFunction: handlePlatformHelpSelect,
-          setControlPanel,
           setDisplayPanel,
           setAlert,
           currentActionRef,

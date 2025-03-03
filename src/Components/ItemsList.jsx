@@ -14,21 +14,26 @@ const ItemsList = ({ items }) => {
   return (
     <List>
       {items.map((item, index) => (
-        <ListItemButton
-          key={index}
-          onClick={() => handleClick(item, index, item.action)}
-          sx={{
-            cursor: "pointer",
-            backgroundColor:
-              activeIndex === index ? "background.default" : "transparent",
-            "&:hover": {
-              backgroundColor: "",
-            },
-          }}
-        >
-          <ListItemText primary={t(`ui.${item.name.toLowerCase()}`)} />
-          {item.icon && <span style={{ marginLeft: "8px" }}>{item.icon}</span>}
-        </ListItemButton>
+        <>
+          <ListItemButton
+            key={index}
+            onClick={() => handleClick(item, index, item.action)}
+            sx={{
+              cursor: "pointer",
+              backgroundColor:
+                activeIndex === index ? "background.default" : "transparent",
+              "&:hover": {
+                backgroundColor: "",
+              },
+            }}
+          >
+            <ListItemText primary={t(`ui.${item.name.toLowerCase()}`)} />
+            {item.icon && (
+              <span style={{ marginLeft: "8px" }}>{item.icon}</span>
+            )}
+          </ListItemButton>
+          {/* <Divider orientation="horizontal" /> */}
+        </>
       ))}
     </List>
   );

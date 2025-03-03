@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography, Divider } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-function DisplayPanel({ header, body, footer }) {
+function DisplayPanel({ header, body }) {
   const { t } = useTranslation();
 
   return (
@@ -16,14 +16,13 @@ function DisplayPanel({ header, body, footer }) {
       {header && (
         <>
           <Typography
-            sx={{ fontWeight: 700 }}
-            variant="body1"
+            className="header"
+            variant="h5"
             component="div"
             gutterBottom
           >
             {header}
           </Typography>
-          <Divider sx={{ mb: 2 }} />
         </>
       )}
 
@@ -31,18 +30,11 @@ function DisplayPanel({ header, body, footer }) {
         sx={{
           flexGrow: 1,
           overflowY: "auto",
-          pb: footer ? 2 : 0,
+          py: 2,
         }}
       >
         {body}
       </Box>
-
-      {footer && (
-        <>
-          <Divider sx={{ pt: 2 }} />
-          <Box sx={{ pt: 2 }}>{footer}</Box>
-        </>
-      )}
     </Box>
   );
 }

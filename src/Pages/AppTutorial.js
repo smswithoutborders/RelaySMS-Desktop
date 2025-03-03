@@ -39,15 +39,7 @@ export default function AppTutorial() {
       <List>
         <ListItem>{t("tutorials.select gateway client")}</ListItem>
       </List>
-      <Typography variant="body2">
-      {t("tutorials.select gateway client info")}
-      </Typography>
-      <Box
-        component="img"
-        src="images/SelectGatewayClient.png"
-        alt="Selecting gateway client"
-        sx={{ width: "60%" }}
-      />
+     
       <List>
         <ListItem>{t("tutorials.compose message")}</ListItem>
       </List>

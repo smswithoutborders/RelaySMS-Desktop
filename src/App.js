@@ -10,13 +10,8 @@ import {
 import { ThemeModeProvider } from "./Contexts/ThemeContext";
 import { LanguageProvider } from "./Contexts/LanguageContext";
 import { CssBaseline, CircularProgress, Box } from "@mui/material";
-import { PlatformLayout, BridgeLayout, DekuLayout } from "./Layouts";
-import {
-  AuthPage,
-  SignupPage,
-  BridgeAuthPage,
-  ResetPasswordPage,
-} from "./Pages";
+import { PlatformLayout } from "./Layouts";
+import { AuthPage, SignupPage, ResetPasswordPage } from "./Pages";
 
 function App() {
   return (
@@ -36,7 +31,7 @@ function App() {
 }
 
 function AppRoutes() {
-  const { AuthRequired, hasLongLivedToken, hasBridgeAuthorizationCode } =
+  const { AuthRequired, hasLongLivedToken } =
     useAuth();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -72,8 +67,6 @@ function AppRoutes() {
           <AuthRequired>
             {hasLongLivedToken() ? (
               <PlatformLayout />
-            ) : hasBridgeAuthorizationCode ? (
-              <BridgeLayout />
             ) : (
               <Navigate to="/login" replace />
             )}
@@ -102,17 +95,6 @@ function AppRoutes() {
           )
         }
       />
-      <Route
-        path="/bridge-auth"
-        element={
-          hasLongLivedToken() || hasBridgeAuthorizationCode ? (
-            <Navigate to="/" replace />
-          ) : (
-            <BridgeAuthPage />
-          )
-        }
-      />
-      <Route path="/deku" element={<DekuLayout />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

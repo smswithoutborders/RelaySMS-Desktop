@@ -21,7 +21,6 @@ import {
   SettingsController,
   authenticateEntity,
   fetchLatestMessageWithOtp,
-  fetchModems,
 } from "../controllers";
 
 function AuthPage() {
@@ -45,7 +44,6 @@ function AuthPage() {
     phoneNumber: null,
   });
   const [loading, setLoading] = useState(false);
-  const [modemsAvailable, setModemsAvailable] = useState(false);
 
   const fetchOtpSettings = async () => {
     try {
@@ -59,13 +57,7 @@ function AuthPage() {
     }
   };
 
-  const checkModems = async () => {
-    const modems = await fetchModems();
-    setModemsAvailable(modems.length > 0);
-  };
-
   useEffect(() => {
-    checkModems();
     fetchOtpSettings();
   }, []);
 
@@ -91,20 +83,20 @@ function AuthPage() {
       return false;
     }
 
-    if (!matchIsValidTel(phone)) {
-      if (!phoneInfo.countryCode) {
-        setPhoneErrorMessage(
-          "Please select a country and enter your phone number."
-        );
-      } else {
-        const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
-        const countryName = regionNames.of(phoneInfo.countryCode);
-        setPhoneErrorMessage(
-          `Please enter a valid phone number for ${countryName}.`
-        );
-      }
-      return false;
-    }
+    // if (!matchIsValidTel(phone)) {
+    //   if (!phoneInfo.countryCode) {
+    //     setPhoneErrorMessage(
+    //       "Please select a country and enter your phone number."
+    //     );
+    //   } else {
+    //     const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+    //     const countryName = regionNames.of(phoneInfo.countryCode);
+    //     setPhoneErrorMessage(
+    //       `Please enter a valid phone number for ${countryName}.`
+    //     );
+    //   }
+    //   return false;
+    // }
 
     return true;
   };
@@ -112,10 +104,9 @@ function AuthPage() {
   const handleSubmit = async (event) => {
     event?.preventDefault();
 
-    setPhoneError(false);
     setPasswordError(false);
 
-    await checkModems();
+    // await checkModems();
 
     const isPhoneValid = validatePhoneNumber();
 
@@ -223,25 +214,28 @@ function AuthPage() {
   };
 
   return (
-    <Grid container height="100vh" justifyContent="center" alignItems="center">
+    <Grid
+      container
+      height="100vh"
+      justifyContent="center"
+      alignItems="center"
+      px={6}
+    >
       <Grid
-        size={8}
-        display="flex"
-        height="100%"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        textAlign="center"
+        size={7}
         sx={{
           py: 5,
           px: { xs: 5, md: 18 },
-          overflowY: "auto",
         }}
       >
-        <Typography variant="h3" sx={{ fontWeight: 600, mb: 8 }}>
+        <Typography
+          className="header"
+          variant="h4"
+          sx={{ fontWeight: 600, mb: 3 }}
+        >
           Login
         </Typography>
-        <Typography variant="h6" sx={{ py: 5 }}>
+        <Typography variant="body2" sx={{ pb: 15 }}>
           Do not have an account?{" "}
           <Link
             component={RouterLink}
@@ -280,8 +274,8 @@ function AuthPage() {
           forceCallingCode
           focusOnSelectCountry
           required
-          error={phoneError}
-          helperText={phoneError ? phoneErrorMessage : ""}
+          // error={phoneError}
+          // helperText={phoneError ? phoneErrorMessage : ""}
           disabled={loading}
           sx={{
             py: 2,
@@ -303,7 +297,7 @@ function AuthPage() {
           required
           error={passwordError}
           helperText={passwordError ? "Password is required" : ""}
-          sx={{ mt: 8 }}
+          sx={{ mt: 6 }}
           disabled={loading}
           slotProps={{
             input: {
@@ -331,7 +325,6 @@ function AuthPage() {
             sx={{
               textDecoration: "none",
               color: "background.more",
-              fontWeight: "bold",
               "&:hover": { textDecoration: "underline" },
             }}
           >
@@ -343,14 +336,16 @@ function AuthPage() {
           variant="contained"
           size="large"
           sx={{
-            mt: 5,
+            textTransform: "none",
+            fontWeight: "bold",
+            mt: 15,
             borderRadius: 7,
             width: "50%",
             bgcolor: "background.more",
-            color: "primary.main",
+            color: "background.other",
             "&:hover": {
-              bgcolor: "primary.main",
-              color: "black",
+              bgcolor: "background.other",
+              color: "background.more",
             },
           }}
           onClick={handleSubmit}
@@ -358,57 +353,22 @@ function AuthPage() {
         >
           {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
         </Button>
-
-        <Button
-          variant="outlined"
-          size="small"
-          sx={{ mt: 2, borderRadius: 7, color: "primary", width: "40%" }}
-          disabled={loading}
-          onClick={async () => {
-            setPhoneError(false);
-            setPasswordError(false);
-
-            await checkModems();
-
-            const isPhoneValid = validatePhoneNumber();
-
-            if (!isPhoneValid || !password) {
-              if (!isPhoneValid) setPhoneError(true);
-              if (!password) setPasswordError(true);
-              return;
-            }
-
-            setLoading(true);
-            setOtpDialogOpen(true);
-          }}
-        >
-          Already have an OTP? Click here.
-        </Button>
-
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="h6" sx={{ mt: 10 }}>
-            <Link component={RouterLink} to="/bridge-auth" underline="always">
-              Authenticate Offline
-            </Link>
-          </Typography>
-        </Box>
       </Grid>
       <Grid
-        size={4}
+        size={5}
         height="100%"
         display="flex"
         justifyContent="center"
         alignItems="center"
         sx={{
-          bgcolor: "background.paper",
           p: 2,
           overflowY: "auto",
         }}
       >
         <img
-          src="images/login.png"
+          src="images/relayics.svg"
           alt="login illustration"
-          style={{ width: "100%", height: "auto" }}
+          style={{ width: "90%", height: "auto" }}
         />
       </Grid>
 
@@ -418,32 +378,6 @@ function AuthPage() {
         onSubmit={handleOtpSubmit}
         onResend={handleSubmit}
         counterTimestamp={otpSettings.nextAttemptTimestamp}
-        event={{
-          ...(modemsAvailable && {
-            callback: async () => {
-              const phoneNumbers = ["AUTHMSG"];
-              const messagePatterns = [
-                /smswithoutborders.*verification code is:\s*(\d+)/i,
-              ];
-
-              const { err, message } = await fetchLatestMessageWithOtp({
-                phoneNumbers,
-                messagePatterns,
-              });
-
-              if (err) {
-                setAlert({
-                  open: true,
-                  type: "error",
-                  message: err,
-                });
-                return;
-              }
-              return message?.otp;
-            },
-            interval: 10000,
-          }),
-        }}
       />
     </Grid>
   );
