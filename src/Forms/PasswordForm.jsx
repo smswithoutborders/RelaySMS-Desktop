@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useTranslation } from "react-i18next";
 
 function PasswordForm({
   fields,
@@ -20,6 +21,8 @@ function PasswordForm({
 }) {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
+  
 
   useEffect(() => {
     const initialData = fields.reduce((acc, field) => {
@@ -95,7 +98,7 @@ function PasswordForm({
         <Box key={field.name} sx={{ marginTop: "16px" }}>
           <TextField
             variant="standard"
-            label={field.label}
+            label={t(`ui.${field.label.toLowerCase()}`)}
             name={field.name}
             type={showPassword[field.name] ? "text" : "password"}
             value={formData[field.name] || ""}
@@ -141,7 +144,7 @@ function PasswordForm({
             ) : null
           }
         >
-          {submitButtonText}
+          {t(`ui.${submitButtonText.toLowerCase()}`)}
         </Button>
       </Box>
     </Box>

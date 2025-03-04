@@ -12,6 +12,7 @@ import {
   Grid,
   Button,
   Paper,
+  IconButton,
 } from "@mui/material";
 import { Add, Delete, Search } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
@@ -55,7 +56,7 @@ function ServiceList({
 
   return (
     <List>
-      <Grid container sx={{mb: 4}}>
+      <Grid container sx={{ mb: 4 }}>
         <Grid item md={10}>
           <Typography
             className="header"
@@ -63,11 +64,11 @@ function ServiceList({
             component="div"
             gutterBottom
           >
-            Accounts Management
+            {t("common.accounts management")}
           </Typography>
         </Grid>
         <Grid item md={2}>
-        <Paper
+          <Paper
             component="form"
             sx={{
               display: "flex",
@@ -81,7 +82,7 @@ function ServiceList({
             <Search color="action" />
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={t("ui.search")}
               style={{
                 border: "none",
                 outline: "none",
@@ -174,19 +175,15 @@ function ServiceList({
                   mt: 2,
                 }}
               >
-                <Grid item md={9}>
-                  <Typography sx={{ fontWeight: 600 }} variant="body1">
-                    Account Identifier
+                <Grid item md={11}>
+                  <Typography sx={{ fontWeight: 600, ml:3 }} variant="body2">
+                    {t("common.account identifier")}
                   </Typography>
                 </Grid>
-                <Grid item md={2}>
-                  <Typography sx={{ fontWeight: 600 }} variant="body1">
-                    Status
-                  </Typography>
-                </Grid>
+                
                 <Grid item md={1}>
-                  <Typography sx={{ fontWeight: 600 }} variant="body1">
-                    Delete Token
+                  <Typography sx={{ fontWeight: 600 }} variant="body2">
+                    {t("common.delete token")}
                   </Typography>
                 </Grid>
               </Grid>
@@ -196,12 +193,13 @@ function ServiceList({
               matchingList.identifiers.map((identifier, idx) => (
                 <React.Fragment key={idx}>
                   <ListItem
-                    sx={{ pl: 1 }}
+                    
                     secondaryAction={
                       adornmentIcon && (
                         <Button
                           size="large"
                           color="error"
+                          sx={{ mr: 5 }}
                           onClick={(e) => {
                             e.stopPropagation();
                             onClick && onClick(service, identifier);

@@ -9,11 +9,7 @@ import {
   executeSelect,
 } from "../handlers/platformHandlers";
 import { listEntityStoredTokens } from "../controllers/platformControllers";
-import {
-  Settings,
-  HelpOutline,
-  People,
-} from "@mui/icons-material";
+import { Settings, HelpOutline, People } from "@mui/icons-material";
 import { Snackbar, Alert, CircularProgress } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -42,7 +38,7 @@ function PlatformLayout() {
           currentActionRef,
         }),
     },
-    
+
     {
       text: "Settings",
       icon: <Settings />,

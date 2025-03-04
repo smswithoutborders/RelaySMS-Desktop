@@ -10,6 +10,7 @@ import {
   Divider,
   CircularProgress,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 function DialogView({
   open,
@@ -25,6 +26,7 @@ function DialogView({
   content = null,
 }) {
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const handleConfirm = async () => {
     setLoading(true);
@@ -38,12 +40,12 @@ function DialogView({
   return (
     <Dialog open={open} onClose={onClose}>
       <Box sx={{ padding: 3, bgcolor: colorName, minWidth: 600 }}>
-        <DialogTitle sx={{ fontWeight: 600 }}>{title}</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 600 }}>{t(`ui.${title.toLowerCase()}`)}</DialogTitle>
         <Divider />
         <DialogContent>
           {description && (
             <Typography variant="body1" sx={{ color: "text.secondary", pb: 2 }}>
-              {description}
+              {t(`ui.${description.toLowerCase()}`)}
             </Typography>
           )}
           {content}
@@ -57,7 +59,7 @@ function DialogView({
               fullWidth
               disabled={loading}
             >
-              {cancelText}
+              {t(`ui.${cancelText.toLowerCase()}`)}
             </Button>
           )}
           {onConfirm && (
@@ -72,7 +74,7 @@ function DialogView({
                 loading ? <CircularProgress size={20} color="inherit" /> : null
               }
             >
-              {confirmText}
+             {t(`ui.${confirmText.toLowerCase()}`)}
             </Button>
           )}
         </DialogActions>

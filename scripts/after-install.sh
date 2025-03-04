@@ -1,11 +1,5 @@
 #!/bin/bash
 
-USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-PDR_CLI_PATH="$USER_HOME/.config/relaysms/py_double_ratchet_cli"
-PDR_CLI_URL="https://github.com/smswithoutborders/py_double_ratchet_cli/archive/refs/heads/main.tar.gz"
-GATEWAY_CLIENT_PATH="$USER_HOME/.config/relaysms/RelaySMS-GatewayClient-Linux"
-GATEWAY_CLIENT_URL="https://github.com/smswithoutborders/RelaySMS-GatewayClient-Linux/archive/refs/heads/master.tar.gz"
-
 # Color settings for loader
 SUCCESS_COLOR="\033[0;32m"
 FAILURE_COLOR="\033[0;31m"
@@ -31,12 +25,6 @@ fi
 
 if hash update-desktop-database 2>/dev/null; then
     update-desktop-database /usr/share/applications || true
-fi
-
-# Check for Python installation
-if ! command -v python3 &>/dev/null; then
-    echo "Error: Python is required but not installed. Please install Python 3 to continue."
-    exit 1
 fi
 
 # loader function
@@ -72,47 +60,3 @@ download_and_extract() {
     { curl -SL "$url" 2>/dev/null | sudo -u "$SUDO_USER" tar -xz -C "$dest" --strip-components=1; } &>/dev/null &
     show_loader $! "Downloading and extracting $task_desc"
 }
-
-# Setup Python CLI
-setup_python_cli() {
-    download_and_extract "$PDR_CLI_URL" "$PDR_CLI_PATH" "py_double_ratchet_cli setup"
-
-    sudo -u "$SUDO_USER" python3 -m venv "$PDR_CLI_PATH/venv" &>/dev/null & 
-    show_loader $! "Creating virtual environment for py_double_ratchet_cli"
-
-    sudo -u "$SUDO_USER" "$PDR_CLI_PATH/venv/bin/pip" install -U pip setuptools &>/dev/null & 
-    show_loader $! "Upgrading pip and setuptools"
-
-    sudo -u "$SUDO_USER" "$PDR_CLI_PATH/venv/bin/pip" install -r "$PDR_CLI_PATH/requirements.txt" &>/dev/null & 
-    show_loader $! "Installing cli dependencies (this might take while)"
-}
-
-# Setup Gateway Client
-setup_gateway_client() {
-    download_and_extract "$GATEWAY_CLIENT_URL" "$GATEWAY_CLIENT_PATH" "RelaySMS Gateway Client setup"
-
-    cd "$GATEWAY_CLIENT_PATH" || exit
-    make &>/dev/null & 
-    show_loader $! "Building Gateway Client"
-
-    make install &>/dev/null & 
-    show_loader $! "Installing Gateway Client (this might take while)"
-
-    make start &>/dev/null & 
-    show_loader $! "Starting Gateway Client"
-
-    make enable &>/dev/null & 
-    show_loader $! "Enabling Gateway Client"
-}
-
-if [ ! -d "$PDR_CLI_PATH" ]; then
-    setup_python_cli || exit 1
-else
-    echo "py_double_ratchet_cli already exists. Skipping setup."
-fi
-
-if [ ! -d "$GATEWAY_CLIENT_PATH" ]; then
-    setup_gateway_client || exit 1
-else
-    echo "RelaySMS Gateway Client already exists. Skipping setup."
-fi

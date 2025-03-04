@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Divider } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 function DisplayPanel({ header, body }) {
@@ -21,7 +21,7 @@ function DisplayPanel({ header, body }) {
             component="div"
             gutterBottom
           >
-            {header}
+           {t(`navigation.${header.toLowerCase()}`)}
           </Typography>
         </>
       )}
