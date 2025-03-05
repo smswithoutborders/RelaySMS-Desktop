@@ -21,6 +21,15 @@
     "deku": "Deku SMS",
     "login": "Login",
     "signup": "Sign Up",
+    "do not have an account?": "Do not have an account?",
+    "have an account?": "Have an account?",
+    "i agree to the": "I agree to the",
+    "terms and conditions": "Terms and Conditions",
+    "confirm password": "Confirm Password",
+    "passwords must match.": "Passwords must match.",
+    "remember your password?": "Remember your password?",
+    "password is required": "Password is required",
+    "phone number is required": "Phone number is required",
     "log out": "Log out",
     "forgot password": "Forgot Password",
     "old password": "Old Password",
@@ -101,5 +110,8 @@
       "header": "Manage your vault accounts from here",
       "sub text": "RelaySMS utilizes a secure vault to store OAuth2 tokens for various services. These tokens allow you to access your accounts and send messages through these services without repeatedly entering your credentials.",
       "continue": "Continue"
+    },
+    "errors": {
+      "an unexpected error occurred. please try again later.": "An unexpected error occurred. Please try again later."
     }
 }

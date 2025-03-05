@@ -21,6 +21,15 @@
     "deku": "Deku SMS",
     "login": "Giriş Yap",
     "signup": "Kaydol",
+    "do not have an account?": "Hesabınız yok mu?",
+    "have an account?": "Hesabınız var mı?",
+    "i agree to the": "Şunu kabul ediyorum:",
+    "terms and conditions": "Şartlar ve koşullar",
+    "confirm password": "Şifreyi onayla",
+    "passwords must match.": "Şifreler eşleşmelidir.",
+    "remember your password?": "Şifrenizi hatırlıyor musunuz?",
+    "password is required": "Şifre gereklidir",
+    "phone number is required": "Telefon numarası gereklidir",
     "log out": "Çıkış Yap",
     "forgot password": "Şifremi Unuttum",
     "old password": "Eski Şifre",
@@ -100,5 +109,8 @@
     "header": "Cüzdan hesaplarınızı buradan yönetin",
     "sub text": "RelaySMS, çeşitli hizmetler için OAuth2 token'larını depolamak amacıyla güvenli bir cüzdan kullanır. Bu token'lar, kimlik bilgilerinizi tekrar tekrar girmeden hesaplarınıza erişmenize ve bu hizmetler aracılığıyla mesaj göndermenize olanak tanır.",
     "continue": "Devam et"
+  },
+  "errors": {
+    "an unexpected error occurred. please try again later.": "Beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin."
   }
 }

@@ -21,6 +21,15 @@
     "deku": "DekuSMS",
     "login": "ورود",
     "signup": "ثبت‌نام",
+    "do not have an account?": "حساب کاربری ندارید؟",
+    "have an account?": "حساب کاربری دارید؟",
+    "i agree to the": "من موافق هستم با",
+    "terms and conditions": "شرایط و ضوابط",
+    "confirm password": "تأیید رمز عبور",
+    "passwords must match.": "رمزهای عبور باید یکسان باشند.",
+    "remember your password?": "رمز عبور خود را به خاطر دارید؟",
+    "password is required": "رمز عبور الزامی است",
+    "phone number is required": "شماره تلفن الزامی است",
     "log out": "خروج",
     "forgot password": "فراموشی رمز عبور",
     "old password": "رمز عبور قبلی",
@@ -100,5 +109,8 @@
     "header": "حساب‌های خزانه خود را از اینجا مدیریت کنید",
     "sub text": "RelaySMS از یک خزانه امن برای ذخیره توکن‌های OAuth2 برای سرویس‌های مختلف استفاده می‌کند. این توکن‌ها به شما این امکان را می‌دهند که به حساب‌های خود دسترسی پیدا کنید و پیام‌ها را از طریق این سرویس‌ها ارسال کنید بدون اینکه لازم باشد هر بار اطلاعات ورود خود را وارد کنید.",
     "continue": "ادامه"
+  },
+  "errors": {
+    "an unexpected error occurred. please try again later.": "خطای غیرمنتظره‌ای رخ داد. لطفاً بعداً دوباره تلاش کنید."
   }
 }

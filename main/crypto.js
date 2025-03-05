@@ -113,7 +113,7 @@ const decryptLongLivedToken = async ({
 
 const clearRatchetState = (userDataDir) => {
   try {
-    const cliPath = path.join(userDataDir, "relaysms");
+    const cliPath = path.join(userDataDir);
     const files = fs.readdirSync(cliPath);
 
     files.forEach((file) => {

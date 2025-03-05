@@ -17,14 +17,12 @@ import { formatDistanceToNow } from "date-fns";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { OTPDialog } from "../Components";
-import {
-  SettingsController,
-  authenticateEntity,
-  fetchLatestMessageWithOtp,
-} from "../controllers";
+import { SettingsController, authenticateEntity } from "../controllers";
+import { useTranslation } from "react-i18next";
 
 function AuthPage() {
   const settingsController = new SettingsController();
+  const { t } = useTranslation();
 
   const [phone, setPhone] = useState("");
   const [phoneInfo, setPhoneInfo] = useState({});
@@ -83,20 +81,20 @@ function AuthPage() {
       return false;
     }
 
-    // if (!matchIsValidTel(phone)) {
-    //   if (!phoneInfo.countryCode) {
-    //     setPhoneErrorMessage(
-    //       "Please select a country and enter your phone number."
-    //     );
-    //   } else {
-    //     const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
-    //     const countryName = regionNames.of(phoneInfo.countryCode);
-    //     setPhoneErrorMessage(
-    //       `Please enter a valid phone number for ${countryName}.`
-    //     );
-    //   }
-    //   return false;
-    // }
+    if (!matchIsValidTel(phone)) {
+      if (!phoneInfo.countryCode) {
+        setPhoneErrorMessage(
+          "Please select a country and enter your phone number."
+        );
+      } else {
+        const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+        const countryName = regionNames.of(phoneInfo.countryCode);
+        setPhoneErrorMessage(
+          `Please enter a valid phone number for ${countryName}.`
+        );
+      }
+      return false;
+    }
 
     return true;
   };
@@ -169,7 +167,7 @@ function AuthPage() {
       setAlert({
         open: true,
         type: "error",
-        message: "An unexpected error occurred. Please try again later.",
+        message: `${t("an unexpected error occurred. please try again later.")}`,
       });
     } finally {
       setLoading(false);
@@ -208,7 +206,7 @@ function AuthPage() {
     } catch (error) {
       setOtpAlert({
         severity: "error",
-        message: "An unexpected error occurred. Please try again later.",
+        message: `${t("an unexpected error occurred. please try again later.")}`,
       });
     }
   };
@@ -233,10 +231,10 @@ function AuthPage() {
           variant="h4"
           sx={{ fontWeight: 600, mb: 3 }}
         >
-          Login
+          {t("ui.login")}
         </Typography>
         <Typography variant="body2" sx={{ pb: 15 }}>
-          Do not have an account?{" "}
+          {t("ui.do not have an account?")}{" "}
           <Link
             component={RouterLink}
             to="/signup"
@@ -247,7 +245,7 @@ function AuthPage() {
               "&:hover": { textDecoration: "underline" },
             }}
           >
-            Sign Up
+            {t("ui.signup")}
           </Link>
         </Typography>
 
@@ -274,8 +272,8 @@ function AuthPage() {
           forceCallingCode
           focusOnSelectCountry
           required
-          // error={phoneError}
-          // helperText={phoneError ? phoneErrorMessage : ""}
+          error={phoneError}
+          helperText={phoneError ? phoneErrorMessage : ""}
           disabled={loading}
           sx={{
             py: 2,
@@ -289,7 +287,7 @@ function AuthPage() {
 
         <TextField
           fullWidth
-          label="Password"
+          label={t("ui.password")}
           variant="standard"
           value={password}
           onChange={handlePasswordChange}
@@ -328,7 +326,7 @@ function AuthPage() {
               "&:hover": { textDecoration: "underline" },
             }}
           >
-            Forgot Password?
+            {t("ui.forgot password")}
           </Link>
         </Typography>
 
@@ -351,7 +349,7 @@ function AuthPage() {
           onClick={handleSubmit}
           disabled={loading}
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+          {loading ? <CircularProgress size={24} color="inherit" /> : `${t("login")}`}
         </Button>
       </Grid>
       <Grid

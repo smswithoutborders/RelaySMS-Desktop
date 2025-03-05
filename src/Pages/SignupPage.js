@@ -18,13 +18,12 @@ import { formatDistanceToNow } from "date-fns";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { OTPDialog } from "../Components";
-import {
-  SettingsController,
-  createEntity,
-} from "../controllers";
+import { SettingsController, createEntity } from "../controllers";
+import { useTranslation } from "react-i18next";
 
 function SignupPage() {
   const settingsController = new SettingsController();
+  const { t } = useTranslation();
 
   const [phone, setPhone] = useState("");
   const [phoneInfo, setPhoneInfo] = useState({});
@@ -64,7 +63,6 @@ function SignupPage() {
       console.error("Error fetching OTP settings:", error);
     }
   };
-
 
   useEffect(() => {
     fetchOtpSettings();
@@ -209,7 +207,7 @@ function SignupPage() {
       setAlert({
         open: true,
         type: "error",
-        message: "An unexpected error occurred. Please try again later.",
+        message: `${t("an unexpected error occurred. please try again later.")}`,
       });
     } finally {
       setLoading(false);
@@ -252,13 +250,19 @@ function SignupPage() {
     } catch (error) {
       setOtpAlert({
         severity: "error",
-        message: "An unexpected error occurred. Please try again later.",
+        message: `${t("an unexpected error occurred. please try again later.")}`,
       });
     }
   };
 
   return (
-    <Grid container height="100vh" justifyContent="center" alignItems="center" px={6}>
+    <Grid
+      container
+      height="100vh"
+      justifyContent="center"
+      alignItems="center"
+      px={6}
+    >
       <Grid
         size={7}
         sx={{
@@ -266,11 +270,15 @@ function SignupPage() {
           px: { xs: 5, md: 18 },
         }}
       >
-        <Typography className="header" variant="h4" sx={{ fontWeight: 600, mb: 3 }}>
-          Sign Up
+        <Typography
+          className="header"
+          variant="h4"
+          sx={{ fontWeight: 600, mb: 3 }}
+        >
+          {t("ui.signup")}
         </Typography>
         <Typography variant="body2" sx={{ pb: 10 }}>
-          Have an account?{" "}
+          {t("ui.have an account?")}{" "}
           <Link
             component={RouterLink}
             to="/login"
@@ -281,7 +289,7 @@ function SignupPage() {
               "&:hover": { textDecoration: "underline" },
             }}
           >
-            Login
+            {t("ui.login")}
           </Link>
         </Typography>
 
@@ -323,7 +331,7 @@ function SignupPage() {
 
         <TextField
           fullWidth
-          label="Password"
+          label={t("ui.password")}
           variant="standard"
           name="password"
           value={passwordData.password}
@@ -331,7 +339,7 @@ function SignupPage() {
           type={showPassword.password ? "text" : "password"}
           required
           error={passwordData.passwordError}
-          helperText={passwordData.passwordError ? "Password is required" : ""}
+          helperText={passwordData.passwordError ? `${t("ui.password is required")}` : ""}
           sx={{ mt: 8 }}
           disabled={loading}
           slotProps={{
@@ -350,7 +358,7 @@ function SignupPage() {
 
         <TextField
           fullWidth
-          label="Confirm Password"
+          label={t("ui.confirm password")}
           variant="standard"
           name="confirmPassword"
           value={passwordData.confirmPassword}
@@ -359,7 +367,7 @@ function SignupPage() {
           required
           error={passwordData.confirmPasswordError}
           helperText={
-            passwordData.confirmPasswordError ? "Passwords must match." : ""
+            passwordData.confirmPasswordError ? `${t("ui.passwords must match.")}` : ""
           }
           sx={{ mt: 8 }}
           disabled={loading}
@@ -389,7 +397,7 @@ function SignupPage() {
             disabled={loading}
           />
           <Typography variant="body2">
-            I agree to the{" "}
+            {t("ui.i agree to the")}{" "}
             <Link
               to="/terms"
               component={RouterLink}
@@ -399,7 +407,7 @@ function SignupPage() {
                 "&:hover": { textDecoration: "underline" },
               }}
             >
-              Terms and Conditions
+             {t("ui.terms and conditions")}
             </Link>
           </Typography>
         </Box>
@@ -423,9 +431,8 @@ function SignupPage() {
           onClick={handleSubmit}
           disabled={!agreedToTerms || loading}
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : "Sign Up"}
+          {loading ? <CircularProgress size={24} color="inherit" /> : `${t("signup")}`}
         </Button>
-
       </Grid>
       <Grid
         size={5}

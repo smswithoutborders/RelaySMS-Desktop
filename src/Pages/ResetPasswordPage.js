@@ -17,13 +17,12 @@ import { formatDistanceToNow } from "date-fns";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { OTPDialog } from "../Components";
-import {
-  SettingsController,
-  resetPassword,
-} from "../controllers";
+import { SettingsController, resetPassword } from "../controllers";
+import { useTranslation } from "react-i18next";
 
 function ResetPasswordPage() {
   const settingsController = new SettingsController();
+  const { t } = useTranslation();
 
   const [phone, setPhone] = useState("");
   const [phoneInfo, setPhoneInfo] = useState({});
@@ -63,7 +62,6 @@ function ResetPasswordPage() {
     }
   };
 
- 
   useEffect(() => {
     fetchOtpSettings();
   }, []);
@@ -92,7 +90,7 @@ function ResetPasswordPage() {
 
   const validatePhoneNumber = () => {
     if (!phone || !phoneInfo.nationalNumber) {
-      setPhoneErrorMessage("Phone number is required");
+      setPhoneErrorMessage(`${t("phone number is required")}`);
       return false;
     }
 
@@ -202,7 +200,7 @@ function ResetPasswordPage() {
       setAlert({
         open: true,
         type: "error",
-        message: "An unexpected error occurred. Please try again later.",
+        message: `${t("an unexpected error occurred. please try again later.")}`,
       });
     } finally {
       setLoading(false);
@@ -244,7 +242,7 @@ function ResetPasswordPage() {
     } catch (error) {
       setOtpAlert({
         severity: "error",
-        message: "An unexpected error occurred. Please try again later.",
+        message: `${t("an unexpected error occurred. please try again later.")}`,
       });
     }
   };
@@ -269,10 +267,10 @@ function ResetPasswordPage() {
           variant="h4"
           sx={{ fontWeight: 600, mb: 3 }}
         >
-          Reset Password
+          {t("ui.reset password")}
         </Typography>
         <Typography variant="body2" sx={{ pb: 10 }}>
-          Remember your password?{" "}
+          {t("ui.remember your password?")}{" "}
           <Link
             component={RouterLink}
             to="/login"
@@ -283,7 +281,7 @@ function ResetPasswordPage() {
               "&:hover": { textDecoration: "underline" },
             }}
           >
-            Login
+           {t("ui.login")}
           </Link>
         </Typography>
 
@@ -325,7 +323,7 @@ function ResetPasswordPage() {
 
         <TextField
           fullWidth
-          label="New Password"
+          label={t("ui.new password")}
           variant="standard"
           name="password"
           value={passwordData.password}
@@ -333,7 +331,7 @@ function ResetPasswordPage() {
           type={showPassword.password ? "text" : "password"}
           required
           error={passwordData.passwordError}
-          helperText={passwordData.passwordError ? "Password is required" : ""}
+          helperText={passwordData.passwordError ? `${t("ui.password is required")}` : ""}
           sx={{ mt: 8 }}
           disabled={loading}
           slotProps={{
@@ -352,7 +350,7 @@ function ResetPasswordPage() {
 
         <TextField
           fullWidth
-          label="Confirm New Password"
+          label={t("ui.confirm new password")}
           variant="standard"
           name="confirmPassword"
           value={passwordData.confirmPassword}
@@ -361,7 +359,7 @@ function ResetPasswordPage() {
           required
           error={passwordData.confirmPasswordError}
           helperText={
-            passwordData.confirmPasswordError ? "Passwords must match." : ""
+            passwordData.confirmPasswordError ? `${t("ui.passwords must match.")}` : ""
           }
           sx={{ mt: 8 }}
           disabled={loading}
@@ -405,7 +403,7 @@ function ResetPasswordPage() {
           {loading ? (
             <CircularProgress size={24} color="inherit" />
           ) : (
-            "Reset Password"
+            `${t("ui.reset password")}`
           )}
         </Button>
       </Grid>

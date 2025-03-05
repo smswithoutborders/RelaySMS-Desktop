@@ -21,6 +21,15 @@
     "deku": "Deku SMS",
     "login": "Iniciar Sesión",
     "signup": "Registrarse",
+    "do not have an account?": "¿No tienes una cuenta?",
+    "have an account?": "¿Tienes una cuenta?",
+    "i agree to the": "Estoy de acuerdo con los",
+    "terms and conditions": "Términos y condiciones",
+    "confirm password": "Confirmar contraseña",
+    "passwords must match.": "Las contraseñas deben coincidir.",
+    "remember your password?": "¿Recuerdas tu contraseña?",
+    "password is required": "Se requiere una contraseña",
+    "phone number is required": "Se requiere un número de teléfono",
     "log out": "Cerrar Sesión",
     "forgot password": "Olvidé mi Contraseña",
     "old password": "Contraseña Antigua",
@@ -100,5 +109,8 @@
     "header": "Administra tus cuentas de bóveda desde aquí",
     "sub text": "RelaySMS utiliza una bóveda segura para almacenar tokens OAuth2 para varios servicios. Estos tokens te permiten acceder a tus cuentas y enviar mensajes a través de estos servicios sin tener que ingresar tus credenciales repetidamente.",
     "continue": "Continuar"
+  },
+  "errors": {
+    "an unexpected error occurred. please try again later.": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde."
   }
 }
