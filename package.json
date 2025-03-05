@@ -140,7 +140,8 @@
     },
     "win": {
       "target": "nsis",
-      "publisherName": "Afkanerd"
+      "publisherName": "Afkanerd",
+      "icon": "public/images"
     },
     "linux": {
       "target": [
