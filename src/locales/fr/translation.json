@@ -59,6 +59,9 @@
     "confirm account deletion": "Confirmer la suppression du compte",
     "are you sure you want to delete your account? all your data will be permanently removed, and this action cannot be undone.": "Êtes-vous sûr de vouloir supprimer votre compte ? Toutes vos données seront définitivement supprimées et cette action est irréversible.",
     "yes, delete account": "Oui, supprimer le compte",
+    "you are about to revoke access for this account. this will permanently remove access to this account from this app. you will need to reauthorize the app to regain access in the future. are you sure you want to proceed?": "Vous êtes sur le point de révoquer l'accès à ce compte. Cela supprimera définitivement l'accès à ce compte depuis cette application. Vous devrez réautoriser l'application pour récupérer l'accès à l'avenir. Êtes-vous sûr de vouloir continuer ?",
+    "revoke access": "Révoquer l'accès",
+    "yes, revoke access": "Oui, révoquer l'accès",
     "submit": "Soumettre",
     "submitting": "Envoi en cours",
     "app tutorial": "Tutoriel de l'application",
@@ -92,5 +95,10 @@
     "account identifier": "Identifiant du compte",
     "status": "Statut",
     "delete token": "Supprimer"
+  },
+  "tutorial": {
+    "header": "Gérez vos comptes de coffre-fort ici",
+    "sub text": "RelaySMS utilise un coffre-fort sécurisé pour stocker les jetons OAuth2 pour divers services. Ces jetons vous permettent d'accéder à vos comptes et d'envoyer des messages via ces services sans avoir à entrer vos identifiants à chaque fois.",
+    "continue": "Continuer"
   }
 }

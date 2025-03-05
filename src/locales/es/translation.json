@@ -59,6 +59,9 @@
     "confirm account deletion": "Confirmar eliminación de cuenta",
     "are you sure you want to delete your account? all your data will be permanently removed, and this action cannot be undone.": "¿Estás seguro de que quieres eliminar tu cuenta? Todos tus datos se eliminarán permanentemente y esta acción no se puede deshacer.",
     "yes, delete account": "Sí, eliminar cuenta",
+    "you are about to revoke access for this account. this will permanently remove access to this account from this app. you will need to reauthorize the app to regain access in the future. are you sure you want to proceed?": "Estás a punto de revocar el acceso a esta cuenta. Esto eliminará permanentemente el acceso a esta cuenta desde esta aplicación. Deberás volver a autorizar la aplicación para recuperar el acceso en el futuro. ¿Estás seguro de que quieres continuar?",
+    "revoke access": "Revocar acceso",
+    "yes, revoke access": "Sí, revocar acceso",
     "submit": "Enviar",
     "submitting": "Enviando",
     "app tutorial": "Tutorial de la App",
@@ -92,5 +95,10 @@
     "account identifier": "Identificador de cuenta",
     "status": "Estado",
     "delete token": "Eliminar token"
+  },
+  "tutorial": {
+    "header": "Administra tus cuentas de bóveda desde aquí",
+    "sub text": "RelaySMS utiliza una bóveda segura para almacenar tokens OAuth2 para varios servicios. Estos tokens te permiten acceder a tus cuentas y enviar mensajes a través de estos servicios sin tener que ingresar tus credenciales repetidamente.",
+    "continue": "Continuar"
   }
 }

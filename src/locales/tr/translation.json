@@ -59,6 +59,9 @@
     "confirm account deletion": "Hesap Silme Onayı",
     "are you sure you want to delete your account? all your data will be permanently removed, and this action cannot be undone.": "Hesabınızı silmek istediğinizden emin misiniz? Tüm verileriniz kalıcı olarak silinecek ve bu işlem geri alınamaz.",
     "yes, delete account": "Evet, Hesabı Sil",
+    "you are about to revoke access for this account. this will permanently remove access to this account from this app. you will need to reauthorize the app to regain access in the future. are you sure you want to proceed?": "Bu hesaba erişimi iptal etmek üzeresiniz. Bu, bu hesaba bu uygulamadan kalıcı olarak erişimi kaldıracaktır. Gelecekte erişimi geri almak için uygulamayı yeniden yetkilendirmeniz gerekecek. Devam etmek istediğinizden emin misiniz?",
+    "revoke access": "Erişimi iptal",
+    "yes, revoke access": "Evet, erişimi iptal et",
     "submit": "Gönder",
     "submitting": "Gönderiliyor",
     "app tutorial": "Uygulama Eğitimi",
@@ -92,5 +95,10 @@
     "account identifier": "Hesap kimliği",
     "status": "Durum",
     "delete token": "Tokeni sil"
+  },
+  "tutorial": {
+    "header": "Cüzdan hesaplarınızı buradan yönetin",
+    "sub text": "RelaySMS, çeşitli hizmetler için OAuth2 token'larını depolamak amacıyla güvenli bir cüzdan kullanır. Bu token'lar, kimlik bilgilerinizi tekrar tekrar girmeden hesaplarınıza erişmenize ve bu hizmetler aracılığıyla mesaj göndermenize olanak tanır.",
+    "continue": "Devam et"
   }
 }

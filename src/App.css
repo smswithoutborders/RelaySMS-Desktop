@@ -1,3 +1,8 @@
+@font-face {
+  font-family: Unbounded;
+  src: url(/public/Unbounded/Unbounded-VariableFont_wght.ttf);
+}
+
 :root {
   --background-default: #fafafa;
   --background-dark: #1E1E1E;
@@ -39,6 +44,6 @@ body.dark-mode {
 }
 
 .header {
-  font-family: "Unbounded", serif !important;
+  font-family: Unbounded !important;
   font-optical-sizing: auto;
 }

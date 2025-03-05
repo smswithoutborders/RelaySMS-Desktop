@@ -11,7 +11,7 @@ import { ThemeModeProvider } from "./Contexts/ThemeContext";
 import { LanguageProvider } from "./Contexts/LanguageContext";
 import { CssBaseline, CircularProgress, Box } from "@mui/material";
 import { PlatformLayout } from "./Layouts";
-import { AuthPage, SignupPage, ResetPasswordPage } from "./Pages";
+import { AuthPage, SignupPage, ResetPasswordPage, AppTutorial } from "./Pages";
 
 function App() {
   return (
@@ -31,10 +31,11 @@ function App() {
 }
 
 function AppRoutes() {
-  const { AuthRequired, hasLongLivedToken } =
-    useAuth();
-
+  const { AuthRequired, hasLongLivedToken } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const [hasSeenTutorial, setHasSeenTutorial] = useState(
+    localStorage.getItem("hasSeenTutorial") === "true"
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -61,43 +62,55 @@ function AppRoutes() {
 
   return (
     <Routes>
+      {!hasSeenTutorial && !hasLongLivedToken() ? (
+        <Route path="/*" element={<Navigate to="/tutorial" replace />} />
+      ) : (
+        <>
+          <Route
+            path="/"
+            element={
+              <AuthRequired>
+                {hasLongLivedToken() ? (
+                  <PlatformLayout />
+                ) : (
+                  <Navigate to="/login" replace />
+                )}
+              </AuthRequired>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              hasLongLivedToken() ? <Navigate to="/" replace /> : <AuthPage />
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              hasLongLivedToken() ? <Navigate to="/" replace /> : <SignupPage />
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              hasLongLivedToken() ? (
+                <Navigate to="/" replace />
+              ) : (
+                <ResetPasswordPage />
+              )
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </>
+      )}
+
       <Route
-        path="/"
-        element={
-          <AuthRequired>
-            {hasLongLivedToken() ? (
-              <PlatformLayout />
-            ) : (
-              <Navigate to="/login" replace />
-            )}
-          </AuthRequired>
-        }
+        path="/tutorial"
+        element={<AppTutorial setHasSeenTutorial={setHasSeenTutorial} />}
       />
-      <Route
-        path="/login"
-        element={
-          hasLongLivedToken() ? <Navigate to="/" replace /> : <AuthPage />
-        }
-      />
-      <Route
-        path="/signup"
-        element={
-          hasLongLivedToken() ? <Navigate to="/" replace /> : <SignupPage />
-        }
-      />
-      <Route
-        path="/reset-password"
-        element={
-          hasLongLivedToken() ? (
-            <Navigate to="/" replace />
-          ) : (
-            <ResetPasswordPage />
-          )
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
+
 
 export default App;

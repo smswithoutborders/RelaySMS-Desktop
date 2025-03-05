@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   List,
@@ -16,6 +16,15 @@ function NavigationPanel({ items = []}) {
   const { logo } = useThemeMode();
 
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (items.length > 0) {
+      const defaultItem = items.find((item) => item.default);
+      if (defaultItem && defaultItem.action) {
+        defaultItem.action(defaultItem.text);
+      }
+    }
+  }, [items]);
 
   const handleItemClick = (item) => {
     setActiveItem(item.text);

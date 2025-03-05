@@ -71,58 +71,68 @@ const handleOAuth2Platform = async ({
       severity: "success",
       message: `${platform.name} token added successfully!`,
     });
-  } else {
-    setDisplayPanel(
-      <DialogView
-        open={true}
-        title={`Revoke Access to ${platform.name}`}
-        description={`You are about to revoke access for the identifier "${identifier}". This will permanently remove access to your ${platform.name} account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?`}
-        cancelText="Cancel"
-        confirmText="Yes, Revoke Access"
-        onClose={() => {
-          executeSelect({
-            actionName: actionName,
-            selectFunction: handlePlatformSelect,
-            setDisplayPanel,
-            setAlert,
-            currentActionRef,
-          });
-          return;
-        }}
-        onConfirm={async () => {
-          const { err, res } = await deleteOAuth2Token({
-            platform: platform.name.toLowerCase(),
-            identifier,
-          });
 
-          if (err || !res.success) {
-            setAlert({
-              open: true,
-              severity: "error",
-              message: `Failed to remove ${platform.name} token: ${
-                err || res.message
-              }`,
-            });
-            return;
-          }
-
-          setAlert({
-            open: true,
-            severity: "success",
-            message: `${platform.name} token removed successfully!`,
-          });
-        }}
-      />
-    );
+    executeSelect({
+      actionName: "Platforms",
+      selectFunction: handlePlatformSelect,
+      setDisplayPanel,
+      setAlert,
+      currentActionRef,
+    });
+    return;
   }
 
-  executeSelect({
-    actionName: "Platforms",
-    selectFunction: handlePlatformSelect,
-    setDisplayPanel,
-    setAlert,
-    currentActionRef,
-  });
+  setDisplayPanel(
+    <DialogView
+      open={true}
+      title={`Revoke Access`}
+      description={`You are about to revoke access for this account. This will permanently remove access to this account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?`}
+      cancelText="Cancel"
+      confirmText="Yes, Revoke Access"
+      onClose={() => {
+        executeSelect({
+          actionName: actionName,
+          selectFunction: handlePlatformSelect,
+          setDisplayPanel,
+          setAlert,
+          currentActionRef,
+        });
+        return;
+      }}
+      onConfirm={async () => {
+        const { err, res } = await deleteOAuth2Token({
+          platform: platform.name.toLowerCase(),
+          identifier,
+        });
+
+        if (err || !res.success) {
+          setAlert({
+            open: true,
+            severity: "error",
+            message: `Failed to remove ${platform.name} token: ${
+              err || res.message
+            }`,
+          });
+          return;
+        }
+
+        setAlert({
+          open: true,
+          severity: "success",
+          message: `${platform.name} token removed successfully!`,
+        });
+
+        executeSelect({
+          actionName: "Platforms",
+          selectFunction: handlePlatformSelect,
+          setDisplayPanel,
+          setAlert,
+          currentActionRef,
+        });
+        return;
+      }}
+    />
+  );
 };
 
 const handlePNBAAuthWithPassword = async ({

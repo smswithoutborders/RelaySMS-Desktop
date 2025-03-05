@@ -59,6 +59,9 @@
     "confirm account deletion": "تأیید حذف حساب",
     "are you sure you want to delete your account? all your data will be permanently removed, and this action cannot be undone.": "آیا مطمئن هستید که می‌خواهید حساب خود را حذف کنید؟ تمام داده‌های شما به طور دائمی حذف خواهند شد و این عمل قابل برگشت نیست.",
     "yes, delete account": "بله، حذف حساب",
+    "you are about to revoke access for this account. this will permanently remove access to this account from this app. you will need to reauthorize the app to regain access in the future. are you sure you want to proceed?": "شما در حال لغو دسترسی برای این حساب هستید. این دسترسی به این حساب از این برنامه به طور دائمی حذف خواهد شد. برای بازیابی دسترسی در آینده، باید برنامه را دوباره مجاز کنید. آیا از ادامه دادن اطمینان دارید؟",
+    "revoke access": "لغو دسترسی",
+    "yes, revoke access": "بله، لغو دسترسی",
     "submit": "ارسال",
     "submitting": "در حال ارسال",
     "app tutorial": "آموزش برنامه",
@@ -92,5 +95,10 @@
     "account identifier": "شناسه حساب",
     "status": "وضعیت",
     "delete token": "حذف توکن"
+  },
+  "tutorial": {
+    "header": "حساب‌های خزانه خود را از اینجا مدیریت کنید",
+    "sub text": "RelaySMS از یک خزانه امن برای ذخیره توکن‌های OAuth2 برای سرویس‌های مختلف استفاده می‌کند. این توکن‌ها به شما این امکان را می‌دهند که به حساب‌های خود دسترسی پیدا کنید و پیام‌ها را از طریق این سرویس‌ها ارسال کنید بدون اینکه لازم باشد هر بار اطلاعات ورود خود را وارد کنید.",
+    "continue": "ادامه"
   }
 }

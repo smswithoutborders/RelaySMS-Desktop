@@ -59,6 +59,9 @@
     "confirm account deletion": "Confirm Account Deletion",
     "are you sure you want to delete your account? all your data will be permanently removed, and this action cannot be undone.": "Are you sure you want to delete your account? All your data will be permanently removed, and this action cannot be undone.",
     "yes, delete account": "Yes, Delete Account",
+    "you are about to revoke access for this account. this will permanently remove access to this account from this app. you will need to reauthorize the app to regain access in the future. are you sure you want to proceed?": "You are about to revoke access for this account. This will permanently remove access to this account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?",
+    "revoke access": "Revoke access",
+    "yes, revoke access": "Yes, Revoke Access",
     "submit": "Submit",
     "submitting": "Submitting",
     "app tutorial": "App Tutorial",
@@ -93,5 +96,10 @@
     "account identifier": "Account Identifier",
     "status": "Status",
     "delete token": "Delete Token"
-  }
+  },
+    "tutorial": {
+      "header": "Manage your vault accounts from here",
+      "sub text": "RelaySMS utilizes a secure vault to store OAuth2 tokens for various services. These tokens allow you to access your accounts and send messages through these services without repeatedly entering your credentials.",
+      "continue": "Continue"
+    }
 }
