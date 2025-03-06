@@ -5,7 +5,7 @@ import { useThemeMode } from "../Contexts/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import LanguageList from "../Components/LanguageList";
 
-export default function AppTutorial() {
+export default function AppTutorial({setHasSeenTutorial}) {
   const { t } = useTranslation();
   const { logo } = useThemeMode();
   const navigate = useNavigate();
@@ -13,7 +13,9 @@ export default function AppTutorial() {
   const handleContinue = () => {
     console.log("Continue button clicked");
     localStorage.setItem("hasSeenTutorial", "true");
+    setHasSeenTutorial(true);  
     navigate("/login");
+    window.location.reload();
   };
 
   return (

@@ -145,25 +145,10 @@
     },
     "linux": {
       "target": [
-        "deb",
-        "rpm",
-        "AppImage",
-        "snap"
+        "deb"
       ],
       "icon": "public/images",
       "category": "Communication"
-    },
-    "rpm": {
-      "compression": "xz"
-    },
-    "snap": {
-      "grade": "stable",
-      "confinement": "strict",
-      "plugs": [
-        "home",
-        "network",
-        "network-bind"
-      ]
     }
   }
 }

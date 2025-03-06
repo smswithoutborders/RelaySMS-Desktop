@@ -33,9 +33,12 @@ function App() {
 function AppRoutes() {
   const { AuthRequired, hasLongLivedToken } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const [hasSeenTutorial, setHasSeenTutorial] = useState(
-    localStorage.getItem("hasSeenTutorial") === "true"
-  );
+  const [hasSeenTutorial, setHasSeenTutorial] = useState();
+
+  useEffect(() => {
+    setHasSeenTutorial(localStorage.getItem("hasSeenTutorial") === "true");
+  }, []);
+  
 
   useEffect(() => {
     const timer = setTimeout(() => {
