@@ -26,7 +26,7 @@ To install RelaySMS Desktop:
 We welcome contributions to RelaySMS Desktop! Follow these steps to get started:
 
 1. **Fork the Repository**: Clone your forked repository to your local machine.
-2. **Install Dependencies**: Run `yarn install` (or relevant package manager for dependencies).
+2. **Install Dependencies**: Run `yarn install` .
 3. **Create a Branch**: Use `git checkout -b feature-branch-name`.
 4. **Make Changes**: Implement your changes and ensure the code is properly formatted.
 5. **Test Your Changes**: Run tests to ensure everything works as expected.
