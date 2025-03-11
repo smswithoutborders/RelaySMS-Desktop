@@ -47,14 +47,14 @@ function NavigationPanel({ items = []}) {
         variant="permanent"
         sx={{
           flexShrink: 0,
-          width: 340,
+          width: 310,
         }}
       >
         <List>
           <Box
             component="img"
             src={logo}
-            width="65%"
+            width="70%"
             mb={4}
             mt={2}
             ml={2.5}

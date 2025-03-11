@@ -79,7 +79,9 @@
     "blog": "Blog",
     "github": "GitHub",
     "theme toggle": "Changer le Thème",
-    "no message": "Aucun message à afficher"
+    "store telegram token": "Enregistrer le jeton Telegram",
+    "select platform": "Sélectionner une plateforme",
+    "revoke access to telegram": "Révoquer l'accès à Telegram"
   },
   "common": {
     "refreshingTokens": "Rafraîchissement de votre liste de jetons stockés...",
@@ -103,7 +105,9 @@
     "accounts management": "Gestion des comptes",
     "account identifier": "Identifiant du compte",
     "status": "Statut",
-    "delete token": "Supprimer"
+    "delete token": "Supprimer le jeton",
+    "no tokens available": "Aucun jeton disponible",
+    "platforms": "Plateformes"
   },
   "tutorial": {
     "header": "Gérez vos comptes de coffre-fort ici",

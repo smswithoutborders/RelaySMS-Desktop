@@ -32,9 +32,9 @@ function BaseLayout() {
 
   return (
     <Grid container>
-      <Grid md={4}>{navigationPanel}</Grid>
+      <Grid md={3}>{navigationPanel}</Grid>
       <Grid
-        md={8}
+        md={9}
         sx={{
           p: 2,
           px: 10,

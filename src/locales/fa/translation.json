@@ -79,7 +79,9 @@
     "blog": "وبلاگ",
     "github": "گیت‌هاب",
     "theme toggle": "تغییر تم",
-    "no message": "پیامی برای نمایش وجود ندارد"
+    "store telegram token": "ذخیره توکن تلگرام",
+    "select platform": "انتخاب پلتفرم",
+    "revoke access to telegram": "لغو دسترسی به تلگرام"
   },
   "common": {
     "refreshingTokens": "در حال به‌روزرسانی لیست توکن‌های ذخیره‌شده شما...",
@@ -103,7 +105,9 @@
     "accounts management": "مدیریت حساب‌ها",
     "account identifier": "شناسه حساب",
     "status": "وضعیت",
-    "delete token": "حذف توکن"
+    "delete token": "حذف توکن",
+    "no tokens available": "هیچ توکنی موجود نیست",
+    "platforms": "پلتفرم‌ها"
   },
   "tutorial": {
     "header": "حساب‌های خزانه خود را از اینجا مدیریت کنید",

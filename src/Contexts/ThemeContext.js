@@ -46,7 +46,7 @@ export const ThemeModeProvider = ({ children }) => {
             default: mode === "dark" ? "#1E1E1E" : "#DDDDDD",
             paper: mode === "dark" ? "#000" : "#fff",
             custom: mode === "dark" ? "#232226" : "#E0E2DB",
-            side: mode === "dark" ? "#171614" : "#fff",
+            side: mode === "dark" ? "#171614" : "#F4F4F4",
             more: mode === "dark" ? "#C6D3FF" : "#001872",
             other: mode === "dark" ? "#001872" : "#C6D3FF",
           },

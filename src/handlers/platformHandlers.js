@@ -365,7 +365,7 @@ const handlePNBAPlatform = async ({
     <DialogView
       open={true}
       title={`Revoke Access to ${platform.name}`}
-      description={`You are about to revoke access for the identifier "${identifier}". This will permanently remove access to your ${platform.name} account from this app. You will need to reauthorize the app to regain access in the future. Are you sure you want to proceed?`}
+      description={`you are about to revoke access for this account. this will permanently remove access to this account from this app. you will need to reauthorize the app to regain access in the future. are you sure you want to proceed?`}
       cancelText="Cancel"
       confirmText="Yes, Revoke Access"
       onClose={() => {
@@ -464,7 +464,6 @@ export const handlePlatformSelect = async ({
 }) => {
   setDisplayPanel(
     <DisplayPanel
-      header="Accounts"
       body={<ServiceList serviceType="Platform" loading={true} />}
     />
   );

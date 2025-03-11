@@ -79,7 +79,9 @@
     "blog": "Blog",
     "github": "GitHub",
     "theme toggle": "Cambiar Tema",
-    "no message": "No hay mensajes para mostrar"
+    "store telegram token": "Almacenar token de Telegram",
+    "select platform": "Seleccionar plataforma",
+    "revoke access to telegram": "Revocar acceso a Telegram"
   },
   "common": {
     "refreshingTokens": "Actualizando tu lista de tokens almacenados...",
@@ -103,7 +105,9 @@
     "accounts management": "Gestión de cuentas",
     "account identifier": "Identificador de cuenta",
     "status": "Estado",
-    "delete token": "Eliminar token"
+    "delete token": "Eliminar token",
+    "no tokens available": "No hay tokens disponibles",
+    "platforms": "Plataformas"
   },
   "tutorial": {
     "header": "Administra tus cuentas de bóveda desde aquí",

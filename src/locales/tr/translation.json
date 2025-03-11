@@ -79,7 +79,9 @@
     "blog": "Blog",
     "github": "GitHub",
     "theme toggle": "Tema Değiştir",
-    "no message": "Gösterilecek mesaj yok"
+    "store telegram token": "Telegram jetonunu kaydet",
+    "select platform": "Platform seç",
+    "revoke access to telegram": "Telegram erişimini iptal et"
   },
   "common": {
     "refreshingTokens": "Kayıtlı token listenizi yeniliyor...",
@@ -103,7 +105,9 @@
     "accounts management": "Hesap yönetimi",
     "account identifier": "Hesap kimliği",
     "status": "Durum",
-    "delete token": "Tokeni sil"
+    "delete token": "Jetonu sil",
+    "no tokens available": "Kullanılabilir jeton yok",
+    "platforms": "Platformlar"
   },
   "tutorial": {
     "header": "Cüzdan hesaplarınızı buradan yönetin",

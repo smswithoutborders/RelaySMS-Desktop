@@ -79,8 +79,9 @@
     "blog": "Blog",
     "github": "GitHub",
     "theme toggle": "Theme Toggle",
-    "no message": "No message to display",
-    "publish with device id": "Publish with Device ID"
+    "store telegram token": "Store Telegram Token",
+    "select platform": "Select Platform",
+    "revoke access to telegram": "Revoke Access to Telegram"
   },
   "common": {
     "refreshingTokens": "Refreshing your stored token list...",
@@ -104,7 +105,9 @@
     "accounts management": "Accounts Management",
     "account identifier": "Account Identifier",
     "status": "Status",
-    "delete token": "Delete Token"
+    "delete token": "Delete Token",
+    "no tokens available": "No Tokens Available",
+    "platforms": "platforms"
   },
     "tutorial": {
       "header": "Manage your vault accounts from here",
