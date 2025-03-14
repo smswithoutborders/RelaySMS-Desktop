@@ -1,7 +1,7 @@
 # RelaySMS - Desktop
 --------
 
-# ![RelaySMS Desktop](public/images/Example.png)
+# ![RelaySMS Desktop](public/images/homepage-lg.png)
 
 RelaySMS Desktop is the desktop version of RelaySMS Mobile, designed specifically for *vault* management. With this application, users can perform all vault-related actions, including:
 
