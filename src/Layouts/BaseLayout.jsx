@@ -31,7 +31,7 @@ function BaseLayout() {
   }
 
   return (
-    <Grid container>
+    <Grid container sx={{ height: "100vh", overflowY: "hidden"}}>
       <Grid md={3}>{navigationPanel}</Grid>
       <Grid
         md={9}
