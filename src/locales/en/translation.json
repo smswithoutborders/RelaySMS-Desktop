@@ -4,7 +4,10 @@
     "fr": "French",
     "fa": "Farsi",
     "es": "Spanish",
-    "tr": "Turkish"
+    "tr": "Turkish",
+    "ar": "Arabic",
+    "sw": "Swahili",
+    "de": "German"
   },
   "navigation": {
     "messages": "Messages",
