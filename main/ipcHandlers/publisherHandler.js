@@ -23,7 +23,7 @@ function setupPublisherHandlers() {
   );
 
   const publisherUrl =
-    process.env.PUBLISHER_URL || "publisher.staging.smswithoutborders.com:443";
+    process.env.PUBLISHER_URL || "publisher.smswithoutborders.com:443";
   protoHandler.connectToServer(publisherUrl, true);
 
   const entityMethods = protoHandler.getMethods();
