@@ -118,11 +118,6 @@ function OTPForm({
                 disabled={loading}
                 sx={{
                   py: 2,
-                  "& .MuiInput-root": {
-                    borderRadius: 4,
-                    backgroundColor: "background.default",
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                  },
                 }}
               />
             ) : (

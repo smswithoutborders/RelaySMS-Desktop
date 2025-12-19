@@ -111,46 +111,9 @@ const decryptLongLivedToken = async ({
   }
 };
 
-const encryptPayload = ({
-  userDataDir,
-  content,
-  identifier,
-  publishSecretKey,
-  serverPublishPublicKey,
-}) => {
-  return new Promise((resolve, reject) => {
-    const cliPath = path.join(userDataDir, "py_double_ratchet_cli");
-    const pythonPath = path.join(cliPath, "venv", "bin", "python3");
-    const cliScript = path.join(cliPath, "cli.py");
-
-    const commandArgs = [
-      pythonPath,
-      cliScript,
-      "-c",
-      `"${content}"`,
-      "-p",
-      identifier,
-      "-s",
-      publishSecretKey,
-      "-k",
-      serverPublishPublicKey,
-      "-b",
-      cliPath,
-    ];
-
-    execFile("bash", ["-c", commandArgs.join(" ")], (error, stdout, stderr) => {
-      if (error) {
-        reject(new Error(`Encryption failed: ${stderr || error.message}`));
-      } else {
-        resolve(stdout.trim());
-      }
-    });
-  });
-};
-
 const clearRatchetState = (userDataDir) => {
   try {
-    const cliPath = path.join(userDataDir, "py_double_ratchet_cli");
+    const cliPath = path.join(userDataDir);
     const files = fs.readdirSync(cliPath);
 
     files.forEach((file) => {
@@ -211,121 +174,11 @@ const createTransmissionPayload = ({
   }
 };
 
-const createBridgeTransmissionPayload = ({
-  contentSwitch,
-  authorizationCode,
-  contentCiphertext,
-  bridgeShortCode,
-  clientPublishPublicKey,
-  deviceID,
-}) => {
-  try {
-    let payload;
-
-    const bridgeIndicator = Buffer.from([0]);
-    const contentSwitchBuffer = Buffer.from([contentSwitch]);
-
-    switch (contentSwitch) {
-      case 0: {
-        const clientPublishPublicKeyBuffer = nacl.util.decodeBase64(
-          clientPublishPublicKey
-        );
-        const lenClientPublishPublicKeyBuffer = Buffer.alloc(4);
-        lenClientPublishPublicKeyBuffer.writeInt32LE(
-          clientPublishPublicKeyBuffer.length
-        );
-
-        payload = Buffer.concat([
-          bridgeIndicator,
-          contentSwitchBuffer,
-          lenClientPublishPublicKeyBuffer,
-          clientPublishPublicKeyBuffer,
-        ]);
-        break;
-      }
-      case 2: {
-        const authCodeBuffer = Buffer.from(authorizationCode, "utf-8");
-        const contentCiphertextBuffer = Buffer.from(
-          contentCiphertext,
-          "base64"
-        );
-        const bridgeShortCodeBuffer = Buffer.from(bridgeShortCode, "utf-8");
-
-        const authCodeLengthBuffer = Buffer.from([authCodeBuffer.length]);
-        const ciphertextLengthBuffer = Buffer.alloc(4);
-        ciphertextLengthBuffer.writeInt32LE(contentCiphertextBuffer.length);
-
-        payload = Buffer.concat([
-          bridgeIndicator,
-          contentSwitchBuffer,
-          authCodeLengthBuffer,
-          ciphertextLengthBuffer,
-          bridgeShortCodeBuffer,
-          authCodeBuffer,
-          contentCiphertextBuffer,
-        ]);
-        break;
-      }
-      case 3: {
-        const contentCiphertextBuffer = Buffer.from(
-          contentCiphertext,
-          "base64"
-        );
-        const bridgeShortCodeBuffer = Buffer.from(bridgeShortCode, "utf-8");
-
-        const ciphertextLengthBuffer = Buffer.alloc(4);
-        ciphertextLengthBuffer.writeInt32LE(contentCiphertextBuffer.length);
-
-        payload = Buffer.concat([
-          bridgeIndicator,
-          contentSwitchBuffer,
-          ciphertextLengthBuffer,
-          bridgeShortCodeBuffer,
-          contentCiphertextBuffer,
-        ]);
-        break;
-      }
-      default:
-        throw new Error(`Invalid content switch: ${contentSwitch}`);
-    }
-
-    return payload.toString("base64");
-  } catch (error) {
-    throw error;
-  }
-};
-
-const extractBridgePayload = ({ content }) => {
-  try {
-    const contentBuffer = nacl.util.decodeBase64(content);
-    const serverPublishPublicKeyLength = contentBuffer[0];
-    const serverPublishPublicKeyBuffer = contentBuffer.slice(
-      1,
-      1 + serverPublishPublicKeyLength
-    );
-
-    if (serverPublishPublicKeyLength !== 32) {
-      throw new Error("Invalid public key length. Expected 32 bytes.");
-    }
-
-    return {
-      serverPublishPublicKey: nacl.util.encodeBase64(
-        serverPublishPublicKeyBuffer
-      ),
-    };
-  } catch (error) {
-    throw error;
-  }
-};
-
 module.exports = {
   decryptLongLivedToken,
   generateKeyPair,
-  encryptPayload,
   deriveSecretKey,
   createTransmissionPayload,
   clearRatchetState,
-  createBridgeTransmissionPayload,
-  extractBridgePayload,
   computeDeviceID,
 };

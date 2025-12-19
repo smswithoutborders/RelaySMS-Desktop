@@ -10,13 +10,8 @@ import {
 import { ThemeModeProvider } from "./Contexts/ThemeContext";
 import { LanguageProvider } from "./Contexts/LanguageContext";
 import { CssBaseline, CircularProgress, Box } from "@mui/material";
-import { PlatformLayout, BridgeLayout, DekuLayout } from "./Layouts";
-import {
-  AuthPage,
-  SignupPage,
-  BridgeAuthPage,
-  ResetPasswordPage,
-} from "./Pages";
+import { PlatformLayout } from "./Layouts";
+import { AuthPage, SignupPage, ResetPasswordPage, AppTutorial } from "./Pages";
 
 function App() {
   return (
@@ -36,10 +31,14 @@ function App() {
 }
 
 function AppRoutes() {
-  const { AuthRequired, hasLongLivedToken, hasBridgeAuthorizationCode } =
-    useAuth();
-
+  const { AuthRequired, hasLongLivedToken } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const [hasSeenTutorial, setHasSeenTutorial] = useState();
+
+  useEffect(() => {
+    setHasSeenTutorial(localStorage.getItem("hasSeenTutorial") === "true");
+  }, []);
+  
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -66,56 +65,55 @@ function AppRoutes() {
 
   return (
     <Routes>
+      {!hasSeenTutorial && !hasLongLivedToken() ? (
+        <Route path="/*" element={<Navigate to="/tutorial" replace />} />
+      ) : (
+        <>
+          <Route
+            path="/"
+            element={
+              <AuthRequired>
+                {hasLongLivedToken() ? (
+                  <PlatformLayout />
+                ) : (
+                  <Navigate to="/login" replace />
+                )}
+              </AuthRequired>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              hasLongLivedToken() ? <Navigate to="/" replace /> : <AuthPage />
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              hasLongLivedToken() ? <Navigate to="/" replace /> : <SignupPage />
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              hasLongLivedToken() ? (
+                <Navigate to="/" replace />
+              ) : (
+                <ResetPasswordPage />
+              )
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </>
+      )}
+
       <Route
-        path="/"
-        element={
-          <AuthRequired>
-            {hasLongLivedToken() ? (
-              <PlatformLayout />
-            ) : hasBridgeAuthorizationCode ? (
-              <BridgeLayout />
-            ) : (
-              <Navigate to="/login" replace />
-            )}
-          </AuthRequired>
-        }
+        path="/tutorial"
+        element={<AppTutorial setHasSeenTutorial={setHasSeenTutorial} />}
       />
-      <Route
-        path="/login"
-        element={
-          hasLongLivedToken() ? <Navigate to="/" replace /> : <AuthPage />
-        }
-      />
-      <Route
-        path="/signup"
-        element={
-          hasLongLivedToken() ? <Navigate to="/" replace /> : <SignupPage />
-        }
-      />
-      <Route
-        path="/reset-password"
-        element={
-          hasLongLivedToken() ? (
-            <Navigate to="/" replace />
-          ) : (
-            <ResetPasswordPage />
-          )
-        }
-      />
-      <Route
-        path="/bridge-auth"
-        element={
-          hasLongLivedToken() || hasBridgeAuthorizationCode ? (
-            <Navigate to="/" replace />
-          ) : (
-            <BridgeAuthPage />
-          )
-        }
-      />
-      <Route path="/deku" element={<DekuLayout />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
+
 
 export default App;

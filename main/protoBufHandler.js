@@ -32,9 +32,16 @@ class ProtoBufHandler {
   }
 
   connectToServer(serverAddress, useSecure = false) {
-    const credentials = useSecure
-      ? grpc.credentials.createFromSecureContext()
-      : grpc.credentials.createInsecure();
+    let credentials;
+    
+    if (useSecure) {
+      credentials = grpc.credentials.createSsl();
+    } else {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('Insecure gRPC connections are not allowed in production');
+      }
+      credentials = grpc.credentials.createInsecure();
+    }
 
     this.client = new this.service(serverAddress, credentials);
 

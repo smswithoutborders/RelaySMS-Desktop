@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box,
   Button,
   Grid2 as Grid,
   TextField,
@@ -13,19 +12,16 @@ import {
 } from "@mui/material";
 import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
 import { Link as RouterLink } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "../lib/timeUtils";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { OTPDialog } from "../Components";
-import {
-  SettingsController,
-  resetPassword,
-  fetchLatestMessageWithOtp,
-  fetchModems,
-} from "../controllers";
+import { SettingsController, resetPassword } from "../controllers";
+import { useTranslation } from "react-i18next";
 
 function ResetPasswordPage() {
   const settingsController = new SettingsController();
+  const { t } = useTranslation();
 
   const [phone, setPhone] = useState("");
   const [phoneInfo, setPhoneInfo] = useState({});
@@ -52,7 +48,6 @@ function ResetPasswordPage() {
     phoneNumber: null,
   });
   const [loading, setLoading] = useState(false);
-  const [modemsAvailable, setModemsAvailable] = useState(false);
 
   const fetchOtpSettings = async () => {
     try {
@@ -66,14 +61,9 @@ function ResetPasswordPage() {
     }
   };
 
-  const checkModems = async () => {
-    const modems = await fetchModems();
-    setModemsAvailable(modems.length > 0);
-  };
-
   useEffect(() => {
-    checkModems();
     fetchOtpSettings();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePhoneChange = (value, info) => {
@@ -100,7 +90,7 @@ function ResetPasswordPage() {
 
   const validatePhoneNumber = () => {
     if (!phone || !phoneInfo.nationalNumber) {
-      setPhoneErrorMessage("Phone number is required");
+      setPhoneErrorMessage(`${t("phone number is required")}`);
       return false;
     }
 
@@ -148,8 +138,6 @@ function ResetPasswordPage() {
     event?.preventDefault();
 
     setPhoneError(false);
-
-    await checkModems();
 
     const isPhoneValid = validatePhoneNumber();
     const isPasswordValid = validatePassword();
@@ -212,7 +200,9 @@ function ResetPasswordPage() {
       setAlert({
         open: true,
         type: "error",
-        message: "An unexpected error occurred. Please try again later.",
+        message: `${t(
+          "an unexpected error occurred. please try again later."
+        )}`,
       });
     } finally {
       setLoading(false);
@@ -254,32 +244,37 @@ function ResetPasswordPage() {
     } catch (error) {
       setOtpAlert({
         severity: "error",
-        message: "An unexpected error occurred. Please try again later.",
+        message: `${t(
+          "an unexpected error occurred. please try again later."
+        )}`,
       });
     }
   };
 
   return (
-    <Grid container height="100vh" justifyContent="center" alignItems="center">
+    <Grid
+      container
+      height="100vh"
+      justifyContent="center"
+      alignItems="center"
+      px={6}
+    >
       <Grid
-        size={8}
-        display="flex"
-        height="100%"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        textAlign="center"
+        size={7}
         sx={{
           py: 5,
           px: { xs: 5, md: 18 },
-          overflowY: "auto",
         }}
       >
-        <Typography variant="h3" sx={{ fontWeight: 600, mb: 8 }}>
-          Reset Password
+        <Typography
+          className="header"
+          variant="h4"
+          sx={{ fontWeight: 600, mb: 3 }}
+        >
+          {t("ui.reset password")}
         </Typography>
-        <Typography variant="h6" sx={{ py: 5 }}>
-          Remember your password?{" "}
+        <Typography variant="body2" sx={{ pb: 10 }}>
+          {t("ui.remember your password?")}{" "}
           <Link
             component={RouterLink}
             to="/login"
@@ -290,7 +285,7 @@ function ResetPasswordPage() {
               "&:hover": { textDecoration: "underline" },
             }}
           >
-            Login
+            {t("ui.login")}
           </Link>
         </Typography>
 
@@ -332,7 +327,7 @@ function ResetPasswordPage() {
 
         <TextField
           fullWidth
-          label="New Password"
+          label={t("ui.new password")}
           variant="standard"
           name="password"
           value={passwordData.password}
@@ -340,7 +335,9 @@ function ResetPasswordPage() {
           type={showPassword.password ? "text" : "password"}
           required
           error={passwordData.passwordError}
-          helperText={passwordData.passwordError ? "Password is required" : ""}
+          helperText={
+            passwordData.passwordError ? `${t("ui.password is required")}` : ""
+          }
           sx={{ mt: 8 }}
           disabled={loading}
           slotProps={{
@@ -359,7 +356,7 @@ function ResetPasswordPage() {
 
         <TextField
           fullWidth
-          label="Confirm New Password"
+          label={t("ui.confirm new password")}
           variant="standard"
           name="confirmPassword"
           value={passwordData.confirmPassword}
@@ -368,7 +365,9 @@ function ResetPasswordPage() {
           required
           error={passwordData.confirmPasswordError}
           helperText={
-            passwordData.confirmPasswordError ? "Passwords must match." : ""
+            passwordData.confirmPasswordError
+              ? `${t("ui.passwords must match.")}`
+              : ""
           }
           sx={{ mt: 8 }}
           disabled={loading}
@@ -394,14 +393,16 @@ function ResetPasswordPage() {
           variant="contained"
           size="large"
           sx={{
-            mt: 5,
+            textTransform: "none",
+            fontWeight: "bold",
+            mt: 15,
             borderRadius: 7,
             width: "50%",
             bgcolor: "background.more",
-            color: "primary.main",
+            color: "background.other",
             "&:hover": {
-              bgcolor: "primary.main",
-              color: "black",
+              bgcolor: "background.other",
+              color: "background.more",
             },
           }}
           onClick={handleSubmit}
@@ -410,58 +411,25 @@ function ResetPasswordPage() {
           {loading ? (
             <CircularProgress size={24} color="inherit" />
           ) : (
-            "Reset Password"
+            `${t("ui.reset password")}`
           )}
         </Button>
-
-        <Button
-          variant="outlined"
-          size="small"
-          sx={{ mt: 2, borderRadius: 7, color: "primary", width: "40%" }}
-          disabled={loading}
-          onClick={async () => {
-            setPhoneError(false);
-
-            await checkModems();
-
-            const isPhoneValid = validatePhoneNumber();
-            const isPasswordValid = validatePassword();
-
-            if (!isPhoneValid || !isPasswordValid) {
-              if (!isPhoneValid) setPhoneError(true);
-              return;
-            }
-
-            setOtpDialogOpen(true);
-          }}
-        >
-          Already have an OTP? Click here.
-        </Button>
-
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="h6" sx={{ mt: 10 }}>
-            <Link component={RouterLink} to="/bridge-auth" underline="always">
-              Authenticate Offline
-            </Link>
-          </Typography>
-        </Box>
       </Grid>
       <Grid
-        size={4}
+        size={5}
         height="100%"
         display="flex"
         justifyContent="center"
         alignItems="center"
         sx={{
-          bgcolor: "background.paper",
           p: 2,
           overflowY: "auto",
         }}
       >
         <img
-          src="images/login.png"
+          src="images/relayics.svg"
           alt="login illustration"
-          style={{ width: "100%", height: "auto" }}
+          style={{ width: "90%", height: "auto" }}
         />
       </Grid>
 
@@ -471,32 +439,6 @@ function ResetPasswordPage() {
         onSubmit={handleOtpSubmit}
         onResend={handleSubmit}
         counterTimestamp={otpSettings.nextAttemptTimestamp}
-        event={{
-          ...(modemsAvailable && {
-            callback: async () => {
-              const phoneNumbers = ["AUTHMSG"];
-              const messagePatterns = [
-                /smswithoutborders.*verification code is:\s*(\d+)/i,
-              ];
-
-              const { err, message } = await fetchLatestMessageWithOtp({
-                phoneNumbers,
-                messagePatterns,
-              });
-
-              if (err) {
-                setAlert({
-                  open: true,
-                  type: "error",
-                  message: err,
-                });
-                return;
-              }
-              return message?.otp;
-            },
-            interval: 10000,
-          }),
-        }}
       />
     </Grid>
   );

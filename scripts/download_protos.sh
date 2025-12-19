@@ -5,7 +5,7 @@ declare -A URLS=(
   ["https://raw.githubusercontent.com/smswithoutborders/RelaySMS-Publisher/main/protos/v1/publisher.proto"]="protos/v1/publisher.proto"
 )
 
-DEST_DIR="../"
+DEST_DIR="./"
 
 for URL in "${!URLS[@]}"; do
   DEST_PATH="${DEST_DIR}/${URLS[$URL]}" 

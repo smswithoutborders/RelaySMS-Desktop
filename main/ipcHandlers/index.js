@@ -1,13 +1,13 @@
 const { setupVaultHandlers } = require("./vaultHandler");
 const { setupDBHandlers } = require("./dbHandler");
-const { setupPublisherHandlers } = require("./publisherHandler");
 const { setupCryptoHandlers } = require("./cryptoHandler");
+const { setupPublisherHandlers } = require("./publisherHandler");
 
 function registerIpcHandlers() {
   setupVaultHandlers();
   setupDBHandlers();
-  setupPublisherHandlers();
   setupCryptoHandlers();
+  setupPublisherHandlers();
 }
 
 module.exports = { registerIpcHandlers };

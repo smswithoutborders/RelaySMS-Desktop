@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -11,23 +11,44 @@ import {
   Alert as MuiAlert,
   Checkbox,
   CircularProgress,
+  ToggleButton,
+  ToggleButtonGroup,
+  Autocomplete,
 } from "@mui/material";
 import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
 import { Link as RouterLink } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "../lib/timeUtils";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { OTPDialog } from "../Components";
-import {
-  SettingsController,
-  createEntity,
-  fetchLatestMessageWithOtp,
-  fetchModems,
-} from "../controllers";
+import { OTPDialog, CaptchaDialog } from "../Components";
+import { SettingsController, createEntity } from "../controllers";
+import { useTranslation } from "react-i18next";
+import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 
 function SignupPage() {
   const settingsController = new SettingsController();
+  const { t } = useTranslation();
 
+  const countries = getCountries().map((countryCode) => {
+    const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+    return {
+      code: countryCode,
+      name: regionNames.of(countryCode),
+      callingCode: getCountryCallingCode(countryCode),
+    };
+  }).sort((a, b) => a.name.localeCompare(b.name));
+
+  const [authMethod, setAuthMethod] = useState("email");
+  // CAPTCHA state - disabled for now, will be re-enabled when server is ready
+  // eslint-disable-next-line no-unused-vars
+  const [captchaDialogOpen, setCaptchaDialogOpen] = useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [country, setCountry] = useState(null);
+  const [countryError, setCountryError] = useState(false);
   const [phone, setPhone] = useState("");
   const [phoneInfo, setPhoneInfo] = useState({});
   const [passwordData, setPasswordData] = useState({
@@ -54,9 +75,8 @@ function SignupPage() {
     phoneNumber: null,
   });
   const [loading, setLoading] = useState(false);
-  const [modemsAvailable, setModemsAvailable] = useState(false);
 
-  const fetchOtpSettings = async () => {
+  const fetchOtpSettings = useCallback(async () => {
     try {
       const [nextAttemptTimestamp, phoneNumber] = await Promise.all([
         settingsController.getData("preferences.otp.nextAttemptTimestamp"),
@@ -64,19 +84,36 @@ function SignupPage() {
       ]);
       setOtpSettings({ nextAttemptTimestamp, phoneNumber });
     } catch (error) {
-      console.error("Error fetching OTP settings:", error);
+      // Error fetching OTP settings
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    fetchOtpSettings();
+  }, [fetchOtpSettings]);
+
+  const handleAuthMethodChange = (event, newMethod) => {
+    if (newMethod !== null) {
+      setAuthMethod(newMethod);
+      setPhoneError(false);
+      setPhoneErrorMessage("");
+      setEmailError(false);
+      setEmailErrorMessage("");
+      setCountryError(false);
     }
   };
 
-  const checkModems = async () => {
-    const modems = await fetchModems();
-    setModemsAvailable(modems.length > 0);
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+    setEmailError(false);
+    setEmailErrorMessage("");
   };
 
-  useEffect(() => {
-    checkModems();
-    fetchOtpSettings();
-  }, []);
+  const handleCountryChange = (event, newValue) => {
+    setCountry(newValue);
+    setCountryError(false);
+  };
 
   const handlePhoneChange = (value, info) => {
     const cleanedValue = value.replace(/\s+/g, "");
@@ -102,6 +139,26 @@ function SignupPage() {
 
   const handleTermsChange = (event) => {
     setAgreedToTerms(event.target.checked);
+  };
+
+  const validateEmail = () => {
+    if (!email) {
+      setEmailErrorMessage("Email is required");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailErrorMessage("Please enter a valid email address");
+      return false;
+    }
+
+    if (!country) {
+      setCountryError(true);
+      return false;
+    }
+
+    return true;
   };
 
   const validatePhoneNumber = () => {
@@ -154,16 +211,29 @@ function SignupPage() {
     event?.preventDefault();
 
     setPhoneError(false);
+    setEmailError(false);
 
-    await checkModems();
+    let isIdentifierValid = false;
+    if (authMethod === "phone") {
+      isIdentifierValid = validatePhoneNumber();
+      if (!isIdentifierValid) setPhoneError(true);
+    } else {
+      isIdentifierValid = validateEmail();
+      if (!isIdentifierValid) setEmailError(true);
+    }
 
-    const isPhoneValid = validatePhoneNumber();
     const isPasswordValid = validatePassword();
 
-    if (!isPhoneValid || !isPasswordValid || !agreedToTerms) {
-      if (!isPhoneValid) setPhoneError(true);
+    if (!isIdentifierValid || !isPasswordValid || !agreedToTerms) {
       return;
     }
+
+    // CAPTCHA temporarily disabled
+    // TODO: Re-enable when CAPTCHA server is ready
+    // if (!captchaToken) {
+    //   setCaptchaDialogOpen(true);
+    //   return;
+    // }
 
     setLoading(true);
 
@@ -176,7 +246,8 @@ function SignupPage() {
       if (
         nextAttemptTimestamp &&
         nextAttemptTimestamp > now &&
-        phoneNumber === phone
+        phoneNumber === phone &&
+        authMethod === "phone"
       ) {
         const timeLeft = formatDistanceToNow(nextAttemptTimestamp * 1000, {
           includeSeconds: true,
@@ -190,11 +261,20 @@ function SignupPage() {
         return;
       }
 
-      const entityData = {
-        country_code: phoneInfo.countryCode,
-        phone_number: phone,
-        password: passwordData.password,
-      };
+      const entityData =
+        authMethod === "phone"
+          ? {
+              country_code: phoneInfo.countryCode,
+              phone_number: phone,
+              password: passwordData.password,
+              // captcha_token: captchaToken, // Disabled for now
+            }
+          : {
+              country_code: country.code,
+              email_address: email,
+              password: passwordData.password,
+              // captcha_token: captchaToken, // Disabled for now
+            };
 
       const { err, res } = await createEntity(entityData);
       if (err) {
@@ -219,7 +299,9 @@ function SignupPage() {
       setAlert({
         open: true,
         type: "error",
-        message: "An unexpected error occurred. Please try again later.",
+        message: `${t(
+          "an unexpected error occurred. please try again later."
+        )}`,
       });
     } finally {
       setLoading(false);
@@ -233,14 +315,31 @@ function SignupPage() {
     }));
   };
 
+  const handleCaptchaVerified = (token) => {
+    setCaptchaToken(token);
+    setCaptchaDialogOpen(false);
+    // Automatically submit after CAPTCHA verification
+    setTimeout(() => {
+      handleSubmit();
+    }, 100);
+  };
+
   const handleOtpSubmit = async (setOtpAlert, otp) => {
     try {
-      const entityData = {
-        country_code: phoneInfo.countryCode,
-        phone_number: phone,
-        password: passwordData.password,
-        ownership_proof_response: otp,
-      };
+      const entityData =
+        authMethod === "phone"
+          ? {
+              country_code: phoneInfo.countryCode,
+              phone_number: phone,
+              password: passwordData.password,
+              ownership_proof_response: otp,
+            }
+          : {
+              country_code: country.code,
+              email_address: email,
+              password: passwordData.password,
+              ownership_proof_response: otp,
+            };
 
       const { err, res } = await createEntity(entityData);
       if (err) {
@@ -262,32 +361,37 @@ function SignupPage() {
     } catch (error) {
       setOtpAlert({
         severity: "error",
-        message: "An unexpected error occurred. Please try again later.",
+        message: `${t(
+          "an unexpected error occurred. please try again later."
+        )}`,
       });
     }
   };
 
   return (
-    <Grid container height="100vh" justifyContent="center" alignItems="center">
+    <Grid
+      container
+      height="100vh"
+      justifyContent="center"
+      alignItems="center"
+      px={6}
+    >
       <Grid
-        size={8}
-        display="flex"
-        height="100%"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        textAlign="center"
+        size={7}
         sx={{
           py: 5,
           px: { xs: 5, md: 18 },
-          overflowY: "auto",
         }}
       >
-        <Typography variant="h3" sx={{ fontWeight: 600, mb: 8 }}>
-          Sign Up
+        <Typography
+          className="header"
+          variant="h4"
+          sx={{ fontWeight: 600, mb: 3 }}
+        >
+          {t("ui.signup")}
         </Typography>
-        <Typography variant="h6" sx={{ py: 5 }}>
-          Have an account?{" "}
+        <Typography variant="body2" sx={{ pb: 10 }}>
+          {t("ui.have an account?")}{" "}
           <Link
             component={RouterLink}
             to="/login"
@@ -298,7 +402,7 @@ function SignupPage() {
               "&:hover": { textDecoration: "underline" },
             }}
           >
-            Login
+            {t("ui.login")}
           </Link>
         </Typography>
 
@@ -316,31 +420,156 @@ function SignupPage() {
           </MuiAlert>
         </Snackbar>
 
-        <MuiTelInput
-          fullWidth
-          variant="standard"
-          value={phone}
-          onChange={handlePhoneChange}
-          defaultCountry="CM"
-          forceCallingCode
-          focusOnSelectCountry
-          required
-          error={phoneError}
-          helperText={phoneError ? phoneErrorMessage : ""}
-          disabled={loading}
+        <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
+          {t("ui.choose your signup method")}
+        </Typography>
+
+        <Box
           sx={{
-            py: 2,
-            "& .MuiInput-root": {
-              borderRadius: 4,
-              backgroundColor: "background.default",
-              boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-            },
+            display: "flex",
+            mb: 4,
           }}
-        />
+        >
+          <ToggleButtonGroup
+            value={authMethod}
+            exclusive
+            onChange={handleAuthMethodChange}
+            aria-label="authentication method"
+            disabled={loading}
+            sx={{
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 30,
+              p: 0.5,
+              backgroundColor: "background.paper",
+              "& .MuiToggleButton-root": {
+                flex: 1,
+                py: 1,
+                px: 4,
+                textTransform: "none",
+                fontSize: "0.95rem",
+                border: "none",
+                borderRadius: 30,
+                color: "text.secondary",
+                "&.Mui-selected": {
+                  backgroundColor: "background.more",
+                  color: "background.other",
+                  "&:hover": {
+                    backgroundColor: "background.more",
+                  },
+                },
+                "&:hover": {
+                  backgroundColor: "action.hover",
+                },
+              },
+            }}
+          >
+            <ToggleButton value="email" aria-label="email">
+              {t("ui.email")}
+            </ToggleButton>
+            <ToggleButton value="phone" aria-label="phone">
+              {t("ui.phone")}
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+
+        {authMethod === "phone" ? (
+          <MuiTelInput
+            fullWidth
+            variant="standard"
+            value={phone}
+            onChange={handlePhoneChange}
+            defaultCountry="CM"
+            forceCallingCode
+            focusOnSelectCountry
+            required
+            error={phoneError}
+            helperText={phoneError ? phoneErrorMessage : ""}
+            disabled={loading}
+            sx={{ py: 2 }}
+          />
+        ) : (
+          <Box sx={{ display: "flex", gap: 2, py: 2 }}>
+            <Autocomplete
+              options={countries}
+              getOptionLabel={(option) => option.name}
+              value={country}
+              onChange={handleCountryChange}
+              renderOption={(props, option) => {
+                const { key, ...optionProps } = props;
+                return (
+                  <Box
+                    key={key}
+                    component="li"
+                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    {...optionProps}
+                  >
+                    <span
+                      style={{ fontSize: "1.5em" }}
+                      role="img"
+                      aria-label={option.name}
+                    >
+                      {String.fromCodePoint(
+                        ...option.code
+                          .toUpperCase()
+                          .split("")
+                          .map((char) => 127397 + char.charCodeAt(0))
+                      )}
+                    </span>
+                    {option.name}
+                  </Box>
+                );
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={t("ui.country")}
+                  variant="standard"
+                  required
+                  error={countryError}
+                  helperText={countryError ? t("ui.country is required") : ""}
+                  disabled={loading}
+                  slotProps={{
+                    input: {
+                      ...params.InputProps,
+                      startAdornment: country ? (
+                        <span
+                          style={{ fontSize: "1.5em", marginRight: "8px" }}
+                          role="img"
+                          aria-label={country.name}
+                        >
+                          {String.fromCodePoint(
+                            ...country.code
+                              .toUpperCase()
+                              .split("")
+                              .map((char) => 127397 + char.charCodeAt(0))
+                          )}
+                        </span>
+                      ) : null,
+                    },
+                  }}
+                />
+              )}
+              sx={{ minWidth: 200 }}
+            />
+            <TextField
+              fullWidth
+              label={t("ui.email")}
+              variant="standard"
+              value={email}
+              onChange={handleEmailChange}
+              type="email"
+              required
+              error={emailError}
+              helperText={emailError ? emailErrorMessage : ""}
+              disabled={loading}
+            />
+          </Box>
+        )}
 
         <TextField
           fullWidth
-          label="Password"
+          label={t("ui.password")}
           variant="standard"
           name="password"
           value={passwordData.password}
@@ -348,8 +577,10 @@ function SignupPage() {
           type={showPassword.password ? "text" : "password"}
           required
           error={passwordData.passwordError}
-          helperText={passwordData.passwordError ? "Password is required" : ""}
-          sx={{ mt: 8 }}
+          helperText={
+            passwordData.passwordError ? `${t("ui.password is required")}` : ""
+          }
+          sx={{ mt: 5 }}
           disabled={loading}
           slotProps={{
             input: {
@@ -367,7 +598,7 @@ function SignupPage() {
 
         <TextField
           fullWidth
-          label="Confirm Password"
+          label={t("ui.confirm password")}
           variant="standard"
           name="confirmPassword"
           value={passwordData.confirmPassword}
@@ -376,7 +607,9 @@ function SignupPage() {
           required
           error={passwordData.confirmPasswordError}
           helperText={
-            passwordData.confirmPasswordError ? "Passwords must match." : ""
+            passwordData.confirmPasswordError
+              ? `${t("ui.passwords must match.")}`
+              : ""
           }
           sx={{ mt: 8 }}
           disabled={loading}
@@ -406,7 +639,7 @@ function SignupPage() {
             disabled={loading}
           />
           <Typography variant="body2">
-            I agree to the{" "}
+            {t("ui.i agree to the")}{" "}
             <Link
               to="/terms"
               component={RouterLink}
@@ -416,7 +649,7 @@ function SignupPage() {
                 "&:hover": { textDecoration: "underline" },
               }}
             >
-              Terms and Conditions
+              {t("ui.terms and conditions")}
             </Link>
           </Typography>
         </Box>
@@ -425,70 +658,42 @@ function SignupPage() {
           variant="contained"
           size="large"
           sx={{
-            mt: 5,
+            mt: 10,
+            textTransform: "none",
+            fontWeight: "bold",
             borderRadius: 7,
             width: "50%",
             bgcolor: "background.more",
-            color: "primary.main",
+            color: "background.other",
             "&:hover": {
-              bgcolor: "primary.main",
-              color: "black",
+              bgcolor: "background.other",
+              color: "background.more",
             },
           }}
           onClick={handleSubmit}
           disabled={!agreedToTerms || loading}
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : "Sign Up"}
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            `${t("signup")}`
+          )}
         </Button>
-
-        <Button
-          variant="outlined"
-          size="small"
-          sx={{ mt: 2, borderRadius: 7, color: "primary", width: "40%" }}
-          disabled={!agreedToTerms || loading}
-          onClick={async () => {
-            setPhoneError(false);
-
-            await checkModems();
-
-            const isPhoneValid = validatePhoneNumber();
-            const isPasswordValid = validatePassword();
-
-            if (!isPhoneValid || !isPasswordValid || !agreedToTerms) {
-              if (!isPhoneValid) setPhoneError(true);
-              return;
-            }
-
-            setOtpDialogOpen(true);
-          }}
-        >
-          Already have an OTP? Click here.
-        </Button>
-
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="h6" sx={{ mt: 10 }}>
-            <Link component={RouterLink} to="/bridge-auth" underline="always">
-              Authenticate Offline
-            </Link>
-          </Typography>
-        </Box>
       </Grid>
       <Grid
-        size={4}
+        size={5}
         height="100%"
         display="flex"
         justifyContent="center"
         alignItems="center"
         sx={{
-          bgcolor: "background.paper",
           p: 2,
-          overflowY: "auto",
         }}
       >
         <img
-          src="images/login.png"
+          src="images/relayics.svg"
           alt="login illustration"
-          style={{ width: "100%", height: "auto" }}
+          style={{ width: "90%", height: "auto" }}
         />
       </Grid>
 
@@ -498,32 +703,12 @@ function SignupPage() {
         onSubmit={handleOtpSubmit}
         onResend={handleSubmit}
         counterTimestamp={otpSettings.nextAttemptTimestamp}
-        event={{
-          ...(modemsAvailable && {
-            callback: async () => {
-              const phoneNumbers = ["AUTHMSG"];
-              const messagePatterns = [
-                /smswithoutborders.*verification code is:\s*(\d+)/i,
-              ];
+      />
 
-              const { err, message } = await fetchLatestMessageWithOtp({
-                phoneNumbers,
-                messagePatterns,
-              });
-
-              if (err) {
-                setAlert({
-                  open: true,
-                  type: "error",
-                  message: err,
-                });
-                return;
-              }
-              return message?.otp;
-            },
-            interval: 10000,
-          }),
-        }}
+      <CaptchaDialog
+        open={captchaDialogOpen}
+        onClose={() => setCaptchaDialogOpen(false)}
+        onVerified={handleCaptchaVerified}
       />
     </Grid>
   );

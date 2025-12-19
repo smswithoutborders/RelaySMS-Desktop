@@ -174,7 +174,7 @@ function OTPDialog({
           gutterBottom
           textAlign="center"
         >
-         {t("verify identity")}
+         {t("common.verify identity")}
         </Typography>
 
         <Typography

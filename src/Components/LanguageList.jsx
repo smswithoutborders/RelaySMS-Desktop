@@ -1,51 +1,33 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "../Contexts/LanguageContext";
-import { Button, Container, Box } from "@mui/material";
+import { Box, MenuItem, Select, FormControl } from "@mui/material";
 
 export default function LanguageList() {
   const { language, changeLanguage, languages } = useLanguage();
   const { t } = useTranslation();
 
   return (
-    <Container
-      maxWidth="sm"
+    <Box
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 2,
-        mt: 4,
-        textAlign: "center",
+       mx: 2,
+       mt: 2
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          gap: 2,
-          justifyContent: "center",
-          flexWrap: "wrap",
-          flexDirection: "column",
-        }}
-      >
-        {languages.map((code) => (
-          <Button
-            key={code}
-            onClick={() => changeLanguage(code)}
-            variant={language === code ? "contained" : "outlined"}
-            color={language === code ? "primary" : "default"}
-            sx={{
-              borderRadius: "20px",
-              px: 3,
-              py: 1,
-              fontWeight: "bold",
-              textTransform: "capitalize",
-            }}
+      <Box sx={{ width: "100%", maxWidth: 300 }}>
+        <FormControl fullWidth variant="standard">
+          <Select
+            value={language}
+            onChange={(e) => changeLanguage(e.target.value)}
           >
-            {t(`languages.${code}`)}
-          </Button>
-        ))}
+            {languages.map((code) => (
+              <MenuItem key={code} value={code}>
+                {t(`languages.${code}`)}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
-    </Container>
+    </Box>
   );
 }

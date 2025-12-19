@@ -1,43 +1,44 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { Navigate } from "react-router-dom";
-import { UserController, SettingsController } from "../controllers";
+import { UserController } from "../controllers";
 
 const AuthenticationContext = createContext();
 
 export const useAuth = () => useContext(AuthenticationContext);
 
 export const AuthenticationProvider = ({ children }) => {
-  const userController = new UserController();
-  const settingsController = new SettingsController();
-
+  const userController = useMemo(() => new UserController(), []);
   const [userData, setUserData] = useState(null);
-  const [hasBridgeCode, setHasBridgeCode] = useState(false);
+
+  const fetchUserData = async () => {
+    const data = await userController.getAllData();
+
+    if (!data || !Array.isArray(data)) {
+      setUserData(null);
+      return;
+    }
+
+    const userDataMap = data.reduce((acc, item) => {
+      acc[item.key] = item.value;
+      return acc;
+    }, {});
+
+    setUserData(Object.keys(userDataMap).length === 0 ? null : userDataMap);
+  };
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const data = await userController.getAllData();
-
-      const userDataMap = data.reduce((acc, item) => {
-        acc[item.key] = item.value;
-        return acc;
-      }, {});
-
-      setUserData(Object.keys(userDataMap).length === 0 ? null : userDataMap);
-    };
-
-    const fetchBridgeCode = async () => {
-      const code = await settingsController.getData("preferences.otp.bridge");
-      setHasBridgeCode(!!code);
-    };
-
     fetchUserData();
-    fetchBridgeCode();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userController]);
 
   const clearUserSession = async (onLogoutCallback) => {
     await userController.deleteTable();
     setUserData(null);
     if (onLogoutCallback) onLogoutCallback();
+  };
+
+  const refetchUserData = async () => {
+    await fetchUserData();
   };
 
   const isAuthenticated = () => {
@@ -66,9 +67,9 @@ export const AuthenticationProvider = ({ children }) => {
         userData,
         isAuthenticated,
         hasLongLivedToken,
-        hasBridgeAuthorizationCode: hasBridgeCode,
         logout,
         AuthRequired,
+        refetchUserData,
       }}
     >
       {children}

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useMemo, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+} from "react";
 import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 
 const ThemeContext = createContext();
@@ -11,7 +17,9 @@ export const ThemeModeProvider = ({ children }) => {
     if (savedTheme) {
       return savedTheme;
     }
-    const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDarkMode = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
     return prefersDarkMode ? "dark" : "light";
   };
 
@@ -35,23 +43,29 @@ export const ThemeModeProvider = ({ children }) => {
           mode,
           primary: { main: mode === "dark" ? "#fff" : "#000" },
           background: {
-            default: mode === "dark" ? "#1E1E1E" : "#fafafa",
+            default: mode === "dark" ? "#1E1E1E" : "#DDDDDD",
             paper: mode === "dark" ? "#000" : "#fff",
             custom: mode === "dark" ? "#232226" : "#E0E2DB",
-            side: mode === "dark" ? "#171614" : "#fff",
-            more: "#0C4B94",
+            side: mode === "dark" ? "#171614" : "#F4F4F4",
+            more: mode === "dark" ? "#C6D3FF" : "#001872",
+            other: mode === "dark" ? "#001872" : "#C6D3FF",
           },
           text: {
             primary: mode === "dark" ? "#fff" : "#000",
             secondary: mode === "dark" ? "#b0b0b0" : "#333",
           },
         },
+        logo:
+          mode === "dark"
+            ? "images/RelaySMS-Dark-Theme.svg"
+            : "images/RelaySMS-Default(shape).svg",
       }),
+
     [mode]
   );
 
   return (
-    <ThemeContext.Provider value={{ mode, toggleTheme }}>
+    <ThemeContext.Provider value={{ mode, toggleTheme, logo: theme.logo }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {children}

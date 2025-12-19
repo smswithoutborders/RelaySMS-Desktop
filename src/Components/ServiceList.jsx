@@ -7,13 +7,14 @@ import {
   Avatar,
   Typography,
   Skeleton,
-  ListItemButton,
   Box,
   Divider,
   Button,
+  IconButton,
 } from "@mui/material";
 import { Add, Delete } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
+import Grid from "@mui/material/Grid2";
 
 function ServiceList({
   serviceType,
@@ -24,133 +25,224 @@ function ServiceList({
   adornmentIcon,
 }) {
   const [activeService, setActiveService] = useState(null);
-const {t} = useTranslation();
+  const { t } = useTranslation();
 
-  if (loading) {
-    return (
-      <List>
-        {[...Array(5)].map((_, index) => (
-          <ListItem key={index}>
-            <ListItemAvatar>
-              <Skeleton variant="circular" width={40} height={40} />
-            </ListItemAvatar>
-            <ListItemText
-              primary={<Skeleton variant="text" width="60%" />}
-              secondary={<Skeleton variant="text" width="40%" />}
-            />
-          </ListItem>
-        ))}
-      </List>
-    );
-  }
-
-  if (!services || services.length === 0) {
-    return (
-      <Typography variant="body1" color="text.secondary" sx={{ pt: 3 }}>
-        {t("no")} {serviceType}s {t("available")}
-      </Typography>
-    );
-  }
-
+  const handleServiceClick = (service) => {
+    setActiveService(service.name);
+  };
   return (
-    <List>
-      {services.map((service, index) => {
-        const matchingList = lists?.find((list) => list.name === service.name);
+    <Box>
+      <Grid
+        container
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ mb: 2 }}
+      >
+        {/* <Typography className="header" variant="h5">
+          {t("common.accounts management")}
+        </Typography> */}
+        {/* <Paper
+          component="form"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            width: 250,
+            p: "4px 8px",
+            borderRadius: 10,
+          }}
+        >
+          <Search color="action" />
+          <input
+            type="text"
+            placeholder={t("ui.search")}
+            style={{
+              border: "none",
+              outline: "none",
+              flex: 1,
+              backgroundColor: "transparent",
+              padding: "8px",
+            }}
+          />
+        </Paper> */}
+      </Grid>
 
-        const handleClick = (e) => {
-          if (adornmentIcon) return;
-          setActiveService(service.name); // Set active service
-          onClick && onClick(service);
-        };
-
-        return (
-          <Box key={index} sx={{ mb: 2 }}>
-            <ListItem
-              secondaryAction={
-                adornmentIcon && (
-                  <Button
-                    size="small"
-                    variant="contained"
-                    color="primary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onClick && onClick(service);
-                    }}
-                    startIcon={<Add />}
-                    sx={{ textTransform: "none", fontSize: 9 }}
-                  >
-                    {t("common.add")}
-                  </Button>
-                )
-              }
-              disablePadding
+      <Box
+        sx={{
+          bgcolor: "background.side",
+          borderRadius: 2,
+          opacity: 2,
+          p: 3,
+          mt: 1.5,
+        }}
+      >
+        <Grid container sx={{ height: "90vh" }}>
+          <Grid size={2.8}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 600, mb: 3 }}
+              gutterBottom
             >
-              <ListItemButton
-                onClick={handleClick}
-                sx={{
-                  backgroundColor:
-                    activeService === service.name ? "background.default" : "inherit",
-                  color: activeService === service.name ? "" : "inherit",
-                  borderRadius: 1,
-                }}
-              >
-                <ListItemAvatar>
-                  {service.avatar ? (
-                    <Avatar sx={{ bgcolor: "white" }}>
-                      <img
-                        src={service.avatar}
-                        alt={service.name}
-                        style={{ width: "80%" }}
-                      />
-                    </Avatar>
-                  ) : (
-                    service.icon
-                  )}
-                </ListItemAvatar>
-                <ListItemText primary={t(`ui.${service.name.toLowerCase()}`)} />
-              </ListItemButton>
-            </ListItem>
-
-            {matchingList?.identifiers?.length > 0 &&
-              matchingList.identifiers.map((identifier, idx) => (
-                <React.Fragment key={idx}>
-                  <ListItem
-                    sx={{ pl: 1 }}
-                    secondaryAction={
-                      adornmentIcon && (
-                        <Button
-                          size="small"
-                          variant="contained"
-                          color="error"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onClick && onClick(service, identifier);
-                          }}
-                          startIcon={<Delete />}
-                          sx={{ textTransform: "none", fontSize: 9 }}
-                        >
-                          {t("common.revoke")}
-                        </Button>
-                      )
-                    }
-                  >
-                    <ListItemButton>
+              {t("common.platforms")}
+            </Typography>
+            <List>
+              {loading
+                ? [...Array(5)].map((_, index) => (
+                    <ListItem key={index}>
+                      <ListItemAvatar>
+                        <Skeleton variant="circular" width={40} height={40} />
+                      </ListItemAvatar>
                       <ListItemText
-                        primary={
-                          <Typography variant="caption" color="text.secondary">
-                         {identifier}
-                          </Typography>
-                        }
+                        primary={<Skeleton variant="text" width="60%" />}
                       />
-                    </ListItemButton>
-                  </ListItem>
-                </React.Fragment>
-              ))}
-            <Divider />
-          </Box>
-        );
-      })}
-    </List>
+                    </ListItem>
+                  ))
+                : services.map((service, index) => (
+                    <>
+                      <ListItem
+                        key={index}
+                        button
+                        onClick={() => handleServiceClick(service)}
+                        sx={{
+                          bgcolor:
+                            activeService === service.name
+                              ? "action.selected"
+                              : "inherit",
+                          borderLeftColor: "background.more",
+                          py: 2,
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
+                        }}
+                      >
+                        <ListItemAvatar>
+                          <Avatar
+                            src={service.avatar}
+                            sx={{
+                              borderRadius: 0,
+                              width: 35,
+                              height: 35,
+                              "& img": {
+                                objectFit: "contain",
+                                ...(service.name.toLowerCase() === "twitter" && {
+                                  filter: (theme) =>
+                                    theme.palette.mode === "dark"
+                                      ? "brightness(0) invert(1)"
+                                      : "none",
+                                }),
+                              },
+                            }}
+                          >
+                            {service.icon}
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={t(`ui.${service.name.toLowerCase()}`)}
+                          primaryTypographyProps={{
+                            fontWeight:
+                              activeService === service.name ? 600 : 400,
+                          }}
+                        />
+                      </ListItem>
+                      <Divider sx={{ opacity: 0.5 }} />
+                    </>
+                  ))}
+            </List>
+          </Grid>
+          <Divider orientation="vertical" sx={{ opacity: 0.5 }} />
+          <Grid size={9} sx={{ borderRadius: 3 }}>
+            {activeService ? (
+              <Box sx={{ px: 2 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 700, mb: 3 }}
+                  gutterBottom
+                >
+                  {t(`ui.${activeService.toLowerCase()}`)}
+                </Typography>
+                <Grid container justifyContent="space-between" sx={{ mb: 4 }}>
+                  <Grid size={10}>
+                    <Typography
+                      variant="body1"
+                      sx={{ fontWeight: 600 }}
+                      gutterBottom
+                    >
+                      {t("common.account identifier")}
+                    </Typography>
+                  </Grid>
+                  <Grid size={2}>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        textTransform: "none",
+                        bgcolor: "background.more",
+                        color: "background.other",
+                        "&:hover": {
+                          bgcolor: "background.other",
+                          color: "background.more",
+                        },
+                        borderRadius: 10,
+                        width: "100%",
+                        mb: 1,
+                      }}
+                      startIcon={<Add />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const service = services.find(
+                          (s) => s.name === activeService
+                        );
+                        onClick && onClick(service);
+                      }}
+                    >
+                      {t("common.add")}
+                    </Button>
+                  </Grid>
+                </Grid>
+
+                {/* <Divider sx={{ mb: 4 }} /> */}
+                {lists?.find((list) => list.name === activeService)?.identifiers
+                  ?.length > 0 ? (
+                  lists
+                    .find((list) => list.name === activeService)
+                    .identifiers.map((identifier, idx) => (
+                      <>
+                        <ListItem
+                          sx={{ py: 2 }}
+                          key={idx}
+                          secondaryAction={
+                            <IconButton
+                              color="error"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const service = services.find(
+                                  (s) => s.name === activeService
+                                );
+                                onClick && onClick(service, identifier);
+                              }}
+                            >
+                              <Delete />
+                            </IconButton>
+                          }
+                        >
+                          <ListItemText primary={identifier} />
+                        </ListItem>
+                        <Divider sx={{ opacity: 0.5 }} />
+                      </>
+                    ))
+                ) : (
+                  <Typography variant="body1" color="text.secondary">
+                    {t("common.no tokens available")}
+                  </Typography>
+                )}
+              </Box>
+            ) : (
+              <Typography variant="body1" align="center" sx={{ mt: 5 }}>
+                {t("ui.select platform")}
+              </Typography>
+            )}
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
   );
 }
 

@@ -1,68 +1,84 @@
-import { Alert, Box, List, ListItem, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { useThemeMode } from "../Contexts/ThemeContext";
+import { useNavigate } from "react-router-dom";
+import LanguageList from "../Components/LanguageList";
 
-export default function AppTutorial() {
-  const {t} = useTranslation();
+export default function AppTutorial({setHasSeenTutorial}) {
+  const { t } = useTranslation();
+  const { logo } = useThemeMode();
+  const navigate = useNavigate();
+
+  const handleContinue = () => {
+    console.log("Continue button clicked");
+    localStorage.setItem("hasSeenTutorial", "true");
+    setHasSeenTutorial(true);  
+    navigate("/login");
+    window.location.reload();
+  };
+
   return (
-    <Box>
-      <Typography variant="h6" sx={{ fontWeight: 600, mt: 3 }}>
-       {t("tutorials.about")}
-      </Typography>
-      <Typography variant="body2" sx={{ mt: 2 }}>
-      {t("tutorials.about info")}
-      </Typography>
-      <Typography variant="h6" sx={{ fontWeight: 600, mt: 3 }}>
-      {t("tutorials.dependencies/requirements")}
-      </Typography>
-      <ul>
-        <li>{t("tutorials.modem")}</li>
-      </ul>
-      <Typography variant="body2">
-      {t("tutorials.modem info")}
-      </Typography>
-      <Typography variant="h6" sx={{ fontWeight: 600, mt: 5 }}>
-      {t("tutorials.using the app")}
-      </Typography>
-      <List>
-        <ListItem>1. {t("tutorials.save platforms")}</ListItem>
-      </List>
-      <Typography variant="body2">
-      {t("tutorials.save platfrom info")}
-      </Typography>
-      <Box
-        component="img"
-        src="images/AddPlatforms.png"
-        alt="Adding platforms"
-        sx={{ width: "60%" }}
-      />
-      <List>
-        <ListItem>{t("tutorials.select gateway client")}</ListItem>
-      </List>
-      <Typography variant="body2">
-      {t("tutorials.select gateway client info")}
-      </Typography>
-      <Box
-        component="img"
-        src="images/SelectGatewayClient.png"
-        alt="Selecting gateway client"
-        sx={{ width: "60%" }}
-      />
-      <List>
-        <ListItem>{t("tutorials.compose message")}</ListItem>
-      </List>
-      <Typography variant="body2">
-      {t("tutorials.compose message info")}
-      </Typography>
-      <Alert severity="info" sx={{my: 2}}>
-      {t("tutorials.alert")}
-      </Alert>
-      <Box
-        component="img"
-        src="images/ComposeMessage.png"
-        alt="Composing a message"
-        sx={{ width: "60%" }}
-      />
+    <Box height="100vh">
+      <Grid container px={6}>
+        <Grid item md={10}>
+          <Box
+            component="img"
+            src={logo}
+            alt="Relaysms logo"
+            sx={{ width: "25%", mt: 3 }}
+          />
+        </Grid>
+        <Grid item md={2}>
+          <LanguageList />
+        </Grid>
+      </Grid>
+      <Grid
+        container
+        my="auto"
+        mt={10}
+        justifyContent="center"
+        alignItems="center"
+        px={6}
+      >
+        <Grid item md={6} my="auto" justifyContent="space-between">
+          <Typography variant="h5" sx={{ fontWeight: 600, mt: 15 }}>
+            {t("tutorial.header")}
+          </Typography>
+
+          <Typography variant="body1" sx={{ mt: 7, fontSize: 18 }}>
+            {t("tutorial.sub text")}
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            sx={{
+              mt: 15,
+              borderRadius: 10,
+              fontSize: 17,
+              px: 10,
+              textTransform: "none",
+              bgcolor: "background.more",
+              color: "background.other",
+              "&:hover": {
+                bgcolor: "background.other",
+                color: "background.more",
+              },
+            }}
+            onClick={handleContinue}
+          >
+            {t("tutorial.continue")}
+          </Button>
+        </Grid>
+        <Grid item md={6} my="auto" justifyContent="space-between">
+          <Box
+            component="img"
+            src="images/relayics.svg"
+            alt="Relaysms logo"
+            sx={{ width: "80%" }}
+          />
+        </Grid>
+      </Grid>
     </Box>
   );
 }

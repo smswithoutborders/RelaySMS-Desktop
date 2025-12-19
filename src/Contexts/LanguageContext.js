@@ -6,6 +6,9 @@ import frTranslation from "../locales/fr/translation.json";
 import faTranslation from "../locales/fa/translation.json";
 import esTranslation from "../locales/es/translation.json";
 import trTranslation from "../locales/tr/translation.json";
+import arTranslation from "../locales/ar/translation.json";
+import swTranslation from "../locales/sw/translation.json";
+import deTranslation from "../locales/de/translation.json";
 import { SettingsController } from "../controllers";
 
 const settingsController = new SettingsController();
@@ -17,13 +20,17 @@ const resources = {
   fa: { translation: faTranslation },
   es: { translation: esTranslation },
   tr: { translation: trTranslation },
+  ar: { translation: arTranslation },
+  sw: { translation: swTranslation },
+  de: { translation: deTranslation },
 };
 
-const languages = ["en", "fr", "fa", "es", "tr"];
+const languages = ["en", "fr", "fa", "es", "tr", "ar", "sw", "de"];
 
 const setDirection = (language) => {
-  const direction = language === "fa" ? "rtl" : "ltr";
+  const direction = ["fa", "ar"].includes(language) ? "rtl" : "ltr";
   document.documentElement.setAttribute("dir", direction);
+  document.documentElement.setAttribute("lang", language);
 };
 
 const LanguageContext = createContext();

@@ -13,16 +13,61 @@ const logger = require("../Logger");
 const { registerIpcHandlers } = require("../main/ipcHandlers");
 
 let mainWindow;
+const SCHEMES = ["apps", "relaysms"];
 
-if (process.defaultApp) {
-  if (process.argv.length >= 2) {
-    app.setAsDefaultProtocolClient("apps", process.execPath, [
-      path.resolve(process.argv[1]),
-    ]);
+const ALLOWED_DOMAINS = [
+  'oauth.afkanerd.com',
+  'relay.smswithoutborders.com',
+  'smswithoutborders.com',
+  'docs.smswithoutborders.com',
+  'blog.smswithoutborders.com',
+  'github.com',
+  'twitter.com',
+  'accounts.google.com',
+  'bsky.social',
+  'mastodon.social'
+];
+
+function isValidExternalUrl(urlString) {
+  try {
+    const url = new URL(urlString);
+    
+    if (!['https:', 'mailto:'].includes(url.protocol)) {
+      logger.warn(`Blocked external URL with invalid protocol: ${url.protocol}`);
+      return false;
+    }
+    
+    if (url.protocol === 'mailto:') {
+      return true;
+    }
+    
+    const hostname = url.hostname.toLowerCase();
+    const isAllowed = ALLOWED_DOMAINS.some(domain => 
+      hostname === domain || hostname.endsWith(`.${domain}`)
+    );
+    
+    if (!isAllowed) {
+      logger.warn(`Blocked external URL with non-whitelisted domain: ${hostname}`);
+    }
+    
+    return isAllowed;
+  } catch (error) {
+    logger.error(`Invalid URL format: ${urlString}`, error.message);
+    return false;
   }
-} else {
-  app.setAsDefaultProtocolClient("apps");
 }
+
+SCHEMES.forEach((scheme) => {
+  if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+      app.setAsDefaultProtocolClient(scheme, process.execPath, [
+        path.resolve(process.argv[1]),
+      ]);
+    }
+  } else {
+    app.setAsDefaultProtocolClient(scheme);
+  }
+});
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -34,7 +79,9 @@ if (!gotTheLock) {
       if (mainWindow.maximize()) mainWindow.restore();
       mainWindow.focus();
     }
-    const deepLinkUrl = commandLine.find((arg) => arg.startsWith("apps://"));
+    const deepLinkUrl = commandLine.find((arg) =>
+      SCHEMES.some((scheme) => arg.startsWith(`${scheme}://`))
+    );
     if (deepLinkUrl) {
       const parsed = url.parse(deepLinkUrl, true);
       if (parsed.query.code) {
@@ -48,6 +95,26 @@ if (!gotTheLock) {
   app.whenReady().then(() => {
     createWindow();
     mainWindow.maximize();
+
+    const deepLinkUrl = process.argv.find((arg) =>
+      SCHEMES.some((scheme) => arg.startsWith(`${scheme}://`))
+    );
+    if (deepLinkUrl) {
+      const parsed = url.parse(deepLinkUrl, true);
+      if (parsed.query.code) {
+        mainWindow.webContents.once("did-finish-load", () => {
+          mainWindow.webContents.send("authorization-code", parsed.query.code);
+        });
+      }
+    }
+  });
+
+  app.on("open-url", (event, url) => {
+    event.preventDefault();
+    const parsed = require("url").parse(url, true);
+    if (parsed.query.code && mainWindow) {
+      mainWindow.webContents.send("authorization-code", parsed.query.code);
+    }
   });
 }
 
@@ -77,15 +144,22 @@ async function createWindow() {
   registerIpcHandlers();
 
   ipcMain.handle("open-oauth-screen", async (event, { authorizationUrl }) => {
-    shell.openExternal(authorizationUrl);
+    if (isValidExternalUrl(authorizationUrl)) {
+      shell.openExternal(authorizationUrl);
+    } else {
+      logger.error(`Blocked attempt to open invalid OAuth URL: ${authorizationUrl}`);
+      throw new Error("Invalid or unauthorized URL");
+    }
   });
 
   ipcMain.on("open-external-link", (event, url) => {
-    if (url) {
+    if (url && isValidExternalUrl(url)) {
       shell.openExternal(url);
+    } else {
+      logger.error(`Blocked attempt to open invalid external link: ${url}`);
     }
   });
-  
+
   ipcMain.handle("check-internet", async () => {
     try {
       await axios.get("https://1.1.1.1", {
@@ -174,13 +248,19 @@ const template = [
       {
         label: "Documentation",
         click: async () => {
-          await shell.openExternal("https://docs.smswithoutborders.com/");
+          const url = "https://docs.smswithoutborders.com/";
+          if (isValidExternalUrl(url)) {
+            await shell.openExternal(url);
+          }
         },
       },
       {
         label: "Support",
         click: async () => {
-          await shell.openExternal("mailto://developers@smswithoutborders.com");
+          const url = "mailto://developers@smswithoutborders.com";
+          if (isValidExternalUrl(url)) {
+            await shell.openExternal(url);
+          }
         },
       },
       {
@@ -203,13 +283,52 @@ const template = [
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 
-const allowedNavigationDestinations = "https://oauth.afkanerd.com/";
+const ALLOWED_NAVIGATION_ORIGINS = [
+  'https://oauth.afkanerd.com',
+  'https://smswithoutborders.com',
+  'https://vault.smswithoutborders.com',
+  'https://vault.staging.smswithoutborders.com',
+  'https://publisher.smswithoutborders.com',
+  'https://publisher.staging.smswithoutborders.com'
+];
+
 app.on("web-contents-created", (event, contents) => {
   contents.on("will-navigate", (event, navigationUrl) => {
-    const parsedUrl = new URL(navigationUrl);
+    try {
+      const parsedUrl = new URL(navigationUrl);
+      
+      const isAllowed = ALLOWED_NAVIGATION_ORIGINS.some(origin => 
+        parsedUrl.origin === origin || 
+        parsedUrl.origin.startsWith(origin)
+      );
 
-    if (!allowedNavigationDestinations.includes(parsedUrl.origin)) {
+      if (!isAllowed) {
+        logger.warn(`Blocked navigation to unauthorized URL: ${navigationUrl}`);
+        event.preventDefault();
+      }
+    } catch (error) {
+      logger.error(`Invalid navigation URL: ${navigationUrl}`, error.message);
       event.preventDefault();
     }
+  });
+
+  contents.setWindowOpenHandler(({ url }) => {
+    try {
+      const parsedUrl = new URL(url);
+      const isAllowed = ALLOWED_NAVIGATION_ORIGINS.some(origin => 
+        parsedUrl.origin === origin || 
+        parsedUrl.origin.startsWith(origin)
+      );
+
+      if (isAllowed) {
+        shell.openExternal(url);
+      } else {
+        logger.warn(`Blocked window open to unauthorized URL: ${url}`);
+      }
+    } catch (error) {
+      logger.error(`Invalid window open URL: ${url}`, error.message);
+    }
+    
+    return { action: 'deny' };
   });
 });
