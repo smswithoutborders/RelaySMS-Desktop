@@ -20,12 +20,11 @@ export const fetchPlatforms = async ({ name, shortcode } = {}) => {
     const updatedPlatforms = filteredPlatforms.map((platform) => ({
       ...platform,
       name: capitalizeFirstLetter(platform.name),
-      avatar: `./platforms_resources/icons/${platform.name}.png`,
+      avatar: `./platforms_resources/icons/${platform.name}.svg`,
     }));
 
     return updatedPlatforms;
   } catch (error) {
-    console.error("Error loading platforms.json:", error);
     throw error;
   }
 };
@@ -38,6 +37,7 @@ const generateKeyPair = async () => {
 export const createEntity = async ({
   country_code,
   phone_number,
+  email_address,
   password,
   ownership_proof_response,
 }) => {
@@ -49,6 +49,7 @@ export const createEntity = async ({
   const request = {
     country_code,
     phone_number,
+    email_address,
     password,
     client_publish_pub_key: clientPublishKeypair.publicKey,
     client_device_id_pub_key: clientDeviceIDKeypair.publicKey,
@@ -77,6 +78,7 @@ export const createEntity = async ({
         }),
         userController.setData("longLivedToken", response.long_lived_token),
         userController.setData("phoneNumber", phone_number),
+        userController.setData("emailAddress", email_address),
         settingsController.deleteData("preferences.otp.nextAttemptTimestamp"),
         settingsController.deleteData("preferences.otp.phoneNumber")
       );
@@ -99,13 +101,14 @@ export const createEntity = async ({
     const extractedError =
       extractRpcErrorMessage(error.message) ||
       "Oops, something went wrong. Please try again later.";
-    console.error(extractedError);
+
     return { err: extractedError, res: null };
   }
 };
 
 export const authenticateEntity = async ({
   phone_number,
+  email_address,
   password,
   ownership_proof_response,
 }) => {
@@ -116,6 +119,7 @@ export const authenticateEntity = async ({
 
   const request = {
     phone_number,
+    email_address,
     password,
     client_publish_pub_key: clientPublishKeypair.publicKey,
     client_device_id_pub_key: clientDeviceIDKeypair.publicKey,
@@ -166,13 +170,14 @@ export const authenticateEntity = async ({
     const extractedError =
       extractRpcErrorMessage(error.message) ||
       "Oops, something went wrong. Please try again later.";
-    console.error(extractedError);
+
     return { err: extractedError, res: null };
   }
 };
 
 export const resetPassword = async ({
   phone_number,
+  email_address,
   new_password,
   ownership_proof_response,
 }) => {
@@ -183,6 +188,7 @@ export const resetPassword = async ({
 
   const request = {
     phone_number,
+    email_address,
     new_password,
     client_publish_pub_key: clientPublishKeypair.publicKey,
     client_device_id_pub_key: clientDeviceIDKeypair.publicKey,
@@ -232,7 +238,7 @@ export const resetPassword = async ({
     const extractedError =
       extractRpcErrorMessage(error.message) ||
       "Oops, something went wrong. Please try again later.";
-    console.error(extractedError);
+
     return { err: extractedError, res: null };
   }
 };
@@ -353,13 +359,27 @@ export const createTransmissionPayload = async ({
 export const addOAuth2Token = async ({ platform }) => {
   const userController = new UserController();
 
-  const redirectUrl = `https://oauth.afkanerd.com/platforms/${platform.toLowerCase()}/protocols/oauth2/redirect_codes/`;
+  const redirectUrlMap = {
+    bluesky: `https://oauth.afkanerd.com/android/`,
+    mastodon: `https://oauth.afkanerd.com/android/`,
+    default: `https://oauth.afkanerd.com/platforms/${platform.toLowerCase()}/protocols/oauth2/redirect_codes/`,
+  };
+
+  const redirectUrl =
+    redirectUrlMap[platform.toLowerCase()] || redirectUrlMap.default;
+
+  const [deviceIDKeypairs, longLivedTokenCipher] = await Promise.all([
+    userController.getData("keypairs.deviceID"),
+    userController.getData("longLivedToken"),
+  ]);
+  const request_identifier = deviceIDKeypairs.client.publicKey;
 
   try {
     const { authorization_url, code_verifier } = await window.api.invoke(
       "GetOAuth2AuthorizationUrl",
       {
         platform,
+        request_identifier,
         state: "",
         code_verifier: "",
         autogenerate_code_verifier: true,
@@ -373,11 +393,6 @@ export const addOAuth2Token = async ({ platform }) => {
 
     const authorizationCode = await window.api.once("authorization-code");
 
-    const [deviceIDKeypairs, longLivedTokenCipher] = await Promise.all([
-      userController.getData("keypairs.deviceID"),
-      userController.getData("longLivedToken"),
-    ]);
-
     const longLivedToken = await window.api.invoke("decrypt-long-lived-token", {
       client_device_id_private_key: deviceIDKeypairs.client.privateKey,
       server_device_id_public_key: deviceIDKeypairs.server.publicKey,
@@ -387,6 +402,7 @@ export const addOAuth2Token = async ({ platform }) => {
     const response = await window.api.invoke("ExchangeOAuth2CodeAndStore", {
       long_lived_token: longLivedToken,
       platform,
+      request_identifier,
       authorization_code: authorizationCode,
       code_verifier,
       redirect_url: redirectUrl,
@@ -549,7 +565,7 @@ export const updateEntityPassword = async ({
     const extractedError =
       extractRpcErrorMessage(error.message) ||
       "Oops, something went wrong. Please try again later.";
-    console.error(extractedError);
+
     return { err: extractedError, res: null };
   }
 };
@@ -580,7 +596,7 @@ export const deleteEntity = async () => {
     const extractedError =
       extractRpcErrorMessage(error.message) ||
       "Oops, something went wrong. Please try again later.";
-    console.error(extractedError);
+
     return { err: extractedError, res: null };
   }
 };

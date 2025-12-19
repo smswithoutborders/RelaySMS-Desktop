@@ -27,9 +27,6 @@
     "crypto": "^1.0.1",
     "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.2.0",
-    "date-fns": "^4.1.0",
-    "dotenv": "^16.4.5",
-    "electron-icon-builder": "^2.0.1",
     "fernet": "^0.3.2",
     "i18next": "^23.11.4",
     "mui-tel-input": "^5.1.2",
@@ -40,7 +37,6 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^14.1.1",
-    "react-icons": "^5.2.1",
     "react-joyride": "^2.8.2",
     "react-phone-number-input": "^3.4.1",
     "react-router-dom": "^6.23.0",
@@ -91,12 +87,15 @@
     "@testing-library/dom": "^10.1.0",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
     "electron": "^34.0.0",
     "electron-builder": "^24.13.3",
+    "electron-rebuild": "^3.2.9",
     "electronmon": "^2.0.3",
     "file-loader": "^6.2.0",
     "https-browserify": "^1.0.0",
     "node-libs-browser": "^2.2.1",
+    "sharp": "^0.34.5",
     "stream-http": "^3.2.0",
     "terser-webpack-plugin": "^5.3.10",
     "url": "^0.11.3",
@@ -109,17 +108,27 @@
   "build": {
     "appId": "com.smswithoutborders.relay",
     "productName": "RelaySMS",
-    "compression": "store",
+    "compression": "normal",
     "protocols": [
       {
         "name": "RelaySMS",
         "schemes": [
-          "apps"
+          "apps",
+          "relaysms"
         ]
       }
     ],
     "files": [
-      "**/*",
+      "build/**/*",
+      "main/**/*",
+      "public/electron.js",
+      "Logger.js",
+      "protos/**/*",
+      "package.json",
+      "!build/**/*.map",
+      "!src",
+      "!scripts",
+      "!**/*.md",
       "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
       "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
       "!**/node_modules/*.d.ts",
@@ -150,5 +159,6 @@
       "icon": "public/images",
       "category": "Communication"
     }
-  }
+  },
+  "packageManager": "yarn@4.9.4+sha512.7b1cb0b62abba6a537b3a2ce00811a843bea02bcf53138581a6ae5b1bf563f734872bd47de49ce32a9ca9dcaff995aa789577ffb16811da7c603dcf69e73750b"
 }

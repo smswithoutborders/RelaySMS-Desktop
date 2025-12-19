@@ -10,10 +10,9 @@ import {
   Box,
   Divider,
   Button,
-  // Paper,
   IconButton,
 } from "@mui/material";
-import { Add, Delete, Search } from "@mui/icons-material";
+import { Add, Delete } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import Grid from "@mui/material/Grid2";
 
@@ -39,9 +38,9 @@ function ServiceList({
         justifyContent="space-between"
         sx={{ mb: 2 }}
       >
-        <Typography className="header" variant="h5">
+        {/* <Typography className="header" variant="h5">
           {t("common.accounts management")}
-        </Typography>
+        </Typography> */}
         {/* <Paper
           component="form"
           sx={{
@@ -70,13 +69,13 @@ function ServiceList({
       <Box
         sx={{
           bgcolor: "background.side",
-          borderRadius: 3,
+          borderRadius: 2,
           opacity: 2,
           p: 3,
-          mt: 3,
+          mt: 1.5,
         }}
       >
-        <Grid container sx={{ height: "85vh" }}>
+        <Grid container sx={{ height: "90vh" }}>
           <Grid size={2.8}>
             <Typography
               variant="h6"
@@ -106,31 +105,64 @@ function ServiceList({
                         sx={{
                           bgcolor:
                             activeService === service.name
-                              ? "background.side"
+                              ? "action.selected"
                               : "inherit",
+                          borderLeftColor: "background.more",
                           py: 2,
+                          "&:hover": {
+                            bgcolor: "action.hover",
+                          },
                         }}
                       >
                         <ListItemAvatar>
-                          <Avatar src={service.avatar}>{service.icon}</Avatar>
+                          <Avatar
+                            src={service.avatar}
+                            sx={{
+                              borderRadius: 0,
+                              width: 35,
+                              height: 35,
+                              "& img": {
+                                objectFit: "contain",
+                                ...(service.name.toLowerCase() === "twitter" && {
+                                  filter: (theme) =>
+                                    theme.palette.mode === "dark"
+                                      ? "brightness(0) invert(1)"
+                                      : "none",
+                                }),
+                              },
+                            }}
+                          >
+                            {service.icon}
+                          </Avatar>
                         </ListItemAvatar>
                         <ListItemText
                           primary={t(`ui.${service.name.toLowerCase()}`)}
+                          primaryTypographyProps={{
+                            fontWeight:
+                              activeService === service.name ? 600 : 400,
+                          }}
                         />
                       </ListItem>
-                      <Divider />
+                      <Divider sx={{ opacity: 0.5 }} />
                     </>
                   ))}
             </List>
           </Grid>
-          <Divider orientation="vertical" />
+          <Divider orientation="vertical" sx={{ opacity: 0.5 }} />
           <Grid size={9} sx={{ borderRadius: 3 }}>
             {activeService ? (
               <Box sx={{ px: 2 }}>
-                <Grid container justifyContent="space-between" sx={{mb: 4}}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 700, mb: 3 }}
+                  gutterBottom
+                >
+                  {t(`ui.${activeService.toLowerCase()}`)}
+                </Typography>
+                <Grid container justifyContent="space-between" sx={{ mb: 4 }}>
                   <Grid size={10}>
                     <Typography
-                      variant="h6"
+                      variant="body1"
                       sx={{ fontWeight: 600 }}
                       gutterBottom
                     >
@@ -150,7 +182,7 @@ function ServiceList({
                         },
                         borderRadius: 10,
                         width: "100%",
-                        mb: 1
+                        mb: 1,
                       }}
                       startIcon={<Add />}
                       onClick={(e) => {
@@ -173,29 +205,28 @@ function ServiceList({
                     .find((list) => list.name === activeService)
                     .identifiers.map((identifier, idx) => (
                       <>
-                      <ListItem
-                      sx={{py: 2}}
-                        key={idx}
-                        secondaryAction={
-                          <IconButton
-                            color="error"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const service = services.find(
-                                (s) => s.name === activeService
-                              );
-                              onClick && onClick(service, "delete", identifier);
-                            }}
-                          >
-                            <Delete />
-                          </IconButton>
-                        }
-                      >
-                        <ListItemText primary={identifier} />
-                       
-                      </ListItem>
-                       <Divider />
-                       </>
+                        <ListItem
+                          sx={{ py: 2 }}
+                          key={idx}
+                          secondaryAction={
+                            <IconButton
+                              color="error"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const service = services.find(
+                                  (s) => s.name === activeService
+                                );
+                                onClick && onClick(service, identifier);
+                              }}
+                            >
+                              <Delete />
+                            </IconButton>
+                          }
+                        >
+                          <ListItemText primary={identifier} />
+                        </ListItem>
+                        <Divider sx={{ opacity: 0.5 }} />
+                      </>
                     ))
                 ) : (
                   <Typography variant="body1" color="text.secondary">

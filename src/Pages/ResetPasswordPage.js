@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box,
   Button,
   Grid2 as Grid,
   TextField,
@@ -13,7 +12,7 @@ import {
 } from "@mui/material";
 import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
 import { Link as RouterLink } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "../lib/timeUtils";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { OTPDialog } from "../Components";
@@ -64,6 +63,7 @@ function ResetPasswordPage() {
 
   useEffect(() => {
     fetchOtpSettings();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePhoneChange = (value, info) => {
@@ -200,7 +200,9 @@ function ResetPasswordPage() {
       setAlert({
         open: true,
         type: "error",
-        message: `${t("an unexpected error occurred. please try again later.")}`,
+        message: `${t(
+          "an unexpected error occurred. please try again later."
+        )}`,
       });
     } finally {
       setLoading(false);
@@ -242,7 +244,9 @@ function ResetPasswordPage() {
     } catch (error) {
       setOtpAlert({
         severity: "error",
-        message: `${t("an unexpected error occurred. please try again later.")}`,
+        message: `${t(
+          "an unexpected error occurred. please try again later."
+        )}`,
       });
     }
   };
@@ -281,7 +285,7 @@ function ResetPasswordPage() {
               "&:hover": { textDecoration: "underline" },
             }}
           >
-           {t("ui.login")}
+            {t("ui.login")}
           </Link>
         </Typography>
 
@@ -331,7 +335,9 @@ function ResetPasswordPage() {
           type={showPassword.password ? "text" : "password"}
           required
           error={passwordData.passwordError}
-          helperText={passwordData.passwordError ? `${t("ui.password is required")}` : ""}
+          helperText={
+            passwordData.passwordError ? `${t("ui.password is required")}` : ""
+          }
           sx={{ mt: 8 }}
           disabled={loading}
           slotProps={{
@@ -359,7 +365,9 @@ function ResetPasswordPage() {
           required
           error={passwordData.confirmPasswordError}
           helperText={
-            passwordData.confirmPasswordError ? `${t("ui.passwords must match.")}` : ""
+            passwordData.confirmPasswordError
+              ? `${t("ui.passwords must match.")}`
+              : ""
           }
           sx={{ mt: 8 }}
           disabled={loading}
